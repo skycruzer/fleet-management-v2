@@ -1,18 +1,21 @@
 import { redirect } from 'next/navigation'
+import { Plus } from 'lucide-react'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatters, getMatterStats } from '@/lib/services/disciplinary-service'
 import { formatDate } from '@/lib/utils/date-utils'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { SeverityBadge, StatusBadge } from '@/components/disciplinary/badges'
 import { DisciplinaryFilters } from './components/disciplinary-filters'
-// Force dynamic rendering to prevent static generation at build time
-/**
- * Disciplinary Matters Dashboard (Admin)
- *
- * Main disciplinary matters page with statistics and table view.
- * Displays matter statistics and allows filtering by status/severity.
- *
- * @spec 001-missing-core-features (US6, T096)
- */
 
 interface DisciplinaryPageProps {
   searchParams: Promise<{
@@ -24,7 +27,6 @@ interface DisciplinaryPageProps {
 }
 
 export default async function DisciplinaryPage({ searchParams }: DisciplinaryPageProps) {
-  // Check authentication (supports both Supabase Auth and admin-session cookie)
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
     redirect('/auth/login')
@@ -37,7 +39,6 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   const page = params.page ? parseInt(params.page, 10) : 1
   const pageSize = 20
 
-  // Fetch matters and stats
   const [mattersResult, statsResult] = await Promise.all([
     getMatters({
       status,
@@ -79,40 +80,16 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   const stats = statsResult.data!
   const totalPages = Math.ceil(totalCount / pageSize)
 
-  const getSeverityBadgeColor = (severity: string) => {
-    switch (severity) {
-      case 'CRITICAL':
-        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
-      case 'SERIOUS':
-        return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
-      case 'MODERATE':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'MINOR':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      default:
-        return 'bg-muted/30 text-foreground'
-    }
-  }
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'RESOLVED':
-      case 'CLOSED':
-        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
-      case 'UNDER_INVESTIGATION':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'ACTION_TAKEN':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      case 'APPEALED':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
-      default:
-        return 'bg-muted/30 text-foreground'
-    }
+  const buildPageHref = (pageNum: number) => {
+    const qs = new URLSearchParams()
+    qs.set('page', String(pageNum))
+    if (status) qs.set('status', status)
+    if (severity) qs.set('severity', severity)
+    return `?${qs.toString()}`
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-foreground text-xl font-semibold">Disciplinary Matters</h1>
@@ -120,215 +97,151 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
             Track and manage disciplinary matters and actions
           </p>
         </div>
-        <Link
-          href="/dashboard/disciplinary/new"
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
-        >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Matter
-        </Link>
+        <Button asChild>
+          <Link href="/dashboard/disciplinary/new">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New Matter
+          </Link>
+        </Button>
       </div>
 
-      {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        <Card className="p-6">
           <p className="text-muted-foreground text-sm font-medium">Total Matters</p>
           <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalMatters}</p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        </Card>
+        <Card className="p-6">
           <p className="text-muted-foreground text-sm font-medium">Open Cases</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-warning-600)]">
             {stats.openMatters}
           </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
-          <p className="text-muted-foreground text-sm font-medium">Under Investigation</p>
+        </Card>
+        <Card className="p-6">
+          <p className="text-muted-foreground text-sm font-medium">Under Review</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-primary-600)]">
             {stats.underInvestigation}
           </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        </Card>
+        <Card className="p-6">
           <p className="text-muted-foreground text-sm font-medium">Overdue</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-danger-600)]">
             {stats.overdueMatters}
           </p>
-        </div>
+        </Card>
       </div>
 
-      {/* Secondary Stats */}
-      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
-        <h2 className="text-foreground mb-4 text-lg font-semibold">Matter Breakdown</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* By Severity */}
-          <div>
-            <h3 className="text-foreground/80 mb-3 text-sm font-medium">By Severity</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Critical</span>
-                <span className="font-semibold text-[var(--color-danger-600)]">
-                  {stats.bySeverity.critical}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Serious</span>
-                <span className="font-semibold text-[var(--color-badge-orange)]">
-                  {stats.bySeverity.serious}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Moderate</span>
-                <span className="font-semibold text-[var(--color-warning-600)]">
-                  {stats.bySeverity.moderate}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Minor</span>
-                <span className="font-semibold text-[var(--color-primary-600)]">
-                  {stats.bySeverity.minor}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* By Status */}
-          <div>
-            <h3 className="text-foreground/80 mb-3 text-sm font-medium">By Status</h3>
-            <div className="space-y-2">
-              {Object.entries(stats.byStatus).map(([status, count]) => (
-                <div key={status} className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">{status.replace(/_/g, ' ')}</span>
-                  <span className="text-foreground font-semibold">{count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
       <DisciplinaryFilters currentStatus={status} currentSeverity={severity} />
 
-      {/* Matters Table */}
-      <div className="bg-card border-border overflow-hidden rounded-lg border shadow-sm">
+      <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/30">
-              <tr>
-                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Title
-                </th>
-                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Pilot
-                </th>
-                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Severity
-                </th>
-                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Status
-                </th>
-                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Incident Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-card divide-border divide-y">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Pilot</TableHead>
+                <TableHead>Severity</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Incident Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {matters.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-muted-foreground px-6 py-8 text-center">
-                    No disciplinary matters found
-                  </td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={5} className="py-12 text-center">
+                    <p className="text-muted-foreground mb-4 text-sm">
+                      No disciplinary matters found
+                    </p>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/dashboard/disciplinary/new">
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        Create the first matter
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
               ) : (
                 matters.map((matter) => (
-                  <tr key={matter.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4">
+                  <TableRow key={matter.id}>
+                    <TableCell>
                       <Link
                         href={`/dashboard/disciplinary/${matter.id}`}
                         className="font-medium text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
                       >
                         {matter.title}
                       </Link>
-                    </td>
-                    <td className="text-foreground px-6 py-4 text-sm">
+                    </TableCell>
+                    <TableCell className="text-foreground text-sm">
                       {matter.pilot
                         ? `${matter.pilot.role} ${matter.pilot.first_name} ${matter.pilot.last_name}`
                         : 'Unknown'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getSeverityBadgeColor(matter.severity)}`}
-                      >
-                        {matter.severity}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(matter.status)}`}
-                      >
-                        {matter.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="text-muted-foreground px-6 py-4 text-sm">
+                    </TableCell>
+                    <TableCell>
+                      <SeverityBadge value={matter.severity} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge value={matter.status} />
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
                       {formatDate(matter.incident_date)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="bg-card border-border flex items-center justify-between border-t px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
-              <Link
-                href={`?page=${page - 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${page === 1 ? 'pointer-events-none opacity-50' : ''}`}
-              >
-                Previous
-              </Link>
-              <Link
-                href={`?page=${page + 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative ml-3 inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${page === totalPages ? 'pointer-events-none opacity-50' : ''}`}
-              >
-                Next
-              </Link>
+              <Button asChild variant="outline" size="sm" disabled={page === 1}>
+                <Link
+                  href={buildPageHref(page - 1)}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                >
+                  Previous
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" disabled={page === totalPages}>
+                <Link
+                  href={buildPageHref(page + 1)}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? 'pointer-events-none opacity-50' : ''}
+                >
+                  Next
+                </Link>
+              </Button>
             </div>
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-              <div>
-                <p className="text-foreground/80 text-sm">
-                  Showing <span className="font-medium">{(page - 1) * pageSize + 1}</span> to{' '}
-                  <span className="font-medium">{Math.min(page * pageSize, totalCount)}</span> of{' '}
-                  <span className="font-medium">{totalCount}</span> results
-                </p>
-              </div>
-              <div>
-                <nav
-                  className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                  aria-label="Pagination"
-                >
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <Link
-                      key={pageNum}
-                      href={`?page=${pageNum}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                        pageNum === page
-                          ? 'z-10 bg-[var(--color-primary-600)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]'
-                          : 'text-foreground ring-border hover:bg-muted/30 ring-1 ring-inset focus:outline-offset-0'
-                      }`}
-                    >
-                      {pageNum}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
+              <p className="text-foreground/80 text-sm">
+                Showing <span className="font-medium">{(page - 1) * pageSize + 1}</span> to{' '}
+                <span className="font-medium">{Math.min(page * pageSize, totalCount)}</span> of{' '}
+                <span className="font-medium">{totalCount}</span> results
+              </p>
+              <nav
+                className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination"
+              >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <Link
+                    key={pageNum}
+                    href={buildPageHref(pageNum)}
+                    aria-current={pageNum === page ? 'page' : undefined}
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                      pageNum === page
+                        ? 'z-10 bg-[var(--color-primary-600)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]'
+                        : 'text-foreground ring-border hover:bg-muted/30 ring-1 ring-inset focus:outline-offset-0'
+                    }`}
+                  >
+                    {pageNum}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

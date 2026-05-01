@@ -1,16 +1,16 @@
 'use client'
 
-/**
- * Disciplinary Matter Form Component
- *
- * Form for creating and editing disciplinary matters with validation.
- *
- * @spec 001-missing-core-features (US6, T099)
- */
-
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { Form } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import { FormFieldWrapper } from '@/components/forms/form-field-wrapper'
+import { FormSelectWrapper, type SelectOption } from '@/components/forms/form-select-wrapper'
+import { FormTextareaWrapper } from '@/components/forms/form-textarea-wrapper'
+import { FormCheckboxWrapper } from '@/components/forms/form-checkbox-wrapper'
+import { FormDatePickerWrapper } from '@/components/forms/form-date-picker-wrapper'
+import { SEVERITY_VALUES, STATUS_VALUES } from '@/lib/validations/disciplinary-schema'
 import type { DisciplinaryMatterWithRelations } from '@/lib/services/disciplinary-service'
 
 type Pilot = {
@@ -53,6 +53,25 @@ interface FormData {
   resolution_notes?: string
 }
 
+const SEVERITY_OPTIONS: SelectOption[] = SEVERITY_VALUES.map((value) => ({
+  value,
+  label: value.replace(/^./, (c) => c.toUpperCase()),
+}))
+
+const STATUS_OPTIONS: SelectOption[] = STATUS_VALUES.map((value) => ({
+  value,
+  label: value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+}))
+
+// Radix Select forbids empty string SelectItem values, so we use a sentinel for "no choice"
+// and translate it back to '' at submit time.
+const UNASSIGNED = '__unassigned__'
+
+function toDateString(value: string | null | undefined): string {
+  if (!value) return ''
+  return value.includes('T') ? value.split('T')[0] : value
+}
+
 export default function DisciplinaryMatterForm({
   matter,
   pilots = [],
@@ -67,26 +86,48 @@ export default function DisciplinaryMatterForm({
 
   const isEdit = !!matter
 
+  const pilotOptions = useMemo<SelectOption[]>(
+    () =>
+      pilots.map((p) => ({
+        value: p.id,
+        label: `${p.role} ${p.first_name} ${p.last_name} (${p.employee_id})`,
+      })),
+    [pilots]
+  )
+
+  const userOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: UNASSIGNED, label: 'Unassigned' },
+      ...users.map((u) => ({ value: u.id, label: u.name || u.email })),
+    ],
+    [users]
+  )
+
+  const incidentTypeOptions = useMemo<SelectOption[]>(
+    () => incidentTypes.map((t) => ({ value: t.id, label: t.name })),
+    [incidentTypes]
+  )
+
   const form = useForm<FormData>({
     defaultValues: isEdit
       ? {
           title: matter.title,
           description: matter.description || '',
           pilot_id: matter.pilot_id,
-          incident_date: matter.incident_date ? matter.incident_date.split('T')[0] : '',
+          incident_date: toDateString(matter.incident_date),
           incident_type_id: matter.incident_type_id,
           severity: matter.severity,
           status: matter.status,
-          assigned_to: matter.assigned_to || undefined,
+          assigned_to: matter.assigned_to || UNASSIGNED,
           aircraft_registration: matter.aircraft_registration || '',
           flight_number: matter.flight_number || '',
           location: matter.location || '',
           corrective_actions: matter.corrective_actions || '',
           impact_on_operations: matter.impact_on_operations || '',
-          regulatory_notification_required: matter.regulatory_notification_required || false,
+          regulatory_notification_required: matter.regulatory_notification_required ?? false,
           regulatory_body: matter.regulatory_body || '',
-          notification_date: matter.notification_date ? matter.notification_date.split('T')[0] : '',
-          due_date: matter.due_date ? matter.due_date.split('T')[0] : '',
+          notification_date: toDateString(matter.notification_date),
+          due_date: toDateString(matter.due_date),
           resolution_notes: matter.resolution_notes || '',
         }
       : {
@@ -97,7 +138,7 @@ export default function DisciplinaryMatterForm({
           incident_type_id: '',
           severity: 'medium',
           status: 'open',
-          assigned_to: undefined,
+          assigned_to: UNASSIGNED,
           aircraft_registration: '',
           flight_number: '',
           location: '',
@@ -111,6 +152,8 @@ export default function DisciplinaryMatterForm({
         },
   })
 
+  const regulatoryRequired = form.watch('regulatory_notification_required')
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     setError(null)
@@ -119,22 +162,21 @@ export default function DisciplinaryMatterForm({
       const url = isEdit ? `/api/disciplinary/${matter.id}` : '/api/disciplinary'
       const method = isEdit ? 'PATCH' : 'POST'
 
-      // Convert empty strings to null for UUID fields
+      // Convert empty strings + sentinels to null for nullable fields
       const sanitizedData = {
         ...data,
-        assigned_to: data.assigned_to === '' ? null : data.assigned_to,
-        incident_type_id: data.incident_type_id === '' ? null : data.incident_type_id,
-        pilot_id: data.pilot_id === '' ? null : data.pilot_id,
-        aircraft_registration:
-          data.aircraft_registration === '' ? null : data.aircraft_registration,
-        flight_number: data.flight_number === '' ? null : data.flight_number,
-        location: data.location === '' ? null : data.location,
-        corrective_actions: data.corrective_actions === '' ? null : data.corrective_actions,
-        impact_on_operations: data.impact_on_operations === '' ? null : data.impact_on_operations,
-        regulatory_body: data.regulatory_body === '' ? null : data.regulatory_body,
-        notification_date: data.notification_date === '' ? null : data.notification_date,
-        due_date: data.due_date === '' ? null : data.due_date,
-        resolution_notes: data.resolution_notes === '' ? null : data.resolution_notes,
+        assigned_to: !data.assigned_to || data.assigned_to === UNASSIGNED ? null : data.assigned_to,
+        incident_type_id: data.incident_type_id || null,
+        pilot_id: data.pilot_id || null,
+        aircraft_registration: data.aircraft_registration || null,
+        flight_number: data.flight_number || null,
+        location: data.location || null,
+        corrective_actions: data.corrective_actions || null,
+        impact_on_operations: data.impact_on_operations || null,
+        regulatory_body: data.regulatory_body || null,
+        notification_date: data.notification_date || null,
+        due_date: data.due_date || null,
+        resolution_notes: data.resolution_notes || null,
       }
 
       const response = await fetch(url, {
@@ -150,7 +192,6 @@ export default function DisciplinaryMatterForm({
         return
       }
 
-      // Success
       if (onSuccess) {
         onSuccess()
       } else {
@@ -165,358 +206,140 @@ export default function DisciplinaryMatterForm({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      {/* Title */}
-      <div>
-        <label htmlFor="title" className="text-foreground block text-sm font-medium">
-          Title <span className="text-[var(--color-status-high)]">*</span>
-        </label>
-        <input
-          type="text"
-          id="title"
-          {...form.register('title', { required: true })}
-          className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          placeholder="Brief title of the matter"
-        />
-        {form.formState.errors.title && (
-          <p className="mt-1 text-sm text-[var(--color-status-high)]">Title is required</p>
-        )}
-      </div>
-
-      {/* Description */}
-      <div>
-        <label htmlFor="description" className="text-foreground block text-sm font-medium">
-          Description <span className="text-[var(--color-status-high)]">*</span>
-        </label>
-        <textarea
-          id="description"
-          {...form.register('description', { required: true })}
-          rows={4}
-          className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          placeholder="Detailed description of the incident..."
-        />
-        {form.formState.errors.description && (
-          <p className="mt-1 text-sm text-[var(--color-status-high)]">Description is required</p>
-        )}
-      </div>
-
-      {/* Pilot and Incident Date (Grid) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Pilot */}
-        <div>
-          <label htmlFor="pilot_id" className="text-foreground block text-sm font-medium">
-            Pilot <span className="text-[var(--color-status-high)]">*</span>
-          </label>
-          <select
-            id="pilot_id"
-            {...form.register('pilot_id', { required: true })}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          >
-            <option value="">Select pilot</option>
-            {pilots.map((pilot) => (
-              <option key={pilot.id} value={pilot.id}>
-                {pilot.role} {pilot.first_name} {pilot.last_name} ({pilot.employee_id})
-              </option>
-            ))}
-          </select>
-          {form.formState.errors.pilot_id && (
-            <p className="mt-1 text-sm text-[var(--color-status-high)]">Pilot is required</p>
-          )}
-        </div>
-
-        {/* Incident Date */}
-        <div>
-          <label htmlFor="incident_date" className="text-foreground block text-sm font-medium">
-            Incident Date <span className="text-[var(--color-status-high)]">*</span>
-          </label>
-          <input
-            type="date"
-            id="incident_date"
-            {...form.register('incident_date', { required: true })}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <section className="space-y-4">
+          <h3 className="text-foreground text-base font-semibold">Incident</h3>
+          <FormFieldWrapper
+            name="title"
+            label="Title"
+            placeholder="Brief title of the matter"
+            required
           />
-          {form.formState.errors.incident_date && (
-            <p className="mt-1 text-sm text-[var(--color-status-high)]">
-              Incident date is required
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Incident Type and Severity (Grid) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Incident Type */}
-        <div>
-          <label htmlFor="incident_type_id" className="text-foreground block text-sm font-medium">
-            Incident Type <span className="text-[var(--color-status-high)]">*</span>
-          </label>
-          <select
-            id="incident_type_id"
-            {...form.register('incident_type_id', { required: true })}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          >
-            <option value="">Select incident type</option>
-            {incidentTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-          {form.formState.errors.incident_type_id && (
-            <p className="mt-1 text-sm text-[var(--color-status-high)]">
-              Incident type is required
-            </p>
-          )}
-        </div>
-
-        {/* Severity */}
-        <div>
-          <label htmlFor="severity" className="text-foreground block text-sm font-medium">
-            Severity <span className="text-[var(--color-status-high)]">*</span>
-          </label>
-          <select
-            id="severity"
-            {...form.register('severity', { required: true })}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-          {form.formState.errors.severity && (
-            <p className="mt-1 text-sm text-[var(--color-status-high)]">Severity is required</p>
-          )}
-        </div>
-      </div>
-
-      {/* Status and Assigned To (Grid) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Status */}
-        <div>
-          <label htmlFor="status" className="text-foreground block text-sm font-medium">
-            Status <span className="text-[var(--color-status-high)]">*</span>
-          </label>
-          <select
-            id="status"
-            {...form.register('status', { required: true })}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          >
-            <option value="open">Open</option>
-            <option value="under_review">Under Review</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-          {form.formState.errors.status && (
-            <p className="mt-1 text-sm text-[var(--color-status-high)]">Status is required</p>
-          )}
-        </div>
-
-        {/* Assigned To */}
-        <div>
-          <label htmlFor="assigned_to" className="text-foreground block text-sm font-medium">
-            Assign To
-          </label>
-          <select
-            id="assigned_to"
-            {...form.register('assigned_to')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          >
-            <option value="">Unassigned</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name || user.email}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Flight Details (Grid) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Aircraft Registration */}
-        <div>
-          <label
-            htmlFor="aircraft_registration"
-            className="text-foreground block text-sm font-medium"
-          >
-            Aircraft Registration
-          </label>
-          <input
-            type="text"
-            id="aircraft_registration"
-            {...form.register('aircraft_registration')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="e.g., P2-PXA"
+          <FormTextareaWrapper
+            name="description"
+            label="Description"
+            placeholder="Detailed description of the incident…"
+            rows={4}
+            required
           />
-        </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormSelectWrapper
+              name="pilot_id"
+              label="Pilot"
+              options={pilotOptions}
+              placeholder="Select pilot"
+              required
+            />
+            <FormDatePickerWrapper name="incident_date" label="Incident Date" required />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <FormFieldWrapper
+              name="aircraft_registration"
+              label="Aircraft Registration"
+              placeholder="e.g., P2-PXA"
+            />
+            <FormFieldWrapper
+              name="flight_number"
+              label="Flight Number"
+              placeholder="e.g., PX101"
+            />
+            <FormFieldWrapper name="location" label="Location" placeholder="e.g., Port Moresby" />
+          </div>
+        </section>
 
-        {/* Flight Number */}
-        <div>
-          <label htmlFor="flight_number" className="text-foreground block text-sm font-medium">
-            Flight Number
-          </label>
-          <input
-            type="text"
-            id="flight_number"
-            {...form.register('flight_number')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="e.g., PX101"
-          />
-        </div>
-
-        {/* Location */}
-        <div>
-          <label htmlFor="location" className="text-foreground block text-sm font-medium">
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            {...form.register('location')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="e.g., Port Moresby"
-          />
-        </div>
-      </div>
-
-      {/* Dates (Grid) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Due Date */}
-        <div>
-          <label htmlFor="due_date" className="text-foreground block text-sm font-medium">
-            Due Date
-          </label>
-          <input
-            type="date"
-            id="due_date"
-            {...form.register('due_date')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          />
-        </div>
-
-        {/* Notification Date */}
-        <div>
-          <label htmlFor="notification_date" className="text-foreground block text-sm font-medium">
-            Notification Date
-          </label>
-          <input
-            type="date"
-            id="notification_date"
-            {...form.register('notification_date')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-          />
-        </div>
-      </div>
-
-      {/* Regulatory Information */}
-      <div>
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="regulatory_notification_required"
-            {...form.register('regulatory_notification_required')}
-            className="text-primary focus:ring-primary border-border bg-background h-4 w-4 rounded"
-          />
-          <label
-            htmlFor="regulatory_notification_required"
-            className="text-foreground ml-2 block text-sm"
-          >
-            Regulatory Notification Required
-          </label>
-        </div>
-      </div>
-
-      {/* Regulatory Body (if checkbox checked) */}
-      {form.watch('regulatory_notification_required') && (
-        <div>
-          <label htmlFor="regulatory_body" className="text-foreground block text-sm font-medium">
-            Regulatory Body
-          </label>
-          <input
-            type="text"
-            id="regulatory_body"
-            {...form.register('regulatory_body')}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="e.g., PNG CAA"
-          />
-        </div>
-      )}
-
-      {/* Additional Information (Textareas) */}
-      <div className="space-y-4">
-        {/* Corrective Actions */}
-        <div>
-          <label htmlFor="corrective_actions" className="text-foreground block text-sm font-medium">
-            Corrective Actions
-          </label>
-          <textarea
-            id="corrective_actions"
-            {...form.register('corrective_actions')}
-            rows={3}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="Describe corrective actions taken..."
-          />
-        </div>
-
-        {/* Impact on Operations */}
-        <div>
-          <label
-            htmlFor="impact_on_operations"
-            className="text-foreground block text-sm font-medium"
-          >
-            Impact on Operations
-          </label>
-          <textarea
-            id="impact_on_operations"
-            {...form.register('impact_on_operations')}
-            rows={3}
-            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-            placeholder="Describe impact on operations..."
-          />
-        </div>
-
-        {/* Resolution Notes (only for edit) */}
-        {isEdit && (
-          <div>
-            <label htmlFor="resolution_notes" className="text-foreground block text-sm font-medium">
-              Resolution Notes
-            </label>
-            <textarea
-              id="resolution_notes"
-              {...form.register('resolution_notes')}
-              rows={3}
-              className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
-              placeholder="Resolution notes..."
+        <section className="space-y-4">
+          <h3 className="text-foreground text-base font-semibold">Classification</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormSelectWrapper
+              name="incident_type_id"
+              label="Incident Type"
+              options={incidentTypeOptions}
+              placeholder="Select incident type"
+              required
+            />
+            <FormSelectWrapper
+              name="severity"
+              label="Severity"
+              options={SEVERITY_OPTIONS}
+              required
             />
           </div>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-foreground text-base font-semibold">Investigation</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormSelectWrapper name="status" label="Status" options={STATUS_OPTIONS} required />
+            <FormSelectWrapper
+              name="assigned_to"
+              label="Assigned To"
+              options={userOptions}
+              placeholder="Unassigned"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormDatePickerWrapper name="due_date" label="Due Date" />
+            <FormDatePickerWrapper name="notification_date" label="Notification Date" />
+          </div>
+          <FormCheckboxWrapper
+            name="regulatory_notification_required"
+            label="Regulatory Notification Required"
+          />
+          {regulatoryRequired && (
+            <FormFieldWrapper
+              name="regulatory_body"
+              label="Regulatory Body"
+              placeholder="e.g., PNG CASA"
+              description="Authority that must be notified about this matter."
+            />
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-foreground text-base font-semibold">Resolution</h3>
+          <FormTextareaWrapper
+            name="corrective_actions"
+            label="Corrective Actions"
+            placeholder="Describe corrective actions taken…"
+            rows={3}
+          />
+          <FormTextareaWrapper
+            name="impact_on_operations"
+            label="Impact on Operations"
+            placeholder="Describe impact on operations…"
+            rows={3}
+          />
+          {isEdit && (
+            <FormTextareaWrapper
+              name="resolution_notes"
+              label="Resolution Notes"
+              placeholder="Resolution notes…"
+              rows={3}
+            />
+          )}
+        </section>
+
+        {error && (
+          <div className="bg-destructive/10 border-destructive/20 rounded-md border p-3">
+            <p className="text-destructive text-sm">{error}</p>
+          </div>
         )}
-      </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-md bg-[var(--color-status-high-bg)] p-3">
-          <p className="text-sm text-[var(--color-status-high-foreground)]">{error}</p>
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel || (() => router.back())}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving…' : isEdit ? 'Update Matter' : 'Create Matter'}
+          </Button>
         </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel || (() => router.back())}
-          className="focus:ring-primary border-border text-muted-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-primary hover:bg-primary/90 focus:ring-primary rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isSubmitting ? 'Saving...' : isEdit ? 'Update Matter' : 'Create Matter'}
-        </button>
-      </div>
-    </form>
+      </form>
+    </Form>
   )
 }

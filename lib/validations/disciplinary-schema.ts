@@ -1,31 +1,25 @@
 import { z } from 'zod'
 
 /**
- * Disciplinary Action Validation Schemas
+ * Disciplinary matter validation schema.
  *
- * Developer: Maurice Rondeau
- * Validates disciplinary matter creation and action logging.
- *
- * @updated 2025-01-05 - Added CreateDisciplinarySchema for API validation
+ * Severity and status enums must match the DB CHECK constraints
+ * (chk_disciplinary_matters_severity_valid, chk_disciplinary_matters_status_valid).
  */
 
-// Date validation
 const dateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
 
-const optionalDateSchema = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
-  .optional()
-  .nullable()
+const optionalDateSchema = dateSchema.optional().nullable()
 
-/**
- * Schema for creating a disciplinary matter via POST /api/disciplinary
- * Matches the required fields from the API route
- */
+export const SEVERITY_VALUES = ['low', 'medium', 'high', 'critical'] as const
+export const STATUS_VALUES = ['open', 'under_review', 'resolved', 'closed'] as const
+
+export type DisciplinarySeverity = (typeof SEVERITY_VALUES)[number]
+export type DisciplinaryStatus = (typeof STATUS_VALUES)[number]
+
 export const CreateDisciplinarySchema = z.object({
-  // Required fields
   title: z.string().min(1, 'Title is required').max(200, 'Title must not exceed 200 characters'),
   description: z
     .string()
@@ -34,14 +28,13 @@ export const CreateDisciplinarySchema = z.object({
   pilot_id: z.string().uuid('Invalid pilot ID format'),
   incident_date: dateSchema.describe('Date of the incident in YYYY-MM-DD format'),
   incident_type_id: z.string().uuid('Invalid incident type ID format'),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], {
-    message: 'Severity must be one of: LOW, MEDIUM, HIGH, CRITICAL',
+  severity: z.enum(SEVERITY_VALUES, {
+    message: `Severity must be one of: ${SEVERITY_VALUES.join(', ')}`,
   }),
-  status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'PENDING_ACTION', 'RESOLVED', 'CLOSED'], {
-    message: 'Status must be one of: OPEN, UNDER_INVESTIGATION, PENDING_ACTION, RESOLVED, CLOSED',
+  status: z.enum(STATUS_VALUES, {
+    message: `Status must be one of: ${STATUS_VALUES.join(', ')}`,
   }),
 
-  // Optional fields
   assigned_to: z.string().uuid().optional().nullable(),
   aircraft_registration: z.string().max(20).optional().nullable(),
   flight_number: z.string().max(20).optional().nullable(),
@@ -57,114 +50,3 @@ export const CreateDisciplinarySchema = z.object({
 })
 
 export type CreateDisciplinaryInput = z.infer<typeof CreateDisciplinarySchema>
-
-// Legacy: Disciplinary matter creation schema (kept for backwards compatibility)
-export const DisciplinaryMatterSchema = z.object({
-  pilot_id: z.string().uuid('Invalid pilot ID format'),
-  matter_type: z.enum(
-    ['investigation', 'verbal_warning', 'written_warning', 'suspension', 'other'],
-    {
-      message: 'Matter type is required',
-    }
-  ),
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  description: z
-    .string()
-    .min(10, 'Description must be at least 10 characters')
-    .max(5000, 'Description must be less than 5000 characters'),
-  severity: z
-    .enum(['low', 'medium', 'high', 'critical'], {
-      message: 'Invalid severity level',
-    })
-    .default('medium'),
-})
-
-export type DisciplinaryMatterInput = z.infer<typeof DisciplinaryMatterSchema>
-
-// Disciplinary matter update schema
-export const DisciplinaryMatterUpdateSchema = z
-  .object({
-    matter_type: z
-      .enum(['investigation', 'verbal_warning', 'written_warning', 'suspension', 'other'])
-      .optional(),
-    title: z
-      .string()
-      .min(1, 'Title is required')
-      .max(255, 'Title must be less than 255 characters')
-      .optional(),
-    description: z
-      .string()
-      .min(10, 'Description must be at least 10 characters')
-      .max(5000, 'Description must be less than 5000 characters')
-      .optional(),
-    status: z
-      .enum(['open', 'under_review', 'resolved', 'closed'], {
-        message: 'Invalid status',
-      })
-      .optional(),
-    severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-    resolution: z
-      .string()
-      .min(10, 'Resolution must be at least 10 characters')
-      .max(2000, 'Resolution must be less than 2000 characters')
-      .optional(),
-  })
-  .refine(
-    (data) => {
-      // If status is resolved or closed, resolution is required
-      if ((data.status === 'resolved' || data.status === 'closed') && !data.resolution) {
-        return false
-      }
-      return true
-    },
-    {
-      message: 'Resolution is required when matter is marked as resolved or closed',
-      path: ['resolution'],
-    }
-  )
-
-export type DisciplinaryMatterUpdate = z.infer<typeof DisciplinaryMatterUpdateSchema>
-
-// Disciplinary action log schema
-export const DisciplinaryActionSchema = z.object({
-  action_type: z.enum(
-    [
-      'investigation_started',
-      'evidence_added',
-      'interview_conducted',
-      'warning_issued',
-      'status_updated',
-      'resolution_added',
-      'matter_closed',
-      'comment_added',
-      'other',
-    ],
-    {
-      message: 'Action type is required',
-    }
-  ),
-  description: z
-    .string()
-    .min(10, 'Description must be at least 10 characters')
-    .max(2000, 'Description must be less than 2000 characters'),
-  attachments: z
-    .array(z.string().url('Invalid attachment URL'))
-    .max(10, 'Maximum 10 attachments allowed')
-    .optional(),
-})
-
-export type DisciplinaryActionInput = z.infer<typeof DisciplinaryActionSchema>
-
-// Disciplinary matter filters schema
-export const DisciplinaryMatterFiltersSchema = z.object({
-  pilot_id: z.string().uuid().optional(),
-  status: z.enum(['open', 'under_review', 'resolved', 'closed']).optional(),
-  severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  matter_type: z
-    .enum(['investigation', 'verbal_warning', 'written_warning', 'suspension', 'other'])
-    .optional(),
-  page: z.number().int().positive().default(1),
-  pageSize: z.number().int().positive().max(100).default(20),
-})
-
-export type DisciplinaryMatterFilters = z.infer<typeof DisciplinaryMatterFiltersSchema>

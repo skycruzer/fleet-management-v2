@@ -1,75 +1,95 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 interface DisciplinaryFiltersProps {
   currentStatus?: string
   currentSeverity?: string
 }
 
+const ALL_VALUE = '__all__'
+
+const STATUS_OPTIONS = [
+  { value: 'open', label: 'Open' },
+  { value: 'under_review', label: 'Under Review' },
+  { value: 'resolved', label: 'Resolved' },
+  { value: 'closed', label: 'Closed' },
+]
+
+const SEVERITY_OPTIONS = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'critical', label: 'Critical' },
+]
+
 export function DisciplinaryFilters({ currentStatus, currentSeverity }: DisciplinaryFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const handleStatusChange = (value: string) => {
+  const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value) {
-      params.set('status', value)
+    if (value && value !== ALL_VALUE) {
+      params.set(key, value)
     } else {
-      params.delete('status')
+      params.delete(key)
     }
-    router.push(`?${params.toString()}`)
-  }
-
-  const handleSeverityChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (value) {
-      params.set('severity', value)
-    } else {
-      params.delete('severity')
-    }
+    params.delete('page')
     router.push(`?${params.toString()}`)
   }
 
   return (
     <div className="mb-6 flex flex-wrap gap-4">
-      <div>
-        <label htmlFor="status-filter" className="sr-only">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="status-filter" className="sr-only">
           Filter by status
-        </label>
-        <select
-          id="status-filter"
-          value={currentStatus || ''}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          className="border-border rounded-md border px-3 py-2 text-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+        </Label>
+        <Select
+          value={currentStatus || ALL_VALUE}
+          onValueChange={(value) => updateParam('status', value)}
         >
-          <option value="">All Statuses</option>
-          <option value="REPORTED">Reported</option>
-          <option value="UNDER_INVESTIGATION">Under Investigation</option>
-          <option value="PENDING_DECISION">Pending Decision</option>
-          <option value="ACTION_TAKEN">Action Taken</option>
-          <option value="RESOLVED">Resolved</option>
-          <option value="CLOSED">Closed</option>
-          <option value="APPEALED">Appealed</option>
-        </select>
+          <SelectTrigger id="status-filter" aria-label="Filter by status" className="w-48">
+            <SelectValue placeholder="All Statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>All Statuses</SelectItem>
+            {STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div>
-        <label htmlFor="severity-filter" className="sr-only">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="severity-filter" className="sr-only">
           Filter by severity
-        </label>
-        <select
-          id="severity-filter"
-          value={currentSeverity || ''}
-          onChange={(e) => handleSeverityChange(e.target.value)}
-          className="border-border rounded-md border px-3 py-2 text-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+        </Label>
+        <Select
+          value={currentSeverity || ALL_VALUE}
+          onValueChange={(value) => updateParam('severity', value)}
         >
-          <option value="">All Severities</option>
-          <option value="MINOR">Minor</option>
-          <option value="MODERATE">Moderate</option>
-          <option value="SERIOUS">Serious</option>
-          <option value="CRITICAL">Critical</option>
-        </select>
+          <SelectTrigger id="severity-filter" aria-label="Filter by severity" className="w-48">
+            <SelectValue placeholder="All Severities" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>All Severities</SelectItem>
+            {SEVERITY_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

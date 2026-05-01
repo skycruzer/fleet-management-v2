@@ -4,6 +4,8 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
 import { formatDate } from '@/lib/utils/date-utils'
 import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
+import { AuditTimeline } from '@/components/disciplinary/audit-timeline'
+import { SeverityBadge, StatusBadge } from '@/components/disciplinary/badges'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 /**
@@ -63,37 +65,6 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
   const incidentTypesResult = await getIncidentTypes()
   const incidentTypes = incidentTypesResult.success ? incidentTypesResult.data : []
 
-  const getSeverityBadgeColor = (severity: string) => {
-    switch (severity) {
-      case 'CRITICAL':
-        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
-      case 'SERIOUS':
-        return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
-      case 'MODERATE':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'MINOR':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      default:
-        return 'bg-muted/30 text-foreground'
-    }
-  }
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'RESOLVED':
-      case 'CLOSED':
-        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
-      case 'UNDER_INVESTIGATION':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'ACTION_TAKEN':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      case 'APPEALED':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
-      default:
-        return 'bg-muted/30 text-foreground'
-    }
-  }
-
   return (
     <div className="space-y-6">
       {/* Back Button */}
@@ -119,16 +90,8 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         <div>
           <h1 className="text-foreground text-3xl font-bold">{matter.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
-            >
-              {matter.status.replace(/_/g, ' ')}
-            </span>
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
-            >
-              {matter.severity}
-            </span>
+            <StatusBadge value={matter.status} />
+            <SeverityBadge value={matter.severity} />
             {matter.incident_date && (
               <span className="text-muted-foreground text-sm">
                 Incident: {formatDate(matter.incident_date)}
@@ -209,7 +172,8 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         )}
       </div>
 
-      {/* Actions Timeline removed - disciplinary_actions table no longer exists */}
+      {/* Activity Timeline (audit log) */}
+      <AuditTimeline matterId={id} />
 
       {/* Edit Form */}
       <div className="bg-card border-border mx-auto max-w-4xl rounded-lg border p-6 shadow-sm">
