@@ -176,8 +176,8 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
           }}
         >
           {duplicatedPeriods.map((period, index) => {
-            // First period in original array is "next"
-            const isNext = index % periods.length === 0
+            // Only the original first card is highlighted — never the wrapped clone
+            const isNext = index === 0
             const periodKey = `${period.code}-${period.year}-${index}`
 
             return (
@@ -251,6 +251,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     {new Date(period.endDate).toLocaleDateString('en-AU', {
                       month: 'short',
                       day: 'numeric',
+                      year: '2-digit',
                     })}
                   </p>
                 </div>
