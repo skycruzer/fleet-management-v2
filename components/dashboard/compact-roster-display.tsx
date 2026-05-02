@@ -90,7 +90,7 @@ type RosterPeriodWithLeave = RosterPeriod & {
 export async function CompactRosterDisplay() {
   const currentPeriod = getCurrentRosterPeriodObject()
   const nextPeriod = getNextRosterPeriodObject(currentPeriod) // Get the actual next period
-  const allUpcomingPeriods = getFutureRosterPeriods(13).slice(1) // Get 13 periods ahead, excluding current
+  const allUpcomingPeriods = getFutureRosterPeriods(13).slice(2) // Skip current + next (next is rendered in dedicated card)
 
   // Get leave requests and cert checks for next period
   const nextPeriodLeave = nextPeriod
