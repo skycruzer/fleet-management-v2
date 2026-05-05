@@ -21,6 +21,7 @@ import {
 } from '@/lib/services/disciplinary-service'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 interface RouteParams {
   params: Promise<{
@@ -168,6 +169,9 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
+    revalidatePath('/dashboard/disciplinary')
+    revalidatePath(`/dashboard/disciplinary/${id}`)
+
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Error in PATCH /api/disciplinary/[id]:', error)
@@ -233,6 +237,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       }
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
+
+    revalidatePath('/dashboard/disciplinary')
+    revalidatePath(`/dashboard/disciplinary/${id}`)
 
     return NextResponse.json(
       { success: true, message: 'Matter closed successfully' },
