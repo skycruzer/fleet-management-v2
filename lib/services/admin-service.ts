@@ -138,7 +138,7 @@ export async function updateAdminUserProfile(
         updated_at: new Date().toISOString(),
       })
       .eq('id', userId)
-      .select()
+      .select('id, email, name, role, created_at, updated_at')
       .single()
 
     if (error) {
