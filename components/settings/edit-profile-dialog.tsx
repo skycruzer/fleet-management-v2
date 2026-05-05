@@ -20,9 +20,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -48,7 +48,7 @@ export function EditProfileDialog({
   onSuccess,
 }: EditProfileDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const supabase = createClient()
+  const { csrfToken } = useCsrfToken()
 
   const {
     register,
@@ -63,32 +63,27 @@ export function EditProfileDialog({
     setIsSubmitting(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name: data.name }),
+      })
 
-      if (!user) {
-        toast.error('Not authenticated')
-        return
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error.error || error.message || 'Failed to update profile')
       }
-
-      // Update user profile in an_users table
-      const { error } = await supabase
-        .from('an_users')
-        .update({
-          name: data.name,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id)
-
-      if (error) throw error
 
       toast.success('Profile updated successfully')
       onSuccess()
       onOpenChange(false)
     } catch (error) {
       console.error('Error updating profile:', error)
-      toast.error('Failed to update profile')
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile')
     } finally {
       setIsSubmitting(false)
     }
