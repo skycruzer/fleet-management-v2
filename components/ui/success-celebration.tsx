@@ -15,49 +15,9 @@ import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 interface SuccessCelebrationProps {
   isVisible: boolean
   message?: string
-  variant?: 'checkmark' | 'confetti' | 'plane'
+  variant?: 'checkmark' | 'plane'
   onComplete?: () => void
   className?: string
-}
-
-// Confetti particle component
-function ConfettiParticle({
-  color,
-  delay,
-  x,
-  y,
-  isRound,
-}: {
-  color: string
-  delay: number
-  x: number
-  y: number
-  isRound: boolean
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 1, y: 0, x: 0, rotate: 0, scale: 1 }}
-      animate={{
-        opacity: 0,
-        y: [0, -20, 100],
-        x: [0, x, x * 1.5],
-        rotate: [0, 180, 720],
-        scale: [1, 1.2, 0.5],
-      }}
-      transition={{
-        duration: 1.2,
-        delay,
-        ease: 'easeOut',
-      }}
-      className="absolute"
-      style={{
-        width: '8px',
-        height: '8px',
-        borderRadius: isRound ? '50%' : '2px',
-        backgroundColor: color,
-      }}
-    />
-  )
 }
 
 // Flying plane animation
@@ -82,30 +42,6 @@ function FlyingPlane() {
   )
 }
 
-// Confetti colors matching the design system
-const confettiColors = [
-  '#b45a3c', // primary — terracotta
-  '#5a9e6f', // accent — sage
-  '#2db87d', // success — green
-  '#d4a017', // warning — amber
-  '#c45e8f', // pink
-  '#9e7c5a', // warm brown
-]
-
-// Pre-generate confetti particle data (stable across renders)
-function generateConfettiData() {
-  return confettiColors.flatMap((color, colorIndex) =>
-    Array.from({ length: 8 }).map((_, i) => ({
-      key: `${colorIndex}-${i}`,
-      color,
-      delay: Math.random() * 0.3,
-      x: (Math.random() - 0.5) * 200,
-      y: Math.random() * 50,
-      isRound: Math.random() > 0.5,
-    }))
-  )
-}
-
 export function SuccessCelebration({
   isVisible,
   message = 'Success!',
@@ -115,21 +51,15 @@ export function SuccessCelebration({
 }: SuccessCelebrationProps) {
   const { shouldAnimate } = useAnimationSettings()
 
-  // Pre-compute confetti data once when component mounts
-  const confettiParticles = React.useMemo(() => generateConfettiData(), [])
-
   React.useEffect(() => {
     if (isVisible && onComplete) {
-      const timer = setTimeout(
-        () => {
-          onComplete()
-        },
-        variant === 'confetti' ? 2000 : 1500
-      )
+      const timer = setTimeout(() => {
+        onComplete()
+      }, 1500)
       return () => clearTimeout(timer)
     }
     return undefined
-  }, [isVisible, onComplete, variant])
+  }, [isVisible, onComplete])
 
   // Don't animate if reduced motion is preferred
   if (!shouldAnimate) {
@@ -174,22 +104,6 @@ export function SuccessCelebration({
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className="bg-card border-border relative rounded-xl border p-8 text-center shadow-2xl"
           >
-            {/* Confetti variant */}
-            {variant === 'confetti' && (
-              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-                {confettiParticles.map((particle) => (
-                  <ConfettiParticle
-                    key={particle.key}
-                    color={particle.color}
-                    delay={particle.delay}
-                    x={particle.x}
-                    y={particle.y}
-                    isRound={particle.isRound}
-                  />
-                ))}
-              </div>
-            )}
-
             {/* Plane variant */}
             {variant === 'plane' && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
@@ -250,19 +164,15 @@ export function SuccessCelebration({
 export function useSuccessCelebration() {
   const [isVisible, setIsVisible] = React.useState(false)
   const [message, setMessage] = React.useState('Success!')
-  const [variant, setVariant] = React.useState<'checkmark' | 'confetti' | 'plane'>('checkmark')
+  const [variant, setVariant] = React.useState<'checkmark' | 'plane'>('checkmark')
 
   const celebrate = React.useCallback(
-    (options?: {
-      message?: string
-      variant?: 'checkmark' | 'confetti' | 'plane'
-      duration?: number
-    }) => {
+    (options?: { message?: string; variant?: 'checkmark' | 'plane'; duration?: number }) => {
       setMessage(options?.message || 'Success!')
       setVariant(options?.variant || 'checkmark')
       setIsVisible(true)
 
-      const duration = options?.duration || (options?.variant === 'confetti' ? 2000 : 1500)
+      const duration = options?.duration || 1500
       setTimeout(() => {
         setIsVisible(false)
       }, duration)

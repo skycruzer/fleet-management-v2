@@ -553,6 +553,169 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
   }
 }
 
+export interface AdminLeaveBidFilters {
+  status?: string[]
+  pilot_id?: string
+  roster_period?: string
+}
+
+export interface AdminLeaveBidPilot {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  middle_name: string | null
+  employee_id: string | null
+  role: string | null
+  seniority_number: number | null
+}
+
+export interface AdminLeaveBidOption {
+  id: string
+  priority: number | null
+  start_date: string
+  end_date: string
+}
+
+export interface AdminLeaveBidRow {
+  id: string
+  roster_period_code: string | null
+  status: string | null
+  created_at: string | null
+  updated_at: string | null
+  pilot_id: string
+  pilots: AdminLeaveBidPilot | null
+  leave_bid_options: AdminLeaveBidOption[]
+}
+
+/**
+ * Admin Listing of Leave Bids
+ *
+ * Returns leave bids with pilot + options joined, ordered with PENDING first
+ * then newest. Uses admin client (admin dashboard sees all bids regardless of RLS).
+ * Caller is responsible for verifying the admin is authenticated.
+ *
+ * @param filters - Optional status / pilot_id / roster_period filters
+ */
+export async function getAdminLeaveBids(
+  filters?: AdminLeaveBidFilters
+): Promise<ServiceResponse<AdminLeaveBidRow[]>> {
+  try {
+    const supabase = createAdminClient()
+
+    let query = supabase.from('leave_bids').select(
+      `
+        id,
+        roster_period_code,
+        status,
+        created_at,
+        updated_at,
+        pilot_id,
+        pilots (
+          id,
+          first_name,
+          last_name,
+          middle_name,
+          employee_id,
+          role,
+          seniority_number
+        ),
+        leave_bid_options (
+          id,
+          priority,
+          start_date,
+          end_date
+        )
+      `
+    )
+
+    if (filters?.status && filters.status.length > 0) {
+      query = query.in('status', filters.status)
+    }
+    if (filters?.pilot_id) {
+      query = query.eq('pilot_id', filters.pilot_id)
+    }
+    if (filters?.roster_period) {
+      query = query.eq('roster_period_code', filters.roster_period)
+    }
+
+    query = query.order('status', { ascending: true })
+    query = query.order('created_at', { ascending: false })
+
+    const { data, error } = await query
+
+    if (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'leave-bid-service/getAdminLeaveBids',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return { success: false, error: error.message }
+    }
+
+    return { success: true, data: (data || []) as unknown as AdminLeaveBidRow[] }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/getAdminLeaveBids',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: 'Failed to fetch leave bids' }
+  }
+}
+
+export interface AdminLeaveBidUpdate {
+  status?: string
+  review_comments?: string | null
+  notes?: string | null
+  reason?: string
+  reviewed_at?: string | null
+}
+
+/**
+ * Admin Update Leave Bid
+ *
+ * Allows administrators to update any leave bid regardless of status (e.g. to
+ * change status, append review comments). Uses admin client to bypass RLS.
+ *
+ * @param bidId - Leave bid ID to update
+ * @param updates - Fields to update
+ * @returns Service response with updated bid
+ */
+export async function adminUpdateLeaveBid(
+  bidId: string,
+  updates: AdminLeaveBidUpdate
+): Promise<ServiceResponse<LeaveBid>> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('leave_bids')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bidId)
+      .select()
+      .single()
+
+    if (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'leave-bid-service/adminUpdateLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return { success: false, error: error.message }
+    }
+
+    if (!data) return ServiceResponse.notFound('Leave bid not found')
+
+    return { success: true, data: data as LeaveBid }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/adminUpdateLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: 'Failed to update leave bid' }
+  }
+}
+
 /**
  * Admin Delete Leave Bid
  *

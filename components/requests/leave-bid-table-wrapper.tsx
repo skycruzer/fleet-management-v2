@@ -1,8 +1,8 @@
 /**
  * Leave Bid Table Wrapper Component
  *
- * Server component that fetches leave bid data and passes to client component.
- * Maintains separation from unified-request-service while reusing UI patterns.
+ * Server component that fetches leave bid data via the service layer and
+ * passes the transformed view-model to the client table.
  *
  * @author Maurice Rondeau
  * @date November 12, 2025
@@ -11,6 +11,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { LeaveBidTableClient } from './leave-bid-table-client'
 import { getRosterPeriodsForDateRange } from '@/lib/services/roster-period-service'
+import {
+  getAdminLeaveBids,
+  type AdminLeaveBidFilters,
+  type AdminLeaveBidOption,
+} from '@/lib/services/leave-bid-service'
 
 export interface LeaveBidFilters {
   year?: number
@@ -31,7 +36,6 @@ interface LeaveBidTableWrapperProps {
 export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrapperProps) {
   const supabase = await createClient()
 
-  // Check authentication
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -47,74 +51,39 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
     )
   }
 
-  // Build query (uses leave_bids table, NOT pilot_requests)
-  let query = supabase.from('leave_bids').select(
-    `
-      id,
-      roster_period_code,
-      status,
-      created_at,
-      updated_at,
-      pilot_id,
-      pilots (
-        id,
-        first_name,
-        last_name,
-        middle_name,
-        employee_id,
-        role,
-        seniority_number
-      ),
-      leave_bid_options (
-        id,
-        priority,
-        start_date,
-        end_date
-      )
-    `
-  )
-
-  // Apply filters from searchParams
-  if (searchParams) {
-    if (searchParams.status) {
-      const statuses = searchParams.status.split(',')
-      query = query.in('status', statuses)
-    }
-    if (searchParams.pilot_id) {
-      query = query.eq('pilot_id', searchParams.pilot_id)
-    }
-    if (searchParams.roster_period) {
-      query = query.eq('roster_period_code', searchParams.roster_period)
-    }
+  const filters: AdminLeaveBidFilters = {}
+  if (searchParams?.status) {
+    filters.status = searchParams.status.split(',')
+  }
+  if (searchParams?.pilot_id) {
+    filters.pilot_id = searchParams.pilot_id
+  }
+  if (searchParams?.roster_period) {
+    filters.roster_period = searchParams.roster_period
   }
 
-  query = query.order('status', { ascending: true }) // PENDING first
-  query = query.order('created_at', { ascending: false })
+  const result = await getAdminLeaveBids(filters)
 
-  const { data: leaveBids, error } = await query
-
-  if (error) {
+  if (!result.success) {
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
         <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-[var(--color-status-high)]">
             Error loading leave bids
           </p>
-          <p className="text-muted-foreground text-sm">{error.message}</p>
+          <p className="text-muted-foreground text-sm">{result.error}</p>
         </div>
       </div>
     )
   }
 
-  // Transform bids to add bid_year and roster periods for each option
-  const bids = (leaveBids || []).map((bid: any) => {
-    let bidYear = new Date().getFullYear() + 1
-    if (bid.leave_bid_options && bid.leave_bid_options.length > 0) {
-      bidYear = new Date(bid.leave_bid_options[0].start_date).getFullYear()
-    }
+  const bids = (result.data ?? []).map((bid) => {
+    const firstOption = bid.leave_bid_options[0]
+    const bidYear = firstOption
+      ? new Date(firstOption.start_date).getFullYear()
+      : new Date().getFullYear() + 1
 
-    // Calculate roster periods for each bid option (server-side)
-    const optionsWithRosterPeriods = bid.leave_bid_options.map((option: any) => ({
+    const optionsWithRosterPeriods = bid.leave_bid_options.map((option: AdminLeaveBidOption) => ({
       ...option,
       roster_periods: getRosterPeriodsForDateRange(option.start_date, option.end_date),
       days_count:
