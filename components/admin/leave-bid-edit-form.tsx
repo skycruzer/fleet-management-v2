@@ -38,41 +38,13 @@ import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { useConfirm } from '@/components/ui/confirm-dialog'
 
-interface LeaveBidOption {
-  id: string
-  priority: number
-  start_date: string
-  end_date: string
-}
-
-interface Pilot {
-  id: string
-  first_name: string
-  last_name: string
-  middle_name: string | null
-  employee_id: string | null
-  role: string | null
-  seniority_number: number | null
-  email: string | null
-}
-
-interface LeaveBid {
-  id: string
-  roster_period_code: string
-  status: string | null
-  created_at: string | null
-  updated_at: string | null
-  reviewed_at: string | null
-  review_comments: string | null
-  notes: string | null
-  reason: string | null
-  pilot_id: string
-  pilots: Pilot
-  leave_bid_options: LeaveBidOption[]
-}
+import type { AdminLeaveBid, LeaveBidPilot } from '@/lib/types/admin-leave-bid'
 
 interface LeaveBidEditFormProps {
-  bid: LeaveBid
+  /**
+   * Bid with pilot guaranteed non-null. Page validates this before render.
+   */
+  bid: AdminLeaveBid & { pilots: LeaveBidPilot }
   userId: string
 }
 
@@ -259,8 +231,8 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
           <div>
             <p className="text-muted-foreground text-sm font-medium">Name</p>
             <p className="text-foreground text-base font-semibold">
-              {pilot.first_name} {pilot.middle_name ? pilot.middle_name + ' ' : ''}
-              {pilot.last_name}
+              {pilot.first_name ?? ''} {pilot.middle_name ? pilot.middle_name + ' ' : ''}
+              {pilot.last_name ?? ''}
             </p>
           </div>
           <div>

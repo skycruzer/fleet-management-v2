@@ -90,11 +90,11 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   }
 
   // Helper function to check if setting is protected
-  const isProtected = (setting: SystemSetting) => (setting as any).is_system === true
+  const isProtected = (setting: SystemSetting) => setting.is_system === true
 
   // Filter settings by category
   const uncategorizedSettings = localSettings.filter((s) => {
-    const cat = (s as any).category
+    const cat = s.category
     return (
       !cat || (cat !== 'fleet' && cat !== 'certification' && cat !== 'leave' && cat !== 'system')
     )
@@ -144,7 +144,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           </div>
           <div className="space-y-3">
             {localSettings
-              .filter((s) => (s as any).category === 'fleet' || s.key.includes('fleet'))
+              .filter((s) => s.category === 'fleet' || s.key.includes('fleet'))
               .map((setting) => (
                 <Card key={setting.id} className="bg-muted/50 p-4">
                   <div className="flex items-start justify-between">
@@ -171,7 +171,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                   </div>
                 </Card>
               ))}
-            {localSettings.filter((s) => (s as any).category === 'fleet' || s.key.includes('fleet'))
+            {localSettings.filter((s) => s.category === 'fleet' || s.key.includes('fleet'))
               .length === 0 && (
               <p className="text-muted-foreground py-4 text-center text-sm">
                 No fleet configuration settings
@@ -187,7 +187,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           </div>
           <div className="space-y-3">
             {localSettings
-              .filter((s) => (s as any).category === 'certification' || s.key.includes('cert'))
+              .filter((s) => s.category === 'certification' || s.key.includes('cert'))
               .map((setting) => (
                 <Card key={setting.id} className="bg-muted/50 p-4">
                   <div className="flex items-start justify-between">
@@ -214,9 +214,8 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                   </div>
                 </Card>
               ))}
-            {localSettings.filter(
-              (s) => (s as any).category === 'certification' || s.key.includes('cert')
-            ).length === 0 && (
+            {localSettings.filter((s) => s.category === 'certification' || s.key.includes('cert'))
+              .length === 0 && (
               <p className="text-muted-foreground py-4 text-center text-sm">
                 No certification settings
               </p>
@@ -231,7 +230,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           </div>
           <div className="space-y-3">
             {localSettings
-              .filter((s) => (s as any).category === 'leave' || s.key.includes('leave'))
+              .filter((s) => s.category === 'leave' || s.key.includes('leave'))
               .map((setting) => (
                 <Card key={setting.id} className="bg-muted/50 p-4">
                   <div className="flex items-start justify-between">
@@ -258,7 +257,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                   </div>
                 </Card>
               ))}
-            {localSettings.filter((s) => (s as any).category === 'leave' || s.key.includes('leave'))
+            {localSettings.filter((s) => s.category === 'leave' || s.key.includes('leave'))
               .length === 0 && (
               <p className="text-muted-foreground py-4 text-center text-sm">
                 No leave management settings
@@ -274,14 +273,14 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           </div>
           <div className="space-y-3">
             {localSettings
-              .filter((s) => (s as any).category === 'system' || (s as any).is_system === true)
+              .filter((s) => s.category === 'system' || s.is_system === true)
               .map((setting) => (
                 <Card key={setting.id} className="bg-muted/50 p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <p className="text-foreground text-sm font-medium">{setting.key}</p>
-                        {(setting as any).is_system && (
+                        {setting.is_system && (
                           <span className="rounded-full bg-[var(--color-destructive-muted)] px-2 py-0.5 text-xs text-[var(--color-danger-500)]">
                             Protected
                           </span>
@@ -301,16 +300,15 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       size="sm"
                       className="ml-4"
                       onClick={() => handleEdit(setting)}
-                      disabled={(setting as any).is_system === true}
+                      disabled={setting.is_system === true}
                     >
-                      {(setting as any).is_system ? 'Locked' : 'Edit'}
+                      {setting.is_system ? 'Locked' : 'Edit'}
                     </Button>
                   </div>
                 </Card>
               ))}
-            {localSettings.filter(
-              (s) => (s as any).category === 'system' || (s as any).is_system === true
-            ).length === 0 && (
+            {localSettings.filter((s) => s.category === 'system' || s.is_system === true).length ===
+              0 && (
               <p className="text-muted-foreground py-4 text-center text-sm">No system settings</p>
             )}
           </div>
@@ -359,14 +357,14 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                     <div className="flex items-center space-x-2">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          (setting as any).is_active !== false
+                          setting.is_active !== false
                             ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
                             : 'bg-muted text-foreground'
                         }`}
                       >
-                        {(setting as any).is_active !== false ? 'ACTIVE' : 'INACTIVE'}
+                        {setting.is_active !== false ? 'ACTIVE' : 'INACTIVE'}
                       </span>
-                      {(setting as any).is_system && (
+                      {setting.is_system && (
                         <span className="inline-flex items-center rounded-full bg-[var(--color-destructive-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-danger-500)]">
                           PROTECTED
                         </span>

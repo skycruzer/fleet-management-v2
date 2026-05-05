@@ -30,10 +30,14 @@ export interface CheckType {
 export interface SystemSetting {
   id: string
   key: string
-  value: any
+  value: unknown
   description: string | null
   created_at: string | null
   updated_at: string | null
+  /** Optional metadata columns present on the row but not always populated. */
+  is_system?: boolean | null
+  is_active?: boolean | null
+  category?: string | null
 }
 
 export interface ContractType {

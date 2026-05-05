@@ -230,7 +230,9 @@ export default function NewLeaveRequestPage() {
               <div className="space-y-2">
                 <Label htmlFor="request_type">Leave type *</Label>
                 <Select
-                  onValueChange={(value) => form.setValue('request_type', value as any)}
+                  onValueChange={(value) =>
+                    form.setValue('request_type', value as PilotLeaveRequestInput['request_type'])
+                  }
                   defaultValue={form.getValues('request_type')}
                   disabled={isLoading}
                 >

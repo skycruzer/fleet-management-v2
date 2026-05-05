@@ -13,6 +13,13 @@ import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, User, Briefcase } fro
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import type {
+  AdminLeaveBid,
+  EnrichedLeaveBidOption,
+  LeaveBidOption,
+  PreferredDateEntry,
+  RawAdminLeaveBid,
+} from '@/lib/types/admin-leave-bid'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -70,18 +77,20 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     notFound()
   }
 
+  const typedRawBid = rawBid as unknown as RawAdminLeaveBid
+
   // Normalize options: portal submissions store dates in preferred_dates JSON
-  let options = (rawBid as any).leave_bid_options || []
-  if (options.length === 0 && (rawBid as any).preferred_dates) {
+  let options: LeaveBidOption[] = typedRawBid.leave_bid_options ?? []
+  if (options.length === 0 && typedRawBid.preferred_dates) {
     try {
       const parsed =
-        typeof (rawBid as any).preferred_dates === 'string'
-          ? JSON.parse((rawBid as any).preferred_dates)
-          : (rawBid as any).preferred_dates
+        typeof typedRawBid.preferred_dates === 'string'
+          ? JSON.parse(typedRawBid.preferred_dates)
+          : typedRawBid.preferred_dates
       if (Array.isArray(parsed)) {
-        options = parsed.map((item: any, index: number) => ({
-          id: `${rawBid.id}-opt-${index}`,
-          priority: item.priority || index + 1,
+        options = (parsed as PreferredDateEntry[]).map((item, index) => ({
+          id: `${typedRawBid.id}-opt-${index}`,
+          priority: item.priority ?? index + 1,
           start_date: item.start_date,
           end_date: item.end_date,
         }))
@@ -92,14 +101,14 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
   }
 
   // Enrich each option with roster period codes
-  const enrichedOptions = options.map((opt: any) => ({
+  const enrichedOptions: EnrichedLeaveBidOption[] = options.map((opt) => ({
     ...opt,
     roster_periods: getAffectedRosterPeriods(new Date(opt.start_date), new Date(opt.end_date)).map(
-      (rp: any) => rp.code
+      (rp) => rp.code
     ),
   }))
 
-  const bid = { ...rawBid, leave_bid_options: enrichedOptions }
+  const bid: AdminLeaveBid = { ...typedRawBid, leave_bid_options: enrichedOptions }
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -136,7 +145,10 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     }
   }
 
-  const pilot = bid.pilots as any
+  const pilot = bid.pilots
+  if (!pilot) {
+    notFound()
+  }
 
   return (
     <div className="space-y-6">
@@ -259,8 +271,8 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
         <CardContent>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {bid.leave_bid_options
-              .sort((a: any, b: any) => a.priority - b.priority)
-              .map((option: any) => (
+              .sort((a, b) => a.priority - b.priority)
+              .map((option) => (
                 <div
                   key={option.id}
                   className="bg-card border-border rounded-lg border-2 p-4 shadow-sm transition-shadow hover:shadow-md"
