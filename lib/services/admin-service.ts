@@ -30,10 +30,14 @@ export interface CheckType {
 export interface SystemSetting {
   id: string
   key: string
-  value: any
+  value: unknown
   description: string | null
   created_at: string | null
   updated_at: string | null
+  /** Optional metadata columns present on the row but not always populated. */
+  is_system?: boolean | null
+  is_active?: boolean | null
+  category?: string | null
 }
 
 export interface ContractType {
@@ -115,6 +119,88 @@ export async function getAdminUserById(userId: string): Promise<AdminUser | null
     console.error('Error in getAdminUserById:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+    throw error
+  }
+}
+
+/**
+ * Update an admin user's profile (display name).
+ * Email is treated as immutable — change via auth provider.
+ */
+export async function updateAdminUserProfile(
+  userId: string,
+  updates: { name: string }
+): Promise<AdminUser> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('an_users')
+      .update({
+        name: updates.name,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select('id, email, name, role, created_at, updated_at')
+      .single()
+
+    if (error) {
+      console.error('Error updating admin profile:', {
+        errorCode: error.code,
+        errorMessage: error.message,
+      })
+      throw new Error(`Failed to update profile: ${error.message}`)
+    }
+
+    return data as AdminUser
+  } catch (error) {
+    console.error('Error in updateAdminUserProfile:', {
+      errorType: error instanceof Error ? error.name : 'Unknown',
+    })
+    throw error
+  }
+}
+
+export interface NotificationSettings {
+  email_notifications?: boolean
+  push_notifications?: boolean
+  sms_alerts?: boolean
+  certification_reminders?: boolean
+  leave_request_updates?: boolean
+}
+
+/**
+ * Update an admin user's notification preferences.
+ * Stored on the an_users row in a JSON column not present in generated types.
+ */
+export async function updateAdminUserNotificationSettings(
+  userId: string,
+  settings: NotificationSettings
+): Promise<void> {
+  try {
+    const supabase = createAdminClient()
+
+    const payload: Record<string, unknown> = {
+      notification_settings: settings,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase
+      .from('an_users')
+      .update(payload as never)
+      .eq('id', userId)
+
+    if (error) {
+      console.error('Error updating notification settings:', {
+        errorCode: error.code,
+        errorMessage: error.message,
+      })
+      throw new Error(`Failed to update notification settings: ${error.message}`)
+    }
+  } catch (error) {
+    console.error('Error in updateAdminUserNotificationSettings:', {
+      errorType: error instanceof Error ? error.name : 'Unknown',
     })
     throw error
   }

@@ -542,6 +542,27 @@ export async function getRecentActivity(): Promise<
 }
 
 /**
+ * Get the materialized view's last_refreshed timestamp.
+ * @returns ISO timestamp string, or null if the view is empty / unreadable.
+ */
+export async function getDashboardLastRefreshTime(): Promise<string | null> {
+  const supabase = createServiceRoleClient()
+  try {
+    const { data, error } = await supabase
+      .from('pilot_dashboard_metrics' as any)
+      .select('last_refreshed')
+      .single()
+
+    if (error) return null
+
+    const typed = data as unknown as Pick<PilotDashboardMetrics, 'last_refreshed'>
+    return typed?.last_refreshed ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Check if materialized view exists and is accessible
  * @returns {Promise<boolean>} True if view exists and has data
  */

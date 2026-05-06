@@ -17,9 +17,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface NotificationSettingsDialogProps {
   open: boolean
@@ -41,7 +41,7 @@ export function NotificationSettingsDialog({
   onSuccess,
 }: NotificationSettingsDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const supabase = createClient()
+  const { csrfToken } = useCsrfToken()
 
   const [settings, setSettings] = useState({
     email_notifications: initialSettings?.email_notifications ?? true,
@@ -55,34 +55,27 @@ export function NotificationSettingsDialog({
     setIsSubmitting(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const response = await fetch('/api/user/notification-settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+        body: JSON.stringify(settings),
+      })
 
-      if (!user) {
-        toast.error('Not authenticated')
-        return
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error.error || error.message || 'Failed to update settings')
       }
-
-      // Update notification settings in an_users table
-      // Note: notification_settings column exists in DB but not in generated types
-      const notifPayload: Record<string, unknown> = {
-        notification_settings: settings,
-        updated_at: new Date().toISOString(),
-      }
-      const { error } = await supabase
-        .from('an_users')
-        .update(notifPayload as never)
-        .eq('id', user.id)
-
-      if (error) throw error
 
       toast.success('Notification settings updated')
       onSuccess()
       onOpenChange(false)
     } catch (error) {
       console.error('Error updating notification settings:', error)
-      toast.error('Failed to update settings')
+      toast.error(error instanceof Error ? error.message : 'Failed to update settings')
     } finally {
       setIsSubmitting(false)
     }
