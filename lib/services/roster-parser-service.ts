@@ -251,9 +251,7 @@ export async function parseRosterPdf(
  * found. The caller should still attempt date-grid extraction as the
  * authoritative source.
  */
-function extractTitle(
-  items: any[]
-): { title: string; periodCode: string } | null {
+function extractTitle(items: any[]): { title: string; periodCode: string } | null {
   let title = ''
 
   for (const item of items) {

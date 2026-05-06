@@ -1176,9 +1176,9 @@ export async function getLeaveRequestApprovalHistory(
       //                     `entity_id` → `record_id`. Runtime behavior of this query is
       //                     already broken (returns empty set); fix requires checking what
       //                     the trigger actually writes for pilot_requests audit rows.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       .eq('entity_type' as any, 'leave_request')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       .eq('entity_id' as any, leaveRequestId)
       .order('created_at', { ascending: true })
 
@@ -1316,12 +1316,10 @@ export async function exportAuditTrailCSV(filters: ExportAuditFilters = {}): Pro
     //                     no longer exist. These filters silently do nothing in production.
     //                     Proper fix: migrate callers to use table_name/record_id/action.
     if (filters.entityType) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       query = query.eq('entity_type' as any, filters.entityType)
     }
 
     if (filters.entityId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       query = query.eq('entity_id' as any, filters.entityId)
     }
 
@@ -1330,7 +1328,6 @@ export async function exportAuditTrailCSV(filters: ExportAuditFilters = {}): Pro
     }
 
     if (filters.operation) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       query = query.eq('operation' as any, filters.operation)
     }
 
