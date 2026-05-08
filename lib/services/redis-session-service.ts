@@ -319,17 +319,10 @@ async function validateSessionFromDb(
     const userId = sessionData[dbUserIdColumn]
     let userData: any = null
 
-    if (dbTable === 'sessions') {
-      const { data, error } = await supabase
-        .from('users' as any)
-        .select('id, staff_id, email, name, role, is_active, must_change_password, pilot_id')
-        .eq('id', userId)
-        .single()
-
-      if (!error && data) {
-        userData = data
-      }
-    } else if (dbTable === 'admin_sessions') {
+    // Note: the legacy `dbTable === 'sessions'` branch (which queried a
+    // non-existent `users` table) was removed when auth-service.ts was
+    // deleted. Only `admin_sessions` and `pilot_sessions` are valid.
+    if (dbTable === 'admin_sessions') {
       const { data, error } = await supabase
         .from('an_users')
         .select('id, email, name, role')
