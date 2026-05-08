@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 import { unauthorizedResponse, forbiddenResponse } from '@/lib/utils/api-response-helper'
 import { redisCacheService, checkRedisHealth } from '@/lib/services/redis-cache-service'
@@ -126,6 +127,9 @@ export async function GET(request: NextRequest) {
  * - action: 'reset-metrics' | 'invalidate-all' | 'invalidate-analytics'
  */
 export async function POST(request: NextRequest) {
+  const csrfError = await validateCsrf(request)
+  if (csrfError) return csrfError
+
   // Check authentication
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {

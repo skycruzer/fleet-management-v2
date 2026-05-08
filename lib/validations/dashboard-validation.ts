@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod'
+import { VisibleWorkflowStatusEnum } from '@/lib/types/workflow-status'
 
 // ===================================
 // ENUMS
@@ -116,7 +117,11 @@ export type DashboardCertificationFilter = z.infer<typeof DashboardCertification
  * Dashboard leave filter
  */
 export const DashboardLeaveFilterSchema = z.object({
-  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED', 'all']).optional().default('all'),
+  // 'all' is a UI sentinel; real values derive from the canonical visible subset.
+  status: z
+    .union([VisibleWorkflowStatusEnum, z.literal('all')])
+    .optional()
+    .default('all'),
   rosterPeriod: z
     .string()
     .regex(

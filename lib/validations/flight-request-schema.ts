@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import {
+  ActionableWorkflowStatusEnum,
+  VisibleWorkflowStatusEnum,
+} from '@/lib/types/workflow-status'
 
 /**
  * RDO/SDO Request Validation Schemas
@@ -95,9 +99,7 @@ export type FlightRequestOutput = z.infer<typeof FlightRequestSchema>
 // Flight request review schema (admin)
 export const FlightRequestReviewSchema = z
   .object({
-    status: z.enum(['IN_REVIEW', 'APPROVED', 'DENIED'], {
-      message: 'Review status is required',
-    }),
+    status: ActionableWorkflowStatusEnum,
     reviewer_comments: z
       .string()
       .max(1000, 'Reviewer comments must be less than 1000 characters')
@@ -121,7 +123,7 @@ export type FlightRequestReviewInput = z.infer<typeof FlightRequestReviewSchema>
 
 // Query filters schema
 export const FlightRequestFiltersSchema = z.object({
-  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED']).optional(),
+  status: VisibleWorkflowStatusEnum.optional(),
   pilot_id: z.string().uuid().optional(),
   request_date_from: z
     .string()

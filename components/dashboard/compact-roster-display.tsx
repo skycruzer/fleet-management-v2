@@ -27,85 +27,71 @@ import {
 import { RosterCarousel } from './roster-carousel'
 import { RosterPeriodRefresher } from './roster-period-refresher'
 import { createClient } from '@/lib/supabase/server'
-
-// Get leave request counts for a roster period with type breakdown
-async function getLeaveRequestCounts(rosterPeriod: string) {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('pilot_requests')
-    .select('workflow_status, request_type')
-    .eq('roster_period', rosterPeriod)
-    .eq('request_category', 'LEAVE')
-
-  if (error) {
-    console.error(`Error fetching leave requests for ${rosterPeriod}:`, error)
-    return { pending: 0, approved: 0, total: 0, byType: {} }
-  }
-
-  if (!data || data.length === 0) {
-    return { pending: 0, approved: 0, total: 0, byType: {} }
-  }
-
-  const pending = data.filter((r) => r.workflow_status === 'SUBMITTED').length
-  const approved = data.filter((r) => r.workflow_status === 'APPROVED').length
-
-  // Count by request type
-  const byType: Record<string, number> = {}
-  data.forEach((r) => {
-    const type = r.request_type || 'UNKNOWN'
-    byType[type] = (byType[type] || 0) + 1
-  })
-
-  return { pending, approved, total: data.length, byType }
-}
-
-// Get certification check counts for a roster period
-async function getCertificationCheckCounts(rosterPeriod: string) {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('certification_renewal_plans')
-    .select('id')
-    .eq('planned_roster_period', rosterPeriod)
-
-  if (error || !data) {
-    return 0
-  }
-
-  return data.length
-}
+import {
+  buildRosterPeriodStats,
+  emptyRosterPeriodStats,
+  type RosterPeriodStats,
+} from '@/lib/utils/roster-period-stats'
 
 // Extended RosterPeriod with leave request and certification check data
 type RosterPeriodWithLeave = RosterPeriod & {
-  leaveRequests?: {
-    pending: number
-    approved: number
-    total: number
-    byType: Record<string, number>
-  }
+  leaveRequests?: RosterPeriodStats['leaveRequests']
   certChecks?: number
+}
+
+async function getRosterPeriodStats(rosterPeriods: string[]) {
+  if (rosterPeriods.length === 0) return {}
+
+  const supabase = await createClient()
+
+  const [leaveResult, certificationResult] = await Promise.all([
+    supabase
+      .from('pilot_requests')
+      .select('roster_period, workflow_status, request_type')
+      .in('roster_period', rosterPeriods)
+      .eq('request_category', 'LEAVE'),
+    supabase
+      .from('certification_renewal_plans')
+      .select('planned_roster_period')
+      .in('planned_roster_period', rosterPeriods),
+  ])
+
+  if (leaveResult.error) {
+    console.error('Error fetching roster leave request counts:', leaveResult.error)
+  }
+
+  if (certificationResult.error) {
+    console.error('Error fetching roster certification counts:', certificationResult.error)
+  }
+
+  return buildRosterPeriodStats(
+    rosterPeriods,
+    leaveResult.data || [],
+    certificationResult.data || []
+  )
 }
 
 export async function CompactRosterDisplay() {
   const currentPeriod = getCurrentRosterPeriodObject()
   const nextPeriod = getNextRosterPeriodObject(currentPeriod) // Get the actual next period
   const allUpcomingPeriods = getFutureRosterPeriods(13).slice(2) // Skip current + next (next is rendered in dedicated card)
+  const rosterPeriodsToLoad = [
+    ...(nextPeriod ? [nextPeriod.code] : []),
+    ...allUpcomingPeriods.map((period) => period.code),
+  ]
+  const rosterStats = await getRosterPeriodStats(rosterPeriodsToLoad)
 
-  // Get leave requests and cert checks for next period
-  const nextPeriodLeave = nextPeriod
-    ? await getLeaveRequestCounts(nextPeriod.code)
-    : { pending: 0, approved: 0, total: 0, byType: {} }
-  const nextPeriodCertChecks = nextPeriod ? await getCertificationCheckCounts(nextPeriod.code) : 0
+  const fallbackStats = emptyRosterPeriodStats()
+  const nextPeriodStats = nextPeriod ? rosterStats[nextPeriod.code] || fallbackStats : fallbackStats
 
-  // Get leave requests and cert checks for all upcoming periods
-  const periodsWithLeave: RosterPeriodWithLeave[] = await Promise.all(
-    allUpcomingPeriods.map(async (period) => ({
+  const periodsWithLeave: RosterPeriodWithLeave[] = allUpcomingPeriods.map((period) => {
+    const stats = rosterStats[period.code] || fallbackStats
+    return {
       ...period,
-      leaveRequests: await getLeaveRequestCounts(period.code),
-      certChecks: await getCertificationCheckCounts(period.code),
-    }))
-  )
+      leaveRequests: stats.leaveRequests,
+      certChecks: stats.certChecks,
+    }
+  })
 
   // Calculate days remaining for current period
   // Each roster period is EXACTLY 28 days (business rule)
@@ -232,11 +218,13 @@ export async function CompactRosterDisplay() {
                       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                       className="overflow-visible"
                     >
-                      {/* Track arc */}
+                      {/* Track arc — themed via currentColor so it respects
+                          light/dark mode (was hardcoded oklch baked into JSX). */}
                       <path
                         d={`M ${centerX - arcRadius} ${centerY} A ${arcRadius} ${arcRadius} 0 0 1 ${centerX + arcRadius} ${centerY}`}
                         fill="none"
-                        stroke="oklch(0.22 0.006 65)"
+                        stroke="currentColor"
+                        className="text-muted"
                         strokeWidth={arcStroke}
                         strokeLinecap="round"
                       />
@@ -250,29 +238,19 @@ export async function CompactRosterDisplay() {
                         strokeDasharray={circumference}
                         strokeDashoffset={dashOffset}
                       />
-                      {/* Animated tick dot at current position */}
+                      {/* Tick dot at current position. Pulse animation removed
+                          for prefers-reduced-motion compliance — the position
+                          alone communicates "current" without needing motion. */}
                       {!isPeriodComplete && progressPercentage > 0 && (
                         <circle
                           cx={tickX}
                           cy={tickY}
                           r={5}
                           fill="var(--color-info)"
-                          stroke="oklch(0.98 0 0)"
+                          stroke="currentColor"
                           strokeWidth={2}
-                        >
-                          <animate
-                            attributeName="r"
-                            values="4;6;4"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                          <animate
-                            attributeName="opacity"
-                            values="1;0.7;1"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
+                          className="text-background"
+                        />
                       )}
                     </svg>
                     {/* Center text overlay */}
@@ -328,7 +306,7 @@ export async function CompactRosterDisplay() {
               {/* Dual-Link Sections */}
               <div className="flex flex-col border-t-2 border-[var(--color-info-border)]">
                 {/* Leave Requests Link */}
-                {nextPeriodLeave.total > 0 && (
+                {nextPeriodStats.leaveRequests.total > 0 && (
                   <Link
                     href={`/dashboard/leave?period=${nextPeriod.code}`}
                     className="group flex flex-col gap-1 border-b border-[var(--color-info-border)] px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"
@@ -336,51 +314,52 @@ export async function CompactRosterDisplay() {
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-[var(--color-info)]" />
                       <span className="text-foreground flex-1 text-xs font-semibold">
-                        {nextPeriodLeave.total} leave request
-                        {nextPeriodLeave.total !== 1 ? 's' : ''}
-                        {nextPeriodLeave.pending > 0 && (
+                        {nextPeriodStats.leaveRequests.total} leave request
+                        {nextPeriodStats.leaveRequests.total !== 1 ? 's' : ''}
+                        {nextPeriodStats.leaveRequests.pending > 0 && (
                           <span className="text-warning ml-1">
-                            ({nextPeriodLeave.pending} pending)
+                            ({nextPeriodStats.leaveRequests.pending} pending)
                           </span>
                         )}
                       </span>
                       <ChevronRight className="h-4 w-4 text-[var(--color-info)] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                     </div>
                     {/* Request Type Breakdown */}
-                    {nextPeriodLeave.byType && Object.keys(nextPeriodLeave.byType).length > 0 && (
-                      <div className="ml-6 flex flex-wrap gap-1.5">
-                        {Object.entries(nextPeriodLeave.byType)
-                          .sort((a, b) => b[1] - a[1]) // Sort by count descending
-                          .map(([type, count]) => (
-                            <span
-                              key={type}
-                              className="rounded bg-[var(--color-info-bg)] px-1.5 py-0.5 text-xs font-medium text-[var(--color-info)]"
-                            >
-                              {type}: {count}
-                            </span>
-                          ))}
-                      </div>
-                    )}
+                    {nextPeriodStats.leaveRequests.byType &&
+                      Object.keys(nextPeriodStats.leaveRequests.byType).length > 0 && (
+                        <div className="ml-6 flex flex-wrap gap-1.5">
+                          {Object.entries(nextPeriodStats.leaveRequests.byType)
+                            .sort((a, b) => b[1] - a[1]) // Sort by count descending
+                            .map(([type, count]) => (
+                              <span
+                                key={type}
+                                className="rounded bg-[var(--color-info-bg)] px-1.5 py-0.5 text-xs font-medium text-[var(--color-info)]"
+                              >
+                                {type}: {count}
+                              </span>
+                            ))}
+                        </div>
+                      )}
                   </Link>
                 )}
 
                 {/* Certification Checks Link */}
-                {nextPeriodCertChecks > 0 && (
+                {nextPeriodStats.certChecks > 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
                     className="group flex items-center gap-2 px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"
                   >
                     <ClipboardCheck className="h-4 w-4 text-[var(--color-info)]" />
                     <span className="text-foreground flex-1 text-xs font-semibold">
-                      {nextPeriodCertChecks} cert check{nextPeriodCertChecks !== 1 ? 's' : ''}{' '}
-                      planned
+                      {nextPeriodStats.certChecks} cert check
+                      {nextPeriodStats.certChecks !== 1 ? 's' : ''} planned
                     </span>
                     <ChevronRight className="h-4 w-4 text-[var(--color-info)] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                   </Link>
                 )}
 
                 {/* Fallback link if no data */}
-                {nextPeriodLeave.total === 0 && nextPeriodCertChecks === 0 && (
+                {nextPeriodStats.leaveRequests.total === 0 && nextPeriodStats.certChecks === 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
                     className="group flex items-center gap-2 px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"

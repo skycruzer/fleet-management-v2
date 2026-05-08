@@ -13,6 +13,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
 import { generateRosterPDF } from '@/lib/services/roster-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
@@ -59,8 +60,14 @@ type EmailRequest = z.infer<typeof EmailRequestSchema>
  *   }
  * }
  */
-export async function POST(request: NextRequest, { params }: { params: { period: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ period: string }> }
+) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
@@ -71,7 +78,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
     const body = await request.json()
     const validated = EmailRequestSchema.parse(body)
 
-    const period = params.period
+    const { period } = await params
 
     logger.info('Processing roster report email request', {
       userId: auth.userId!,
@@ -256,8 +263,15 @@ export async function POST(request: NextRequest, { params }: { params: { period:
       )
     }
 
-    // Save report to database
-    await saveRosterReport(report)
+    // Save report to database; warn (don't fail the request) if persistence misses
+    const saveResult = await saveRosterReport(report)
+    if (!saveResult.success) {
+      logger.warn('Roster report email sent but persistence failed', {
+        period,
+        reportType: validated.reportType,
+        error: saveResult.error,
+      })
+    }
 
     // Update roster_reports table with sent_at timestamp
     // Note: sent_to column exists in DB but not in generated types — regenerate with `npm run db:types`
@@ -314,7 +328,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Internal server error',
+        error: 'Internal server error',
       },
       { status: 500 }
     )

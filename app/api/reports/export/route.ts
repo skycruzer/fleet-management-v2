@@ -6,9 +6,10 @@
  * Generates and downloads report as PDF
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { generateReport, generatePDF } from '@/lib/services/reports-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
@@ -18,8 +19,11 @@ const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_S
 // Rate limiter for PDF generation (stricter limits)
 const rateLimit = authRateLimit
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Authentication check
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {

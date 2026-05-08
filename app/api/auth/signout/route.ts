@@ -4,13 +4,23 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { NextResponse } from 'next/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextRequest, NextResponse } from 'next/server'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const csrfError = await validateCsrf(request)
+  if (csrfError) return csrfError
+
   const supabase = createAdminClient()
 
-  // Sign out user
-  await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    logError(new Error(error.message), {
+      source: 'signout:supabase.signOut',
+      severity: ErrorSeverity.HIGH,
+    })
+  }
 
   // Redirect to home page
   return NextResponse.redirect(

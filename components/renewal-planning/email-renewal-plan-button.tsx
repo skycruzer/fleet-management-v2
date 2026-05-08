@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Mail, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface EmailRenewalPlanButtonProps {
   year: number
@@ -39,6 +40,7 @@ export function EmailRenewalPlanButton({
 
       const response = await fetch('/api/renewal-planning/email', {
         method: 'POST',
+        headers: { ...csrfHeaders() },
         body: formData,
       })
 

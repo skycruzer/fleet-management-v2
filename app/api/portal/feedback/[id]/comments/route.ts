@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import {
   createFeedbackComment,
   getFeedbackComments,
@@ -24,17 +25,31 @@ import {
 } from '@/lib/services/feedback-comment-service'
 import { z } from 'zod'
 
+type OwnershipResult =
+  | { status: 'owner' }
+  | { status: 'not_owner' }
+  | { status: 'error'; error: string }
+
 /**
- * Verify pilot owns the feedback referenced by feedbackId
+ * Verify pilot owns the feedback referenced by feedbackId.
+ * Distinguishes "not owner" (403) from "DB error" (500).
  */
-async function verifyFeedbackOwnership(feedbackId: string, pilotId: string): Promise<boolean> {
+async function verifyFeedbackOwnership(
+  feedbackId: string,
+  pilotId: string
+): Promise<OwnershipResult> {
   const supabase = createAdminClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('pilot_feedback')
     .select('pilot_id')
     .eq('id', feedbackId)
     .single()
-  return data?.pilot_id === pilotId
+
+  if (error) {
+    console.error('verifyFeedbackOwnership: DB error', { feedbackId, error: error.message })
+    return { status: 'error', error: error.message }
+  }
+  return data?.pilot_id === pilotId ? { status: 'owner' } : { status: 'not_owner' }
 }
 
 // Validation schemas
@@ -67,9 +82,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     if (!pilot) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
+    if (!pilot.pilot_id) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+    }
 
     // Verify pilot owns this feedback
-    if (pilot.pilot_id && !(await verifyFeedbackOwnership(feedbackId, pilot.pilot_id))) {
+    const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
+    if (ownership.status === 'error') {
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    }
+    if (ownership.status !== 'owner') {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -97,6 +119,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const { id: feedbackId } = await params
 
     // Verify pilot portal authentication
@@ -105,9 +130,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (!pilot) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
+    if (!pilot.pilot_id) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+    }
 
     // Verify pilot owns this feedback
-    if (pilot.pilot_id && !(await verifyFeedbackOwnership(feedbackId, pilot.pilot_id))) {
+    const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
+    if (ownership.status === 'error') {
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    }
+    if (ownership.status !== 'owner') {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -152,6 +184,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Verify pilot portal authentication
     const pilot = await getCurrentPilot()
 
@@ -199,6 +234,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Verify pilot portal authentication
     const pilot = await getCurrentPilot()
 

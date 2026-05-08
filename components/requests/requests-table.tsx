@@ -98,6 +98,9 @@ export interface PilotRequest {
     role?: 'Captain' | 'First Officer'
     employee_id?: string
   }
+  // Optional enrichment field populated by the service layer (computed,
+  // not in the DB). Was previously accessed via `(request as any)`.
+  roster_periods_spanned?: string[]
 }
 
 export interface RequestsTableProps {
@@ -248,6 +251,15 @@ export function RequestsTable({
     if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
     return 0
   })
+
+  // Cap rendered rows to bound the worst case (typical fleet has ~50 active
+  // requests at a time, but unconstrained "show all" filters can blow up
+  // the DOM). This is a render-only safety net; full virtualization with
+  // `@tanstack/react-virtual` is the proper fix but requires reshaping the
+  // semantic <table> markup — out of scope for this pass.
+  const MAX_RENDERED_ROWS = 200
+  const displayedRequests = sortedRequests.slice(0, MAX_RENDERED_ROWS)
+  const truncatedCount = sortedRequests.length - displayedRequests.length
 
   // ============================================================================
   // Action Handlers
@@ -488,7 +500,7 @@ export function RequestsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedRequests.map((request) => (
+            {displayedRequests.map((request) => (
               <React.Fragment key={request.id}>
                 {/* Main Row */}
                 <TableRow
@@ -545,8 +557,8 @@ export function RequestsTable({
                   </TableCell>
                   <TableCell>
                     <span className="font-mono text-sm">
-                      {(request as any).roster_periods_spanned
-                        ? (request as any).roster_periods_spanned.join(', ')
+                      {request.roster_periods_spanned
+                        ? request.roster_periods_spanned.join(', ')
                         : request.roster_period}
                     </span>
                   </TableCell>
@@ -745,18 +757,16 @@ export function RequestsTable({
                                   Roster Period(s):
                                 </span>{' '}
                                 <div className="mt-1 flex flex-wrap gap-1">
-                                  {(request as any).roster_periods_spanned ? (
-                                    (request as any).roster_periods_spanned.map(
-                                      (period: string) => (
-                                        <Badge
-                                          key={period}
-                                          variant="outline"
-                                          className="h-4 px-1.5 py-0 text-[10px]"
-                                        >
-                                          {period}
-                                        </Badge>
-                                      )
-                                    )
+                                  {request.roster_periods_spanned ? (
+                                    request.roster_periods_spanned.map((period: string) => (
+                                      <Badge
+                                        key={period}
+                                        variant="outline"
+                                        className="h-4 px-1.5 py-0 text-[10px]"
+                                      >
+                                        {period}
+                                      </Badge>
+                                    ))
                                   ) : (
                                     <Badge
                                       variant="outline"
@@ -829,6 +839,15 @@ export function RequestsTable({
             ))}
           </TableBody>
         </Table>
+        {truncatedCount > 0 && (
+          <div
+            role="status"
+            className="text-muted-foreground border-border bg-muted/40 border-t px-4 py-3 text-sm"
+          >
+            Showing {displayedRequests.length} of {sortedRequests.length} requests. Apply filters to
+            narrow the result.
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Dialog */}

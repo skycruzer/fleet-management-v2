@@ -2,12 +2,24 @@
  * Unified Authentication Service
  * Developer: Maurice Rondeau
  *
- * WARNING: This service references a `users` table that may not exist in the current
- * database schema. All queries use `as any` casts. Three auth routes depend on this file:
+ * !!! ORPHAN STATUS — confirmed 2026-05-08 !!!
+ * The `users` table referenced throughout this file is NOT present in
+ * `types/supabase.ts`. Verified via grep on 2026-05-08. Either:
+ *   (a) the table was never created, or
+ *   (b) it exists but `npm run db:types` was never run after creation.
+ *
+ * Three auth routes import from this file:
  *   - /api/auth/login
  *   - /api/auth/change-password
  *   - /api/auth/session
- * Before using, verify the `users` table exists and regenerate types with `npm run db:types`.
+ * If the `users` table doesn't exist, these routes will fail at runtime with
+ * "relation users does not exist" errors. The lockout writes (failed_attempts,
+ * locked_until) are now error-checked but cannot succeed without the table.
+ *
+ * Action items (not done in this remediation pass — needs Maurice's call):
+ *   - If `users` is the planned canonical table: create the migration + run db:types
+ *   - If unifier is abandoned: revert the 3 routes to admin-auth-service / session-service
+ *     and delete this file (also resolves duplicate lockout logic vs account-lockout-service)
  *
  * Handles authentication for ALL user types (admin, manager, pilot).
  * Replaces: admin-auth-service.ts, session-service.ts, pilot-portal-service.ts (auth parts),
@@ -35,7 +47,14 @@ import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 const SESSION_COOKIE_NAME = 'fleet-session'
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MINUTES = 30
-const DEFAULT_PASSWORD = process.env.DEFAULT_USER_PASSWORD || 'changeme'
+
+export function requireDefaultUserPassword(value = process.env.DEFAULT_USER_PASSWORD): string {
+  if (!value) {
+    throw new Error('DEFAULT_USER_PASSWORD is required for account creation and password reset')
+  }
+
+  return value
+}
 
 // ============================================================================
 // Types
@@ -130,10 +149,16 @@ export async function login(
         }
       }
       // Lockout expired, clear it
-      await supabase
+      const { error: clearLockErr } = await supabase
         .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
         .update({ locked_until: null, failed_login_attempts: 0 } as any)
         .eq('id', userData.id)
+      if (clearLockErr) {
+        console.error('auth-service:login: failed to clear expired lockout', {
+          userId: userData.id,
+          error: clearLockErr.message,
+        })
+      }
     }
 
     // Verify password
@@ -155,16 +180,25 @@ export async function login(
         updateData.locked_until = lockUntil.toISOString()
       }
 
-      await supabase
+      const { error: failWriteErr } = await supabase
         .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
         .update(updateData as any)
         .eq('id', userData.id)
+      if (failWriteErr) {
+        // CRITICAL: a write failure here means lockout protection silently failed —
+        // a brute-force attempt could continue past MAX_FAILED_ATTEMPTS.
+        console.error('auth-service:login: failed to record failed attempt', {
+          userId: userData.id,
+          newAttempts,
+          error: failWriteErr.message,
+        })
+      }
 
       return { success: false, error: 'Invalid staff ID or password' }
     }
 
     // Successful login - clear failed attempts and update last login
-    await supabase
+    const { error: successWriteErr } = await supabase
       .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .update({
         failed_login_attempts: 0,
@@ -172,6 +206,12 @@ export async function login(
         last_login_at: new Date().toISOString(),
       } as any)
       .eq('id', userData.id)
+    if (successWriteErr) {
+      console.error('auth-service:login: failed to reset failed-attempts on success', {
+        userId: userData.id,
+        error: successWriteErr.message,
+      })
+    }
 
     // Create session via Redis
     const sessionResult = await createRedisSession(
@@ -284,8 +324,8 @@ export async function createUserAccount(
   try {
     const supabase = createServiceRoleClient()
 
-    // Hash default password
-    const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS)
+    // Hash configured temporary password
+    const passwordHash = await bcrypt.hash(requireDefaultUserPassword(), BCRYPT_SALT_ROUNDS)
 
     const { data: newUser, error } = await supabase
       .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
@@ -404,7 +444,7 @@ export async function resetUserPassword(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = createServiceRoleClient()
-    const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS)
+    const passwordHash = await bcrypt.hash(requireDefaultUserPassword(), BCRYPT_SALT_ROUNDS)
 
     const { error } = await supabase
       .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts

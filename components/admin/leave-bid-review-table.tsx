@@ -83,6 +83,10 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING')
 
   const filteredBids = filter === 'ALL' ? bids : bids.filter((b) => b.status === filter)
+  // Bound the worst-case render count; full virtualization is out of scope here.
+  const MAX_RENDERED_ROWS = 200
+  const displayedBids = filteredBids.slice(0, MAX_RENDERED_ROWS)
+  const truncatedBidsCount = filteredBids.length - displayedBids.length
 
   // Only pending bids can be selected for bulk actions
   const selectableBids = filteredBids.filter((b) => b.status === 'PENDING')
@@ -547,7 +551,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBids.map((bid) => (
+                {displayedBids.map((bid) => (
                   <React.Fragment key={bid.id}>
                     {/* Main Row */}
                     <TableRow className="hover:bg-muted/50">
@@ -834,6 +838,15 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {truncatedBidsCount > 0 && (
+            <div
+              role="status"
+              className="text-muted-foreground border-border bg-muted/40 border-t px-4 py-3 text-sm"
+            >
+              Showing {displayedBids.length} of {filteredBids.length} bids. Use a status filter to
+              narrow the result.
+            </div>
           )}
         </CardContent>
       </Card>

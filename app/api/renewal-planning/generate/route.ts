@@ -11,10 +11,14 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
@@ -56,7 +60,15 @@ export async function POST(request: NextRequest) {
       captainRoles,
     } = body
 
-    // Clear existing renewal plans if requested
+    // Clear existing renewal plans if requested.
+    //
+    // Critical: Supabase doesn't expose a transaction boundary across HTTP,
+    // so we cannot atomically "delete + regenerate". If generation fails after
+    // a delete, the user is left with an empty table. We surface that state
+    // explicitly to the user instead of returning a generic 500 — so they
+    // know their existing plans were destroyed and can retry generation
+    // (or restore from backup).
+    let didClearExisting = false
     if (clearExisting) {
       const serviceClient = createServiceRoleClient()
       // Use gte on created_at to match all rows (Supabase requires a filter)
@@ -69,18 +81,50 @@ export async function POST(request: NextRequest) {
       if (deleteError) {
         throw new Error(`Failed to clear existing renewal plans: ${deleteError.message}`)
       }
+      didClearExisting = true
     }
 
-    // Generate renewal plans with Captain/FO pairing
-    const { renewals, pairing } = await generateRenewalPlanWithPairing({
-      monthsAhead,
-      categories,
-      pilotIds,
-      checkCodes,
-      pairingOptions: {
-        ...(captainRoles?.length > 0 ? { captainRoles } : {}),
-      },
-    })
+    // Generate renewal plans with Captain/FO pairing.
+    // If this throws AFTER didClearExisting=true, the catch below tells the
+    // user the table was emptied so they don't waste time wondering why.
+    let renewals: Awaited<ReturnType<typeof generateRenewalPlanWithPairing>>['renewals']
+    let pairing: Awaited<ReturnType<typeof generateRenewalPlanWithPairing>>['pairing']
+    try {
+      const result = await generateRenewalPlanWithPairing({
+        monthsAhead,
+        categories,
+        pilotIds,
+        checkCodes,
+        pairingOptions: {
+          ...(captainRoles?.length > 0 ? { captainRoles } : {}),
+        },
+      })
+      renewals = result.renewals
+      pairing = result.pairing
+    } catch (genError) {
+      if (didClearExisting) {
+        console.error(
+          '[generate] Existing plans were cleared but generation failed — table is now empty',
+          {
+            error: genError instanceof Error ? genError.message : String(genError),
+          }
+        )
+        const sanitized = sanitizeError(genError, {
+          operation: 'generateRenewalPlan:afterClear',
+          endpoint: '/api/renewal-planning/generate',
+        })
+        return NextResponse.json(
+          {
+            ...sanitized,
+            warning: 'EXISTING_PLANS_CLEARED',
+            message:
+              'Existing renewal plans were deleted before generation failed. The plans table is now empty. Please retry generation.',
+          },
+          { status: sanitized.statusCode }
+        )
+      }
+      throw genError
+    }
 
     // Calculate summary statistics
     const byCategory: Record<string, number> = {}

@@ -26,7 +26,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <CsrfProvider>{children}</CsrfProvider>
         </NuqsAdapter>
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" position="bottom" />
+      {process.env.NODE_ENV === 'development' &&
+        process.env.NEXT_PUBLIC_ENABLE_QUERY_DEVTOOLS === 'true' && (
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            buttonPosition="bottom-left"
+            position="bottom"
+          />
+        )}
     </QueryClientProvider>
   )
 }

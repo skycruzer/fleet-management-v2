@@ -34,6 +34,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
+import { CheckCircle2 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 
 interface LeaveRequest {
@@ -199,7 +200,7 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4 text-6xl">✅</div>
+            <CheckCircle2 className="mb-4 h-12 w-12 text-emerald-500" aria-hidden />
             <p className="text-foreground text-lg font-medium">All caught up!</p>
             <p className="text-muted-foreground mt-2 text-sm">
               There are no pending leave requests to review.

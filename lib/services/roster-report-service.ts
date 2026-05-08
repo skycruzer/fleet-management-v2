@@ -297,6 +297,34 @@ export async function saveRosterReport(
 }
 
 /**
+ * List roster reports across all periods, optionally filtered by code.
+ * Used by the admin "Roster Reports" listing page.
+ */
+export async function listRosterReports(
+  rosterPeriodCode?: string
+): Promise<ServiceResponse<any[]>> {
+  try {
+    const supabase = createAdminClient()
+    let query = supabase
+      .from('roster_reports')
+      .select('*')
+      .order('generated_at', { ascending: false })
+    if (rosterPeriodCode) {
+      query = query.eq('roster_period_code', rosterPeriodCode)
+    }
+    const { data, error } = await query
+    if (error) {
+      logger.error('Failed to fetch roster reports', { error })
+      return { success: false, error: 'Failed to fetch roster reports' }
+    }
+    return { success: true, data: data || [] }
+  } catch (error: any) {
+    logger.error('listRosterReports threw', { error })
+    return { success: false, error: 'Failed to fetch roster reports' }
+  }
+}
+
+/**
  * Get roster report history for a roster period
  *
  * @param rosterPeriodCode - Roster period code

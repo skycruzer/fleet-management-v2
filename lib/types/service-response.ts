@@ -20,8 +20,29 @@
  */
 
 /**
- * Service Response Interface
- * Generic type T represents the data returned on success
+ * Closed set of programmatic error codes. New code should pass these
+ * literals instead of free-form strings; the helpers below already do.
+ */
+export type ServiceErrorCode =
+  | 'VALIDATION_ERROR'
+  | 'UNAUTHORIZED'
+  | 'NOT_FOUND'
+  | 'FORBIDDEN'
+  | 'CONFLICT'
+  | 'RATE_LIMIT_EXCEEDED'
+  | 'INTERNAL_ERROR'
+
+/**
+ * Service Response Interface (legacy permissive shape).
+ *
+ * NOTE: This shape allows `{ success: true, data: undefined }` and
+ * `{ success: false, data: present }` to type-check, which is unsound
+ * but matches the ~50 existing callers. New code SHOULD prefer
+ * `StrictServiceResponse<T>` below, which is a true discriminated union.
+ *
+ * Existing callers narrow safely via `isSuccess`/`isError` guards.
+ *
+ * Generic type T represents the data returned on success.
  */
 export interface ServiceResponse<T = void> {
   /** Indicates if the operation was successful */
@@ -34,7 +55,7 @@ export interface ServiceResponse<T = void> {
   error?: string
 
   /** Detailed error code for programmatic handling */
-  errorCode?: string
+  errorCode?: ServiceErrorCode | (string & {})
 
   /** Additional metadata (timestamps, counts, etc.) */
   metadata?: Record<string, unknown>
@@ -45,6 +66,31 @@ export interface ServiceResponse<T = void> {
     message: string
   }>
 }
+
+/**
+ * Strict discriminated-union form of ServiceResponse.
+ *
+ * Use this in new services. Type narrowing on the `success` discriminant
+ * makes `data` available without `?` in the success branch and forbids
+ * accessing it in the error branch — preventing the silent unsafe accesses
+ * that the loose shape permits.
+ *
+ * Migration: new code returns `StrictServiceResponse<T>`. Adapters can
+ * widen to `ServiceResponse<T>` (assignable) for legacy callers.
+ */
+export type StrictServiceResponse<T> =
+  | {
+      success: true
+      data: T
+      metadata?: Record<string, unknown>
+    }
+  | {
+      success: false
+      error: string
+      errorCode?: ServiceErrorCode | (string & {})
+      validationErrors?: Array<{ field: string; message: string }>
+      metadata?: Record<string, unknown>
+    }
 
 /**
  * Service Response Builder

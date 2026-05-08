@@ -16,7 +16,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Target, CalendarDays } from 'lucide-react'
 import { format } from 'date-fns'
 import {
   getCurrentRosterPeriodObject,
@@ -243,7 +243,13 @@ export function RosterPeriodCarousel() {
                         </Badge>
                         <p className="text-foreground text-xl font-bold">{roster.code}</p>
                       </div>
-                      <span className="text-2xl">{index === 0 ? '🎯' : '📆'}</span>
+                      <span className="text-muted-foreground" aria-hidden>
+                        {index === 0 ? (
+                          <Target className="h-5 w-5" />
+                        ) : (
+                          <CalendarDays className="h-5 w-5" />
+                        )}
+                      </span>
                     </div>
 
                     <div className="space-y-1 text-sm">

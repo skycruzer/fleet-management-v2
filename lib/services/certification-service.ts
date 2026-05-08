@@ -18,6 +18,7 @@ import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
+import { invalidateCertificationCaches } from './cache-invalidation-helper'
 import { getCertificationStatus, DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
 
 /**
@@ -417,8 +418,12 @@ export async function createCertification(
       description: `Created certification for pilot ID: ${data.pilot_id}`,
     })
 
-    // Invalidate certification cache to ensure fresh data is fetched
+    // Invalidate certification cache to ensure fresh data is fetched.
+    // Both unified-cache (in-process) and Redis analytics cache must be hit;
+    // a narrow tag invalidation alone leaves the dashboard's Redis-cached
+    // metrics stale until TTL expiry.
     invalidateCacheByTag('certifications')
+    await invalidateCertificationCaches()
 
     return data
   } catch (error) {
@@ -482,8 +487,12 @@ export async function updateCertification(
       description: `Updated certification for pilot ID: ${data.pilot_id}`,
     })
 
-    // Invalidate certification cache to ensure fresh data is fetched
+    // Invalidate certification cache to ensure fresh data is fetched.
+    // Both unified-cache (in-process) and Redis analytics cache must be hit;
+    // a narrow tag invalidation alone leaves the dashboard's Redis-cached
+    // metrics stale until TTL expiry.
     invalidateCacheByTag('certifications')
+    await invalidateCertificationCaches()
 
     return data
   } catch (error) {
@@ -527,8 +536,12 @@ export async function deleteCertification(certificationId: string): Promise<void
       })
     }
 
-    // Invalidate certification cache to ensure fresh data is fetched
+    // Invalidate certification cache to ensure fresh data is fetched.
+    // Both unified-cache (in-process) and Redis analytics cache must be hit;
+    // a narrow tag invalidation alone leaves the dashboard's Redis-cached
+    // metrics stale until TTL expiry.
     invalidateCacheByTag('certifications')
+    await invalidateCertificationCaches()
   } catch (error) {
     logError(error as Error, {
       source: 'certification-service:deleteCertification',

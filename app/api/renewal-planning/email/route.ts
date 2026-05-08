@@ -28,10 +28,13 @@
  *    RESEND_TO_EMAIL="rostering-team@airniugini.com"
  */
 
-import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import {
+  getRosterPeriodCapacity,
+  listRosterPeriodsForYear,
+} from '@/lib/services/certification-renewal-planning-service'
 import { createAuditLog } from '@/lib/services/audit-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -317,8 +320,11 @@ function generateEmailHTML(data: {
 /**
  * POST handler - Send renewal plan email
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
@@ -343,21 +349,16 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = createAdminClient()
-
-    // Get roster periods for the year
-    const { data: periods, error: periodsError } = await supabase
-      .from('roster_period_capacity')
-      .select('roster_period, period_start_date, period_end_date')
-      .gte('period_start_date', `${year}-01-01`)
-      .lte('period_start_date', `${year}-12-31`)
-      .order('period_start_date')
-
-    if (periodsError) {
-      return NextResponse.json(
-        { error: 'Failed to fetch roster periods', details: periodsError.message },
-        { status: 500 }
-      )
+    // Get roster periods for the year via the service (no direct supabase here).
+    let periods: Awaited<ReturnType<typeof listRosterPeriodsForYear>>
+    try {
+      periods = await listRosterPeriodsForYear(year)
+    } catch (periodsError: any) {
+      console.error('[Email] listRosterPeriodsForYear failed', {
+        year,
+        error: periodsError?.message,
+      })
+      return NextResponse.json({ error: 'Failed to fetch roster periods' }, { status: 500 })
     }
 
     if (!periods || periods.length === 0) {
@@ -384,6 +385,31 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'No capacity data available', details: 'Unable to retrieve capacity summaries' },
         { status: 500 }
+      )
+    }
+
+    // Refuse to send a partial-data email — rostering team must not be told
+    // "Plan for 2026" with figures derived from a fraction of the year's
+    // periods. Either all 13 load, or we surface a 502 explaining what's
+    // missing so they can retry.
+    if (validSummaries.length < periods.length) {
+      const missingPeriods = periods
+        .map((p, idx) => (summaries[idx] === null ? p.roster_period : null))
+        .filter((code): code is string => code !== null)
+      console.error('[Email] Refusing to send partial renewal plan email', {
+        year,
+        expectedPeriods: periods.length,
+        validSummaries: validSummaries.length,
+        missingPeriods,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Renewal plan data incomplete',
+          details: `Capacity data missing for ${missingPeriods.length} of ${periods.length} periods. Email not sent.`,
+          missingPeriods,
+        },
+        { status: 502 }
       )
     }
 
@@ -487,21 +513,24 @@ Fleet Operations
   } catch (error: any) {
     console.error('[Email] Error:', error)
 
-    // Special handling for package not installed
+    // Special handling for package not installed: log setup guidance
+    // server-side, but don't ship internal infrastructure setup details
+    // back to clients (admins) — they get a generic 503.
     if (error.message?.includes('npm install resend')) {
+      console.error('[Email] Resend package missing — server-side setup required', {
+        steps: [
+          '1. Install Resend package: npm install resend',
+          '2. Sign up at https://resend.com and get API key',
+          '3. Verify your domain in Resend dashboard',
+          '4. Add RESEND_API_KEY to .env.local',
+          '5. Add RESEND_FROM_EMAIL to .env.local',
+          '6. Add RESEND_TO_EMAIL to .env.local',
+        ],
+      })
       return NextResponse.json(
         {
           success: false,
-          error: 'Email service not configured',
-          details: error.message,
-          setup: [
-            '1. Install Resend package: npm install resend',
-            '2. Sign up at https://resend.com and get API key',
-            '3. Verify your domain in Resend dashboard',
-            '4. Add RESEND_API_KEY to .env.local',
-            '5. Add RESEND_FROM_EMAIL to .env.local',
-            '6. Add RESEND_TO_EMAIL to .env.local',
-          ],
+          error: 'Email service not configured. Contact the system administrator.',
         },
         { status: 503 }
       )

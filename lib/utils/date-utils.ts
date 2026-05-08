@@ -8,6 +8,8 @@
  * - Month abbreviations: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
  */
 
+import { getCertificationStatus } from './certification-status'
+
 /**
  * Format options for consistent date display across the app
  * All formats use Australian conventions (day-first)
@@ -387,46 +389,19 @@ export function formatExpiryDate(date: Date | string | null | undefined): {
   color: 'red' | 'yellow' | 'green' | 'gray'
   label: string
 } {
+  // Color/label logic delegated to the canonical helper in
+  // `lib/utils/certification-status.ts` — was duplicated here with a
+  // separately-maintained 30-day threshold (drift risk).
   const d = toDate(date)
-
   if (!d) {
-    return {
-      formatted: 'No date',
-      daysUntil: null,
-      color: 'gray',
-      label: 'No Date',
-    }
+    return { formatted: 'No date', daysUntil: null, color: 'gray', label: 'No Date' }
   }
-
-  const days = daysUntil(d)
   const formatted = formatDate(d)
-
-  if (days === null) {
-    return { formatted, daysUntil: null, color: 'gray', label: 'Unknown' }
-  }
-
-  if (days < 0) {
-    return {
-      formatted,
-      daysUntil: days,
-      color: 'red',
-      label: 'Expired',
-    }
-  }
-
-  if (days <= 30) {
-    return {
-      formatted,
-      daysUntil: days,
-      color: 'yellow',
-      label: 'Expiring Soon',
-    }
-  }
-
+  const status = getCertificationStatus(d)
   return {
     formatted,
-    daysUntil: days,
-    color: 'green',
-    label: 'Current',
+    daysUntil: status.daysUntilExpiry ?? null,
+    color: status.color,
+    label: status.label,
   }
 }

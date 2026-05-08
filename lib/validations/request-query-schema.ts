@@ -23,16 +23,10 @@ import type {
 export const RequestCategoryEnum = z.enum(['LEAVE', 'FLIGHT', 'LEAVE_BID'])
 
 /**
- * Workflow status enum - matches database CHECK constraint
+ * Workflow status enum — re-exported from the canonical source so this
+ * schema can't drift from `lib/types/workflow-status.ts`.
  */
-export const WorkflowStatusEnum = z.enum([
-  'DRAFT',
-  'SUBMITTED',
-  'IN_REVIEW',
-  'APPROVED',
-  'DENIED',
-  'WITHDRAWN',
-])
+export { WorkflowStatusEnum } from '@/lib/types/workflow-status'
 
 /**
  * Submission channel enum - matches database CHECK constraint

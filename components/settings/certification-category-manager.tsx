@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { CardGridSkeleton } from '@/components/ui/skeleton'
 import { Pencil, Plus } from 'lucide-react'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { toast } from 'sonner'
 
 interface CertificationCategory {
   id: string
@@ -122,10 +123,11 @@ export function CertificationCategoryManager() {
         await fetchCategories()
         handleClose()
       } else {
-        alert(result.error || 'Failed to save category')
+        toast.error(result.error || 'Failed to save category')
       }
     } catch (error) {
-      alert('Failed to save category')
+      console.error('Failed to save category', error)
+      toast.error('Failed to save category')
     } finally {
       setSaving(false)
     }

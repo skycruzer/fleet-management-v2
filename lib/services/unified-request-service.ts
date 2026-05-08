@@ -23,6 +23,10 @@ import {
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
 import { checkCrewAvailabilityAtomic } from '@/lib/services/leave-eligibility-service'
 import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
+import {
+  invalidateLeaveCaches,
+  invalidateRequestCaches,
+} from '@/lib/services/cache-invalidation-helper'
 import { notifyAllAdmins, createNotification } from '@/lib/services/notification-service'
 import type { NotificationType } from '@/lib/services/notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
@@ -62,15 +66,10 @@ export type RequestType = LeaveRequestType | FlightRequestType
 export type SubmissionChannel = 'PILOT_PORTAL' | 'EMAIL' | 'PHONE' | 'ORACLE' | 'ADMIN_PORTAL'
 
 /**
- * Workflow status
+ * Workflow status — canonical alphabet lives in `lib/types/workflow-status.ts`.
+ * Re-exported here for backwards-compatible import paths.
  */
-export type WorkflowStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'IN_REVIEW'
-  | 'APPROVED'
-  | 'DENIED'
-  | 'WITHDRAWN'
+export type { WorkflowStatus } from '@/lib/types/workflow-status'
 
 /**
  * Pilot rank
@@ -151,6 +150,74 @@ export interface PilotRequest {
   submitted_by?: {
     name: string
   }
+
+  // Enrichment field populated by service-layer queries (computed, not in DB).
+  // Optional because the base shape is also used for inserts/updates where
+  // it's irrelevant. Was previously accessed via `(request as any).roster_periods_spanned`.
+  roster_periods_spanned?: string[]
+}
+
+// ============================================================================
+// TypedPilotRequest — discriminated-union view (Plan D2)
+// ============================================================================
+
+/**
+ * Category-specific shapes that make illegal field combinations
+ * unrepresentable. New code SHOULD prefer narrowing through this view via
+ * `narrowPilotRequest(request)` so that, e.g., `flight_date` is only visible
+ * inside the FLIGHT branch and `days_count` is only visible inside LEAVE.
+ *
+ * This is layered on top of the loose `PilotRequest` type — we don't reshape
+ * the base interface (would touch 30+ callers); instead we provide a typed
+ * lens that callers opt into.
+ */
+export interface LeavePilotRequestNarrow extends PilotRequest {
+  request_category: 'LEAVE'
+  request_type: LeaveRequestType
+  end_date: string
+  days_count: number
+}
+
+export interface FlightPilotRequestNarrow extends PilotRequest {
+  request_category: 'FLIGHT'
+  request_type: FlightRequestType
+  flight_date: string
+}
+
+export interface LeaveBidPilotRequestNarrow extends PilotRequest {
+  request_category: 'LEAVE_BID'
+}
+
+export type TypedPilotRequest =
+  | LeavePilotRequestNarrow
+  | FlightPilotRequestNarrow
+  | LeaveBidPilotRequestNarrow
+
+/**
+ * Narrow a loose `PilotRequest` into the discriminated view. Returns the
+ * narrowed shape if the category-specific invariants hold, or null when the
+ * data violates them (e.g., LEAVE row with no end_date) — caller decides
+ * how to surface that.
+ */
+export function narrowPilotRequest(req: PilotRequest): TypedPilotRequest | null {
+  switch (req.request_category) {
+    case 'LEAVE': {
+      if (req.end_date && req.days_count !== null) {
+        return req as LeavePilotRequestNarrow
+      }
+      return null
+    }
+    case 'FLIGHT': {
+      if (req.flight_date) {
+        return req as FlightPilotRequestNarrow
+      }
+      return null
+    }
+    case 'LEAVE_BID':
+      return req as LeaveBidPilotRequestNarrow
+    default:
+      return null
+  }
 }
 
 /**
@@ -206,12 +273,13 @@ export interface PilotRequestFilters {
 }
 
 /**
- * Service response wrapper
+ * Request-evaluation extras layered on the canonical ServiceResponse.
+ * Composed via intersection so the shape stays consistent with the rest
+ * of the service layer instead of redefining the base interface.
  */
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
+import type { ServiceResponse as CanonicalServiceResponse } from '@/lib/types/service-response'
+
+export interface RequestEvaluationExtras {
   conflicts?: import('@/lib/services/conflict-detection-service').Conflict[]
   warnings?: string[]
   canApprove?: boolean
@@ -223,6 +291,8 @@ export interface ServiceResponse<T = void> {
     belowMinimum?: boolean
   }
 }
+
+export type ServiceResponse<T = void> = CanonicalServiceResponse<T> & RequestEvaluationExtras
 
 // ============================================================================
 // CRUD Operations
@@ -426,13 +496,18 @@ export async function createPilotRequest(
       }
     }
 
-    // Invalidate report caches to ensure fresh data
+    // Invalidate report caches AND the dashboard's Redis analytics layer.
+    // The narrow tag invalidation alone leaves dashboard-service-v4's cached
+    // metrics stale until TTL expiry, so we also fan out through the
+    // canonical helper.
     if (input.request_category === 'LEAVE') {
       await invalidateCacheByTag('reports:leave')
+      await invalidateLeaveCaches()
     } else if (input.request_category === 'FLIGHT') {
       await invalidateCacheByTag('reports:rdo-sdo')
     }
     await invalidateCacheByTag('reports:all-requests')
+    await invalidateRequestCaches()
 
     // Log conflict detection results
     if (conflictResult.conflicts.length > 0) {
@@ -827,13 +902,15 @@ export async function updateRequestStatus(
       }
     }
 
-    // Invalidate report caches to ensure fresh dashboard/report data
+    // Invalidate report caches + dashboard Redis analytics layer
     if (data.request_category === 'LEAVE') {
       await invalidateCacheByTag('reports:leave')
+      await invalidateLeaveCaches()
     } else if (data.request_category === 'FLIGHT') {
       await invalidateCacheByTag('reports:rdo-sdo')
     }
     await invalidateCacheByTag('reports:all-requests')
+    await invalidateRequestCaches()
 
     // Resolve pilot_user_id (may be null for requests created via createPilotRequest)
     let pilotUserId = data.pilot_user_id
@@ -1033,10 +1110,12 @@ export async function updatePilotRequest(
       }
     }
 
-    // Invalidate related caches
+    // Invalidate related caches + dashboard Redis analytics layer
     await invalidateCacheByTag('reports:leave')
     await invalidateCacheByTag('reports:rdo-sdo')
     await invalidateCacheByTag('reports:all-requests')
+    await invalidateLeaveCaches()
+    await invalidateRequestCaches()
 
     // Send email notification about the edit (fire-and-forget)
     if (data.pilot_id) {
@@ -1096,10 +1175,12 @@ export async function deletePilotRequest(id: string): Promise<ServiceResponse<vo
       }
     }
 
-    // Invalidate related caches
+    // Invalidate related caches + dashboard Redis analytics layer
     await invalidateCacheByTag('reports:leave')
     await invalidateCacheByTag('reports:rdo-sdo')
     await invalidateCacheByTag('reports:all-requests')
+    await invalidateLeaveCaches()
+    await invalidateRequestCaches()
 
     return {
       success: true,

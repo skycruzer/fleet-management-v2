@@ -421,8 +421,8 @@ export function RequestCardsGrid({
               // New fields for data parity with table view
               days_count: request.days_count,
               submission_channel: request.submission_channel,
-              roster_periods_spanned: Array.isArray((request as any).roster_periods_spanned)
-                ? (request as any).roster_periods_spanned
+              roster_periods_spanned: Array.isArray(request.roster_periods_spanned)
+                ? request.roster_periods_spanned
                 : null,
               // Persistent approval checklist
               approval_checklist: request.approval_checklist || null,
