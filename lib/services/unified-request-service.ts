@@ -67,9 +67,13 @@ export type SubmissionChannel = 'PILOT_PORTAL' | 'EMAIL' | 'PHONE' | 'ORACLE' | 
 
 /**
  * Workflow status — canonical alphabet lives in `lib/types/workflow-status.ts`.
- * Re-exported here for backwards-compatible import paths.
+ * Imported AND re-exported so existing local references and external
+ * `from '@/lib/services/unified-request-service'` consumers both keep working.
+ * (A bare `export type { ... } from '...'` re-exports without binding the
+ * name in this module — broke `workflow_status: WorkflowStatus` below.)
  */
-export type { WorkflowStatus } from '@/lib/types/workflow-status'
+import type { WorkflowStatus } from '@/lib/types/workflow-status'
+export type { WorkflowStatus }
 
 /**
  * Pilot rank
