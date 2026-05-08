@@ -32,7 +32,7 @@ function RosterSkeleton() {
 async function PublishedRostersData() {
   const currentPeriod = getCurrentRosterPeriodObject()
 
-  const [uploadedCodes, activityCodesResponse, rosterData] = await Promise.all([
+  const [uploadedCodesResponse, activityCodesResponse, rosterData] = await Promise.all([
     getUploadedPeriodCodes(),
     getActivityCodes(),
     getRosterWithAssignments(currentPeriod.code),
@@ -42,7 +42,7 @@ async function PublishedRostersData() {
     <PublishedRostersClient
       initialPeriodCode={currentPeriod.code}
       initialRoster={rosterData}
-      initialUploadedCodes={uploadedCodes}
+      initialUploadedCodes={unwrapOr(uploadedCodesResponse, [])}
       activityCodes={unwrapOr(activityCodesResponse, [])}
     />
   )
