@@ -423,7 +423,7 @@ export function RequestCardsGrid({
               submission_channel: request.submission_channel,
               roster_periods_spanned: Array.isArray(request.roster_periods_spanned)
                 ? request.roster_periods_spanned
-                : null,
+                : undefined,
               // Persistent approval checklist
               approval_checklist: request.approval_checklist || null,
             }}

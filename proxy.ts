@@ -13,7 +13,7 @@ import type { CookieOptions } from '@supabase/ssr'
  * Dual-role users (pilot + admin) can access both portals with separate logins.
  */
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Create response that can be modified
