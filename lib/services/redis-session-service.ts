@@ -18,7 +18,7 @@ import { Redis } from '@upstash/redis'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
-import { logWarning } from '@/lib/error-logger'
+import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 
 // ============================================================================
 // Constants
@@ -319,17 +319,10 @@ async function validateSessionFromDb(
     const userId = sessionData[dbUserIdColumn]
     let userData: any = null
 
-    if (dbTable === 'sessions') {
-      const { data, error } = await supabase
-        .from('users' as any)
-        .select('id, staff_id, email, name, role, is_active, must_change_password, pilot_id')
-        .eq('id', userId)
-        .single()
-
-      if (!error && data) {
-        userData = data
-      }
-    } else if (dbTable === 'admin_sessions') {
+    // Note: the legacy `dbTable === 'sessions'` branch (which queried a
+    // non-existent `users` table) was removed when auth-service.ts was
+    // deleted. Only `admin_sessions` and `pilot_sessions` are valid.
+    if (dbTable === 'admin_sessions') {
       const { data, error } = await supabase
         .from('an_users')
         .select('id, email, name, role')
@@ -467,64 +460,136 @@ async function extendRedisSession(token: string, sessionData: RedisSessionData):
 // ============================================================================
 
 /**
+ * Result for session destruction: structured so callers can detect partial
+ * failures (e.g., logout success at the cookie layer but sessions still live
+ * server-side). cookieCleared=true should be the only consumer-visible
+ * "logged out" signal; redisCleared/dbDeactivated are HIGH-severity logged
+ * and should be inspected by security-sensitive flows (password reset).
+ */
+export interface SessionDestroyResult {
+  cookieCleared: boolean
+  redisCleared: boolean
+  dbDeactivated: boolean
+  failures: string[]
+}
+
+/**
  * Destroy a single session: delete from Redis + mark inactive in DB + clear cookie.
+ *
+ * Returns a structured result. Callers that need security guarantees (logout,
+ * password reset) should check `redisCleared` and `dbDeactivated`; otherwise
+ * `cookieCleared` is sufficient for UX purposes.
  */
 export async function destroyRedisSession(
   cookieName: string = DEFAULT_COOKIE_NAME,
   dbTable: string = 'sessions'
-): Promise<void> {
+): Promise<SessionDestroyResult> {
+  const result: SessionDestroyResult = {
+    cookieCleared: false,
+    redisCleared: true, // optimistically true; flipped to false on failure
+    dbDeactivated: true,
+    failures: [],
+  }
+
+  let cookieStore: Awaited<ReturnType<typeof cookies>>
   try {
-    const cookieStore = await cookies()
-    const sessionToken = cookieStore.get(cookieName)?.value
+    cookieStore = await cookies()
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'redis-session-service:cookies()',
+      severity: ErrorSeverity.HIGH,
+    })
+    result.failures.push('cookies-unavailable')
+    result.redisCleared = false
+    result.dbDeactivated = false
+    return result
+  }
 
-    if (sessionToken) {
-      // Delete from Redis
-      const redis = getRedisClient()
-      if (redis) {
-        try {
-          // Get session data to find userId for set cleanup
-          const raw = await redis.get<string>(sessionKey(sessionToken))
-          if (raw) {
-            let sessionData: RedisSessionData | null = null
-            try {
-              sessionData =
-                typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
-            } catch {
-              console.error(
-                'Failed to parse Redis session JSON:',
-                (typeof raw === 'string' ? raw : '').substring(0, 100)
-              )
-            }
-            if (sessionData) {
-              await redis.srem(userSessionsKey(sessionData.userId), sessionToken)
-            }
+  const sessionToken = cookieStore.get(cookieName)?.value
+
+  if (sessionToken) {
+    // Delete from Redis
+    const redis = getRedisClient()
+    if (redis) {
+      try {
+        const raw = await redis.get<string>(sessionKey(sessionToken))
+        if (raw) {
+          let sessionData: RedisSessionData | null = null
+          try {
+            sessionData =
+              typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
+          } catch (parseErr) {
+            logWarning('Failed to parse Redis session JSON', {
+              source: 'redis-session-service:destroyRedisSession',
+              metadata: {
+                preview: (typeof raw === 'string' ? raw : '').substring(0, 100),
+                error: parseErr instanceof Error ? parseErr.message : String(parseErr),
+              },
+            })
           }
-          await redis.del(sessionKey(sessionToken))
-        } catch {
-          // Non-critical
+          if (sessionData) {
+            await redis.srem(userSessionsKey(sessionData.userId), sessionToken)
+          }
         }
+        await redis.del(sessionKey(sessionToken))
+      } catch (redisErr) {
+        result.redisCleared = false
+        result.failures.push('redis-delete')
+        logError(redisErr instanceof Error ? redisErr : new Error(String(redisErr)), {
+          source: 'redis-session-service:destroyRedisSession:redis',
+          severity: ErrorSeverity.HIGH,
+          metadata: { dbTable },
+        })
       }
+    } else {
+      // Redis unavailable — DB update below is the only authority.
+      result.redisCleared = false
+    }
 
-      // Mark inactive in DB
+    // Mark inactive in DB
+    try {
       const supabase = createServiceRoleClient()
-      await supabase
+      const { error: dbErr } = await supabase
         .from(dbTable as any)
         .update({ is_active: false } as any)
         .eq('session_token', sessionToken)
+      if (dbErr) {
+        result.dbDeactivated = false
+        result.failures.push('db-deactivate')
+        logError(new Error(dbErr.message), {
+          source: 'redis-session-service:destroyRedisSession:db',
+          severity: ErrorSeverity.HIGH,
+          metadata: { dbTable, code: dbErr.code },
+        })
+      }
+    } catch (dbErr) {
+      result.dbDeactivated = false
+      result.failures.push('db-deactivate-throw')
+      logError(dbErr instanceof Error ? dbErr : new Error(String(dbErr)), {
+        source: 'redis-session-service:destroyRedisSession:db',
+        severity: ErrorSeverity.HIGH,
+        metadata: { dbTable },
+      })
     }
-
-    // Clear cookie
-    cookieStore.delete(cookieName)
-  } catch (error) {
-    console.error('Error destroying Redis session:', error)
-    // Still try to clear cookie
-    try {
-      const cookieStore = await cookies()
-      cookieStore.delete(cookieName)
-    } catch {
-      // ignore
-    }
+  } else {
+    // No session cookie present; nothing to revoke server-side
+    result.redisCleared = true
+    result.dbDeactivated = true
   }
+
+  // Always try to clear cookie last
+  try {
+    cookieStore.delete(cookieName)
+    result.cookieCleared = true
+  } catch (cookieErr) {
+    result.failures.push('cookie-clear')
+    logError(cookieErr instanceof Error ? cookieErr : new Error(String(cookieErr)), {
+      source: 'redis-session-service:destroyRedisSession:cookie',
+      severity: ErrorSeverity.HIGH,
+    })
+  }
+
+  return result
 }
 
 // ============================================================================
@@ -532,41 +597,85 @@ export async function destroyRedisSession(
 // ============================================================================
 
 /**
+ * Result for revoking all of a user's sessions.
+ * Security-sensitive callers (password reset, lockout) MUST inspect this and
+ * surface partial failures — silently dropping a Redis cleanup error means
+ * a leaked session token still authenticates after a password reset.
+ */
+export interface RevokeAllResult {
+  redisCleared: boolean
+  dbDeactivated: boolean
+  failures: string[]
+}
+
+/**
  * Revoke all sessions for a given user.
  * Uses Redis SMEMBERS to find all tokens, then deletes them.
+ * Returns a structured result; security-sensitive flows must check it.
  */
 export async function destroyAllUserSessions(
   userId: string,
   dbTable: string = 'sessions',
   dbUserIdColumn: string = 'user_id'
-): Promise<void> {
-  try {
-    // Delete from Redis
-    const redis = getRedisClient()
-    if (redis) {
-      try {
-        const tokens = await redis.smembers(userSessionsKey(userId))
-        if (tokens.length > 0) {
-          const pipeline = redis.pipeline()
-          for (const token of tokens) {
-            pipeline.del(sessionKey(token))
-          }
-          pipeline.del(userSessionsKey(userId))
-          await pipeline.exec()
-        }
-      } catch {
-        // Non-critical — DB update below will still invalidate sessions
-      }
-    }
+): Promise<RevokeAllResult> {
+  const result: RevokeAllResult = {
+    redisCleared: true,
+    dbDeactivated: true,
+    failures: [],
+  }
 
-    // Mark all sessions inactive in DB
+  // Delete from Redis
+  const redis = getRedisClient()
+  if (redis) {
+    try {
+      const tokens = await redis.smembers(userSessionsKey(userId))
+      if (tokens.length > 0) {
+        const pipeline = redis.pipeline()
+        for (const token of tokens) {
+          pipeline.del(sessionKey(token))
+        }
+        pipeline.del(userSessionsKey(userId))
+        await pipeline.exec()
+      }
+    } catch (redisErr) {
+      result.redisCleared = false
+      result.failures.push('redis-pipeline')
+      logError(redisErr instanceof Error ? redisErr : new Error(String(redisErr)), {
+        source: 'redis-session-service:destroyAllUserSessions:redis',
+        severity: ErrorSeverity.HIGH,
+        metadata: { userId, dbTable },
+      })
+    }
+  } else {
+    result.redisCleared = false
+  }
+
+  // Mark all sessions inactive in DB
+  try {
     const supabase = createServiceRoleClient()
-    await supabase
+    const { error: dbErr } = await supabase
       .from(dbTable as any)
       .update({ is_active: false } as any)
       .eq(dbUserIdColumn, userId)
       .eq('is_active', true)
+    if (dbErr) {
+      result.dbDeactivated = false
+      result.failures.push('db-deactivate')
+      logError(new Error(dbErr.message), {
+        source: 'redis-session-service:destroyAllUserSessions:db',
+        severity: ErrorSeverity.HIGH,
+        metadata: { userId, dbTable, code: dbErr.code },
+      })
+    }
   } catch (error) {
-    console.error('Error destroying all user sessions:', error)
+    result.dbDeactivated = false
+    result.failures.push('db-deactivate-throw')
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'redis-session-service:destroyAllUserSessions:db',
+      severity: ErrorSeverity.HIGH,
+      metadata: { userId, dbTable },
+    })
   }
+
+  return result
 }

@@ -30,14 +30,9 @@ import {
 type PilotRegistration = Database['public']['Tables']['pilot_users']['Row']
 type PilotRegistrationInsert = Database['public']['Tables']['pilot_users']['Insert']
 
-/**
- * Service response type
- */
-interface ServiceResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
+// ServiceResponse: canonical type from '@/lib/types/service-response'.
+// Local shadow removed (Plan C remediation 2026-05-08).
+import type { ServiceResponse } from '@/lib/types/service-response'
 
 /**
  * Portal statistics type

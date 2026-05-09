@@ -6,10 +6,11 @@
  * Sends report via email using Resend.com
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { generateReport, generatePDF } from '@/lib/services/reports-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
@@ -28,8 +29,11 @@ function getResend() {
   return _resend
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Authentication check
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {

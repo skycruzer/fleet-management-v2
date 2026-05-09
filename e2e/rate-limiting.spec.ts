@@ -10,13 +10,13 @@ import { test, expect } from '@playwright/test'
 test.describe('Rate Limiting', () => {
   test.describe('Login Endpoint', () => {
     test('should allow up to 5 login attempts per minute', async ({ request }) => {
-      const loginEndpoint = '/api/auth/login'
+      const loginEndpoint = '/api/portal/login'
 
       // Make 5 login attempts (should all be allowed, though may fail authentication)
       for (let i = 0; i < 5; i++) {
         const response = await request.post(loginEndpoint, {
           data: {
-            email: 'test@example.com',
+            staffId: 'TEST123',
             password: 'wrong-password',
           },
         })
@@ -36,13 +36,13 @@ test.describe('Rate Limiting', () => {
     })
 
     test('should block 6th login attempt within a minute', async ({ request }) => {
-      const loginEndpoint = '/api/auth/login'
+      const loginEndpoint = '/api/portal/login'
 
       // Make 5 allowed attempts
       for (let i = 0; i < 5; i++) {
         await request.post(loginEndpoint, {
           data: {
-            email: 'test@example.com',
+            staffId: 'TEST123',
             password: 'wrong-password',
           },
         })
@@ -51,7 +51,7 @@ test.describe('Rate Limiting', () => {
       // 6th attempt should be rate limited
       const response = await request.post(loginEndpoint, {
         data: {
-          email: 'test@example.com',
+          staffId: 'TEST123',
           password: 'wrong-password',
         },
       })
@@ -77,7 +77,11 @@ test.describe('Rate Limiting', () => {
     })
   })
 
-  test.describe('General Auth Endpoints', () => {
+  test.describe.skip('General Auth Endpoints', () => {
+    // SKIPPED: targets /api/auth/signup which does not exist in this codebase.
+    // The pilot portal handles registration via /api/portal/register and
+    // admin signup is not exposed. Re-enable + repoint when a real signup
+    // endpoint is introduced.
     test('should allow up to 10 auth requests per minute', async ({ request }) => {
       const signupEndpoint = '/api/auth/signup'
 
@@ -120,7 +124,10 @@ test.describe('Rate Limiting', () => {
     })
   })
 
-  test.describe('Password Reset Endpoint', () => {
+  test.describe.skip('Password Reset Endpoint', () => {
+    // SKIPPED: targets /api/auth/password-reset which doesn't exist; the
+    // real endpoint is /api/portal/forgot-password (different rate-limit
+    // semantics). Repoint when re-enabling.
     test('should allow up to 3 password reset requests per hour', async ({ request }) => {
       const resetEndpoint = '/api/auth/password-reset'
 
@@ -128,7 +135,7 @@ test.describe('Rate Limiting', () => {
       for (let i = 0; i < 3; i++) {
         const response = await request.post(resetEndpoint, {
           data: {
-            email: 'test@example.com',
+            staffId: 'TEST123',
           },
         })
 
@@ -144,7 +151,7 @@ test.describe('Rate Limiting', () => {
       for (let i = 0; i < 3; i++) {
         await request.post(resetEndpoint, {
           data: {
-            email: 'test@example.com',
+            staffId: 'TEST123',
           },
         })
       }
@@ -152,7 +159,7 @@ test.describe('Rate Limiting', () => {
       // 4th attempt should be rate limited
       const response = await request.post(resetEndpoint, {
         data: {
-          email: 'test@example.com',
+          staffId: 'TEST123',
         },
       })
 
@@ -168,11 +175,11 @@ test.describe('Rate Limiting', () => {
 
   test.describe('Rate Limit Headers', () => {
     test('should include rate limit information in response headers', async ({ request }) => {
-      const loginEndpoint = '/api/auth/login'
+      const loginEndpoint = '/api/portal/login'
 
       const response = await request.post(loginEndpoint, {
         data: {
-          email: 'test@example.com',
+          staffId: 'TEST123',
           password: 'test-password',
         },
       })
@@ -189,12 +196,12 @@ test.describe('Rate Limiting', () => {
     })
 
     test('should show decreasing remaining count', async ({ request }) => {
-      const loginEndpoint = '/api/auth/login'
+      const loginEndpoint = '/api/portal/login'
 
       // First request
       const response1 = await request.post(loginEndpoint, {
         data: {
-          email: 'test@example.com',
+          staffId: 'TEST123',
           password: 'test-password',
         },
       })
@@ -204,7 +211,7 @@ test.describe('Rate Limiting', () => {
       // Second request
       const response2 = await request.post(loginEndpoint, {
         data: {
-          email: 'test@example.com',
+          staffId: 'TEST123',
           password: 'test-password',
         },
       })
@@ -224,13 +231,13 @@ test.describe('Rate Limiting', () => {
       // perfectly in all Playwright configurations since changing
       // IP addresses programmatically is complex
 
-      const loginEndpoint = '/api/auth/login'
+      const loginEndpoint = '/api/portal/login'
 
       // Make requests from first "IP" (default)
       for (let i = 0; i < 5; i++) {
         await request.post(loginEndpoint, {
           data: {
-            email: 'test1@example.com',
+            staffId: 'TEST124',
             password: 'test-password',
           },
         })

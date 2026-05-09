@@ -345,16 +345,17 @@ async function checkPasswordHistory(password: string, userId: string): Promise<b
       return false
     }
 
-    // Check if password matches any previous passwords using bcrypt
+    // Check if password matches any previous passwords using bcrypt.
+    // bcrypt.compare is intentionally slow (~50–100ms each); run them in
+    // parallel so a 5-entry history check finishes in ~one bcrypt round
+    // instead of five.
     const bcrypt = require('bcryptjs')
-    for (const entry of history) {
-      const isMatch = await bcrypt.compare(password, entry.password_hash)
-      if (isMatch) {
-        return true // Password was used before
-      }
-    }
-
-    return false
+    const matches = await Promise.all(
+      history.map((entry: { password_hash: string }) =>
+        bcrypt.compare(password, entry.password_hash)
+      )
+    )
+    return matches.some(Boolean)
   } catch {
     // Don't block password change on history check errors
     return false

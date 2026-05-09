@@ -8,7 +8,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,123 +24,27 @@ import {
   Download,
   FileText,
 } from 'lucide-react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { toast } from 'sonner'
+import { useAnalytics, type AnalyticsData } from '@/lib/react-query/hooks/use-analytics'
 
-interface AnalyticsData {
-  pilot: {
-    total: number
-    active: number
-    inactive: number
-    captains: number
-    firstOfficers: number
-    retirementPlanning: {
-      retiringIn2Years: number
-      retiringIn5Years: number
-      pilotsRetiringIn2Years: Array<{
-        id: string
-        name: string
-        rank: string
-        retirementDate: string
-        yearsToRetirement: number
-      }>
-      pilotsRetiringIn5Years: Array<{
-        id: string
-        name: string
-        rank: string
-        retirementDate: string
-        yearsToRetirement: number
-      }>
-    }
-  }
-  certification: {
-    total: number
-    current: number
-    expiring: number
-    expired: number
-    complianceRate: number
-    categoryBreakdown: Array<{
-      category: string
-      current: number
-      expiring: number
-      expired: number
-    }>
-  }
-  leave: {
-    total: number
-    pending: number
-    approved: number
-    denied: number
-    byType: Array<{
-      type: string
-      count: number
-      totalDays: number
-    }>
-  }
-  fleet: {
-    utilization: number
-    availability: number
-    readiness: number
-    pilotAvailability: {
-      available: number
-      onLeave: number
-    }
-    complianceStatus: {
-      fullyCompliant: number
-      minorIssues: number
-      majorIssues: number
-    }
-  }
-  risk: {
-    overallRiskScore: number
-    riskFactors: Array<{
-      factor: string
-      severity: string
-      impact: number
-      description: string
-    }>
-    criticalAlerts: Array<{
-      id: string
-      type: string
-      severity: string
-      title: string
-      description: string
-      affectedItems: number
-    }>
-  }
-}
+// AnalyticsData type and fetch logic moved to lib/react-query/hooks/use-analytics.ts
+// (Plan E6 — was duplicated with the analytics dashboard page).
 
 export default function AnalyticsContent() {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
+  const analyticsQuery = useAnalytics()
+  const analytics: AnalyticsData | null = analyticsQuery.data ?? null
+  const loading = analyticsQuery.isPending
+  const refreshing = analyticsQuery.isFetching && !analyticsQuery.isPending
+  const error = analyticsQuery.error
+    ? analyticsQuery.error instanceof Error
+      ? analyticsQuery.error.message
+      : String(analyticsQuery.error)
+    : null
   const [exporting, setExporting] = useState(false)
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [])
-
-  async function fetchAnalytics() {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/analytics')
-      const result = await response.json()
-
-      if (result.success) {
-        setAnalytics(result.data)
-      } else {
-        setError(result.error || 'Failed to fetch analytics')
-      }
-    } catch {
-      setError('Failed to fetch analytics data')
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
-
-  async function handleRefresh() {
-    setRefreshing(true)
-    await fetchAnalytics()
+  function handleRefresh() {
+    analyticsQuery.refetch()
   }
 
   async function handleExport(format: 'csv' | 'pdf') {
@@ -150,7 +54,7 @@ export default function AnalyticsContent() {
       setExporting(true)
       const response = await fetch('/api/analytics/export', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ format, data: analytics }),
         credentials: 'include',
       })
@@ -166,9 +70,9 @@ export default function AnalyticsContent() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch {
-      console.error('Export error')
-      alert('Failed to export analytics data')
+    } catch (err) {
+      console.error('Export error', err)
+      toast.error('Failed to export analytics data')
     } finally {
       setExporting(false)
     }
@@ -189,7 +93,7 @@ export default function AnalyticsContent() {
     return (
       <Card className="p-8 text-center">
         <div className="space-y-3">
-          <span className="text-4xl">❌</span>
+          <AlertTriangle className="mx-auto h-10 w-10 text-[var(--color-danger-500)]" aria-hidden />
           <div>
             <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
             <p className="text-muted-foreground text-sm">

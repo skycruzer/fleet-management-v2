@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 
@@ -39,6 +40,9 @@ type ConflictCheckRequest = z.infer<typeof ConflictCheckSchema>
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {

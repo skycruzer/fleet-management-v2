@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
-import { Toaster } from '@/components/ui/toaster'
+import { Toaster } from 'sonner'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 
@@ -117,7 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="relative flex min-h-screen flex-col">
               <div className="flex-1">{children}</div>
             </div>
-            <Toaster />
+            <Toaster position="top-right" richColors closeButton />
             <SpeedInsights />
             <Analytics />
           </Providers>

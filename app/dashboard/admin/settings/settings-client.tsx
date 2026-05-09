@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import type { SystemSetting } from '@/lib/services/admin-service'
+import { toast } from 'sonner'
 
 interface SettingsClientProps {
   settings: SystemSetting[]
@@ -52,7 +53,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
       try {
         parsedValue = JSON.parse(editValue)
       } catch {
-        alert('Invalid JSON format')
+        toast.error('Invalid JSON format')
         setSaving(false)
         return
       }
@@ -79,11 +80,11 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           router.refresh()
         }
       } else {
-        alert(result.error || 'Failed to update setting')
+        toast.error(result.error || 'Failed to update setting')
       }
     } catch (error) {
       console.error('Error saving setting:', error)
-      alert('Failed to update setting')
+      toast.error('Failed to update setting')
     } finally {
       setSaving(false)
     }

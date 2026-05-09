@@ -32,6 +32,7 @@ import {
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatDate } from '@/lib/utils/date-utils'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 import { ExportPDFButton } from './export-pdf-button'
 import { GanttTimeline } from './gantt-timeline'
@@ -552,6 +553,7 @@ export function RenewalPlanningDashboard({
           formData.append('year', selectedYear.toString())
           const response = await fetch('/api/renewal-planning/email', {
             method: 'POST',
+            headers: { ...csrfHeaders() },
             body: formData,
           })
           if (!response.ok) {

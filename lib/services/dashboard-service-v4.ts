@@ -82,6 +82,15 @@ export interface DashboardMetrics {
       compliance_rate: number
     }
   >
+  /**
+   * True when the data layer (Redis + materialized view) failed and these
+   * counts are placeholders, NOT real fleet figures. UI MUST render a
+   * "data unavailable" banner when this is true — otherwise the dashboard
+   * lies (showing "100% compliance" with zero counts is the worst FAA
+   * regression we can ship).
+   */
+  degraded?: boolean
+  degradedReason?: string
 }
 
 /**
@@ -150,19 +159,23 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
   }
 
   // Layer 2: Fetch from materialized view (still very fast)
-  // Falls back to empty metrics if view is unavailable
+  // Falls back to a DEGRADED placeholder if view is unavailable.
+  // We log at HIGH severity here (not warning) — a fleet-wide dashboard
+  // serving placeholder data is operationally significant.
   let metrics: DashboardMetrics
   try {
     metrics = await fetchDashboardMetricsFromView(startTime)
   } catch (viewError) {
-    logWarning('Materialized view unavailable, returning empty metrics', {
+    const reason = viewError instanceof Error ? viewError.message : String(viewError)
+    logError(viewError instanceof Error ? viewError : new Error(reason), {
       source: 'DashboardServiceV4',
+      severity: ErrorSeverity.HIGH,
       metadata: {
-        operation: 'getDashboardMetrics',
-        error: viewError instanceof Error ? viewError.message : String(viewError),
+        operation: 'getDashboardMetrics:fetchView',
+        note: 'Materialized view unavailable; returning DEGRADED placeholder',
       },
     })
-    metrics = getEmptyMetrics(startTime)
+    metrics = getDegradedMetrics(startTime, reason)
   }
 
   // Cache in Redis for next request
@@ -189,10 +202,13 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
 }
 
 /**
- * Return zero-valued metrics when materialized view is unavailable
- * Allows dashboard to render gracefully instead of showing an error
+ * Return DEGRADED placeholder metrics when the materialized view is unavailable.
+ * Crucial: complianceRate is 0 (not 100) so a misrendering UI cannot signal
+ * false reassurance, and `degraded: true` is set so callers/UI MUST render a
+ * "data unavailable" banner. Aviation safety + FAA reporting context: never
+ * fabricate good news on data-layer failure.
  */
-function getEmptyMetrics(startTime: number): DashboardMetrics {
+function getDegradedMetrics(startTime: number, reason: string): DashboardMetrics {
   const queryTime = Date.now() - startTime
   return {
     pilots: {
@@ -203,7 +219,7 @@ function getEmptyMetrics(startTime: number): DashboardMetrics {
       trainingCaptains: 0,
       examiners: 0,
     },
-    certifications: { total: 0, current: 0, expiring: 0, expired: 0, complianceRate: 100 },
+    certifications: { total: 0, current: 0, expiring: 0, expired: 0, complianceRate: 0 },
     leave: { pending: 0, approved: 0, denied: 0, totalThisMonth: 0 },
     alerts: { criticalExpired: 0, expiringThisWeek: 0, missingCertifications: 0 },
     retirement: { nearingRetirement: 0, dueSoon: 0, overdue: 0 },
@@ -213,6 +229,8 @@ function getEmptyMetrics(startTime: number): DashboardMetrics {
       cacheLayer: 'database',
       lastUpdated: new Date().toISOString(),
     },
+    degraded: true,
+    degradedReason: reason,
   }
 }
 

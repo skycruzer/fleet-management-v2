@@ -11,6 +11,8 @@
 import { NextResponse } from 'next/server'
 import { getAllDeadlineAlerts } from '@/lib/services/roster-deadline-alert-service'
 import { logger } from '@/lib/services/logging-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -21,6 +23,9 @@ export const revalidate = 0
  * Returns deadline alerts for upcoming roster periods
  */
 export async function GET() {
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) return unauthorizedResponse()
+
   try {
     const alerts = await getAllDeadlineAlerts()
 

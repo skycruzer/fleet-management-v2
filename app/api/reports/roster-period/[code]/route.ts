@@ -16,6 +16,7 @@ import {
   getRosterReportHistory,
 } from '@/lib/services/roster-report-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
 
 // ============================================================================
@@ -113,10 +114,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     )
   } catch (error: any) {
     logger.error('Error in GET /api/reports/roster-period/[code]', { error })
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -142,6 +140,9 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> }
 ) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const resolvedParams = await params
 
     // Verify authentication

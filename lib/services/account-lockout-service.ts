@@ -12,6 +12,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
+import { logWarning } from '@/lib/error-logger'
 
 /**
  * Configuration
@@ -371,15 +372,32 @@ async function resolveEmailForNotification(identifier: string): Promise<string |
     // Check if the identifier is already an email
     if (identifier.includes('@')) return identifier
 
-    // Look up email from pilot_users by employee_id
-    const { data } = await supabase
+    // Look up email from pilot_users by employee_id. Distinguish "not found"
+    // (PGRST116) from real DB errors so a transient failure doesn't silently
+    // suppress the lockout email — without this, a locked-out pilot may
+    // never receive the notification.
+    const { data, error } = await supabase
       .from('pilot_users')
       .select('email')
       .eq('employee_id', identifier)
       .single()
 
+    if (error && error.code !== 'PGRST116') {
+      logWarning('resolveEmailForNotification: DB error during email lookup', {
+        source: 'account-lockout-service:resolveEmailForNotification',
+        metadata: { identifier, code: error.code, error: error.message },
+      })
+    }
+
     return data?.email || null
-  } catch {
+  } catch (error) {
+    logWarning('resolveEmailForNotification: unexpected error', {
+      source: 'account-lockout-service:resolveEmailForNotification',
+      metadata: {
+        identifier,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    })
     return null
   }
 }

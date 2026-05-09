@@ -232,11 +232,13 @@ export async function CompactRosterDisplay() {
                       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                       className="overflow-visible"
                     >
-                      {/* Track arc */}
+                      {/* Track arc — themed via currentColor so it respects
+                          light/dark mode (was hardcoded oklch baked into JSX). */}
                       <path
                         d={`M ${centerX - arcRadius} ${centerY} A ${arcRadius} ${arcRadius} 0 0 1 ${centerX + arcRadius} ${centerY}`}
                         fill="none"
-                        stroke="oklch(0.22 0.006 65)"
+                        stroke="currentColor"
+                        className="text-muted"
                         strokeWidth={arcStroke}
                         strokeLinecap="round"
                       />
@@ -250,29 +252,19 @@ export async function CompactRosterDisplay() {
                         strokeDasharray={circumference}
                         strokeDashoffset={dashOffset}
                       />
-                      {/* Animated tick dot at current position */}
+                      {/* Tick dot at current position. Pulse animation removed
+                          for prefers-reduced-motion compliance — the position
+                          alone communicates "current" without needing motion. */}
                       {!isPeriodComplete && progressPercentage > 0 && (
                         <circle
                           cx={tickX}
                           cy={tickY}
                           r={5}
                           fill="var(--color-info)"
-                          stroke="oklch(0.98 0 0)"
+                          stroke="currentColor"
                           strokeWidth={2}
-                        >
-                          <animate
-                            attributeName="r"
-                            values="4;6;4"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                          <animate
-                            attributeName="opacity"
-                            values="1;0.7;1"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
+                          className="text-background"
+                        />
                       )}
                     </svg>
                     {/* Center text overlay */}

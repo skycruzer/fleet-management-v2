@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { exportAnalyticsData } from '@/lib/services/export-service'
 import type { AnalyticsExportData, ExportFormat } from '@/lib/services/export-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -14,6 +15,9 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })

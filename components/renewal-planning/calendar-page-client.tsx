@@ -19,6 +19,7 @@ import {
 } from './calendar-filter-panel'
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   ArrowLeft,
@@ -140,6 +141,7 @@ export function CalendarPageClient({
 
       const response = await fetch('/api/renewal-planning/email', {
         method: 'POST',
+        headers: { ...csrfHeaders() },
         body: formData,
       })
 

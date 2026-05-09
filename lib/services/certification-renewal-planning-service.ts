@@ -377,6 +377,31 @@ export async function getRenewalsByRosterPeriod(
 }
 
 /**
+ * Roster period capacity row shape returned by listRosterPeriodsForYear.
+ */
+export interface RosterPeriodCapacityRow {
+  roster_period: string
+  period_start_date: string
+  period_end_date: string
+}
+
+/**
+ * List roster period rows for a given year, ordered chronologically.
+ * Throws on DB error; callers wrap in try/catch.
+ */
+export async function listRosterPeriodsForYear(year: number): Promise<RosterPeriodCapacityRow[]> {
+  const supabase = createServiceRoleClient()
+  const { data, error } = await supabase
+    .from('roster_period_capacity')
+    .select('roster_period, period_start_date, period_end_date')
+    .gte('period_start_date', `${year}-01-01`)
+    .lte('period_start_date', `${year}-12-31`)
+    .order('period_start_date')
+  if (error) throw new Error(error.message)
+  return (data ?? []) as RosterPeriodCapacityRow[]
+}
+
+/**
  * Get roster period capacity summary
  */
 export async function getRosterPeriodCapacity(
@@ -384,13 +409,18 @@ export async function getRosterPeriodCapacity(
 ): Promise<RosterPeriodSummary | null> {
   const supabase = createServiceRoleClient()
 
-  // Get capacity data
-  const { data: capacity } = await supabase
+  // Get capacity data — distinguish "no row" from a real DB error so callers
+  // (the renewal email route) can refuse to send partial-data emails on
+  // transient failure instead of silently filtering null summaries.
+  const { data: capacity, error } = await supabase
     .from('roster_period_capacity')
     .select('*')
     .eq('roster_period', rosterPeriod)
     .single()
 
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`getRosterPeriodCapacity(${rosterPeriod}): ${error.message}`)
+  }
   if (!capacity) return null
 
   // Get all renewal plans for this period

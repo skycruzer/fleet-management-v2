@@ -348,9 +348,13 @@ export async function getSignedPdfUrl(
 }
 
 /**
- * Gets all uploaded roster period codes
+ * Gets all uploaded roster period codes.
+ * Returns a ServiceResponse so callers can distinguish "no rosters uploaded
+ * yet" from "DB query failed" — the previous shape (`Promise<string[]>` with
+ * silent `console.error` + `[]` fallback) made operators waste time
+ * re-uploading rosters when the real failure was a DB blip.
  */
-export async function getUploadedPeriodCodes(): Promise<string[]> {
+export async function getUploadedPeriodCodes(): Promise<ServiceResponse<string[]>> {
   try {
     const supabase = createServiceRoleClient()
 
@@ -360,16 +364,14 @@ export async function getUploadedPeriodCodes(): Promise<string[]> {
       .order('roster_period_code', { ascending: false })
 
     if (result.error) {
-      console.error('Failed to fetch period codes:', result.error)
-      return []
+      return ServiceResponse.error('Failed to fetch published roster period codes', result.error)
     }
 
     // Extract unique period codes
     const codes = result.data?.map((r) => r.roster_period_code) || []
-    return [...new Set(codes)]
+    return ServiceResponse.success([...new Set(codes)])
   } catch (error) {
-    console.error('Error fetching period codes:', error)
-    return []
+    return ServiceResponse.error('Failed to fetch published roster period codes', error)
   }
 }
 

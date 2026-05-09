@@ -7,7 +7,8 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useAnalytics, type AnalyticsData } from '@/lib/react-query/hooks/use-analytics'
 import dynamic from 'next/dynamic'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,6 +28,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 const ChartLoadingFallback = () => <div className="bg-muted animate-shimmer h-64 rounded-xl" />
 
@@ -45,124 +47,26 @@ const LeaveTypeChart = dynamic(
   { ssr: false, loading: ChartLoadingFallback }
 )
 
-interface AnalyticsData {
-  pilot: {
-    total: number
-    active: number
-    inactive: number
-    captains: number
-    firstOfficers: number
-    retirementPlanning: {
-      retiringIn2Years: number
-      retiringIn5Years: number
-      pilotsRetiringIn2Years: Array<{
-        id: string
-        name: string
-        rank: string
-        retirementDate: string
-        yearsToRetirement: number
-      }>
-      pilotsRetiringIn5Years: Array<{
-        id: string
-        name: string
-        rank: string
-        retirementDate: string
-        yearsToRetirement: number
-      }>
-    }
-  }
-  certification: {
-    total: number
-    current: number
-    expiring: number
-    expired: number
-    complianceRate: number
-    categoryBreakdown: Array<{
-      category: string
-      current: number
-      expiring: number
-      expired: number
-    }>
-  }
-  leave: {
-    total: number
-    pending: number
-    approved: number
-    denied: number
-    byType: Array<{
-      type: string
-      count: number
-      totalDays: number
-    }>
-  }
-  fleet: {
-    utilization: number
-    availability: number
-    readiness: number
-    pilotAvailability: {
-      available: number
-      onLeave: number
-    }
-    complianceStatus: {
-      fullyCompliant: number
-      minorIssues: number
-      majorIssues: number
-    }
-  }
-  risk: {
-    overallRiskScore: number
-    riskFactors: Array<{
-      factor: string
-      severity: string
-      impact: number
-      description: string
-    }>
-    criticalAlerts: Array<{
-      id: string
-      type: string
-      severity: string
-      title: string
-      description: string
-      affectedItems: number
-    }>
-  }
-}
+// AnalyticsData moved to lib/react-query/hooks/use-analytics.ts (Plan E6).
+// Local duplicate removed; the type is imported above and now shared with
+// app/dashboard/planning/analytics-content.tsx.
 
 // Analytics page content
 function AnalyticsPageContent() {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
+  const analyticsQuery = useAnalytics()
+  const analytics: AnalyticsData | null = analyticsQuery.data ?? null
+  const loading = analyticsQuery.isPending
+  const refreshing = analyticsQuery.isFetching && !analyticsQuery.isPending
+  const error = analyticsQuery.error
+    ? analyticsQuery.error instanceof Error
+      ? analyticsQuery.error.message
+      : String(analyticsQuery.error)
+    : null
   const [exporting, setExporting] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [])
-
-  async function fetchAnalytics() {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/analytics')
-      const result = await response.json()
-
-      if (result.success) {
-        setAnalytics(result.data)
-      } else {
-        setError(result.error || 'Failed to fetch analytics')
-      }
-    } catch (err) {
-      setError('Failed to fetch analytics data')
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
-
-  async function handleRefresh() {
-    setRefreshing(true)
-    await fetchAnalytics()
+  function handleRefresh() {
+    analyticsQuery.refetch()
   }
 
   async function handleExport(format: 'csv' | 'pdf') {
@@ -178,7 +82,7 @@ function AnalyticsPageContent() {
 
       const response = await fetch('/api/analytics/export', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ format, data: analytics }),
         credentials: 'include',
       })

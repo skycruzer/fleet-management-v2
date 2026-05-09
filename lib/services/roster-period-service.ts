@@ -366,54 +366,51 @@ export async function ensureRosterPeriodsExist(): Promise<{
   let totalCreated = 0
 
   try {
-    for (const year of requiredYears) {
-      // Check if any periods exist for this year
-      const { data: existing, error: checkError } = await supabase
-        .from('roster_periods')
-        .select('code')
-        .eq('year', year)
-        .limit(1)
+    // Single existence query covering all required years (was N round-trips).
+    const { data: existing, error: checkError } = await supabase
+      .from('roster_periods')
+      .select('year')
+      .in('year', requiredYears)
 
-      if (checkError) {
+    if (checkError) {
+      return {
+        success: false,
+        message: `Failed to check existing periods: ${checkError.message}`,
+        created: totalCreated,
+      }
+    }
+
+    const existingYears = new Set((existing ?? []).map((row) => row.year))
+    const yearsToCreate = requiredYears.filter((y) => !existingYears.has(y))
+
+    // Build the full bulk insert across all missing years (was N inserts).
+    const periodsToCreate: RosterPeriod[] = []
+    for (const year of yearsToCreate) {
+      for (let period = 1; period <= ROSTER_PERIODS_PER_YEAR; period++) {
+        const dates = calculateRosterPeriodDates(period, year)
+        periodsToCreate.push({
+          code: dates.code,
+          period_number: dates.periodNumber,
+          year: dates.year,
+          start_date: dates.startDate.toISOString().split('T')[0],
+          end_date: dates.endDate.toISOString().split('T')[0],
+          publish_date: dates.publishDate.toISOString().split('T')[0],
+          request_deadline_date: dates.deadlineDate.toISOString().split('T')[0],
+          status: dates.status,
+        })
+      }
+    }
+
+    if (periodsToCreate.length > 0) {
+      const { error: insertError } = await supabase.from('roster_periods').insert(periodsToCreate)
+      if (insertError) {
         return {
           success: false,
-          message: `Failed to check existing periods: ${checkError.message}`,
+          message: `Failed to create periods for years ${yearsToCreate.join(', ')}: ${insertError.message}`,
           created: totalCreated,
         }
       }
-
-      // If no periods exist for this year, create all 13
-      if (!existing || existing.length === 0) {
-        const periodsToCreate: RosterPeriod[] = []
-
-        for (let period = 1; period <= ROSTER_PERIODS_PER_YEAR; period++) {
-          const dates = calculateRosterPeriodDates(period, year)
-
-          periodsToCreate.push({
-            code: dates.code,
-            period_number: dates.periodNumber,
-            year: dates.year,
-            start_date: dates.startDate.toISOString().split('T')[0],
-            end_date: dates.endDate.toISOString().split('T')[0],
-            publish_date: dates.publishDate.toISOString().split('T')[0],
-            request_deadline_date: dates.deadlineDate.toISOString().split('T')[0],
-            status: dates.status,
-          })
-        }
-
-        // Insert all periods for this year
-        const { error: insertError } = await supabase.from('roster_periods').insert(periodsToCreate)
-
-        if (insertError) {
-          return {
-            success: false,
-            message: `Failed to create periods for ${year}: ${insertError.message}`,
-            created: totalCreated,
-          }
-        }
-
-        totalCreated += periodsToCreate.length
-      }
+      totalCreated = periodsToCreate.length
     }
 
     return {

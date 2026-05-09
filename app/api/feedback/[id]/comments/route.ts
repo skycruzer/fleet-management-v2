@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import {
   createFeedbackComment,
   getFeedbackComments,
@@ -76,6 +77,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const { id: feedbackId } = await params
 
     // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
@@ -125,6 +129,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated || !auth.userId) {
@@ -171,6 +178,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated || !auth.userId) {

@@ -9,7 +9,9 @@
  * @date February 2026
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import { useDebouncedValue } from '@/lib/hooks/use-debounced-value'
 import Link from 'next/link'
 import { formatDistanceToNow, format } from 'date-fns'
 import { ArrowUpDown, ArrowUp, ArrowDown, Search, Loader2 } from 'lucide-react'
@@ -130,7 +132,7 @@ export function PortalUsersTable() {
   const [status, setStatus] = useState('all')
   const [rank, setRank] = useState('all')
   const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(search, 300)
 
   // Sort state
   const [sortBy, setSortBy] = useState<SortField>('registration_date')
@@ -140,32 +142,27 @@ export function PortalUsersTable() {
   const [page, setPage] = useState(1)
   const pageSize = 25
 
-  // Data state
-  const [users, setUsers] = useState<PortalUserWithActivity[]>([])
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  // Debounce search input
+  // Reset to first page whenever the debounced search settles
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search)
-      setPage(1) // Reset to first page on new search
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [search])
+    setPage(1)
+  }, [debouncedSearch])
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1)
   }, [status, rank])
 
-  // Fetch data
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
+  // Server state via TanStack Query — replaces hand-rolled useState +
+  // useEffect plumbing with caching, dedup, retry, and pagination
+  // continuity (`keepPreviousData`) for free.
+  const queryKey = [
+    'admin-portal-users',
+    { status, rank, debouncedSearch, sortBy, sortOrder, page, pageSize },
+  ] as const
 
-    try {
+  const portalUsersQuery = useQuery<ApiResponse>({
+    queryKey,
+    queryFn: async ({ signal }) => {
       const params = new URLSearchParams({
         status,
         rank: rank === 'all' ? '' : rank,
@@ -175,31 +172,27 @@ export function PortalUsersTable() {
         page: String(page),
         pageSize: String(pageSize),
       })
-
-      const response = await fetch(`/api/admin/portal-users?${params}`)
-
+      const response = await fetch(`/api/admin/portal-users?${params}`, { signal })
       if (!response.ok) {
         throw new Error(`Failed to fetch portal users: ${response.statusText}`)
       }
+      const result = (await response.json()) as ApiResponse
+      if (!result.success) throw new Error('API returned an error')
+      return result
+    },
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
+  })
 
-      const result: ApiResponse = await response.json()
-
-      if (!result.success) {
-        throw new Error('API returned an error')
-      }
-
-      setUsers(result.data)
-      setPagination(result.pagination)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [status, rank, debouncedSearch, sortBy, sortOrder, page, pageSize])
-
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
+  const users: PortalUserWithActivity[] = portalUsersQuery.data?.data ?? []
+  const pagination: PaginationInfo | null = portalUsersQuery.data?.pagination ?? null
+  const isLoading = portalUsersQuery.isPending
+  const error = portalUsersQuery.error
+    ? portalUsersQuery.error instanceof Error
+      ? portalUsersQuery.error.message
+      : String(portalUsersQuery.error)
+    : null
+  const fetchUsers = () => portalUsersQuery.refetch()
 
   // Sort toggle handler
   const handleSort = (field: SortField) => {

@@ -21,6 +21,7 @@ import {
   generateStoragePath,
   type AllowedMimeType,
 } from '@/lib/validations/file-upload-schema'
+import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 
 // ============================================================================
 // CONSTANTS
@@ -171,13 +172,24 @@ export async function getMedicalCertificateSignedUrl(
       .createSignedUrl(path, expiresIn)
 
     if (error) {
-      console.error('Signed URL generation error:', error)
+      // Storage outage vs missing file: both return null today, but log
+      // loud so triage can distinguish them. Without this, a Supabase
+      // Storage outage looks identical to "no certificate uploaded."
+      logError(new Error(error.message), {
+        source: 'file-upload-service:getMedicalCertificateSignedUrl',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { path, operation: 'createSignedUrl' },
+      })
       return null
     }
 
     return data.signedUrl
   } catch (error) {
-    console.error('Get signed URL error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'file-upload-service:getMedicalCertificateSignedUrl',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { path, operation: 'createSignedUrl', stage: 'catchall' },
+    })
     return null
   }
 }
@@ -203,13 +215,21 @@ export async function deleteMedicalCertificate(path: string): Promise<boolean> {
     const { error } = await supabase.storage.from(MEDICAL_CERTIFICATES_BUCKET).remove([path])
 
     if (error) {
-      console.error('Storage delete error:', error)
+      logError(new Error(error.message), {
+        source: 'file-upload-service:deleteMedicalCertificate',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { path },
+      })
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Delete medical certificate error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'file-upload-service:deleteMedicalCertificate',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { path, stage: 'catchall' },
+    })
     return false
   }
 }
@@ -236,13 +256,21 @@ export async function medicalCertificateExists(path: string): Promise<boolean> {
       })
 
     if (error) {
-      console.error('Storage list error:', error)
+      logError(new Error(error.message), {
+        source: 'file-upload-service:medicalCertificateExists',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { path, folderPath, fileName },
+      })
       return false
     }
 
     return data.length > 0
   } catch (error) {
-    console.error('Check file exists error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'file-upload-service:medicalCertificateExists',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { path, stage: 'catchall' },
+    })
     return false
   }
 }
@@ -263,7 +291,16 @@ export function extractPathFromSignedUrl(signedUrl: string): string | null {
       return decodeURIComponent(pathMatch[1])
     }
     return null
-  } catch {
+  } catch (error) {
+    // Don't crash if a malformed URL is passed in, but DO log so we can
+    // see if we're consistently getting bad inputs.
+    logWarning('extractPathFromSignedUrl: malformed URL', {
+      source: 'file-upload-service:extractPathFromSignedUrl',
+      metadata: {
+        urlPreview: signedUrl.substring(0, 100),
+        error: error instanceof Error ? error.message : String(error),
+      },
+    })
     return null
   }
 }

@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Loader2, Mail, Plus, X, ChevronDown, ChevronRight } from 'lucide-react'
 import type { RosterPeriodReport } from '@/lib/services/roster-report-service'
 
@@ -266,6 +267,7 @@ export function RosterEmailReportDialog({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify({
           recipients,

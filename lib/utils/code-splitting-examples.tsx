@@ -95,37 +95,35 @@ export const ProfileSkeleton = dynamic(
 /**
  * Load heavy form components only when user clicks "New Request" button
  * Reduces initial bundle size significantly
+ *
+ * Note (Plan E9 dedup 2026-05-08): the duplicate `components/portal/*-form.tsx`
+ * and `components/forms/leave-request-form.tsx` files were deleted in favor
+ * of the canonical default-export forms in `components/pilot/*-form.tsx`.
  */
-export const LeaveRequestForm = dynamic(
-  () => import('@/components/portal/leave-request-form').then((mod) => mod.LeaveRequestForm),
-  {
-    loading: () => (
-      <div className="space-y-4 p-6">
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-32 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-32 animate-pulse rounded" />
-      </div>
-    ),
-    ssr: false, // Forms don't need SSR
-  }
-)
+export const LeaveRequestForm = dynamic(() => import('@/components/pilot/leave-request-form'), {
+  loading: () => (
+    <div className="space-y-4 p-6">
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-32 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-32 animate-pulse rounded" />
+    </div>
+  ),
+  ssr: false, // Forms don't need SSR
+})
 
-export const FlightRequestForm = dynamic(
-  () => import('@/components/portal/flight-request-form').then((mod) => mod.FlightRequestForm),
-  {
-    loading: () => (
-      <div className="space-y-4 p-6">
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-full animate-pulse rounded" />
-        <div className="bg-muted h-10 w-32 animate-pulse rounded" />
-      </div>
-    ),
-    ssr: false,
-  }
-)
+export const FlightRequestForm = dynamic(() => import('@/components/pilot/flight-request-form'), {
+  loading: () => (
+    <div className="space-y-4 p-6">
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-full animate-pulse rounded" />
+      <div className="bg-muted h-10 w-32 animate-pulse rounded" />
+    </div>
+  ),
+  ssr: false,
+})
 
 // ============================================================================
 // EXAMPLE 4: Usage in Pages

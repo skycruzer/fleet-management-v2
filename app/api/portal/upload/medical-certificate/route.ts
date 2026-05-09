@@ -22,6 +22,7 @@ import {
 } from '@/lib/services/file-upload-service'
 import { isValidFileSize } from '@/lib/validations/file-upload-schema'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -32,6 +33,9 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Authenticate pilot
     const pilot = await getCurrentPilot()
     if (!pilot || !pilot.pilot_id) {

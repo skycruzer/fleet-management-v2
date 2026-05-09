@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod'
+import { VisibleWorkflowStatusEnum } from '@/lib/types/workflow-status'
 
 // ===================================
 // ENUMS
@@ -116,7 +117,11 @@ export const LeaveAnalyticsFilterSchema = z.object({
     .enum(['RDO', 'SDO', 'ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE', 'all'])
     .optional()
     .default('all'),
-  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED', 'all']).optional().default('all'),
+  // 'all' is a UI sentinel; real values derive from the canonical visible subset.
+  status: z
+    .union([VisibleWorkflowStatusEnum, z.literal('all')])
+    .optional()
+    .default('all'),
   role: z.enum(['Captain', 'First Officer', 'all']).optional().default('all'),
   groupBy: z.enum(['type', 'status', 'roster_period', 'month']).optional(),
   includeApprovalRate: z.boolean().optional().default(true),

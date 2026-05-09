@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -23,6 +24,9 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function POST(_request: NextRequest) {
   try {
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
     const supabase = createAdminClient()
 
     // Sign out the user

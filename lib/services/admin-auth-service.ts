@@ -63,14 +63,11 @@ export interface AdminLoginCredentials {
   password: string
 }
 
-/**
- * Service response type
- */
-interface ServiceResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
+// ServiceResponse: import the canonical type from '@/lib/types/service-response'.
+// (Local shadow removed — kept the same shape semantically; the canonical
+// type adds errorCode, metadata, validationErrors which existing callers
+// don't read.)
+import type { ServiceResponse } from '@/lib/types/service-response'
 
 /**
  * Session validation result
