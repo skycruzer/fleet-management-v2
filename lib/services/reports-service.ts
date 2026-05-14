@@ -151,9 +151,13 @@ export async function generateLeaveReport(
   }
 
   if (effectiveDateRange) {
+    // Overlap semantics: a leave intersects [startDate, endDate] if it starts on
+    // or before endDate AND ends on or after startDate (NULL end_date = ongoing).
+    // Containment semantics dropped multi-day leaves (notably SICK) that crossed
+    // a roster-period boundary; matches the pattern in leave-eligibility-service.
     query = query
-      .gte('start_date', effectiveDateRange.startDate)
-      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
+      .lte('start_date', effectiveDateRange.endDate)
+      .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -273,9 +277,10 @@ export async function generateRdoSdoReport(
   }
 
   if (effectiveDateRange) {
+    // Overlap semantics — see generateLeaveReport for rationale.
     query = query
-      .gte('start_date', effectiveDateRange.startDate)
-      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
+      .lte('start_date', effectiveDateRange.endDate)
+      .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -588,9 +593,10 @@ export async function generateAllRequestsReport(
     .order('start_date', { ascending: false })
 
   if (effectiveDateRange) {
+    // Overlap semantics — see generateLeaveReport for rationale.
     rdoSdoQuery = rdoSdoQuery
-      .gte('start_date', effectiveDateRange.startDate)
-      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
+      .lte('start_date', effectiveDateRange.endDate)
+      .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -610,9 +616,10 @@ export async function generateAllRequestsReport(
     .order('start_date', { ascending: false })
 
   if (effectiveDateRange) {
+    // Overlap semantics — see generateLeaveReport for rationale.
     leaveQuery = leaveQuery
-      .gte('start_date', effectiveDateRange.startDate)
-      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
+      .lte('start_date', effectiveDateRange.endDate)
+      .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
