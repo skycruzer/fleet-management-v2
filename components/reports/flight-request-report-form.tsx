@@ -70,7 +70,6 @@ export function FlightRequestReportForm() {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('flight-requests', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -115,7 +114,7 @@ export function FlightRequestReportForm() {
       }
     }
 
-    const statuses = []
+    const statuses: NonNullable<ReportFilters['status']> = []
     if (values.statusPending) statuses.push('DRAFT')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
     if (values.statusInReview) statuses.push('IN_REVIEW')
@@ -123,7 +122,7 @@ export function FlightRequestReportForm() {
     if (values.statusRejected) statuses.push('DENIED')
     if (statuses.length > 0) filters.status = statuses
 
-    const ranks = []
+    const ranks: NonNullable<ReportFilters['rank']> = []
     if (values.rankCaptain) ranks.push('Captain')
     if (values.rankFirstOfficer) ranks.push('First Officer')
     if (ranks.length > 0) filters.rank = ranks
@@ -179,10 +178,8 @@ export function FlightRequestReportForm() {
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+    setCurrentFilters(buildFilters(values))
     setShouldFetchPreview(true)
-    refetchPreview()
   }
 
   const handleExport = async (values: z.input<typeof formSchema>) => {

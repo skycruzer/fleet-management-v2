@@ -77,7 +77,6 @@ export function LeaveReportForm() {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('leave', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -128,7 +127,7 @@ export function LeaveReportForm() {
       }
     }
 
-    const statuses = []
+    const statuses: NonNullable<ReportFilters['status']> = []
     if (values.statusPending) statuses.push('DRAFT')
     if (values.statusApproved) statuses.push('APPROVED')
     if (values.statusRejected) statuses.push('DENIED')
@@ -136,12 +135,12 @@ export function LeaveReportForm() {
     if (values.statusInReview) statuses.push('IN_REVIEW')
     if (statuses.length > 0) filters.status = statuses
 
-    const ranks = []
+    const ranks: NonNullable<ReportFilters['rank']> = []
     if (values.rankCaptain) ranks.push('Captain')
     if (values.rankFirstOfficer) ranks.push('First Officer')
     if (ranks.length > 0) filters.rank = ranks
 
-    const leaveTypes = []
+    const leaveTypes: NonNullable<ReportFilters['requestType']> = []
     if (values.leaveTypeAnnual) leaveTypes.push('ANNUAL')
     if (values.leaveTypeSick) leaveTypes.push('SICK')
     if (values.leaveTypeLSL) leaveTypes.push('LSL')
@@ -201,10 +200,8 @@ export function LeaveReportForm() {
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+    setCurrentFilters(buildFilters(values))
     setShouldFetchPreview(true)
-    refetchPreview()
   }
 
   const handleExport = async (values: z.input<typeof formSchema>) => {
@@ -258,8 +255,10 @@ export function LeaveReportForm() {
       form.setValue('rosterPeriods', filters.rosterPeriods)
     }
 
-    // Apply status filters
+    // Apply status filters — must mirror buildFilters() so all 5 values round-trip
     form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
+    form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
     form.setValue('statusRejected', filters.status?.includes('DENIED') || false)
 

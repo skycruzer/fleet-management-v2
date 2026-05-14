@@ -8,7 +8,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -60,12 +60,11 @@ export function LeaveBidsReportForm() {
   })
   const prefetchReport = usePrefetchReport()
 
-  // TanStack Query hooks
+  // TanStack Query hooks — `enabled` + new query key triggers the fetch
   const {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('leave-bids', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -101,7 +100,7 @@ export function LeaveBidsReportForm() {
     }
 
     // Status filters
-    const statusFilters = []
+    const statusFilters: NonNullable<ReportFilters['status']> = []
     if (values.statusPending) statusFilters.push('PENDING')
     if (values.statusProcessing) statusFilters.push('PROCESSING')
     if (values.statusApproved) statusFilters.push('APPROVED')
@@ -111,7 +110,7 @@ export function LeaveBidsReportForm() {
     }
 
     // Rank filters
-    const rankFilters = []
+    const rankFilters: NonNullable<ReportFilters['rank']> = []
     if (values.rankCaptain) rankFilters.push('Captain')
     if (values.rankFirstOfficer) rankFilters.push('First Officer')
     if (rankFilters.length > 0) {
@@ -121,16 +120,31 @@ export function LeaveBidsReportForm() {
     return filters
   }
 
-  // Handle preview
-  const handlePreview = form.handleSubmit(async (values) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
-    setShouldFetchPreview(true)
+  // Surface preview errors via toast (mirror pattern from other report forms)
+  useEffect(() => {
+    if (previewError) {
+      toast({
+        title: 'Preview Failed',
+        description:
+          previewError instanceof Error ? previewError.message : 'Failed to generate preview',
+        variant: 'destructive',
+      })
+      setShouldFetchPreview(false)
+    }
+  }, [previewError])
 
-    // Wait for query to be enabled and fetch
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    await refetchPreview()
-    setShowPreview(true)
+  // Open the dialog only once data has actually arrived
+  useEffect(() => {
+    if (previewData && shouldFetchPreview) {
+      setShowPreview(true)
+      setShouldFetchPreview(false)
+    }
+  }, [previewData, shouldFetchPreview])
+
+  // Handle preview — let the query trigger via `enabled`; useEffects above gate UI
+  const handlePreview = form.handleSubmit((values) => {
+    setCurrentFilters(buildFilters(values))
+    setShouldFetchPreview(true)
   })
 
   // Handle export
@@ -157,10 +171,9 @@ export function LeaveBidsReportForm() {
     )
   })
 
-  // Handle email
-  const handleEmail = form.handleSubmit(async (values) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+  // Handle email — currentFilters drives the dialog, so update before opening
+  const handleEmail = form.handleSubmit((values) => {
+    setCurrentFilters(buildFilters(values))
     setShowEmail(true)
   })
 
@@ -220,10 +233,11 @@ export function LeaveBidsReportForm() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Preset Manager */}
+      {/* Filter Preset Manager — pass live form values so "Save" captures the
+          current selection, not the last previewed/emailed snapshot. */}
       <FilterPresetManager
         reportType="leave-bids"
-        currentFilters={currentFilters}
+        currentFilters={buildFilters(values)}
         onLoadPreset={handlePresetApply}
       />
 

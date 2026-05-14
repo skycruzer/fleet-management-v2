@@ -7,6 +7,13 @@
  * Phase 3.0: Updated for 3-table architecture
  */
 
+import type { ReportFilters } from '@/lib/validations/reports-schema'
+
+// ReportFilters is derived from the Zod schema (single source of truth).
+// Adding a form field that the schema doesn't accept becomes a TS error here
+// instead of being silently stripped at runtime.
+export type { ReportFilters } from '@/lib/validations/reports-schema'
+
 export type ReportType =
   | 'rdo-sdo'
   | 'leave'
@@ -16,47 +23,6 @@ export type ReportType =
   | 'leave-bids'
   | 'pilot-info'
   | 'forecast'
-
-export interface ReportFilters {
-  dateRange?: {
-    startDate: string
-    endDate: string
-  }
-  rosterPeriod?: string
-  rosterPeriods?: string[] // Multiple roster periods
-  status?: string[]
-  rank?: string[]
-  pilotId?: string
-  requestType?: string[] // Phase 3.0: Filter by request type (RDO, SDO, ANNUAL, SICK, etc.)
-  checkType?: string
-  checkTypes?: string[] // Multiple check types/categories
-  categories?: string[] // Filter by certification category (Medical, Training, etc.)
-  expiryThreshold?: number // days
-  // Phase 2.3: Pagination support
-  page?: number // Current page (1-indexed)
-  pageSize?: number // Records per page (default: 50)
-  // Pilot Info Report filters
-  activeStatus?: 'active' | 'inactive' | 'all'
-  qualifications?: string[] // 'line_captain', 'training_captain', 'examiner'
-  licenceType?: ('ATPL' | 'CPL')[]
-  // Leave Bids Report filters
-  year?: number // Bid year filter
-  // Forecast Report filters
-  timeHorizon?: '2yr' | '5yr' | '10yr'
-  forecastSections?: ('retirement' | 'succession' | 'shortage')[]
-  // Phase 5.1: Grouping support for PDF exports and previews
-  groupBy?: ('rosterPeriod' | 'rank' | 'category')[]
-  // Pilot Info Report grouping
-  pilotGroupBy?:
-    | 'none'
-    | 'rank'
-    | 'captain'
-    | 'first_officer'
-    | 'training_captain'
-    | 'examiner'
-    | 'rhs_captain'
-    | 'line_captain'
-}
 
 export interface PaginationMeta {
   currentPage: number

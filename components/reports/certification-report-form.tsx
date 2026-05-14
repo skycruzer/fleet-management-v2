@@ -84,7 +84,6 @@ export function CertificationReportForm() {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('certifications', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -167,7 +166,7 @@ export function CertificationReportForm() {
       filters.checkTypes = values.checkTypes
     }
 
-    const ranks = []
+    const ranks: NonNullable<ReportFilters['rank']> = []
     if (values.rankCaptain) ranks.push('Captain')
     if (values.rankFirstOfficer) ranks.push('First Officer')
     if (ranks.length > 0) filters.rank = ranks
@@ -228,10 +227,8 @@ export function CertificationReportForm() {
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+    setCurrentFilters(buildFilters(values))
     setShouldFetchPreview(true)
-    refetchPreview()
   }
 
   const handleExport = async (values: z.input<typeof formSchema>) => {

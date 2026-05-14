@@ -98,6 +98,13 @@ export const ReportFiltersSchema = z.object({
   pilotId: z.string().optional(),
   rosterPeriod: z.string().optional(),
   rosterPeriods: z.array(z.string()).optional(),
+  // Leave types: ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
+  // Flight request types: RDO, SDO
+  // Without this, Zod strips the field and the leave-type / RDO-SDO checkboxes
+  // in the report forms silently have no effect on the resulting query.
+  requestType: z
+    .array(z.enum(['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE', 'RDO', 'SDO']))
+    .optional(),
   checkType: z.string().uuid().optional(),
   checkTypes: z.array(z.string().uuid()).optional(),
   categories: z.array(z.string()).optional(), // Filter by certification category
