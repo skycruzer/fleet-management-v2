@@ -12,8 +12,9 @@ import { formatDate } from '@/lib/utils/date-utils'
 import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
 // jsPDF type augmentation for lastAutoTable is in types/jspdf-autotable.d.ts
 
-// Module-level reference for dynamically-loaded autoTable (assigned in generateRenewalPlanPDF before use)
-let autoTable: any
+// Threaded explicitly through sub-functions so the dependency is visible at call
+// sites and there is no mutable module-level state to race on.
+type AutoTableFn = (doc: JsPDF, options: any) => void
 
 interface PilotInfo {
   first_name: string
@@ -111,7 +112,7 @@ function getCaptainRoleLabel(role?: string | null): string {
 export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<Blob> {
   const { default: jsPDF } = await import('jspdf')
   const autoTableMod = await import('jspdf-autotable')
-  autoTable = autoTableMod.default
+  const autoTable: AutoTableFn = autoTableMod.default
   const doc = new jsPDF()
 
   // Page 1: Cover Page
@@ -119,31 +120,28 @@ export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<
 
   // Page 2: Executive Summary (Category-focused)
   doc.addPage()
-  addExecutiveSummary(doc, data)
+  addExecutiveSummary(doc, autoTable, data)
 
   // Page 3: Gantt Timeline
   doc.addPage()
-  addGanttTimelinePage(doc, data)
+  addGanttTimelinePage(doc, autoTable, data)
 
   // Page 4: Pairing Summary (if pairing data exists)
   if (data.pairingData) {
     doc.addPage()
-    addPairingSummaryPage(doc, data)
+    addPairingSummaryPage(doc, autoTable, data)
   }
 
   // Pages 4-7: One page per category
-  CATEGORIES.forEach((category, index) => {
+  CATEGORIES.forEach((category) => {
     const categoryRenewals = data.renewals.filter((r) => r.check_type.category === category.id)
-    if (categoryRenewals.length > 0 || true) {
-      // Always include category page
-      doc.addPage()
-      addCategoryPage(doc, category, data, categoryRenewals)
-    }
+    doc.addPage()
+    addCategoryPage(doc, autoTable, category, data, categoryRenewals)
   })
 
   // Final Page: Combined Pilot Schedules (all categories)
   doc.addPage()
-  addPilotSchedules(doc, data)
+  addPilotSchedules(doc, autoTable, data)
 
   return doc.output('blob')
 }
@@ -233,7 +231,7 @@ function addCoverPage(doc: JsPDF, data: RenewalPlanPDFData) {
 /**
  * Executive Summary Page - Category Focused
  */
-function addExecutiveSummary(doc: JsPDF, data: RenewalPlanPDFData) {
+function addExecutiveSummary(doc: JsPDF, autoTable: AutoTableFn, data: RenewalPlanPDFData) {
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
   doc.text('Executive Summary', 15, 20)
@@ -347,6 +345,7 @@ function addExecutiveSummary(doc: JsPDF, data: RenewalPlanPDFData) {
  */
 function addCategoryPage(
   doc: JsPDF,
+  autoTable: AutoTableFn,
   category: { id: string; label: string; color: [number, number, number] },
   data: RenewalPlanPDFData,
   categoryRenewals: RenewalItem[]
@@ -495,7 +494,7 @@ function addCategoryPage(
 /**
  * Pilot Schedules Page - All categories combined
  */
-function addPilotSchedules(doc: JsPDF, data: RenewalPlanPDFData) {
+function addPilotSchedules(doc: JsPDF, autoTable: AutoTableFn, data: RenewalPlanPDFData) {
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
   doc.text('Complete Pilot Schedules', 15, 20)
@@ -578,7 +577,7 @@ function getUtilizationStatus(utilization: number): string {
 /**
  * Pairing Summary Page - Captain/FO Pairing for Flight and Simulator Checks
  */
-function addPairingSummaryPage(doc: JsPDF, data: RenewalPlanPDFData) {
+function addPairingSummaryPage(doc: JsPDF, autoTable: AutoTableFn, data: RenewalPlanPDFData) {
   if (!data.pairingData) return
 
   const { pairs, unpaired, statistics } = data.pairingData
@@ -730,7 +729,7 @@ function addPairingSummaryPage(doc: JsPDF, data: RenewalPlanPDFData) {
     doc.setFontSize(10)
     doc.setTextColor(133, 100, 4)
     doc.text(
-      `⚠ ${unpaired.length} pilot(s) scheduled solo due to pairing constraints. Review recommended.`,
+      `WARNING: ${unpaired.length} pilot(s) scheduled solo due to pairing constraints. Review recommended.`,
       20,
       bannerY + 8
     )
@@ -788,7 +787,7 @@ function addPairingSummaryPage(doc: JsPDF, data: RenewalPlanPDFData) {
 /**
  * Gantt Timeline Page — Visual renewal schedule across roster periods
  */
-function addGanttTimelinePage(doc: JsPDF, data: RenewalPlanPDFData) {
+function addGanttTimelinePage(doc: JsPDF, autoTable: AutoTableFn, data: RenewalPlanPDFData) {
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
 

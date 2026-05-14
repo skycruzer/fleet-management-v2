@@ -191,14 +191,15 @@ export async function generateLeaveBidsPDF(
       yPosition += 6
     }
 
-    // Bids by roster period
+    // Bids by roster period — wrap to fit page width
     if (summary.bidsByRosterPeriod && Object.keys(summary.bidsByRosterPeriod).length > 0) {
       const rpEntries = Object.entries(summary.bidsByRosterPeriod)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([rp, count]) => `${rp}: ${count}`)
         .join(' | ')
-      doc.text(`Bids per RP: ${rpEntries}`, 14, yPosition)
-      yPosition += 6
+      const wrapped = doc.splitTextToSize(`Bids per RP: ${rpEntries}`, pageWidth - 28)
+      doc.text(wrapped, 14, yPosition)
+      yPosition += 6 * wrapped.length
     }
   }
 
@@ -251,7 +252,6 @@ export async function generateLeaveBidsPDF(
         },
         bodyStyles: { fontSize: 7, cellPadding: 2 },
         columnStyles: getColumnStyles(),
-        didDrawPage: () => renderFooter(doc, pageWidth, pageHeight),
       })
 
       yPosition = (doc.lastAutoTable?.finalY ?? yPosition) + 12
@@ -297,11 +297,20 @@ export async function generateLeaveBidsPDF(
         },
         bodyStyles: { fontSize: 7, cellPadding: 2 },
         columnStyles: getColumnStyles(),
-        didDrawPage: () => renderFooter(doc, pageWidth, pageHeight),
       })
 
       yPosition = (doc.lastAutoTable?.finalY ?? yPosition) + 10
     }
+  }
+
+  // Footer pass — draw page numbers after all tables so the total is correct.
+  const totalPages = doc.getNumberOfPages()
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i)
+    doc.setFontSize(8)
+    doc.setTextColor(128, 128, 128)
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' })
+    doc.text('Air Niugini - B767 Fleet Management', 14, pageHeight - 10)
   }
 
   // Convert to Buffer
@@ -377,17 +386,4 @@ function buildTableRow(bid: LeaveBid): string[] {
     formatDate(bid.created_at),
     bid.review_comments || '-',
   ]
-}
-
-function renderFooter(doc: any, pageWidth: number, pageHeight: number): void {
-  const pageCount = doc.getNumberOfPages()
-  doc.setFontSize(8)
-  doc.setTextColor(128, 128, 128)
-  doc.text(
-    `Page ${doc.getCurrentPageInfo().pageNumber} of ${pageCount}`,
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: 'center' }
-  )
-  doc.text('Air Niugini - B767 Fleet Management', 14, pageHeight - 10)
 }

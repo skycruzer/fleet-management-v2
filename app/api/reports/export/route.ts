@@ -16,8 +16,8 @@ import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
-// Rate limiter for PDF generation (stricter limits)
-const rateLimit = authRateLimit
+// PDF export shares the general auth limiter (10/min). If real-world use shows
+// PDF generation needs tighter throttling, add a dedicated limiter in lib/rate-limit.ts.
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Rate limiting (stricter for PDF generation - more resource intensive)
+    // Rate limiting
     const identifier = auth.userId!
-    const { success: rateLimitSuccess } = await rateLimit.limit(identifier)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(identifier)
 
     if (!rateLimitSuccess) {
       log?.warn('Rate limit exceeded for PDF export', {

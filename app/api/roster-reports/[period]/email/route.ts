@@ -11,7 +11,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
-import { generateRosterPDF } from '@/lib/services/roster-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
@@ -108,9 +107,10 @@ export async function POST(
 
     const report = reportResult.data
 
-    // Step 2: Generate PDF (Note: This requires client-side execution)
-    // For server-side PDF generation, we'd need a different library like pdfkit or puppeteer
-    // For now, we'll return instructions to generate client-side
+    // Step 2: This endpoint sends an HTML summary only. PDF generation for
+    // roster reports is intentionally client-side (lib/services/roster-pdf-service.ts
+    // gates on `typeof window`), so the email body links back to the dashboard
+    // where the user can download the full PDF.
 
     // Check if Resend API key is available
     const resendApiKey = process.env.RESEND_API_KEY
@@ -125,10 +125,6 @@ export async function POST(
         { status: 500 }
       )
     }
-
-    // TODO: Attach server-generated PDF using jsPDF (proven to work server-side
-    // in reports-service.ts). For now, email includes an HTML summary and a
-    // link to the dashboard where the PDF can be downloaded.
 
     const { Resend } = await import('resend')
     const resend = new Resend(resendApiKey)
@@ -310,7 +306,7 @@ export async function POST(
         emailId: emailResult.data.id,
         report: report,
       },
-      message: 'Roster report email sent successfully',
+      message: 'Roster report summary email sent successfully',
     })
   } catch (error: any) {
     if (error instanceof z.ZodError) {

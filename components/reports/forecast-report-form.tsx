@@ -65,7 +65,6 @@ export function ForecastReportForm() {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('forecast', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -155,10 +154,8 @@ export function ForecastReportForm() {
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+    setCurrentFilters(buildFilters(values))
     setShouldFetchPreview(true)
-    refetchPreview()
   }
 
   const handleExport = async (values: z.input<typeof formSchema>) => {

@@ -17,6 +17,7 @@ import {
 } from '@/lib/services/roster-report-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/services/logging-service'
 
 // ============================================================================
@@ -43,6 +44,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting (matches the standard report pipeline)
+    const { success: rateLimitOk } = await authRateLimit.limit(auth.userId!)
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
     }
 
     const rosterPeriodCode = decodeURIComponent(resolvedParams.code)
@@ -78,7 +88,35 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // ========================================================================
 
     const format = searchParams.get('format') || 'json'
-    const reportType = (searchParams.get('reportType') || 'PREVIEW') as 'PREVIEW' | 'FINAL'
+    const rawReportType = searchParams.get('reportType') ?? 'PREVIEW'
+    if (rawReportType !== 'PREVIEW' && rawReportType !== 'FINAL') {
+      return NextResponse.json(
+        { success: false, error: 'Invalid reportType. Use PREVIEW or FINAL.' },
+        { status: 400 }
+      )
+    }
+    const reportType: 'PREVIEW' | 'FINAL' = rawReportType
+
+    // PDF format is intentionally unsupported on this route — generation is
+    // client-driven via lib/services/roster-pdf-service.ts. Fail loudly so
+    // callers don't silently consume JSON when expecting a PDF binary.
+    if (format === 'pdf') {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'PDF format not implemented for this endpoint. Generate the PDF client-side from the JSON response.',
+        },
+        { status: 501 }
+      )
+    }
+
+    if (format !== 'json') {
+      return NextResponse.json(
+        { success: false, error: 'Invalid format. Use json.' },
+        { status: 400 }
+      )
+    }
 
     const result = await generateRosterPeriodReport(rosterPeriodCode, reportType, auth.userId!)
 
@@ -89,29 +127,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       )
     }
 
-    // Return JSON format
-    if (format === 'json') {
-      return NextResponse.json({
-        success: true,
-        data: result.data,
-      })
-    }
-
-    // Return PDF format
-    if (format === 'pdf') {
-      // Note: PDF generation should be done on the client-side or with a server-compatible library
-      // This endpoint returns the report data so the client can generate the PDF
-      return NextResponse.json({
-        success: true,
-        data: result.data,
-        message: 'Use the /generate-pdf endpoint to create PDF on client-side',
-      })
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Invalid format. Use json or pdf.' },
-      { status: 400 }
-    )
+    return NextResponse.json({
+      success: true,
+      data: result.data,
+    })
   } catch (error: any) {
     logger.error('Error in GET /api/reports/roster-period/[code]', { error })
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
@@ -149,6 +168,16 @@ export async function POST(
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting (matches the standard report pipeline) — also bounds the
+    // saveRosterReport write that follows.
+    const { success: rateLimitOk } = await authRateLimit.limit(auth.userId!)
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
     }
 
     const rosterPeriodCode = decodeURIComponent(resolvedParams.code)

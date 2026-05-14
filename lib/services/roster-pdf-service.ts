@@ -334,7 +334,7 @@ export async function generateRosterPDF(
           report.crewAvailability.captains.onLeave.toString(),
           report.crewAvailability.captains.available.toString(),
           report.crewAvailability.captains.percentageAvailable.toFixed(1) + '%',
-          report.crewAvailability.captains.belowMinimum ? 'YES ⚠️' : 'No',
+          report.crewAvailability.captains.belowMinimum ? 'YES (!)' : 'No',
         ],
         [
           'First Officers',
@@ -342,7 +342,7 @@ export async function generateRosterPDF(
           report.crewAvailability.firstOfficers.onLeave.toString(),
           report.crewAvailability.firstOfficers.available.toString(),
           report.crewAvailability.firstOfficers.percentageAvailable.toFixed(1) + '%',
-          report.crewAvailability.firstOfficers.belowMinimum ? 'YES ⚠️' : 'No',
+          report.crewAvailability.firstOfficers.belowMinimum ? 'YES (!)' : 'No',
         ],
       ]
 
@@ -370,7 +370,7 @@ export async function generateRosterPDF(
         doc.setFontSize(10)
         doc.setTextColor(231, 76, 60)
         doc.text(
-          `⚠️ Minimum crew availability occurs on ${formatDate(report.crewAvailability.minimumCrewDate)}`,
+          `WARNING: Minimum crew availability occurs on ${formatDate(report.crewAvailability.minimumCrewDate)}`,
           15,
           currentY
         )

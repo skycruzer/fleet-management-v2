@@ -263,12 +263,15 @@ export function useInvalidateReports() {
 
   return (reportType?: ReportType) => {
     if (reportType) {
-      // Invalidate specific report type
+      // Preview keys are ['reports', 'preview', type, filters], so a type-only
+      // queryKey prefix never matches — match via predicate instead.
       queryClient.invalidateQueries({
-        queryKey: [...reportKeys.all, reportType],
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'reports' && key.includes(reportType)
+        },
       })
     } else {
-      // Invalidate all reports
       queryClient.invalidateQueries({
         queryKey: reportKeys.all,
       })

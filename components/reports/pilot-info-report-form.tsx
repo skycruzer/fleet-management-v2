@@ -82,7 +82,6 @@ export function PilotInfoReportForm() {
     data: previewData,
     isLoading: isPreviewLoading,
     error: previewError,
-    refetch: refetchPreview,
   } = useReportPreview('pilot-info', currentFilters, {
     enabled: shouldFetchPreview,
   })
@@ -190,10 +189,8 @@ export function PilotInfoReportForm() {
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
-    const filters = buildFilters(values)
-    setCurrentFilters(filters)
+    setCurrentFilters(buildFilters(values))
     setShouldFetchPreview(true)
-    refetchPreview()
   }
 
   const handleExport = async (values: z.input<typeof formSchema>) => {

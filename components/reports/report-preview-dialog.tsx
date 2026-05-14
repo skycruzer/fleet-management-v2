@@ -9,7 +9,6 @@
 
 'use client'
 
-import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -21,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ReportData, ReportType } from '@/types/reports'
 import Image from 'next/image'
-import { Calendar, Plane, Award, BarChart3, Users, TrendingUp } from 'lucide-react'
+import { Calendar, Plane, Award, BarChart3, Users, TrendingUp, Info } from 'lucide-react'
 import { PaginatedReportTable } from './paginated-report-table'
 
 interface ReportPreviewDialogProps {
@@ -37,9 +36,13 @@ export function ReportPreviewDialog({
   reportData,
   reportType,
 }: ReportPreviewDialogProps) {
-  const [currentPage, setCurrentPage] = useState(1)
-
   if (!reportData) return null
+
+  // Server returns a single page; the preview API doesn't accept a `page` param,
+  // so subsequent pages are unreachable. Surface that to the user instead of
+  // wiring no-op pagination controls.
+  const totalRecords = reportData.pagination?.totalRecords ?? reportData.data.length
+  const isTruncated = totalRecords > reportData.data.length
 
   const getIcon = () => {
     switch (reportType) {
@@ -58,12 +61,6 @@ export function ReportPreviewDialog({
       default:
         return <BarChart3 className="h-5 w-5" />
     }
-  }
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
-    // Note: In a real implementation, this would trigger a new query with the new page number
-    // For now, we're displaying the single page of data returned from the server
   }
 
   return (
@@ -148,20 +145,22 @@ export function ReportPreviewDialog({
               </Card>
             )}
 
-            {/* Data Table - Phase 2.3: TanStack Table with Pagination */}
+            {/* Data Table — preview shows the first page; full data is available via Export PDF */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">
-                  Data ({reportData.pagination?.totalRecords || reportData.data.length} records)
-                </CardTitle>
+                <CardTitle className="text-lg">Data ({totalRecords} records)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <PaginatedReportTable
-                  data={reportData.data}
-                  reportType={reportType}
-                  pagination={reportData.pagination}
-                  onPageChange={handlePageChange}
-                />
+              <CardContent className="space-y-3">
+                {isTruncated && (
+                  <div className="bg-muted/40 text-muted-foreground flex items-start gap-2 rounded-md border p-3 text-sm">
+                    <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <span>
+                      Showing the first {reportData.data.length} of {totalRecords} records. Use{' '}
+                      <strong>Export PDF</strong> to download the full report.
+                    </span>
+                  </div>
+                )}
+                <PaginatedReportTable data={reportData.data} reportType={reportType} />
               </CardContent>
             </Card>
           </div>

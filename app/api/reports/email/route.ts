@@ -110,6 +110,24 @@ export async function POST(request: NextRequest) {
     // Generate PDF (pass groupBy for grouped report rendering)
     const pdfBuffer = await generatePDF(report, reportType, filters?.groupBy)
 
+    // Guard against runaway attachments — Resend re-encodes to base64 (~1.33×),
+    // and Lambda memory blows up on multi-MB forecast/pilot-info exports.
+    const MAX_PDF_BYTES = 10 * 1024 * 1024
+    if (pdfBuffer.length > MAX_PDF_BYTES) {
+      log?.warn('Report PDF exceeds email attachment limit', {
+        userId: auth.userId!,
+        reportType,
+        pdfSize: pdfBuffer.length,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Report PDF (${(pdfBuffer.length / 1024 / 1024).toFixed(1)} MB) exceeds the ${MAX_PDF_BYTES / 1024 / 1024} MB email attachment limit. Narrow the filters or download the PDF directly.`,
+        },
+        { status: 413 }
+      )
+    }
+
     // Create filename
     const timestamp = new Date().toISOString().split('T')[0]
     const filename = `${reportType}-report-${timestamp}.pdf`
