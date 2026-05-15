@@ -9,6 +9,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. **SIMPLICITY IS KING**: Minimal changes, minimal code impact, zero bugs introduced
 4. **NO LAZINESS**: Find root causes, no temporary fixes
 
+## OpenSpec
+
+Architectural changes, breaking changes, and new capabilities are managed through **OpenSpec** in this repo (see `AGENTS.md` and `openspec/AGENTS.md`).
+
+- **Read `openspec/AGENTS.md` first** when the request mentions a proposal, spec, change, or plan; introduces new capabilities; or sounds ambiguous enough that you need an authoritative spec before coding.
+- Active change proposals live in `openspec/changes/`. Project-wide context lives in `openspec/project.md`.
+- Routine bug fixes and small feature work do not require an OpenSpec change.
+
 ## Quick Start
 
 ```bash
@@ -41,6 +49,11 @@ npm run test:headed         # Run with browser visible
 npm run test:debug          # Debug mode
 npx playwright test e2e/auth.spec.ts        # Single test file
 npx playwright test --grep "leave request"  # Pattern match
+
+# Testing (Vitest unit tests — config: vitest.config.mts)
+npm run test:unit           # Run unit tests once
+npm run test:unit:watch     # Watch mode
+npm run test:unit:coverage  # With coverage report
 
 # Database
 npm run db:types            # Regenerate types after schema changes (REQUIRED)
@@ -91,17 +104,29 @@ const { data } = await supabase.from('pilots').select('*')
 
 **Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table.
 
-### Dual Authentication Architecture
+### Hybrid Authentication Architecture
 
-**Two completely separate auth systems — never mix them:**
+Both portals use a **bcrypt session cookie first, Supabase Auth fallback** strategy. They are separate auth surfaces (different cookies, different DB tables, different user populations) but the underlying mechanism is the same shape.
 
-|             | Admin Portal             | Pilot Portal              |
-| ----------- | ------------------------ | ------------------------- |
-| Routes      | `/dashboard/*`           | `/portal/*`               |
-| API         | `/api/*` (non-portal)    | `/api/portal/*`           |
-| Auth System | Supabase Auth            | Custom (`an_users` table) |
-| Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
-| Users       | Admin staff, managers    | Pilots                    |
+|              | Admin Portal                                   | Pilot Portal                                                      |
+| ------------ | ---------------------------------------------- | ----------------------------------------------------------------- |
+| Routes       | `/dashboard/*`                                  | `/portal/*`                                                        |
+| API          | `/api/*` (non-portal)                          | `/api/portal/*`                                                    |
+| Cookie       | `admin-session`                                | `pilot-session`                                                    |
+| Custom auth  | bcrypt → `an_users` table                      | bcrypt → `pilot_sessions` table → `pilot_users.registration_approved` |
+| Fallback     | Supabase Auth (`an_users` lookup by `auth_user_id`) | Supabase Auth (`pilot_users` lookup by `auth_user_id`)            |
+| Approval gate | role check via `requireRole()`                | `pilot_users.registration_approved === true`                      |
+| Server helper | `getAuthenticatedAdmin()` in `admin-auth-helper.ts` | `pilot-portal-service.ts` + `redis-session-service.ts`        |
+| Users        | Admin staff, managers                          | Pilots                                                             |
+
+**Key tables (do not confuse):**
+- `an_users` → admin/manager accounts (admin portal only)
+- `pilot_users` → pilot registrations and portal accounts (pilot portal only)
+- `pilot_sessions` → active bcrypt-cookie sessions for the pilot portal
+
+The root `middleware.ts` enforces these checks on every non-static request (its matcher excludes only `_next/*` and image assets, so it runs DB queries on virtually every navigation — be mindful when adding logic there).
+
+**Rule**: never authenticate a `/portal/*` request via the admin path or vice-versa. The cookies, tables, and helpers are not interchangeable.
 
 ### API Route Security Pipeline (`lib/middleware/`)
 
@@ -321,14 +346,18 @@ Old routes redirect to consolidated tabbed views (configured in `next.config.js`
 
 ### Primary Tables
 
-| Table            | Purpose                                                     |
-| ---------------- | ----------------------------------------------------------- |
-| `pilots`         | Pilot profiles, qualifications, seniority                   |
-| `pilot_checks`   | Certification records                                       |
-| `check_types`    | Check type definitions                                      |
-| `pilot_requests` | **UNIFIED** — ALL leave and flight requests                 |
-| `leave_bids`     | Annual leave bidding (separate system)                      |
-| `an_users`       | Pilot portal authentication (also aliased as `pilot_users`) |
+| Table             | Purpose                                                              |
+| ----------------- | -------------------------------------------------------------------- |
+| `pilots`          | Pilot profiles, qualifications, seniority                            |
+| `pilot_checks`    | Certification records                                                |
+| `check_types`     | Check type definitions                                               |
+| `pilot_requests`  | **UNIFIED** — ALL leave and flight requests                          |
+| `leave_bids`      | Annual leave bidding (separate system)                               |
+| `an_users`        | **Admin/manager** auth (admin portal only)                           |
+| `pilot_users`     | **Pilot** registrations and portal auth (pilot portal only)          |
+| `pilot_sessions`  | Active bcrypt-cookie sessions for the pilot portal (`pilot-session`) |
+
+> ⚠️ `an_users` and `pilot_users` are **separate tables for separate user populations** — they are not aliases of each other.
 
 ### Unified Requests Table (`pilot_requests`)
 
@@ -505,6 +534,6 @@ Admin and pilot portal APIs use different auth systems. Never mix authentication
 
 ---
 
-**Version**: 4.1.0
-**Last Updated**: February 2026
+**Version**: 4.2.0
+**Last Updated**: 2026-05-05 — corrected auth architecture (hybrid bcrypt+Supabase), distinguished `an_users` vs `pilot_users`, added Vitest commands, added OpenSpec section
 **Maintainer**: Maurice (Skycruzer)
