@@ -11,7 +11,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { PilotOverviewTab } from './pilot-overview-tab'
 import { PilotCertificationsTab } from './pilot-certifications-tab'
@@ -86,6 +86,12 @@ export function PilotDetailTabs({
   const [activeTab, setActiveTab] = useState('overview')
   const [certifications, setCertifications] = useState<Certification[]>(initialCertifications || [])
 
+  // The useState initializer above only runs once; re-sync local state when the
+  // parent supplies a refreshed certifications list (e.g. after a silent refresh).
+  useEffect(() => {
+    setCertifications(initialCertifications || [])
+  }, [initialCertifications])
+
   const handleSwitchToCertifications = () => {
     setActiveTab('certifications')
   }
@@ -113,7 +119,13 @@ export function PilotDetailTabs({
           <FileCheck className="h-4 w-4" />
           <span className="hidden sm:inline">Certifications</span>
           {(pilot.certificationStatus.expiring > 0 || pilot.certificationStatus.expired > 0) && (
-            <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-status-medium)] px-1.5 text-xs font-bold text-white">
+            <span
+              className={`ml-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-white ${
+                pilot.certificationStatus.expired > 0
+                  ? 'bg-[var(--color-status-high)]'
+                  : 'bg-[var(--color-status-medium)]'
+              }`}
+            >
               {pilot.certificationStatus.expiring + pilot.certificationStatus.expired}
             </span>
           )}

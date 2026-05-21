@@ -21,6 +21,7 @@ import {
   TableCell,
 } from '@/components/ui/table'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { useToast } from '@/hooks/use-toast'
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
   const { csrfToken } = useCsrfToken()
+  const { toast } = useToast()
 
   // Calculate rank statistics
   const stats = {
@@ -85,7 +87,11 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
       router.refresh()
     } catch (error: any) {
       console.error('Error deleting pilot:', error)
-      alert(error.message || 'Failed to delete pilot')
+      toast({
+        title: 'Delete Failed',
+        description: error.message || 'Failed to delete pilot',
+        variant: 'destructive',
+      })
     } finally {
       setIsDeleting(false)
     }
@@ -179,7 +185,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
                         <Button
                           variant="outline"
                           size="sm"
-                          className="hover:bg-primary hover:text-[var(--color-info)]-foreground text-xs"
+                          className="hover:bg-primary hover:text-primary-foreground text-xs"
                         >
                           Edit
                         </Button>

@@ -76,12 +76,13 @@ export function PilotCertificationsTab({
   const [saving, setSaving] = useState(false)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
-  // Fetch certifications on mount if not provided
+  // Fetch certifications on mount and whenever the pilot changes, if none were
+  // supplied. Re-running is keyed on the pilot identity only.
   useEffect(() => {
     if (!initialCertifications || initialCertifications.length === 0) {
       fetchCertifications()
     }
-  }, [])
+  }, [pilot.id])
 
   async function fetchCertifications() {
     try {

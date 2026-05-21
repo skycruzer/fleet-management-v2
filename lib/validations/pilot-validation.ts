@@ -194,7 +194,11 @@ export const PilotCreateSchema = z
       if (data.date_of_birth) {
         const birthDate = new Date(data.date_of_birth)
         const today = new Date()
-        const age = today.getFullYear() - birthDate.getFullYear()
+        let age = today.getFullYear() - birthDate.getFullYear()
+        const monthDelta = today.getMonth() - birthDate.getMonth()
+        if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) {
+          age--
+        }
         return age >= 18
       }
       return true
@@ -286,7 +290,11 @@ export const PilotUpdateSchema = z
       if (data.date_of_birth) {
         const birthDate = new Date(data.date_of_birth)
         const today = new Date()
-        const age = today.getFullYear() - birthDate.getFullYear()
+        let age = today.getFullYear() - birthDate.getFullYear()
+        const monthDelta = today.getMonth() - birthDate.getMonth()
+        if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) {
+          age--
+        }
         return age >= 18
       }
       return true

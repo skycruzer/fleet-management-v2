@@ -34,6 +34,11 @@ export function calculateRetirementCountdown(
   // Calculate retirement date using provided or default retirement age
   const retirementDate = new Date(birth)
   retirementDate.setFullYear(birth.getFullYear() + retirementAge)
+  // A Feb-29 birth date overflows to Mar 1 in a non-leap target year;
+  // clamp it back to the last valid day of the intended month (Feb 28).
+  if (retirementDate.getMonth() !== birth.getMonth()) {
+    retirementDate.setDate(0)
+  }
 
   // Check if already retired
   if (today >= retirementDate) {

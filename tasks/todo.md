@@ -1,66 +1,103 @@
-# Admin Dashboard — UX/UI Redesign (2026-05-22)
+# Admin Pilot Page — Code Review Fixes
 
-User-approved. Decisions: **two-tier card system** (quiet default, loud band only
-for genuine alert states), **light dedup** (remove blatant repeats only).
-Branch: `fix/admin-dashboard-degraded-state` (continues PR #50 — files overlap).
+Source: `/code-review xhigh`, 2026-05-22. 15 correctness findings + UX recommendations.
+Status: **complete** — see Review section.
 
-## Batch 1 — Primitives (2 new files)
+## Critical
 
-- [x] 1a. `components/dashboard/dashboard-card.tsx` — one card primitive, two-tier
-- [x] 1b. `components/dashboard/empty-state.tsx` — shared empty-state
+- [x] #1 RBAC casing mismatch — `UserRole` enum aligned to lowercase DB values
+      (`an_users.role` is `admin`/`manager`, verified). `getUserRole` also
+      `.toLowerCase()`-normalizes defensively
+      (`lib/middleware/authorization-middleware.ts`)
+- [x] #2 `requireRole` admin-session path now verifies `adminSession.user.role`
+      against the required roles instead of blanket-authorizing
+      (`authorization-middleware.ts`)
 
-## Batch 2 — Quiet widgets
+## High
 
-- [x] 2a. `todays-priorities.tsx` — DashboardCard; dropped always-on roster row
-      (light dedup); EmptyState; error state retained
-- [x] 2b. `quick-action-cards.tsx` — DashboardCard
-- [x] 2c. `roster-calendar-widget.tsx` — DashboardCard + footer action
-- [x] 2d. `pending-approvals-widget.tsx` — DashboardCard; fixed silent `catch {}`
-      (carryover bug) → log + error state; EmptyState
-- [x] 2e. `fleet-insights-widget.tsx` — status color tokens → semantic set
+- [x] #3 `DataTable` now sorts the full dataset before paginating
+      (`components/ui/data-table.tsx`)
 
-## Batch 3 — Big widgets
+## Medium
 
-- [x] 3a. `compact-roster-display.tsx` — de-loud header; `font-black` → `font-bold`
-- [x] 3b. `pilot-requirements-card.tsx` — de-loud header (alert band only when
-      understaffed); dynamic badge (was static "CRITICAL"); removed
-      `hover:scale-[1.02]` false affordance; semantic color tokens; 4 copy-pasted
-      tiles → one `StatTile` component
-- [x] 3c. `retirement-forecast-card.tsx` — DashboardCard + EmptyState; semantic
-      tokens; 4 list blocks → one `ForecastList` component
+- [x] #4 `DataTable` sort uses a numeric-aware `compareValues` comparator
+      (`data-table.tsx`)
+- [x] #5 `fetchPilotDetails(silent)` — cert-save refresh no longer blanks the
+      detail page to a spinner (`app/dashboard/pilots/[id]/page.tsx`)
+- [x] #6 `createPilot` now writes `captain_qualifications`; added to
+      `PilotFormData` (`lib/services/pilot-service.ts`).
+      NOTE: `createPilotWithCertifications` (RPC path) still omits it — needs a
+      Postgres-function change, deferred (see Remaining)
+- [x] #7 `RetirementInformationCard` `currentAge` now month/day-adjusted
+      (`components/pilots/retirement-information-card.tsx`)
 
-## Batch 4 — Admin page
+## Low
 
-- [x] 4a. `app/dashboard/admin/page.tsx` — raw `<table>` → `components/ui/table`
-- [x] 4b. stat cards clickable (Check Types, Certifications — cards with a real home)
-- [x] 4c. type scale — `h1` `text-2xl`, `h2` `text-lg` (were both `text-xl`)
-- [x] 4d. Suspense streaming — split into 4 independent async section components
+- [x] #8 `careerProgress` guarded against zero/negative `totalCareerYears`
+- [x] #9 `PilotDetailTabs` re-syncs `certifications` from the prop via `useEffect`
+- [x] #10 404 now surfaces "Pilot not found" from the response body
+- [x] #11 Deleted dead `lib/hooks/use-optimistic-pilot.ts`
+- [x] #12 Cert tab mount effect keyed on `[pilot.id]`
+      (`components/pilots/pilot-certifications-tab.tsx`)
+- [x] #13 Leap-day retirement date clamped (`lib/utils/retirement-utils.ts`)
+- [x] #14 Age validation month/day-adjusted (`lib/validations/pilot-validation.ts`)
+- [x] #15 Initials deref guarded (`pilot-card.tsx`, `pilot-profile-header.tsx`)
 
-## Out of scope (decided)
+## UX quick wins
 
-- Aggressive dedup — user chose light dedup; KPI strip in fleet-insights stays
-- CompactRosterDisplay structural split — restyle only (rule 3: simplicity)
-- globals.css token cleanup — not touched; only dashboard widgets standardized
+- [x] Deleted dead `components/pilots/premium-pilot-card.tsx`
+- [x] Fixed broken Tailwind class in `pilot-rank-group.tsx`
+- [x] Emoji status icons → lucide (`retirement-countdown-badge.tsx`)
+- [x] `pilot-rank-group.tsx` delete error: native `alert()` → `toast()`
+      (kept the existing confirmation `Dialog`)
+- [x] Detail-tabs "attention" badge turns red when `expired > 0`
+
+## Remaining (recommendation only — needs maintainer decision)
+
+- `createPilotWithCertifications` RPC: pass `captain_qualifications` through the
+  `create_pilot_with_certifications` Postgres function
+- `pilot-rank-group.tsx`: full migration of the hand-rolled `Dialog` to
+  `useConfirm()` (consistency with the detail page)
+- Surface certification status in card + table views; standardize columns across
+  the 3 list views
+- Persist `viewMode` + filters in URL via `nuqs`
+- Loading skeletons for `[id]` and `[id]/edit`
+- Mobile touch targets / row-action dropdown
+- Form validation `mode: onTouched` + edit-form error summary
 
 ## Review
 
-All 4 batches complete. Verification:
+All 15 correctness findings + 5 UX quick wins applied across 13 files;
+2 dead files deleted.
 
-- ESLint: clean on all 11 changed files
-- Prettier: clean (fleet-insights, retirement-forecast, admin/page auto-formatted)
-- `tsc --noEmit`: no errors in changed files (2 pre-existing env artifacts
-  unrelated — `aria-query 2` / `uuid 2`, macOS-duplicated `@types` dirs)
+**Files changed**
 
-Files changed:
+- `lib/middleware/authorization-middleware.ts` — #1, #2
+- `components/ui/data-table.tsx` — #3, #4
+- `lib/services/pilot-service.ts` — #6
+- `app/dashboard/pilots/[id]/page.tsx` — #5, #10
+- `components/pilots/retirement-information-card.tsx` — #7, #8
+- `components/pilots/pilot-detail-tabs.tsx` — #9 + attention-badge colour
+- `app/.../pilot-certifications-tab.tsx` — #12
+- `lib/utils/retirement-utils.ts` — #13
+- `lib/validations/pilot-validation.ts` — #14
+- `components/pilots/pilot-card.tsx` — #15
+- `components/pilots/pilot-profile-header.tsx` — #15
+- `components/pilots/pilot-rank-group.tsx` — broken class, alert→toast
+- `components/pilots/retirement-countdown-badge.tsx` — emoji→lucide
+- DELETED `lib/hooks/use-optimistic-pilot.ts` (#11)
+- DELETED `components/pilots/premium-pilot-card.tsx` (dead)
 
-- NEW components/dashboard/dashboard-card.tsx
-- NEW components/dashboard/empty-state.tsx
-- EDIT components/dashboard/todays-priorities.tsx
-- EDIT components/dashboard/quick-action-cards.tsx
-- EDIT components/dashboard/roster-calendar-widget.tsx
-- EDIT components/dashboard/pending-approvals-widget.tsx
-- EDIT components/dashboard/fleet-insights-widget.tsx
-- EDIT components/dashboard/compact-roster-display.tsx
-- EDIT components/dashboard/pilot-requirements-card.tsx
-- EDIT components/dashboard/retirement-forecast-card.tsx
-- EDIT app/dashboard/admin/page.tsx
+**Verification**
+
+- `tsc --noEmit`: clean (2 pre-existing env artifacts unrelated —
+  `aria-query 2` / `uuid 2`, macOS-duplicated `@types` dirs)
+- ESLint: clean on all 13 changed files
+- Prettier: clean on all 13 changed files
+- Full `next build` / E2E left to Vercel CI (local build environment unreliable)
+
+**Highest-impact note**
+
+#1 + #2 are app-wide (authorization middleware governs ~15 API routes, not just
+pilots). The casing fix and the admin-session role check must ship together —
+they were verified against the live DB (`an_users.role` is lowercase).

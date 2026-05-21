@@ -16,11 +16,14 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
 /**
  * User roles in the system
  */
+// NOTE: values are lowercase to match the `an_users.role` CHECK constraint
+// in the database (`admin` / `manager`). Capitalized values silently broke
+// every role comparison — see verifyUserRole / verifyResourceOwnership.
 export enum UserRole {
-  ADMIN = 'Admin',
-  MANAGER = 'Manager',
-  USER = 'User',
-  PILOT = 'Pilot',
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  USER = 'user',
+  PILOT = 'pilot',
 }
 
 /**
@@ -62,7 +65,9 @@ export async function getUserRole(userId: string): Promise<UserRole | null> {
       return null
     }
 
-    return userData.role as UserRole
+    // The DB enforces lowercase roles; normalize defensively so a stray-cased
+    // value still maps onto the UserRole enum.
+    return userData.role.toLowerCase() as UserRole
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'authorization-middleware/getUserRole',
@@ -321,12 +326,18 @@ export async function requireRole(
     const adminSession = await validateAdminSession()
 
     if (adminSession.isValid && adminSession.user?.id) {
-      // Admin-session users are authenticated admins - check if Admin role is allowed
-      if (requiredRoles.includes(UserRole.ADMIN)) {
+      // The admin session carries the user's role directly (lowercase, from
+      // admin-auth-service). Verify it against the required roles — do NOT
+      // blanket-authorize just because the user holds a valid session.
+      const sessionRole = (adminSession.user.role ?? '').toLowerCase() as UserRole
+      if (requiredRoles.includes(sessionRole)) {
         return { authorized: true }
       }
-      // For other roles, verify against the database
-      return await verifyUserRole(adminSession.user.id, requiredRoles)
+      return {
+        authorized: false,
+        error: 'Insufficient permissions',
+        statusCode: 403,
+      }
     }
 
     return {

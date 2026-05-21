@@ -93,7 +93,15 @@ export function RetirementInformationCard({
 
   // Calculate career progress (0-100% based on actual service period to retirement)
   const birthDate = new Date(dateOfBirth)
-  const currentAge = new Date().getFullYear() - birthDate.getFullYear()
+  const today = new Date()
+
+  // Precise age: year difference adjusted for whether the birthday has passed
+  // this year. A plain getFullYear() subtraction overstates age by up to a year.
+  let currentAge = today.getFullYear() - birthDate.getFullYear()
+  const monthDelta = today.getMonth() - birthDate.getMonth()
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) {
+    currentAge--
+  }
 
   // Use actual commencement date if available, otherwise use age 18
   let careerStartAge = 18
@@ -108,7 +116,10 @@ export function RetirementInformationCard({
 
   const totalCareerYears = retirementAge - careerStartAge
   const yearsCompleted = currentAge - careerStartAge
-  const careerProgress = Math.min(100, Math.max(0, (yearsCompleted / totalCareerYears) * 100))
+  // Guard against a zero/negative career span (e.g. commenced at retirement age,
+  // or bad data) which would otherwise yield Infinity / NaN%.
+  const careerProgress =
+    totalCareerYears > 0 ? Math.min(100, Math.max(0, (yearsCompleted / totalCareerYears) * 100)) : 0
 
   // Warning thresholds
   const isUrgent = countdown.totalDays <= 365 // Less than 1 year

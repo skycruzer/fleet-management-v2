@@ -8,7 +8,7 @@
  */
 
 import { Badge } from '@/components/ui/badge'
-import { Clock } from 'lucide-react'
+import { Clock, AlertTriangle, AlertCircle } from 'lucide-react'
 import {
   calculateRetirementCountdown,
   formatRetirementCountdown,
@@ -59,12 +59,12 @@ export function RetirementCountdownBadge({
     orange: {
       className:
         'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
-      icon: '⚠️',
+      icon: AlertTriangle,
     },
     red: {
       className:
         'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)] animate-pulse',
-      icon: '🔴',
+      icon: AlertCircle,
     },
     gray: {
       className: 'bg-muted text-muted-foreground border-border',
@@ -73,6 +73,7 @@ export function RetirementCountdownBadge({
   }
 
   const config = urgencyConfig[status.color]
+  const UrgencyIcon = config.icon
 
   // Format countdown text
   const countdownText = compact
@@ -84,11 +85,7 @@ export function RetirementCountdownBadge({
       className={cn('gap-1 border', config.className)}
       aria-label={`Retirement in ${formatRetirementCountdown(countdown)} - ${status.label}`}
     >
-      {config.icon && (
-        <span role="img" aria-hidden="true">
-          {config.icon}
-        </span>
-      )}
+      {UrgencyIcon && <UrgencyIcon className="h-3 w-3" aria-hidden="true" />}
       <Clock className="h-3 w-3" aria-hidden="true" />
       <span>{countdownText}</span>
     </Badge>
