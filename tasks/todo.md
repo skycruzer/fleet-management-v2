@@ -12,22 +12,22 @@ Branch: `fix/admin-dashboard-degraded-state` (continues PR #50 — files overlap
 ## Batch 2 — Quiet widgets
 
 - [x] 2a. `todays-priorities.tsx` — DashboardCard; dropped always-on roster row
-  (light dedup); EmptyState; error state retained
+      (light dedup); EmptyState; error state retained
 - [x] 2b. `quick-action-cards.tsx` — DashboardCard
 - [x] 2c. `roster-calendar-widget.tsx` — DashboardCard + footer action
 - [x] 2d. `pending-approvals-widget.tsx` — DashboardCard; fixed silent `catch {}`
-  (carryover bug) → log + error state; EmptyState
+      (carryover bug) → log + error state; EmptyState
 - [x] 2e. `fleet-insights-widget.tsx` — status color tokens → semantic set
 
 ## Batch 3 — Big widgets
 
 - [x] 3a. `compact-roster-display.tsx` — de-loud header; `font-black` → `font-bold`
 - [x] 3b. `pilot-requirements-card.tsx` — de-loud header (alert band only when
-  understaffed); dynamic badge (was static "CRITICAL"); removed
-  `hover:scale-[1.02]` false affordance; semantic color tokens; 4 copy-pasted
-  tiles → one `StatTile` component
+      understaffed); dynamic badge (was static "CRITICAL"); removed
+      `hover:scale-[1.02]` false affordance; semantic color tokens; 4 copy-pasted
+      tiles → one `StatTile` component
 - [x] 3c. `retirement-forecast-card.tsx` — DashboardCard + EmptyState; semantic
-  tokens; 4 list blocks → one `ForecastList` component
+      tokens; 4 list blocks → one `ForecastList` component
 
 ## Batch 4 — Admin page
 
@@ -52,14 +52,15 @@ All 4 batches complete. Verification:
   unrelated — `aria-query 2` / `uuid 2`, macOS-duplicated `@types` dirs)
 
 Files changed:
-- NEW   components/dashboard/dashboard-card.tsx
-- NEW   components/dashboard/empty-state.tsx
-- EDIT  components/dashboard/todays-priorities.tsx
-- EDIT  components/dashboard/quick-action-cards.tsx
-- EDIT  components/dashboard/roster-calendar-widget.tsx
-- EDIT  components/dashboard/pending-approvals-widget.tsx
-- EDIT  components/dashboard/fleet-insights-widget.tsx
-- EDIT  components/dashboard/compact-roster-display.tsx
-- EDIT  components/dashboard/pilot-requirements-card.tsx
-- EDIT  components/dashboard/retirement-forecast-card.tsx
-- EDIT  app/dashboard/admin/page.tsx
+
+- NEW components/dashboard/dashboard-card.tsx
+- NEW components/dashboard/empty-state.tsx
+- EDIT components/dashboard/todays-priorities.tsx
+- EDIT components/dashboard/quick-action-cards.tsx
+- EDIT components/dashboard/roster-calendar-widget.tsx
+- EDIT components/dashboard/pending-approvals-widget.tsx
+- EDIT components/dashboard/fleet-insights-widget.tsx
+- EDIT components/dashboard/compact-roster-display.tsx
+- EDIT components/dashboard/pilot-requirements-card.tsx
+- EDIT components/dashboard/retirement-forecast-card.tsx
+- EDIT app/dashboard/admin/page.tsx
