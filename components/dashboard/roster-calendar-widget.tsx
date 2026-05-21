@@ -5,13 +5,11 @@
  * Mini monthly calendar for the dashboard showing the current month
  * with roster period dates highlighted. Displays current RP code
  * and days remaining.
- * Part of the dashboard redesign (Phase 2).
  */
 
-import Link from 'next/link'
-import { Card } from '@/components/ui/card'
 import { Calendar } from 'lucide-react'
 import { getCurrentRosterPeriodObject } from '@/lib/utils/roster-utils'
+import { DashboardCard } from './dashboard-card'
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -73,14 +71,11 @@ export function RosterCalendarWidget() {
   const monthName = now.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
 
   return (
-    <Card className="h-full p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-          Roster Calendar
-        </h3>
-        <Calendar className="text-muted-foreground/50 h-4 w-4" aria-hidden="true" />
-      </div>
-
+    <DashboardCard
+      title="Roster Calendar"
+      icon={Calendar}
+      action={{ href: '/dashboard/renewal-planning', label: 'View full calendar' }}
+    >
       <p className="text-foreground mb-3 text-sm font-semibold">{monthName}</p>
 
       {/* Day labels */}
@@ -131,18 +126,10 @@ export function RosterCalendarWidget() {
         })}
       </div>
 
-      {/* RP info */}
-      <div className="border-border mt-3 border-t pt-3">
-        <p className="text-muted-foreground text-xs">
-          {currentRP.code} · {daysRemaining} days remaining
-        </p>
-        <Link
-          href="/dashboard/renewal-planning"
-          className="mt-1 inline-block text-xs text-[var(--color-info)] hover:underline"
-        >
-          View full calendar →
-        </Link>
-      </div>
-    </Card>
+      {/* RP context */}
+      <p className="text-muted-foreground border-border mt-3 border-t pt-3 text-xs">
+        {currentRP.code} · {daysRemaining} days remaining
+      </p>
+    </DashboardCard>
   )
 }

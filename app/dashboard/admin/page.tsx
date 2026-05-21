@@ -1,30 +1,15 @@
 /**
  * Admin Dashboard Page
- * Clean, organized admin interface with better spacing and readability.
+ * System configuration and user management.
  *
- * Resilience: each data source is fetched with Promise.allSettled so a
- * single failing service degrades only its own section, never the page.
- * System Status reflects a live cache-health probe, not a constant.
+ * Each data section is its own async component behind a Suspense
+ * boundary, so the page shell and static actions render immediately
+ * and each section streams in independently. A failing section
+ * degrades only itself.
  */
 
-import { dashboardMetadata } from '@/lib/utils/metadata'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Suspense } from 'react'
 import Link from 'next/link'
-import {
-  getAdminStats,
-  getAdminUsers,
-  getCheckTypes,
-  getContractTypes,
-  getCheckTypeCategories,
-  type AdminStats,
-  type AdminUser,
-  type CheckType,
-  type ContractType,
-} from '@/lib/services/admin-service'
-import { getCacheHealth } from '@/lib/services/dashboard-service-v4'
-import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { format } from 'date-fns'
 import {
   Users,
@@ -39,32 +24,35 @@ import {
   AlertTriangle,
   HelpCircle,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+import { dashboardMetadata } from '@/lib/utils/metadata'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Breadcrumb } from '@/components/navigation/breadcrumb'
+import {
+  getAdminStats,
+  getAdminUsers,
+  getCheckTypes,
+  getContractTypes,
+  getCheckTypeCategories,
+} from '@/lib/services/admin-service'
+import { getCacheHealth } from '@/lib/services/dashboard-service-v4'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 export const metadata = dashboardMetadata.admin
 
-const STATS_FALLBACK: AdminStats = {
-  totalAdmins: 0,
-  totalManagers: 0,
-  totalPilots: 0,
-  totalCheckTypes: 0,
-  totalCertifications: 0,
-  totalLeaveRequests: 0,
-  systemStatus: 'operational',
-}
-
 type CacheHealth = Awaited<ReturnType<typeof getCacheHealth>>
-
-/** Unwrap a settled result, logging rejections and falling back gracefully. */
-function settled<T>(result: PromiseSettledResult<T>, fallback: T, operation: string): T {
-  if (result.status === 'fulfilled') return result.value
-  logError(result.reason instanceof Error ? result.reason : new Error(String(result.reason)), {
-    source: 'AdminPage',
-    severity: ErrorSeverity.MEDIUM,
-    metadata: { operation },
-  })
-  return fallback
-}
 
 const SYSTEM_STATUS = {
   healthy: { label: 'Operational', className: 'text-success', Icon: CheckCircle2 },
@@ -79,375 +67,449 @@ function resolveSystemStatus(health: CacheHealth | null) {
   return SYSTEM_STATUS[health.overall]
 }
 
-export default async function AdminPage() {
-  // Fetch all data in parallel — allSettled so one failure can't blank the page.
-  const [statsR, usersR, checkTypesR, contractTypesR, categoriesR, healthR] =
-    await Promise.allSettled([
-      getAdminStats(),
-      getAdminUsers(),
-      getCheckTypes(),
-      getContractTypes(),
-      getCheckTypeCategories(),
-      getCacheHealth(),
-    ])
+/** Log a section fetch failure without crashing the page. */
+function logSectionError(operation: string, error: unknown) {
+  logError(error instanceof Error ? error : new Error(String(error)), {
+    source: 'AdminPage',
+    severity: ErrorSeverity.MEDIUM,
+    metadata: { operation },
+  })
+}
 
-  const stats = settled<AdminStats>(statsR, STATS_FALLBACK, 'getAdminStats')
-  const users = settled<AdminUser[]>(usersR, [], 'getAdminUsers')
-  const checkTypes = settled<CheckType[]>(checkTypesR, [], 'getCheckTypes')
-  const contractTypes = settled<ContractType[]>(contractTypesR, [], 'getContractTypes')
-  const categories = settled<string[]>(categoriesR, [], 'getCheckTypeCategories')
-  const health = settled<CacheHealth | null>(healthR, null, 'getCacheHealth')
+// ----------------------------------------------------------------------------
+// Shared presentational pieces
+// ----------------------------------------------------------------------------
 
+interface StatCardProps {
+  label: string
+  value: string | number
+  sublabel: string
+  icon: LucideIcon
+  href?: string
+}
+
+function StatCard({ label, value, sublabel, icon: Icon, href }: StatCardProps) {
+  const card = (
+    <Card className="h-full p-6 transition-shadow hover:shadow-[var(--shadow-interactive-hover)]">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <p className="text-muted-foreground text-sm font-medium">{label}</p>
+          <p className="text-foreground text-2xl font-bold tabular-nums">{value}</p>
+          <p className="text-muted-foreground text-sm">{sublabel}</p>
+        </div>
+        <div className="bg-muted/30 rounded-lg p-3">
+          <Icon className="h-6 w-6 text-[var(--color-info)]" aria-hidden="true" />
+        </div>
+      </div>
+    </Card>
+  )
+
+  if (!href) return card
+  return (
+    <Link
+      href={href}
+      className="focus-visible:ring-ring block rounded-xl focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    >
+      {card}
+    </Link>
+  )
+}
+
+function SectionCard({ children }: { children: React.ReactNode }) {
+  return <Card className="p-6">{children}</Card>
+}
+
+function SectionHeading({ title, description }: { title: string; description: string }) {
+  return (
+    <div>
+      <h2 className="text-foreground text-lg font-semibold">{title}</h2>
+      <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+    </div>
+  )
+}
+
+function Shimmer({ className }: { className: string }) {
+  return <div className={`bg-muted animate-shimmer rounded-xl ${className}`} />
+}
+
+function StatCardsSkeleton() {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {[0, 1, 2, 3].map((i) => (
+        <Shimmer key={i} className="h-32" />
+      ))}
+    </div>
+  )
+}
+
+function TableCardSkeleton() {
+  return <Shimmer className="h-64" />
+}
+
+// ----------------------------------------------------------------------------
+// Async data sections — each streams independently behind <Suspense>
+// ----------------------------------------------------------------------------
+
+async function AdminStatusCards() {
+  const [statsR, healthR] = await Promise.allSettled([getAdminStats(), getCacheHealth()])
+
+  if (statsR.status === 'rejected') logSectionError('getAdminStats', statsR.reason)
+  if (healthR.status === 'rejected') logSectionError('getCacheHealth', healthR.reason)
+
+  const stats = statsR.status === 'fulfilled' ? statsR.value : null
+  const health = healthR.status === 'fulfilled' ? healthR.value : null
   const systemStatus = resolveSystemStatus(health)
-  const sortedCheckTypes = [...checkTypes].sort((a, b) => a.check_code.localeCompare(b.check_code))
+  const totalUsers = stats ? stats.totalAdmins + stats.totalManagers + stats.totalPilots : 0
+  const staffCount = stats ? stats.totalAdmins + stats.totalManagers : 0
 
   return (
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm font-medium">System Status</p>
+            <p className={`text-2xl font-bold ${systemStatus.className}`}>{systemStatus.label}</p>
+            {health ? (
+              <p className="text-muted-foreground text-sm">
+                Cache {health.redis ? 'up' : 'down'} · View{' '}
+                {health.materializedView ? 'up' : 'down'}
+              </p>
+            ) : (
+              <p className="text-muted-foreground text-sm">Health check unavailable</p>
+            )}
+          </div>
+          <div className="bg-muted/30 rounded-lg p-3">
+            <systemStatus.Icon className={`h-6 w-6 ${systemStatus.className}`} aria-hidden="true" />
+          </div>
+        </div>
+      </Card>
+
+      <StatCard
+        label="Active Users"
+        value={totalUsers}
+        sublabel={`${staffCount} staff, ${stats?.totalPilots ?? 0} pilots`}
+        icon={Users}
+      />
+      <StatCard
+        label="Check Types"
+        value={stats?.totalCheckTypes ?? 0}
+        sublabel="certification types"
+        icon={FileText}
+        href="/dashboard/admin/check-types"
+      />
+      <StatCard
+        label="Certifications"
+        value={stats?.totalCertifications ?? 0}
+        sublabel="total records"
+        icon={Database}
+        href="/dashboard/certifications"
+      />
+    </div>
+  )
+}
+
+async function AdminUsersSection() {
+  let users: Awaited<ReturnType<typeof getAdminUsers>> = []
+  try {
+    users = await getAdminUsers()
+  } catch (error) {
+    logSectionError('getAdminUsers', error)
+  }
+
+  return (
+    <SectionCard>
+      <div className="mb-6 flex items-center justify-between">
+        <SectionHeading
+          title="Admin & Manager Users"
+          description="System administrators and managers"
+        />
+        <Badge variant="secondary">{users.length} users</Badge>
+      </div>
+
+      <Table>
+        <TableCaption className="sr-only">Admin and manager user accounts</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Created</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                No admin or manager users found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="text-foreground font-medium">{user.name}</TableCell>
+                <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                <TableCell>
+                  <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                    {user.role.toUpperCase()}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </SectionCard>
+  )
+}
+
+async function AdminCheckTypesSection() {
+  let checkTypes: Awaited<ReturnType<typeof getCheckTypes>> = []
+  let categories: string[] = []
+  const [checkTypesR, categoriesR] = await Promise.allSettled([
+    getCheckTypes(),
+    getCheckTypeCategories(),
+  ])
+  if (checkTypesR.status === 'fulfilled') checkTypes = checkTypesR.value
+  else logSectionError('getCheckTypes', checkTypesR.reason)
+  if (categoriesR.status === 'fulfilled') categories = categoriesR.value
+  else logSectionError('getCheckTypeCategories', categoriesR.reason)
+
+  const sorted = [...checkTypes].sort((a, b) => a.check_code.localeCompare(b.check_code))
+
+  return (
+    <SectionCard>
+      <div className="mb-6 flex items-center justify-between">
+        <SectionHeading
+          title="Check Types Configuration"
+          description="Certification types by category"
+        />
+        <Badge variant="secondary">{checkTypes.length} types</Badge>
+      </div>
+
+      {/* Category stats */}
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((category) => {
+          const count = checkTypes.filter((ct) => ct.category === category).length
+          return (
+            <Card key={category} className="bg-muted/30 p-4">
+              <p className="text-muted-foreground text-sm font-medium">{category}</p>
+              <p className="text-foreground mt-2 text-3xl font-bold tabular-nums">{count}</p>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* First 10 by code for stable, readable ordering */}
+      <Table>
+        <TableCaption className="sr-only">Certification check types, first 10 by code</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Code</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Updated</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                No check types configured.
+              </TableCell>
+            </TableRow>
+          ) : (
+            sorted.slice(0, 10).map((checkType) => (
+              <TableRow key={checkType.id}>
+                <TableCell className="text-foreground font-medium">
+                  {checkType.check_code}
+                </TableCell>
+                <TableCell className="text-foreground">{checkType.check_description}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {checkType.category || 'N/A'}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+
+      {checkTypes.length > 10 && (
+        <div className="mt-4 text-center">
+          <Link href="/dashboard/admin/check-types">
+            <Button variant="outline" size="sm">
+              View All {checkTypes.length} Check Types
+            </Button>
+          </Link>
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+async function AdminContractsSection() {
+  let contractTypes: Awaited<ReturnType<typeof getContractTypes>> = []
+  try {
+    contractTypes = await getContractTypes()
+  } catch (error) {
+    logSectionError('getContractTypes', error)
+  }
+
+  return (
+    <SectionCard>
+      <div className="mb-6 flex items-center justify-between">
+        <SectionHeading title="Contract Types" description="Employment contract types" />
+        <Badge variant="secondary">{contractTypes.length} types</Badge>
+      </div>
+
+      <Table>
+        <TableCaption className="sr-only">Employment contract types</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Created</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {contractTypes.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                No contract types found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            contractTypes.map((contract) => (
+              <TableRow key={contract.id}>
+                <TableCell className="text-foreground font-medium">{contract.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {contract.description || 'N/A'}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={contract.is_active ? 'default' : 'secondary'}>
+                    {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {format(new Date(contract.created_at), 'MMM dd, yyyy')}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </SectionCard>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Static Quick Actions
+// ----------------------------------------------------------------------------
+
+const QUICK_ACTIONS = [
+  {
+    href: '/dashboard/admin/users/new',
+    icon: UserPlus,
+    title: 'Add New User',
+    description: 'Create admin or manager',
+  },
+  {
+    href: '/dashboard/admin/check-types',
+    icon: List,
+    title: 'Manage Check Types',
+    description: 'Edit certification types',
+  },
+  {
+    href: '/dashboard/admin/settings',
+    icon: Settings,
+    title: 'System Settings',
+    description: 'Configure preferences',
+  },
+  {
+    href: '/dashboard/admin/pilot-registrations',
+    icon: UserCheck,
+    title: 'Pilot Registrations',
+    description: 'Review pending approvals',
+  },
+  {
+    href: '/dashboard/admin/portal-users',
+    icon: Monitor,
+    title: 'Portal Users',
+    description: 'View pilot portal activity',
+  },
+] as const
+
+function QuickActions() {
+  return (
+    <SectionCard>
+      <h2 className="text-foreground mb-6 text-lg font-semibold">Quick Actions</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {QUICK_ACTIONS.map((action) => (
+          <Link key={action.href} href={action.href}>
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="bg-muted/30 rounded-lg p-3">
+                <action.icon className="h-5 w-5 text-[var(--color-info)]" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="font-semibold">{action.title}</p>
+                <p className="text-muted-foreground text-sm">{action.description}</p>
+              </div>
+            </Button>
+          </Link>
+        ))}
+      </div>
+    </SectionCard>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Page
+// ----------------------------------------------------------------------------
+
+export default function AdminPage() {
+  return (
     <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
       <Breadcrumb />
 
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-foreground text-xl font-semibold">Admin Dashboard</h1>
+          <h1 className="text-foreground text-2xl font-semibold">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             System configuration and user management
           </p>
         </div>
         <Link href="/dashboard/admin/users/new">
           <Button size="lg" className="gap-2">
-            <UserPlus className="h-4 w-4" />
+            <UserPlus className="h-4 w-4" aria-hidden="true" />
             Add New User
           </Button>
         </Link>
       </div>
 
-      {/* System Status Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">System Status</p>
-              <p className={`text-2xl font-bold ${systemStatus.className}`}>{systemStatus.label}</p>
-              {health ? (
-                <p className="text-muted-foreground text-sm">
-                  Cache {health.redis ? 'up' : 'down'} · View{' '}
-                  {health.materializedView ? 'up' : 'down'}
-                </p>
-              ) : null}
-            </div>
-            <div className="bg-muted/30 rounded-lg p-3">
-              <systemStatus.Icon className={`h-6 w-6 ${systemStatus.className}`} />
-            </div>
-          </div>
-        </Card>
+      <Suspense fallback={<StatCardsSkeleton />}>
+        <AdminStatusCards />
+      </Suspense>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Active Users</p>
-              <p className="text-foreground text-2xl font-bold">
-                {stats.totalAdmins + stats.totalManagers + stats.totalPilots}
-              </p>
-              <p className="text-muted-foreground text-sm">
-                {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
-              </p>
-            </div>
-            <div className="bg-muted/30 rounded-lg p-3">
-              <Users className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
+      <QuickActions />
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Check Types</p>
-              <p className="text-foreground text-2xl font-bold">{stats.totalCheckTypes}</p>
-              <p className="text-muted-foreground text-sm">certification types</p>
-            </div>
-            <div className="bg-muted/30 rounded-lg p-3">
-              <FileText className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
+      <Suspense fallback={<TableCardSkeleton />}>
+        <AdminUsersSection />
+      </Suspense>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Certifications</p>
-              <p className="text-foreground text-2xl font-bold">{stats.totalCertifications}</p>
-              <p className="text-muted-foreground text-sm">total records</p>
-            </div>
-            <div className="bg-muted/30 rounded-lg p-3">
-              <Database className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
-      </div>
+      <Suspense fallback={<TableCardSkeleton />}>
+        <AdminCheckTypesSection />
+      </Suspense>
 
-      {/* Quick Actions */}
-      <Card className="p-6">
-        <h2 className="text-foreground mb-6 text-xl font-semibold">Quick Actions</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link href="/dashboard/admin/users/new">
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="bg-muted/30 rounded-lg p-3">
-                <UserPlus className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <p className="font-semibold">Add New User</p>
-                <p className="text-muted-foreground text-sm">Create admin or manager</p>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/dashboard/admin/check-types">
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="bg-muted/30 rounded-lg p-3">
-                <List className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <p className="font-semibold">Manage Check Types</p>
-                <p className="text-muted-foreground text-sm">Edit certification types</p>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/dashboard/admin/settings">
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="bg-muted/30 rounded-lg p-3">
-                <Settings className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <p className="font-semibold">System Settings</p>
-                <p className="text-muted-foreground text-sm">Configure preferences</p>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/dashboard/admin/pilot-registrations">
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="bg-muted/30 rounded-lg p-3">
-                <UserCheck className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <p className="font-semibold">Pilot Registrations</p>
-                <p className="text-muted-foreground text-sm">Review pending approvals</p>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/dashboard/admin/portal-users">
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="bg-muted/30 rounded-lg p-3">
-                <Monitor className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <p className="font-semibold">Portal Users</p>
-                <p className="text-muted-foreground text-sm">View pilot portal activity</p>
-              </div>
-            </Button>
-          </Link>
-        </div>
-      </Card>
-
-      {/* Admin Users */}
-      <Card className="p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-foreground text-xl font-semibold">Admin & Manager Users</h2>
-            <p className="text-muted-foreground mt-1 text-sm">System administrators and managers</p>
-          </div>
-          <Badge variant="secondary">{users.length} users</Badge>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <caption className="sr-only">Admin and manager user accounts</caption>
-            <thead>
-              <tr className="border-b text-left">
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Name
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Email
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Role
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {users.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
-                    No admin or manager users found.
-                  </td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="group hover:bg-muted/50">
-                    <td className="text-foreground py-4 text-sm font-medium">{user.name}</td>
-                    <td className="text-muted-foreground py-4 text-sm">{user.email}</td>
-                    <td className="py-4">
-                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                        {user.role.toUpperCase()}
-                      </Badge>
-                    </td>
-                    <td className="text-muted-foreground py-4 text-sm">
-                      {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Check Types by Category */}
-      <Card className="p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-foreground text-xl font-semibold">Check Types Configuration</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Certification types by category</p>
-          </div>
-          <Badge variant="secondary">{checkTypes.length} types</Badge>
-        </div>
-
-        {/* Category Stats */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => {
-            const count = checkTypes.filter((ct) => ct.category === category).length
-            return (
-              <Card key={category} className="bg-muted/30 p-4">
-                <p className="text-muted-foreground text-sm font-medium">{category}</p>
-                <p className="text-foreground mt-2 text-3xl font-bold">{count}</p>
-              </Card>
-            )
-          })}
-        </div>
-
-        {/* Check Types Table — first 10 by code for stable, readable ordering */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <caption className="sr-only">Certification check types, first 10 by code</caption>
-            <thead>
-              <tr className="border-b text-left">
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Code
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Description
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Category
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Updated
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {sortedCheckTypes.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
-                    No check types configured.
-                  </td>
-                </tr>
-              ) : (
-                sortedCheckTypes.slice(0, 10).map((checkType) => (
-                  <tr key={checkType.id} className="group hover:bg-muted/50">
-                    <td className="text-foreground py-4 text-sm font-medium">
-                      {checkType.check_code}
-                    </td>
-                    <td className="text-foreground py-4 text-sm">{checkType.check_description}</td>
-                    <td className="text-muted-foreground py-4 text-sm">
-                      {checkType.category || 'N/A'}
-                    </td>
-                    <td className="text-muted-foreground py-4 text-sm">
-                      {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {checkTypes.length > 10 && (
-          <div className="mt-4 text-center">
-            <Link href="/dashboard/admin/check-types">
-              <Button variant="outline" size="sm">
-                View All {checkTypes.length} Check Types
-              </Button>
-            </Link>
-          </div>
-        )}
-      </Card>
-
-      {/* Contract Types */}
-      <Card className="p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-foreground text-xl font-semibold">Contract Types</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Employment contract types</p>
-          </div>
-          <Badge variant="secondary">{contractTypes.length} types</Badge>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <caption className="sr-only">Employment contract types</caption>
-            <thead>
-              <tr className="border-b text-left">
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Name
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Description
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Status
-                </th>
-                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {contractTypes.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
-                    No contract types found.
-                  </td>
-                </tr>
-              ) : (
-                contractTypes.map((contract) => (
-                  <tr key={contract.id} className="group hover:bg-muted/50">
-                    <td className="text-foreground py-4 text-sm font-medium">{contract.name}</td>
-                    <td className="text-muted-foreground py-4 text-sm">
-                      {contract.description || 'N/A'}
-                    </td>
-                    <td className="py-4">
-                      <Badge variant={contract.is_active ? 'default' : 'secondary'}>
-                        {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
-                      </Badge>
-                    </td>
-                    <td className="text-muted-foreground py-4 text-sm">
-                      {format(new Date(contract.created_at), 'MMM dd, yyyy')}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      <Suspense fallback={<TableCardSkeleton />}>
+        <AdminContractsSection />
+      </Suspense>
     </div>
   )
 }

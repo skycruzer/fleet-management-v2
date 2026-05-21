@@ -20,15 +20,15 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { DataDegradedBanner } from './data-degraded-banner'
 
 function getComplianceColor(rate: number): string {
-  if (rate >= 90) return 'text-[var(--color-status-low)]'
-  if (rate >= 70) return 'text-[var(--color-status-medium)]'
-  return 'text-[var(--color-status-high)]'
+  if (rate >= 90) return 'text-success'
+  if (rate >= 70) return 'text-warning'
+  return 'text-destructive'
 }
 
 function getExpiringColor(count: number): string {
-  if (count === 0) return 'text-[var(--color-status-low)]'
-  if (count <= 5) return 'text-[var(--color-status-medium)]'
-  return 'text-[var(--color-status-high)]'
+  if (count === 0) return 'text-success'
+  if (count <= 5) return 'text-warning'
+  return 'text-destructive'
 }
 
 interface MetricCardProps {

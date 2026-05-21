@@ -2,14 +2,12 @@
  * Quick Action Cards
  * Developer: Maurice Rondeau
  *
- * Vertical stack of 3 primary action cards for the dashboard.
- * Replaces the old 2x2 grid with larger, more descriptive cards.
- * Designed for the dashboard redesign (Phase 2).
+ * Vertical stack of primary action shortcuts for the dashboard.
  */
 
 import Link from 'next/link'
-import { Card } from '@/components/ui/card'
 import { Plus, ClipboardCheck, FileBarChart, FileCheck } from 'lucide-react'
+import { DashboardCard } from './dashboard-card'
 
 const actions = [
   {
@@ -40,16 +38,13 @@ const actions = [
 
 export function QuickActionCards() {
   return (
-    <Card className="h-full p-4">
-      <h3 className="text-muted-foreground mb-3 text-xs font-medium tracking-wider uppercase">
-        Quick Actions
-      </h3>
+    <DashboardCard title="Quick Actions">
       <div className="flex flex-col gap-2">
         {actions.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className="group border-border flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]"
+            className="group border-border hover:bg-muted/50 flex items-center gap-3 rounded-xl border p-3 transition-colors"
             aria-label={`${action.title}: ${action.description}`}
           >
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--color-info-bg)] transition-colors group-hover:bg-[var(--color-info)]/15">
@@ -62,6 +57,6 @@ export function QuickActionCards() {
           </Link>
         ))}
       </div>
-    </Card>
+    </DashboardCard>
   )
 }

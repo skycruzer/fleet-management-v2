@@ -2,10 +2,11 @@
  * Pilot Requirements Dashboard Card
  *
  * Displays required vs actual pilot staffing levels based on settings.
- * Shows:
- * - Total required pilots (captains + first officers)
- * - Required examiners (based on ratio)
- * - Required training captains (based on ratio)
+ * Shows captains, first officers, examiners and training captains as
+ * required-vs-actual tiles.
+ *
+ * Two-tier header: a destructive alert band appears only when a role
+ * is below requirements; otherwise the header stays quiet.
  *
  * Data sources:
  * - Settings: pilot_requirements table
@@ -22,9 +23,11 @@ import {
   TrendingDown,
   UserPlus,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import { EmptyState } from './empty-state'
 
 interface PilotCounts {
   totalPilots: number
@@ -34,10 +37,47 @@ interface PilotCounts {
   totalTrainingCaptains: number
 }
 
+type StaffingStatus = 'success' | 'warning' | 'critical'
+
+const STATUS_CLASSES: Record<
+  StaffingStatus,
+  { border: string; tint: string; solid: string; text: string }
+> = {
+  success: {
+    border: 'border-success/30',
+    tint: 'bg-[var(--color-success-muted)]',
+    solid: 'bg-success',
+    text: 'text-success',
+  },
+  warning: {
+    border: 'border-warning/30',
+    tint: 'bg-[var(--color-warning-muted)]',
+    solid: 'bg-warning',
+    text: 'text-warning',
+  },
+  critical: {
+    border: 'border-destructive/30',
+    tint: 'bg-[var(--color-destructive-muted)]',
+    solid: 'bg-destructive',
+    text: 'text-destructive',
+  },
+}
+
+function getStaffingStatus(percentage: number): StaffingStatus {
+  if (percentage >= 100) return 'success'
+  if (percentage >= 90) return 'warning'
+  return 'critical'
+}
+
+function getStatusLabel(percentage: number): string {
+  if (percentage >= 100) return 'Meeting requirements'
+  if (percentage >= 90) return 'Near target'
+  return 'Below requirements'
+}
+
 async function getPilotCounts(): Promise<PilotCounts> {
   const supabase = createServiceRoleClient()
 
-  // Get all active pilots
   const { data: pilots } = await supabase
     .from('pilots')
     .select('role, captain_qualifications')
@@ -56,435 +96,183 @@ async function getPilotCounts(): Promise<PilotCounts> {
   const captains = pilots.filter((p) => p.role === 'Captain')
   const firstOfficers = pilots.filter((p) => p.role === 'First Officer')
 
-  // Count examiners (captains with examiner qualification in captain_qualifications array)
-  const examiners = captains.filter((p) => {
-    if (!p.captain_qualifications || !Array.isArray(p.captain_qualifications)) return false
-    return p.captain_qualifications.includes('examiner')
-  })
-
-  // Count training captains (captains with training_captain qualification in captain_qualifications array)
-  const trainingCaptains = captains.filter((p) => {
-    if (!p.captain_qualifications || !Array.isArray(p.captain_qualifications)) return false
-    return p.captain_qualifications.includes('training_captain')
-  })
+  const hasQualification = (
+    p: { captain_qualifications: unknown },
+    qualification: string
+  ): boolean =>
+    Array.isArray(p.captain_qualifications) && p.captain_qualifications.includes(qualification)
 
   return {
     totalPilots: pilots.length,
     totalCaptains: captains.length,
     totalFirstOfficers: firstOfficers.length,
-    totalExaminers: examiners.length,
-    totalTrainingCaptains: trainingCaptains.length,
+    totalExaminers: captains.filter((p) => hasQualification(p, 'examiner')).length,
+    totalTrainingCaptains: captains.filter((p) => hasQualification(p, 'training_captain')).length,
   }
+}
+
+interface StatTileProps {
+  icon: LucideIcon
+  label: string
+  actual: number
+  required: number
+  percentage: number
+  note: string
+}
+
+function StatTile({ icon: Icon, label, actual, required, percentage, note }: StatTileProps) {
+  const status = getStaffingStatus(percentage)
+  const c = STATUS_CLASSES[status]
+  const meetsTarget = actual >= required
+  const Trend = meetsTarget ? TrendingUp : TrendingDown
+
+  return (
+    <div
+      className={cn('rounded-xl border-2 p-4 shadow-sm', c.border, c.tint)}
+      role="region"
+      aria-label={`${label} staffing: ${actual} of ${required}, ${getStatusLabel(percentage)}`}
+    >
+      <span className="sr-only">Status: {getStatusLabel(percentage)}</span>
+      <div className="mb-3 flex items-center justify-between">
+        <div
+          className={cn('flex h-10 w-10 items-center justify-center rounded-lg', c.solid)}
+          aria-hidden="true"
+        >
+          <Icon className="h-5 w-5 text-white" aria-hidden="true" />
+        </div>
+        <div className={cn('flex items-center gap-1 text-xs font-bold', c.text)}>
+          <Trend className="h-4 w-4" aria-hidden="true" />
+          {percentage}%
+        </div>
+      </div>
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+          {label}
+        </p>
+        <div className="flex items-baseline gap-2">
+          <p className={cn('text-3xl font-bold', c.text)}>{actual}</p>
+          <span className="text-muted-foreground text-sm font-medium">/ {required}</span>
+        </div>
+        <p className="text-muted-foreground text-xs">{note}</p>
+      </div>
+    </div>
+  )
 }
 
 export async function PilotRequirementsCard() {
   const requirements = await getPilotRequirements()
   const counts = await getPilotCounts()
 
-  // Calculate required totals
-  const requiredCaptains = requirements.captains_per_hull * requirements.number_of_aircraft
-  const requiredFirstOfficers =
-    requirements.first_officers_per_hull * requirements.number_of_aircraft
-  const requiredTotalPilots = requiredCaptains + requiredFirstOfficers
-
-  // Calculate required examiners and training captains
-  const requiredExaminers = Math.ceil(counts.totalPilots / requirements.examiners_per_pilots)
-  const requiredTrainingCaptains = Math.ceil(
-    counts.totalPilots / requirements.training_captains_per_pilots
-  )
-
-  // Calculate compliance percentages
-  const captainsPercentage = Math.round((counts.totalCaptains / requiredCaptains) * 100)
-  const firstOfficersPercentage = Math.round(
-    (counts.totalFirstOfficers / requiredFirstOfficers) * 100
-  )
-  const examinersPercentage = Math.round((counts.totalExaminers / requiredExaminers) * 100)
-  const trainingCaptainsPercentage = Math.round(
-    (counts.totalTrainingCaptains / requiredTrainingCaptains) * 100
-  )
-
-  // Determine status colors and accessible labels
-  const getPilotStatus = (percentage: number) => {
-    if (percentage >= 100) return 'success'
-    if (percentage >= 90) return 'warning'
-    return 'danger'
-  }
-
-  const getStatusLabel = (percentage: number) => {
-    if (percentage >= 100) return 'Meeting requirements'
-    if (percentage >= 90) return 'Near target'
-    return 'Below requirements'
-  }
-
-  const captainsStatus = getPilotStatus(captainsPercentage)
-  const firstOfficersStatus = getPilotStatus(firstOfficersPercentage)
-  const examinersStatus = getPilotStatus(examinersPercentage)
-  const trainingCaptainsStatus = getPilotStatus(trainingCaptainsPercentage)
-
   // Empty state when no pilots exist
   if (counts.totalPilots === 0) {
     return (
-      <Card className="border-border bg-card overflow-hidden border shadow-lg">
-        {/* Header */}
-        <div className="bg-primary px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
-                <Users className="text-primary-foreground h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <h3 className="text-primary-foreground text-sm font-semibold">
-                  Pilot Staffing Requirements
-                </h3>
-                <p className="text-primary-foreground/70 text-xs">Required vs Actual Levels</p>
-              </div>
-            </div>
-          </div>
+      <Card className="flex h-full flex-col overflow-hidden">
+        <div className="border-border flex items-center gap-2 border-b px-4 py-3">
+          <Users className="text-muted-foreground h-4 w-4 flex-shrink-0" aria-hidden="true" />
+          <h3 className="text-sm font-semibold">Pilot Staffing Requirements</h3>
         </div>
-
-        {/* Empty State Content */}
-        <div className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="bg-muted mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-            <UserPlus className="text-muted-foreground h-8 w-8" aria-hidden="true" />
-          </div>
-          <h4 className="text-foreground mb-2 text-lg font-semibold">No Pilots Registered</h4>
-          <p className="text-muted-foreground mb-4 max-w-sm text-sm">
-            Add pilots to your fleet to track staffing requirements and compliance levels.
-          </p>
-          <Link
-            href="/dashboard/pilots/new"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
-            aria-label="Add your first pilot"
-          >
-            <UserPlus className="h-4 w-4" aria-hidden="true" />
-            Add First Pilot
-          </Link>
+        <div className="flex-1 p-4">
+          <EmptyState
+            icon={UserPlus}
+            title="No pilots registered"
+            description="Add pilots to your fleet to track staffing requirements and compliance."
+            action={{ href: '/dashboard/pilots/new', label: 'Add first pilot' }}
+          />
         </div>
       </Card>
     )
   }
 
+  // Required totals
+  const requiredCaptains = requirements.captains_per_hull * requirements.number_of_aircraft
+  const requiredFirstOfficers =
+    requirements.first_officers_per_hull * requirements.number_of_aircraft
+  const requiredExaminers = Math.ceil(counts.totalPilots / requirements.examiners_per_pilots)
+  const requiredTrainingCaptains = Math.ceil(
+    counts.totalPilots / requirements.training_captains_per_pilots
+  )
+
+  const captainsPct = Math.round((counts.totalCaptains / requiredCaptains) * 100)
+  const firstOfficersPct = Math.round((counts.totalFirstOfficers / requiredFirstOfficers) * 100)
+  const examinersPct = Math.round((counts.totalExaminers / requiredExaminers) * 100)
+  const trainingCaptainsPct = Math.round(
+    (counts.totalTrainingCaptains / requiredTrainingCaptains) * 100
+  )
+
+  const surplusOrShort = (actual: number, required: number) =>
+    actual >= required ? `+${actual - required} surplus` : `${required - actual} short`
+
+  // Two-tier header: alert band only when a role is below requirements.
+  const statuses = [captainsPct, firstOfficersPct, examinersPct, trainingCaptainsPct].map(
+    getStaffingStatus
+  )
+  const understaffed = statuses.includes('critical')
+  const needsReview = !understaffed && statuses.includes('warning')
+  const headerBadge = understaffed
+    ? { label: 'ACTION NEEDED', variant: 'destructive' as const }
+    : needsReview
+      ? { label: 'REVIEW', variant: 'warning' as const }
+      : { label: 'ON TARGET', variant: 'success' as const }
+
   return (
-    <Card className="border-border bg-card overflow-hidden border shadow-lg">
-      {/* Header */}
-      <div className="bg-primary px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
-              <Users className="text-primary-foreground h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-primary-foreground text-sm font-semibold">
-                Pilot Staffing Requirements
-              </h3>
-              <p className="text-primary-foreground/70 text-xs">Required vs Actual Levels</p>
-            </div>
-          </div>
-          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold shadow-md">
-            CRITICAL
-          </Badge>
-        </div>
+    <Card className="flex h-full flex-col overflow-hidden">
+      {/* Header — alert band only when staffing is below requirements */}
+      <div
+        className={cn(
+          'flex items-center gap-2 px-4 py-3',
+          understaffed ? 'bg-destructive text-destructive-foreground' : 'border-border border-b'
+        )}
+      >
+        <Users
+          className={cn('h-4 w-4 flex-shrink-0', understaffed ? '' : 'text-muted-foreground')}
+          aria-hidden="true"
+        />
+        <h3 className="flex-1 text-sm font-semibold">Pilot Staffing Requirements</h3>
+        <Badge variant={headerBadge.variant} className="text-xs font-semibold">
+          {headerBadge.label}
+        </Badge>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="flex-1 p-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Captains */}
-          <div
-            className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
-              captainsStatus === 'success'
-                ? 'border-success-200 bg-[var(--color-success-muted)]'
-                : captainsStatus === 'warning'
-                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
-                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
-            }`}
-            role="region"
-            aria-label={`Captains staffing: ${counts.totalCaptains} of ${requiredCaptains}, ${getStatusLabel(captainsPercentage)}`}
-          >
-            {/* Screen reader status announcement */}
-            <span className="sr-only">Status: {getStatusLabel(captainsPercentage)}</span>
-            <div className="mb-3 flex items-center justify-between">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  captainsStatus === 'success'
-                    ? 'bg-success-500'
-                    : captainsStatus === 'warning'
-                      ? 'bg-warning-500'
-                      : 'bg-danger-500'
-                }`}
-                aria-hidden="true"
-              >
-                <Users className="h-5 w-5 text-white" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-1">
-                {counts.totalCaptains >= requiredCaptains ? (
-                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
-                )}
-                <span
-                  className={`text-xs font-bold ${
-                    captainsStatus === 'success'
-                      ? 'text-success-700'
-                      : captainsStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {captainsPercentage}%
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                Captains
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p
-                  className={`text-3xl font-black ${
-                    captainsStatus === 'success'
-                      ? 'text-success-700'
-                      : captainsStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {counts.totalCaptains}
-                </p>
-                <span className="text-muted-foreground text-sm font-medium">
-                  / {requiredCaptains}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {counts.totalCaptains >= requiredCaptains
-                  ? `+${counts.totalCaptains - requiredCaptains} surplus`
-                  : `${requiredCaptains - counts.totalCaptains} short`}
-              </p>
-            </div>
-          </div>
-
-          {/* First Officers */}
-          <div
-            className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
-              firstOfficersStatus === 'success'
-                ? 'border-success-200 bg-[var(--color-success-muted)]'
-                : firstOfficersStatus === 'warning'
-                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
-                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
-            }`}
-            role="region"
-            aria-label={`First Officers staffing: ${counts.totalFirstOfficers} of ${requiredFirstOfficers}, ${getStatusLabel(firstOfficersPercentage)}`}
-          >
-            {/* Screen reader status announcement */}
-            <span className="sr-only">Status: {getStatusLabel(firstOfficersPercentage)}</span>
-            <div className="mb-3 flex items-center justify-between">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  firstOfficersStatus === 'success'
-                    ? 'bg-success-500'
-                    : firstOfficersStatus === 'warning'
-                      ? 'bg-warning-500'
-                      : 'bg-danger-500'
-                }`}
-                aria-hidden="true"
-              >
-                <Users className="h-5 w-5 text-white" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-1">
-                {counts.totalFirstOfficers >= requiredFirstOfficers ? (
-                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
-                )}
-                <span
-                  className={`text-xs font-bold ${
-                    firstOfficersStatus === 'success'
-                      ? 'text-success-700'
-                      : firstOfficersStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {firstOfficersPercentage}%
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                First Officers
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p
-                  className={`text-3xl font-black ${
-                    firstOfficersStatus === 'success'
-                      ? 'text-success-700'
-                      : firstOfficersStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {counts.totalFirstOfficers}
-                </p>
-                <span className="text-muted-foreground text-sm font-medium">
-                  / {requiredFirstOfficers}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {counts.totalFirstOfficers >= requiredFirstOfficers
-                  ? `+${counts.totalFirstOfficers - requiredFirstOfficers} surplus`
-                  : `${requiredFirstOfficers - counts.totalFirstOfficers} short`}
-              </p>
-            </div>
-          </div>
-
-          {/* Examiners */}
-          <div
-            className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
-              examinersStatus === 'success'
-                ? 'border-success-200 bg-[var(--color-success-muted)]'
-                : examinersStatus === 'warning'
-                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
-                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
-            }`}
-            role="region"
-            aria-label={`Examiners staffing: ${counts.totalExaminers} of ${requiredExaminers}, ${getStatusLabel(examinersPercentage)}`}
-          >
-            {/* Screen reader status announcement */}
-            <span className="sr-only">Status: {getStatusLabel(examinersPercentage)}</span>
-            <div className="mb-3 flex items-center justify-between">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  examinersStatus === 'success'
-                    ? 'bg-success-500'
-                    : examinersStatus === 'warning'
-                      ? 'bg-warning-500'
-                      : 'bg-danger-500'
-                }`}
-                aria-hidden="true"
-              >
-                <ClipboardCheck className="h-5 w-5 text-white" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-1">
-                {counts.totalExaminers >= requiredExaminers ? (
-                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
-                )}
-                <span
-                  className={`text-xs font-bold ${
-                    examinersStatus === 'success'
-                      ? 'text-success-700'
-                      : examinersStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {examinersPercentage}%
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                Examiners
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p
-                  className={`text-3xl font-black ${
-                    examinersStatus === 'success'
-                      ? 'text-success-700'
-                      : examinersStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {counts.totalExaminers}
-                </p>
-                <span className="text-muted-foreground text-sm font-medium">
-                  / {requiredExaminers}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                1 per {requirements.examiners_per_pilots} pilots
-              </p>
-            </div>
-          </div>
-
-          {/* Training Captains */}
-          <div
-            className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
-              trainingCaptainsStatus === 'success'
-                ? 'border-success-200 bg-[var(--color-success-muted)]'
-                : trainingCaptainsStatus === 'warning'
-                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
-                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
-            }`}
-            role="region"
-            aria-label={`Training Captains staffing: ${counts.totalTrainingCaptains} of ${requiredTrainingCaptains}, ${getStatusLabel(trainingCaptainsPercentage)}`}
-          >
-            {/* Screen reader status announcement */}
-            <span className="sr-only">Status: {getStatusLabel(trainingCaptainsPercentage)}</span>
-            <div className="mb-3 flex items-center justify-between">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  trainingCaptainsStatus === 'success'
-                    ? 'bg-success-500'
-                    : trainingCaptainsStatus === 'warning'
-                      ? 'bg-warning-500'
-                      : 'bg-danger-500'
-                }`}
-                aria-hidden="true"
-              >
-                <GraduationCap className="h-5 w-5 text-white" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-1">
-                {counts.totalTrainingCaptains >= requiredTrainingCaptains ? (
-                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
-                )}
-                <span
-                  className={`text-xs font-bold ${
-                    trainingCaptainsStatus === 'success'
-                      ? 'text-success-700'
-                      : trainingCaptainsStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {trainingCaptainsPercentage}%
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                Training Captains
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p
-                  className={`text-3xl font-black ${
-                    trainingCaptainsStatus === 'success'
-                      ? 'text-success-700'
-                      : trainingCaptainsStatus === 'warning'
-                        ? 'text-warning-700'
-                        : 'text-danger-700'
-                  }`}
-                >
-                  {counts.totalTrainingCaptains}
-                </p>
-                <span className="text-muted-foreground text-sm font-medium">
-                  / {requiredTrainingCaptains}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                1 per {requirements.training_captains_per_pilots} pilots
-              </p>
-            </div>
-          </div>
+          <StatTile
+            icon={Users}
+            label="Captains"
+            actual={counts.totalCaptains}
+            required={requiredCaptains}
+            percentage={captainsPct}
+            note={surplusOrShort(counts.totalCaptains, requiredCaptains)}
+          />
+          <StatTile
+            icon={Users}
+            label="First Officers"
+            actual={counts.totalFirstOfficers}
+            required={requiredFirstOfficers}
+            percentage={firstOfficersPct}
+            note={surplusOrShort(counts.totalFirstOfficers, requiredFirstOfficers)}
+          />
+          <StatTile
+            icon={ClipboardCheck}
+            label="Examiners"
+            actual={counts.totalExaminers}
+            required={requiredExaminers}
+            percentage={examinersPct}
+            note={`1 per ${requirements.examiners_per_pilots} pilots`}
+          />
+          <StatTile
+            icon={GraduationCap}
+            label="Training Captains"
+            actual={counts.totalTrainingCaptains}
+            required={requiredTrainingCaptains}
+            percentage={trainingCaptainsPct}
+            note={`1 per ${requirements.training_captains_per_pilots} pilots`}
+          />
         </div>
 
         {/* Footer with settings info */}
         <div className="bg-muted mt-4 rounded-lg px-4 py-3">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-4">
               <div>
                 <span className="text-muted-foreground font-medium">Aircraft:</span>
