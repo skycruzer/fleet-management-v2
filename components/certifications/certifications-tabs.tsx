@@ -18,6 +18,7 @@ import { AttentionRequiredView } from './attention-required-view'
 import { CategoryView } from './category-view'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 import { List, AlertTriangle, FolderTree } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 const TAB_VALUES = ['all', 'attention', 'category'] as const
 type TabValue = (typeof TAB_VALUES)[number]
@@ -62,18 +63,36 @@ export function CertificationsTabs({
       </TabsList>
 
       <TabsContent value="all" className="mt-4">
-        <CertificationsTable certifications={certifications} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18 }}
+        >
+          <CertificationsTable certifications={certifications} />
+        </motion.div>
       </TabsContent>
 
       <TabsContent value="attention" className="mt-4">
-        <AttentionRequiredView
-          certifications={certifications}
-          onEditCertification={onEditCertification}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18 }}
+        >
+          <AttentionRequiredView
+            certifications={certifications}
+            onEditCertification={onEditCertification}
+          />
+        </motion.div>
       </TabsContent>
 
       <TabsContent value="category" className="mt-4">
-        <CategoryView certifications={certifications} onEditCertification={onEditCertification} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18 }}
+        >
+          <CategoryView certifications={certifications} onEditCertification={onEditCertification} />
+        </motion.div>
       </TabsContent>
     </Tabs>
   )

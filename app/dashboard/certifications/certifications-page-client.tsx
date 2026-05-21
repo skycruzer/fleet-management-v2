@@ -11,6 +11,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryState, parseAsString } from 'nuqs'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatDate } from '@/lib/utils/date-utils'
 import { Button } from '@/components/ui/button'
@@ -28,7 +29,7 @@ interface Pilot {
   id: string
   first_name: string
   last_name: string
-  employee_number: string
+  employee_id: string
 }
 
 interface CheckType {
@@ -40,17 +41,19 @@ interface CheckType {
 interface CertificationsPageClientProps {
   certifications: CertificationWithDetails[]
   stats: CertificationStats
-  categories: string[]
 }
 
 export function CertificationsPageClient({
   certifications: initialCertifications,
   stats: initialStats,
-  categories,
 }: CertificationsPageClientProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+
+  // Tab state is URL-synced (shared with CertificationsTabs via the `tab` query
+  // param) so the stat cards can deep-link into the relevant view.
+  const [, setActiveTab] = useQueryState('tab', parseAsString.withDefault('all'))
 
   // Data state
   const [certifications, setCertifications] = useState(initialCertifications || [])
@@ -90,7 +93,8 @@ export function CertificationsPageClient({
 
         if (pilotsRes.ok) {
           const pilotsData = await pilotsRes.json()
-          setPilots(pilotsData.data || [])
+          // /api/pilots returns { data: { pilots: [...] } }
+          setPilots(pilotsData.data?.pilots || pilotsData.data || [])
         }
 
         if (checkTypesRes.ok) {
@@ -114,7 +118,8 @@ export function CertificationsPageClient({
       })
       if (response.ok) {
         const data = await response.json()
-        const certs = data.data || []
+        // /api/certifications returns { data: { certifications: [...] } }
+        const certs = data.data?.certifications || data.data || []
         setCertifications(certs)
         setStats({
           total: certs.length,
@@ -129,6 +134,11 @@ export function CertificationsPageClient({
       console.error('Error refreshing certifications:', err)
     }
   }, [])
+
+  // Stat card click → jump to the tab that surfaces that status.
+  const handleStatClick = (status: 'all' | 'current' | 'expiring' | 'expired') => {
+    setActiveTab(status === 'expired' || status === 'expiring' ? 'attention' : 'all')
+  }
 
   // Handle create certification
   const handleCreateClick = () => {
@@ -197,29 +207,36 @@ export function CertificationsPageClient({
   const attentionCount = stats.expiring + stats.expired
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl font-bold">Certifications</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Certifications
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Manage pilot certifications and track compliance
           </p>
         </div>
-        <div className="flex gap-1.5">
-          <Button variant="outline" className="gap-1.5" onClick={handleExport}>
-            <Download className="h-4 w-4" />
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handleExport}
+            aria-label="Export certifications to CSV"
+          >
+            <Download className="h-4 w-4" aria-hidden="true" />
             Export
           </Button>
-          <Button className="gap-1.5" onClick={handleCreateClick}>
-            <Plus className="h-4 w-4" />
+          <Button className="gap-2" onClick={handleCreateClick} aria-label="Add new certification">
+            <Plus className="h-4 w-4" aria-hidden="true" />
             Add Certification
           </Button>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <CertificationStatCards stats={stats} />
+      {/* Stat Cards — click to jump to the relevant tab */}
+      <CertificationStatCards stats={stats} onStatClick={handleStatClick} />
 
       {/* Tabs */}
       <CertificationsTabs
