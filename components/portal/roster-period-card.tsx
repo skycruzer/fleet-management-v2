@@ -22,6 +22,7 @@ import {
   getNextRosterPeriodObject,
   type RosterPeriod,
 } from '@/lib/utils/roster-utils'
+import { NextRosterCountdown } from '@/components/shared/next-roster-countdown'
 
 export function RosterPeriodCard() {
   // Initialize periods using lazy initialization
@@ -137,11 +138,8 @@ export function RosterPeriodCard() {
             })}
           </p>
 
-          <div className="rounded-md border border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-3 py-2">
-            <p className="text-xs font-medium text-[var(--color-info)]">
-              Starts in {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}
-            </p>
-          </div>
+          {/* Live countdown to next roster start */}
+          <NextRosterCountdown className="rounded-md border border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-3 py-2" />
         </div>
       </div>
     </Card>
