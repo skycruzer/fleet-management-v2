@@ -4,43 +4,60 @@
  *
  * Displays 4 key fleet metrics as clean stat cards.
  * Data sourced from Redis-cached DashboardMetrics (2-5ms response).
+ * Each card links to its detail view for drill-down.
+ *
+ * When the data layer is degraded (`metrics.degraded`) or a fetch
+ * throws, a DataDegradedBanner is shown so placeholder figures are
+ * never mistaken for real fleet data.
  */
 
+import Link from 'next/link'
 import { getDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { Card } from '@/components/ui/card'
 import { Users, ShieldCheck, AlertTriangle, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { DataDegradedBanner } from './data-degraded-banner'
 
 function getComplianceColor(rate: number): string {
-  if (rate >= 90) return 'text-[var(--color-status-low)]'
-  if (rate >= 70) return 'text-[var(--color-status-medium)]'
-  return 'text-[var(--color-status-high)]'
+  if (rate >= 90) return 'text-success'
+  if (rate >= 70) return 'text-warning'
+  return 'text-destructive'
 }
 
 function getExpiringColor(count: number): string {
-  if (count === 0) return 'text-[var(--color-status-low)]'
-  if (count <= 5) return 'text-[var(--color-status-medium)]'
-  return 'text-[var(--color-status-high)]'
+  if (count === 0) return 'text-success'
+  if (count <= 5) return 'text-warning'
+  return 'text-destructive'
 }
 
 interface MetricCardProps {
   icon: React.ReactNode
   value: string
   label: string
+  href: string
   valueClassName?: string
 }
 
-function MetricCard({ icon, value, label, valueClassName }: MetricCardProps) {
+function MetricCard({ icon, value, label, href, valueClassName }: MetricCardProps) {
   return (
-    <Card className="border-border bg-card flex flex-col items-center gap-2 p-6 text-center shadow-[var(--shadow-card)]">
-      <div className="text-muted-foreground">{icon}</div>
-      <span className={cn('text-3xl font-bold tabular-nums', valueClassName || 'text-foreground')}>
-        {value}
-      </span>
-      <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-        {label}
-      </span>
-    </Card>
+    <Link
+      href={href}
+      aria-label={`${label}: ${value}. View details.`}
+      className="focus-visible:ring-ring rounded-xl transition-all duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    >
+      <Card className="border-border bg-card flex h-full flex-col items-center gap-2 p-6 text-center shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-interactive-hover)]">
+        <div className="text-muted-foreground">{icon}</div>
+        <span
+          className={cn('text-3xl font-bold tabular-nums', valueClassName || 'text-foreground')}
+        >
+          {value}
+        </span>
+        <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+          {label}
+        </span>
+      </Card>
+    </Link>
   )
 }
 
@@ -49,6 +66,8 @@ export async function FleetInsightsWidget() {
   let complianceRate = 0
   let expiringCerts = 0
   let pendingLeave = 0
+  let degraded = false
+  let degradedReason: string | undefined
 
   try {
     const metrics = await getDashboardMetrics()
@@ -56,34 +75,58 @@ export async function FleetInsightsWidget() {
     complianceRate = metrics.certifications.complianceRate
     expiringCerts = metrics.certifications.expiring
     pendingLeave = metrics.leave.pending
-  } catch {
-    // Render zero-valued fallback — don't throw so Suspense boundary stays clean
+
+    // The service returns (not throws) a placeholder object with
+    // `degraded: true` when the data layer fails. Surface it.
+    if (metrics.degraded) {
+      degraded = true
+      degradedReason = metrics.degradedReason
+    }
+  } catch (error) {
+    // Render zero-valued fallback — don't throw so the Suspense boundary
+    // stays clean — but log the failure and flag the degraded state so
+    // the banner renders. Silent zeros on a compliance dashboard are unsafe.
+    degraded = true
+    degradedReason = error instanceof Error ? error.message : String(error)
+    logError(error instanceof Error ? error : new Error(degradedReason), {
+      source: 'FleetInsightsWidget',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'getDashboardMetrics' },
+    })
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <MetricCard
-        icon={<Users className="h-5 w-5" aria-hidden="true" />}
-        value={String(activePilots)}
-        label="Active Pilots"
-      />
-      <MetricCard
-        icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
-        value={`${Math.round(complianceRate)}%`}
-        label="Compliance"
-        valueClassName={getComplianceColor(complianceRate)}
-      />
-      <MetricCard
-        icon={<AlertTriangle className="h-5 w-5" aria-hidden="true" />}
-        value={String(expiringCerts)}
-        label="Expiring"
-        valueClassName={getExpiringColor(expiringCerts)}
-      />
-      <MetricCard
-        icon={<ClipboardList className="h-5 w-5" aria-hidden="true" />}
-        value={String(pendingLeave)}
-        label="Pending"
-      />
+    <div className="space-y-3">
+      {degraded ? <DataDegradedBanner reason={degradedReason} /> : null}
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MetricCard
+          icon={<Users className="h-5 w-5" aria-hidden="true" />}
+          value={String(activePilots)}
+          label="Active Pilots"
+          href="/dashboard/pilots"
+        />
+        <MetricCard
+          icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+          value={`${Math.round(complianceRate)}%`}
+          label="Compliance"
+          href="/dashboard/certifications"
+          valueClassName={getComplianceColor(complianceRate)}
+        />
+        <MetricCard
+          icon={<AlertTriangle className="h-5 w-5" aria-hidden="true" />}
+          value={String(expiringCerts)}
+          label="Expiring"
+          href="/dashboard/certifications?filter=expiring"
+          valueClassName={getExpiringColor(expiringCerts)}
+        />
+        <MetricCard
+          icon={<ClipboardList className="h-5 w-5" aria-hidden="true" />}
+          value={String(pendingLeave)}
+          label="Pending"
+          href="/dashboard/requests"
+        />
+      </div>
     </div>
   )
 }

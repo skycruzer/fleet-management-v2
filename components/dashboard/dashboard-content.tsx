@@ -2,7 +2,7 @@
  * Dashboard Content — 3-Zone Layout
  * Developer: Maurice Rondeau
  *
- * Video Buddy-inspired dashboard with personalized greeting,
+ * Dashboard with personalized greeting,
  * fleet insights, today's priorities, quick actions, roster calendar,
  * pending approvals, alert banner, staffing requirements, and retirement forecast.
  *

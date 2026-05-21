@@ -4,14 +4,17 @@
  *
  * Shows the top 5 pending pilot requests with approve/deny action buttons.
  * Server Component wrapper fetches data; Client Component handles actions.
- * Part of the Video Buddy-inspired dashboard redesign (Phase 2).
+ *
+ * A fetch failure renders an explicit error state — never a false
+ * "no pending approvals", which would hide work that needs doing.
  */
 
-import Link from 'next/link'
-import { Card } from '@/components/ui/card'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { getAllPilotRequests } from '@/lib/services/unified-request-service'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { PendingApprovalsClient } from './pending-approvals-client'
+import { DashboardCard } from './dashboard-card'
+import { EmptyState } from './empty-state'
 
 export async function PendingApprovalsWidget() {
   let requests: Array<{
@@ -24,6 +27,7 @@ export async function PendingApprovalsWidget() {
     endDate: string | null
     daysCount: number | null
   }> = []
+  let hasError = false
 
   try {
     const result = await getAllPilotRequests({
@@ -42,34 +46,41 @@ export async function PendingApprovalsWidget() {
         endDate: r.end_date,
         daysCount: r.days_count,
       }))
+    } else if (!result.success) {
+      hasError = true
     }
-  } catch {
-    // Fail silently — widget is non-critical
+  } catch (error) {
+    hasError = true
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'PendingApprovalsWidget',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAllPilotRequests' },
+    })
   }
 
   return (
-    <Card className="h-full p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-          Pending Approvals
-        </h3>
-        <ClipboardList className="text-muted-foreground/50 h-4 w-4" aria-hidden="true" />
-      </div>
-
-      {requests.length === 0 ? (
-        <p className="text-muted-foreground py-4 text-center text-sm">No pending approvals</p>
+    <DashboardCard
+      title="Pending Approvals"
+      icon={ClipboardList}
+      action={{ href: '/dashboard/requests', label: 'View all requests' }}
+    >
+      {hasError ? (
+        <div className="flex items-center gap-2 py-4" role="alert">
+          <AlertTriangle className="text-warning h-5 w-5 flex-shrink-0" aria-hidden="true" />
+          <p className="text-muted-foreground text-sm">
+            Unable to load approvals — try refreshing.
+          </p>
+        </div>
+      ) : requests.length === 0 ? (
+        <EmptyState
+          icon={CheckCircle2}
+          title="No pending approvals"
+          description="All requests have been actioned."
+          className="py-6"
+        />
       ) : (
         <PendingApprovalsClient requests={requests} />
       )}
-
-      <div className="border-border mt-3 border-t pt-3">
-        <Link
-          href="/dashboard/requests"
-          className="text-xs text-[var(--color-info)] hover:underline"
-        >
-          View all requests →
-        </Link>
-      </div>
-    </Card>
+    </DashboardCard>
   )
 }

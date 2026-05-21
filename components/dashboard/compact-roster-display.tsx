@@ -126,24 +126,16 @@ export async function CompactRosterDisplay() {
     <Card className="border-border bg-card overflow-hidden border shadow-sm">
       {/* Auto-refresh when roster period boundary is crossed */}
       <RosterPeriodRefresher periodEndDate={currentPeriod.endDate.toISOString()} />
-      {/* Header with Primary Background */}
-      <div className="bg-primary px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
-              <CalendarDays className="text-primary-foreground h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-primary-foreground text-sm font-semibold">
-                Current Roster Period
-              </h3>
-              <p className="text-primary-foreground/70 text-xs">28-day operational cycle</p>
-            </div>
-          </div>
-          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold">
-            {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
-          </Badge>
-        </div>
+      {/* Header */}
+      <div className="border-border flex items-center gap-2 border-b px-4 py-3">
+        <CalendarDays className="text-muted-foreground h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        <h3 className="flex-1 text-sm font-semibold">Current Roster Period</h3>
+        <Badge
+          variant={isPeriodComplete ? 'secondary' : 'success'}
+          className="text-xs font-semibold"
+        >
+          {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
+        </Badge>
       </div>
 
       {/* Main Content */}
@@ -163,7 +155,7 @@ export async function CompactRosterDisplay() {
                 {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
               </Badge>
               <div className="mb-1 flex items-baseline gap-2">
-                <h4 className="text-foreground text-3xl font-black tracking-tight">
+                <h4 className="text-foreground text-3xl font-bold tracking-tight">
                   {currentPeriod.code}
                 </h4>
                 <span className="text-sm font-semibold text-[var(--color-info)]">
@@ -202,7 +194,7 @@ export async function CompactRosterDisplay() {
                 <p className="text-muted-foreground text-lg font-bold">Period Complete</p>
               ) : (
                 <div className="flex items-baseline gap-1">
-                  <p className="text-foreground text-4xl font-black">{daysRemaining}</p>
+                  <p className="text-foreground text-4xl font-bold">{daysRemaining}</p>
                   <span className="text-muted-foreground text-sm font-bold">/ {totalDays}</span>
                 </div>
               )}
@@ -271,7 +263,7 @@ export async function CompactRosterDisplay() {
                     {/* Center text overlay */}
                     <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
                       <span
-                        className={`text-2xl leading-none font-black ${isPeriodComplete ? 'text-muted-foreground' : 'text-foreground'}`}
+                        className={`text-2xl leading-none font-bold ${isPeriodComplete ? 'text-muted-foreground' : 'text-foreground'}`}
                       >
                         {isPeriodComplete ? '0' : daysRemaining}
                       </span>
@@ -297,7 +289,7 @@ export async function CompactRosterDisplay() {
                   NEXT UP
                 </Badge>
                 <div className="mb-1 flex items-baseline gap-2">
-                  <h4 className="text-foreground text-3xl font-black tracking-tight">
+                  <h4 className="text-foreground text-3xl font-bold tracking-tight">
                     {nextPeriod.code}
                   </h4>
                   <span className="text-sm font-semibold text-[var(--color-info)]">
