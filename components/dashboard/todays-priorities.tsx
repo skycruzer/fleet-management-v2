@@ -6,7 +6,7 @@
  * combining expiring certifications, pending requests, and
  * roster period alerts. Data sourced from Redis-cached
  * getTodaysPriorities() (2-minute TTL).
- * Part of the Video Buddy-inspired dashboard redesign (Phase 2).
+ * Part of the dashboard redesign (Phase 2).
  */
 
 import Link from 'next/link'
@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, ClipboardList, Calendar, CheckCircle2 } from 'lucide-react'
 import { getTodaysPriorities } from '@/lib/services/dashboard-service-v4'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 interface PriorityItem {
   icon: React.ReactNode
@@ -25,6 +26,7 @@ interface PriorityItem {
 
 export async function TodaysPriorities() {
   const items: PriorityItem[] = []
+  let hasError = false
 
   try {
     const priorities = await getTodaysPriorities()
@@ -69,8 +71,16 @@ export async function TodaysPriorities() {
       href: '/dashboard/renewal-planning',
       variant: 'default',
     })
-  } catch {
-    // Fail silently — widget is non-critical
+  } catch (error) {
+    // Don't render a false "all clear" — flag the error and log it.
+    // On a compliance dashboard, an empty list must mean "nothing urgent",
+    // never "we couldn't check".
+    hasError = true
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'TodaysPriorities',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getTodaysPriorities' },
+    })
   }
 
   return (
@@ -79,7 +89,14 @@ export async function TodaysPriorities() {
         Today&apos;s Priorities
       </h3>
 
-      {items.length === 0 ? (
+      {hasError ? (
+        <div className="flex items-center gap-2 py-4" role="alert">
+          <AlertTriangle className="text-warning h-5 w-5 flex-shrink-0" aria-hidden="true" />
+          <p className="text-muted-foreground text-sm">
+            Unable to load priorities — data may be incomplete. Try refreshing.
+          </p>
+        </div>
+      ) : items.length === 0 ? (
         <div className="flex items-center gap-2 py-4 text-center">
           <CheckCircle2 className="text-success h-5 w-5" aria-hidden="true" />
           <p className="text-muted-foreground text-sm">All clear — no urgent items today</p>

@@ -6,7 +6,7 @@
  * that computes the time-of-day greeting using the browser's local time.
  *
  * Data flow: Supabase Auth / Admin Session → user-service → ClientGreeting
- * Part of the Video Buddy-inspired dashboard redesign (Phase 1).
+ * Part of the dashboard redesign (Phase 1).
  */
 
 import { createClient } from '@/lib/supabase/server'

@@ -4,7 +4,7 @@
  *
  * Vertical stack of 3 primary action cards for the dashboard.
  * Replaces the old 2x2 grid with larger, more descriptive cards.
- * Designed for the Video Buddy-inspired dashboard redesign (Phase 2).
+ * Designed for the dashboard redesign (Phase 2).
  */
 
 import Link from 'next/link'

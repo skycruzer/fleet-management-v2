@@ -4,7 +4,7 @@
  *
  * Shows the top 5 pending pilot requests with approve/deny action buttons.
  * Server Component wrapper fetches data; Client Component handles actions.
- * Part of the Video Buddy-inspired dashboard redesign (Phase 2).
+ * Part of the dashboard redesign (Phase 2).
  */
 
 import Link from 'next/link'

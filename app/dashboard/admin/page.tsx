@@ -1,6 +1,10 @@
 /**
  * Admin Dashboard Page
- * Clean, organized admin interface with better spacing and readability
+ * Clean, organized admin interface with better spacing and readability.
+ *
+ * Resilience: each data source is fetched with Promise.allSettled so a
+ * single failing service degrades only its own section, never the page.
+ * System Status reflects a live cache-health probe, not a constant.
  */
 
 import { dashboardMetadata } from '@/lib/utils/metadata'
@@ -14,7 +18,13 @@ import {
   getCheckTypes,
   getContractTypes,
   getCheckTypeCategories,
+  type AdminStats,
+  type AdminUser,
+  type CheckType,
+  type ContractType,
 } from '@/lib/services/admin-service'
+import { getCacheHealth } from '@/lib/services/dashboard-service-v4'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { format } from 'date-fns'
 import {
   Users,
@@ -26,20 +36,70 @@ import {
   List,
   UserCheck,
   Monitor,
+  AlertTriangle,
+  HelpCircle,
 } from 'lucide-react'
 import { Breadcrumb } from '@/components/navigation/breadcrumb'
 
 export const metadata = dashboardMetadata.admin
 
+const STATS_FALLBACK: AdminStats = {
+  totalAdmins: 0,
+  totalManagers: 0,
+  totalPilots: 0,
+  totalCheckTypes: 0,
+  totalCertifications: 0,
+  totalLeaveRequests: 0,
+  systemStatus: 'operational',
+}
+
+type CacheHealth = Awaited<ReturnType<typeof getCacheHealth>>
+
+/** Unwrap a settled result, logging rejections and falling back gracefully. */
+function settled<T>(result: PromiseSettledResult<T>, fallback: T, operation: string): T {
+  if (result.status === 'fulfilled') return result.value
+  logError(result.reason instanceof Error ? result.reason : new Error(String(result.reason)), {
+    source: 'AdminPage',
+    severity: ErrorSeverity.MEDIUM,
+    metadata: { operation },
+  })
+  return fallback
+}
+
+const SYSTEM_STATUS = {
+  healthy: { label: 'Operational', className: 'text-success', Icon: CheckCircle2 },
+  degraded: { label: 'Degraded', className: 'text-warning', Icon: AlertTriangle },
+  down: { label: 'Down', className: 'text-destructive', Icon: AlertTriangle },
+} as const
+
+function resolveSystemStatus(health: CacheHealth | null) {
+  if (!health) {
+    return { label: 'Unknown', className: 'text-muted-foreground', Icon: HelpCircle }
+  }
+  return SYSTEM_STATUS[health.overall]
+}
+
 export default async function AdminPage() {
-  // Fetch all data in parallel
-  const [stats, users, checkTypes, contractTypes, categories] = await Promise.all([
-    getAdminStats(),
-    getAdminUsers(),
-    getCheckTypes(),
-    getContractTypes(),
-    getCheckTypeCategories(),
-  ])
+  // Fetch all data in parallel — allSettled so one failure can't blank the page.
+  const [statsR, usersR, checkTypesR, contractTypesR, categoriesR, healthR] =
+    await Promise.allSettled([
+      getAdminStats(),
+      getAdminUsers(),
+      getCheckTypes(),
+      getContractTypes(),
+      getCheckTypeCategories(),
+      getCacheHealth(),
+    ])
+
+  const stats = settled<AdminStats>(statsR, STATS_FALLBACK, 'getAdminStats')
+  const users = settled<AdminUser[]>(usersR, [], 'getAdminUsers')
+  const checkTypes = settled<CheckType[]>(checkTypesR, [], 'getCheckTypes')
+  const contractTypes = settled<ContractType[]>(contractTypesR, [], 'getContractTypes')
+  const categories = settled<string[]>(categoriesR, [], 'getCheckTypeCategories')
+  const health = settled<CacheHealth | null>(healthR, null, 'getCacheHealth')
+
+  const systemStatus = resolveSystemStatus(health)
+  const sortedCheckTypes = [...checkTypes].sort((a, b) => a.check_code.localeCompare(b.check_code))
 
   return (
     <div className="space-y-6">
@@ -68,10 +128,16 @@ export default async function AdminPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">System Status</p>
-              <p className="text-foreground text-2xl font-bold">Operational</p>
+              <p className={`text-2xl font-bold ${systemStatus.className}`}>{systemStatus.label}</p>
+              {health ? (
+                <p className="text-muted-foreground text-sm">
+                  Cache {health.redis ? 'up' : 'down'} · View{' '}
+                  {health.materializedView ? 'up' : 'down'}
+                </p>
+              ) : null}
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
-              <CheckCircle2 className="text-success h-6 w-6" />
+              <systemStatus.Icon className={`h-6 w-6 ${systemStatus.className}`} />
             </div>
           </div>
         </Card>
@@ -198,29 +264,46 @@ export default async function AdminPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full">
+            <caption className="sr-only">Admin and manager user accounts</caption>
             <thead>
               <tr className="border-b text-left">
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Name</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Email</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Role</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Created</th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Name
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Email
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Role
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Created
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {users.map((user) => (
-                <tr key={user.id} className="group hover:bg-muted/50">
-                  <td className="text-foreground py-4 text-sm font-medium">{user.name}</td>
-                  <td className="text-muted-foreground py-4 text-sm">{user.email}</td>
-                  <td className="py-4">
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role.toUpperCase()}
-                    </Badge>
-                  </td>
-                  <td className="text-muted-foreground py-4 text-sm">
-                    {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
+                    No admin or manager users found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="group hover:bg-muted/50">
+                    <td className="text-foreground py-4 text-sm font-medium">{user.name}</td>
+                    <td className="text-muted-foreground py-4 text-sm">{user.email}</td>
+                    <td className="py-4">
+                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                        {user.role.toUpperCase()}
+                      </Badge>
+                    </td>
+                    <td className="text-muted-foreground py-4 text-sm">
+                      {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -249,32 +332,49 @@ export default async function AdminPage() {
           })}
         </div>
 
-        {/* Check Types Table - Showing first 10 for better readability */}
+        {/* Check Types Table — first 10 by code for stable, readable ordering */}
         <div className="overflow-x-auto">
           <table className="w-full">
+            <caption className="sr-only">Certification check types, first 10 by code</caption>
             <thead>
               <tr className="border-b text-left">
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Code</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Description</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Category</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Updated</th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Code
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Description
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Category
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Updated
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {checkTypes.slice(0, 10).map((checkType) => (
-                <tr key={checkType.id} className="group hover:bg-muted/50">
-                  <td className="text-foreground py-4 text-sm font-medium">
-                    {checkType.check_code}
-                  </td>
-                  <td className="text-foreground py-4 text-sm">{checkType.check_description}</td>
-                  <td className="text-muted-foreground py-4 text-sm">
-                    {checkType.category || 'N/A'}
-                  </td>
-                  <td className="text-muted-foreground py-4 text-sm">
-                    {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
+              {sortedCheckTypes.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
+                    No check types configured.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                sortedCheckTypes.slice(0, 10).map((checkType) => (
+                  <tr key={checkType.id} className="group hover:bg-muted/50">
+                    <td className="text-foreground py-4 text-sm font-medium">
+                      {checkType.check_code}
+                    </td>
+                    <td className="text-foreground py-4 text-sm">{checkType.check_description}</td>
+                    <td className="text-muted-foreground py-4 text-sm">
+                      {checkType.category || 'N/A'}
+                    </td>
+                    <td className="text-muted-foreground py-4 text-sm">
+                      {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -302,31 +402,48 @@ export default async function AdminPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full">
+            <caption className="sr-only">Employment contract types</caption>
             <thead>
               <tr className="border-b text-left">
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Name</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Description</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Status</th>
-                <th className="text-muted-foreground pb-3 text-sm font-medium">Created</th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Name
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Description
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Status
+                </th>
+                <th scope="col" className="text-muted-foreground pb-3 text-sm font-medium">
+                  Created
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {contractTypes.map((contract) => (
-                <tr key={contract.id} className="group hover:bg-muted/50">
-                  <td className="text-foreground py-4 text-sm font-medium">{contract.name}</td>
-                  <td className="text-muted-foreground py-4 text-sm">
-                    {contract.description || 'N/A'}
-                  </td>
-                  <td className="py-4">
-                    <Badge variant={contract.is_active ? 'default' : 'secondary'}>
-                      {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
-                    </Badge>
-                  </td>
-                  <td className="text-muted-foreground py-4 text-sm">
-                    {format(new Date(contract.created_at), 'MMM dd, yyyy')}
+              {contractTypes.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
+                    No contract types found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                contractTypes.map((contract) => (
+                  <tr key={contract.id} className="group hover:bg-muted/50">
+                    <td className="text-foreground py-4 text-sm font-medium">{contract.name}</td>
+                    <td className="text-muted-foreground py-4 text-sm">
+                      {contract.description || 'N/A'}
+                    </td>
+                    <td className="py-4">
+                      <Badge variant={contract.is_active ? 'default' : 'secondary'}>
+                        {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
+                      </Badge>
+                    </td>
+                    <td className="text-muted-foreground py-4 text-sm">
+                      {format(new Date(contract.created_at), 'MMM dd, yyyy')}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

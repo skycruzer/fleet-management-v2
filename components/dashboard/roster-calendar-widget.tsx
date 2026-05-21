@@ -5,7 +5,7 @@
  * Mini monthly calendar for the dashboard showing the current month
  * with roster period dates highlighted. Displays current RP code
  * and days remaining.
- * Part of the Video Buddy-inspired dashboard redesign (Phase 2).
+ * Part of the dashboard redesign (Phase 2).
  */
 
 import Link from 'next/link'
