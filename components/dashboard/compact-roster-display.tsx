@@ -26,6 +26,7 @@ import {
 } from '@/lib/utils/roster-utils'
 import { RosterCarousel } from './roster-carousel'
 import { RosterPeriodRefresher } from './roster-period-refresher'
+import { NextRosterCountdown } from '@/components/shared/next-roster-countdown'
 import { createClient } from '@/lib/supabase/server'
 
 // Get leave request counts for a roster period with type breakdown
@@ -315,6 +316,9 @@ export async function CompactRosterDisplay() {
                     year: 'numeric',
                   })}
                 </p>
+
+                {/* Live countdown to next roster start */}
+                <NextRosterCountdown className="mt-3" />
               </div>
 
               {/* Dual-Link Sections */}
