@@ -40,14 +40,16 @@ All 4 batches complete. Verification:
   `aria-query 2` / `uuid 2` — macOS-duplicated `@types` dirs in node_modules)
 
 Files changed:
-- NEW   components/dashboard/data-degraded-banner.tsx
-- EDIT  components/dashboard/fleet-insights-widget.tsx  (A2 + C1)
-- EDIT  components/dashboard/todays-priorities.tsx       (A3 + D1)
-- EDIT  app/dashboard/admin/page.tsx                     (B2-B6)
-- DEL   app/dashboard/admin/page-improved.tsx            (B1)
-- EDIT  5 widget files — comment-only "Video Buddy" removal (D1)
+
+- NEW components/dashboard/data-degraded-banner.tsx
+- EDIT components/dashboard/fleet-insights-widget.tsx (A2 + C1)
+- EDIT components/dashboard/todays-priorities.tsx (A3 + D1)
+- EDIT app/dashboard/admin/page.tsx (B2-B6)
+- DEL app/dashboard/admin/page-improved.tsx (B1)
+- EDIT 5 widget files — comment-only "Video Buddy" removal (D1)
 
 Pre-existing issue discovered (NOT fixed — out of scope):
+
 - `/dashboard/certifications` ignores URL query params (`statusFilter` is local
   `useState('all')`, never reads `?filter=` or `?tab=`). The existing
   `todays-priorities` widget already links to `?filter=expiring`; the new
