@@ -55,7 +55,7 @@ interface Pilot {
   id: string
   first_name: string
   last_name: string
-  employee_number: string
+  employee_id: string
 }
 
 interface CheckType {
