@@ -31,7 +31,7 @@ export default function NewUserPage() {
   } = useForm<UserFormData>({
     resolver: zodResolver(UserCreateSchema),
     defaultValues: {
-      role: 'User',
+      role: 'manager',
     },
   })
 
