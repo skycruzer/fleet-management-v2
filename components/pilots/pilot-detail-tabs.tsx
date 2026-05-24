@@ -118,15 +118,29 @@ export function PilotDetailTabs({
         >
           <FileCheck className="h-4 w-4" />
           <span className="hidden sm:inline">Certifications</span>
-          {(pilot.certificationStatus.expiring > 0 || pilot.certificationStatus.expired > 0) && (
-            <span
-              className={`ml-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-white ${
-                pilot.certificationStatus.expired > 0
-                  ? 'bg-[var(--color-status-high)]'
-                  : 'bg-[var(--color-status-medium)]'
-              }`}
-            >
-              {pilot.certificationStatus.expiring + pilot.certificationStatus.expired}
+          {/* Two stacked badges — color and number stay aligned. A single badge
+              coloured by "expired > 0" but counting expired + expiring
+              overstated urgency in the mixed case (e.g. 1 expired + 12 expiring
+              rendered red "13"). Splitting keeps each number tied to its own
+              status colour. */}
+          {(pilot.certificationStatus.expired > 0 || pilot.certificationStatus.expiring > 0) && (
+            <span className="ml-1 flex items-center gap-1">
+              {pilot.certificationStatus.expired > 0 && (
+                <span
+                  className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-status-high)] px-1.5 text-xs font-bold text-white"
+                  aria-label={`${pilot.certificationStatus.expired} expired`}
+                >
+                  {pilot.certificationStatus.expired}
+                </span>
+              )}
+              {pilot.certificationStatus.expiring > 0 && (
+                <span
+                  className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-status-medium)] px-1.5 text-xs font-bold text-white"
+                  aria-label={`${pilot.certificationStatus.expiring} expiring`}
+                >
+                  {pilot.certificationStatus.expiring}
+                </span>
+              )}
             </span>
           )}
         </TabsTrigger>

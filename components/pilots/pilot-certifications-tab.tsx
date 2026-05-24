@@ -84,6 +84,14 @@ export function PilotCertificationsTab({
     }
   }, [pilot.id])
 
+  // Re-sync local state when the parent supplies a refreshed certifications
+  // list — mirrors the prop-sync effect in PilotDetailTabs so refreshes
+  // initiated higher up (page-level handleCertificationUpdate) reach this leaf
+  // instead of stopping at the mid-tree component.
+  useEffect(() => {
+    setCertifications(initialCertifications || [])
+  }, [initialCertifications])
+
   async function fetchCertifications() {
     try {
       setLoading(true)
