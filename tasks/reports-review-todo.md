@@ -24,17 +24,10 @@
 
 ### Cache & invalidation (affects every report)
 
-- [ ] **C1** `lib/services/reports-service.ts:2169-2197` — Cache TTL passed in seconds (300); unified-cache-service expects ms. Local cache expires in 300ms, Redis gets 0s. 5-min cache is fiction.
-      **Fix**: pass `REPORT_CACHE_CONFIG.TTL_SECONDS * 1000`.
-
-- [ ] **C2** `lib/services/reports-service.ts:2208-2212` — `invalidateReportCache()` calls `invalidateCacheByTag()` with no tags ever attached on `getOrSet`. Silent no-op.
-      **Fix**: pass `{ tags: [...] }` as 4th arg of `getOrSet`.
-
-- [ ] **C3** `lib/services/reports-service.ts:61-70` — `generateCacheKey` uses `Object.keys(filters).sort()` as JSON.stringify replacer **allowlist**. Nested object keys (e.g. `dateRange.startDate`, `dateRange.endDate`) are stripped → different date ranges produce the same cache key → stale data when caching works. Same with array order: `rank: ['Captain','First Officer']` vs reversed = two cache entries for identical results.
-      **Fix**: deep-sort serializer, e.g. recursive key sort or stable hash.
-
-- [ ] **C4** `lib/services/reports-service.ts:69` — `.substring(0, 48)` of base64 JSON. Filter sets sharing 48-char prefix collide.
-      **Fix**: SHA-256 hash or full string.
+- [x] **C1** ✓ Batch 3 — Pass `REPORT_CACHE_CONFIG.TTL_SECONDS * 1000` so `getOrSet` receives ms. Local cache now lives 5 min; Redis gets 300 s.
+- [x] **C2** ✓ Batch 3 — Added `getReportCacheTag(reportType)` helper; `getOrSet` call now passes `{ tags: [tag] }`. `invalidateReportCache()` is no longer a no-op.
+- [x] **C3** ✓ Batch 3 — Replaced broken `JSON.stringify(filters, Object.keys(filters).sort())` (replacer-as-allowlist that stripped nested keys) with `stableStringify()` that recursively sorts object keys. Arrays remain unordered to preserve `groupBy` semantics (set-semantic arrays like `rank` accept a one-time 2× cache cost for reorderings — acceptable trade-off vs the correctness risk of sorting `groupBy`).
+- [x] **C4** ✓ Batch 3 — Replaced truncated base64 prefix with full SHA-256 digest (also base64url). Prefix collisions can't happen.
 
 ### Timezone & date math (FAA compliance impact)
 

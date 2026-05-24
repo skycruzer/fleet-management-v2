@@ -13,6 +13,7 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
@@ -56,18 +57,37 @@ const REPORT_CACHE_CONFIG = {
 }
 
 /**
- * Generate cache key from report type and filters
+ * Deterministic JSON serializer: recursively sorts object keys so semantically-equal
+ * filters always produce the same string. Plain `JSON.stringify(obj, keys.sort())` uses
+ * the second arg as an ALLOWLIST and silently drops nested-object keys not in the list,
+ * which was producing identical cache keys for different date ranges.
+ * Arrays are NOT sorted — order is significant for fields like `groupBy`.
+ */
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value)
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`
+  const obj = value as Record<string, unknown>
+  const keys = Object.keys(obj).sort()
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(',')}}`
+}
+
+/**
+ * Generate cache key from report type and filters.
+ * Uses SHA-256 (not a truncated base64 prefix) so two filter sets that happen to share
+ * a leading prefix don't collide.
  */
 function generateCacheKey(reportType: ReportType, filters: ReportFilters): string {
-  // Sort filter keys for consistent cache keys
-  let filterString: string
-  try {
-    filterString = JSON.stringify(filters, Object.keys(filters).sort())
-  } catch {
-    filterString = String(filters)
-  }
-  const hash = Buffer.from(filterString).toString('base64url').substring(0, 48)
+  const hash = createHash('sha256').update(stableStringify(filters)).digest('base64url')
   return `report:${reportType}:${hash}`
+}
+
+/**
+ * Resolve the invalidation tag for a report type. Returns undefined for unknown types
+ * rather than throwing, so the caching path stays best-effort.
+ */
+function getReportCacheTag(reportType: ReportType): string | undefined {
+  const key = reportType.toUpperCase().replace(/-/g, '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS
+  return REPORT_CACHE_CONFIG.TAGS[key]
 }
 
 /**
@@ -2174,7 +2194,11 @@ export async function generateReport(
 
   // For preview (paginated), use caching
   const cacheKey = generateCacheKey(reportType, filters)
+  const cacheTag = getReportCacheTag(reportType)
 
+  // unifiedCacheService.getOrSet expects ttl in MILLISECONDS (it divides by 1000 for Redis).
+  // Passing TTL_SECONDS directly killed the local cache after 300 ms and gave Redis a
+  // floor-to-zero TTL, leaving the whole cache layer effectively disabled.
   return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
@@ -2201,7 +2225,8 @@ export async function generateReport(
           throw new Error(`Unknown report type: ${reportType}`)
       }
     },
-    REPORT_CACHE_CONFIG.TTL_SECONDS
+    REPORT_CACHE_CONFIG.TTL_SECONDS * 1000,
+    { tags: cacheTag ? [cacheTag] : undefined }
   )
 }
 
@@ -2212,11 +2237,8 @@ export async function generateReport(
 export function invalidateReportCache(reportType?: ReportType): void {
   if (reportType) {
     // Invalidate specific report type
-    invalidateCacheByTag(
-      REPORT_CACHE_CONFIG.TAGS[
-        reportType.toUpperCase().replace('-', '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS
-      ]
-    )
+    const tag = getReportCacheTag(reportType)
+    if (tag) invalidateCacheByTag(tag)
   } else {
     // Invalidate all reports
     Object.values(REPORT_CACHE_CONFIG.TAGS).forEach((tag) => invalidateCacheByTag(tag))
