@@ -27,12 +27,14 @@ interface CertificationsTabsProps {
   certifications: CertificationWithDetails[]
   attentionCount: number
   onEditCertification?: (certId: string) => void
+  onDeleteCertification?: (certId: string) => void
 }
 
 export function CertificationsTabs({
   certifications,
   attentionCount,
   onEditCertification,
+  onDeleteCertification,
 }: CertificationsTabsProps) {
   // nuqs manages URL sync automatically — replaces manual useSearchParams + router.push
   const [currentTab, setCurrentTab] = useQueryState(
@@ -68,7 +70,11 @@ export function CertificationsTabs({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.18 }}
         >
-          <CertificationsTable certifications={certifications} />
+          <CertificationsTable
+            certifications={certifications}
+            onEditCertification={onEditCertification}
+            onDeleteCertification={onDeleteCertification}
+          />
         </motion.div>
       </TabsContent>
 
