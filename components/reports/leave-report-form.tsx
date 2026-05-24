@@ -11,7 +11,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { formatDate } from '@/lib/utils/date-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -31,17 +31,19 @@ import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
-import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
 import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
-import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
-import { generateRosterPeriods, rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
+import {
+  generateRosterPeriods,
+  getDefaultReportYears,
+  rosterPeriodsToDateRange,
+} from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
   filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
@@ -69,7 +71,9 @@ export function LeaveReportForm() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const { toast } = useToast()
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods(getDefaultReportYears(), {
+    currentAndFutureOnly: true,
+  })
   const prefetchReport = usePrefetchReport()
 
   // TanStack Query hooks
@@ -225,15 +229,6 @@ export function LeaveReportForm() {
     }
   }
 
-  // Handle date preset selection
-  const handleDatePresetSelect = (dateRange: DateRange) => {
-    // Clear roster periods when date preset is selected
-    form.setValue('rosterPeriods', [])
-    form.setValue('startDate', dateRange.startDate)
-    form.setValue('endDate', dateRange.endDate)
-    handleFormChange()
-  }
-
   // Separate loading states for each button
   const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
   const isExportButtonLoading = exportMutation.isPending
@@ -346,8 +341,6 @@ export function LeaveReportForm() {
               />
             </div>
           )}
-
-          {/* Date Presets removed per user request */}
 
           {/* Roster Period Selection - Only show if roster mode */}
           {filterMode === 'roster' && (

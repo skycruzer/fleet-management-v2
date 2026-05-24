@@ -7,6 +7,15 @@
  */
 
 /**
+ * Default year window for forward-looking report filters: current year + next year.
+ * Use this instead of hardcoding `[2025, 2026]` so forms don't go stale at year rollover.
+ */
+export function getDefaultReportYears(): number[] {
+  const currentYear = new Date().getFullYear()
+  return [currentYear, currentYear + 1]
+}
+
+/**
  * Generate roster periods for given years
  * Format: RP01/2025, RP02/2025, ..., RP13/2025 (zero-padded)
  *

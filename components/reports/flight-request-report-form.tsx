@@ -31,17 +31,19 @@ import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
-import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
 import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
-import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
-import { generateRosterPeriods, rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
+import {
+  generateRosterPeriods,
+  getDefaultReportYears,
+  rosterPeriodsToDateRange,
+} from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
   filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
@@ -94,7 +96,9 @@ export function FlightRequestReportForm() {
   })
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods(getDefaultReportYears(), {
+    currentAndFutureOnly: true,
+  })
 
   // Build filters from form values (uses input type for optional handling)
   const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
@@ -203,13 +207,6 @@ export function FlightRequestReportForm() {
     }
   }
 
-  // Handle date preset selection
-  const handleDatePresetSelect = (dateRange: DateRange) => {
-    form.setValue('startDate', dateRange.startDate)
-    form.setValue('endDate', dateRange.endDate)
-    handleFormChange()
-  }
-
   // Separate loading states for each button
   const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
   const isExportButtonLoading = exportMutation.isPending
@@ -313,8 +310,6 @@ export function FlightRequestReportForm() {
               />
             </div>
           )}
-
-          {/* Date Presets removed per user request */}
 
           {/* Roster Period Selection - Only show if roster mode */}
           {filterMode === 'roster' && (

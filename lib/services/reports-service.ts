@@ -846,6 +846,20 @@ export async function generatePDF(
   const doc = new jsPDF({ orientation })
   const pageWidth = doc.internal.pageSize.getWidth()
 
+  // Resolve the days-count cell for RDO/SDO/Flight Request rows. Computes from start/end
+  // dates when `days_count` is null so multi-day requests don't silently render as "1".
+  const formatRequestDays = (item: any): string => {
+    if (item.days_count != null) return String(item.days_count)
+    if (item.start_date && item.end_date) {
+      const start = new Date(item.start_date).getTime()
+      const end = new Date(item.end_date).getTime()
+      if (Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+        return String(Math.floor((end - start) / 86400000) + 1)
+      }
+    }
+    return '-'
+  }
+
   // Logo + Header
   try {
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
@@ -968,7 +982,9 @@ export async function generatePDF(
             ],
           ],
           body: groupData.map((item: any) => [
-            item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
+            item.name ||
+              [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') ||
+              'N/A',
             item.rank || item.pilot?.role || 'N/A',
             item.request_type || item.leave_type || 'N/A',
             formatAustralianDate(item.submission_date),
@@ -1002,7 +1018,9 @@ export async function generatePDF(
           ],
         ],
         body: report.data.map((item: any) => [
-          item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
+          item.name ||
+            [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') ||
+            'N/A',
           item.rank || item.pilot?.role || 'N/A',
           item.request_type || item.leave_type || 'N/A',
           formatAustralianDate(item.submission_date),
@@ -1016,7 +1034,9 @@ export async function generatePDF(
         headStyles: { fillColor: [41, 128, 185] },
       })
     }
-  } else if (reportType === 'rdo-sdo') {
+  } else if (reportType === 'rdo-sdo' || reportType === 'flight-requests') {
+    // `flight-requests` is a deprecated alias; the service redirects it to generateRdoSdoReport,
+    // so rows share the unified pilot_requests shape — share the renderer to avoid field drift.
     if (shouldGroup && primaryGroupField) {
       // Grouped rendering
       const grouped = groupDataByField(report.data, primaryGroupField)
@@ -1060,7 +1080,7 @@ export async function generatePDF(
             item.end_date
               ? formatAustralianDate(item.end_date)
               : formatAustralianDate(item.start_date),
-            item.days_count || '1',
+            formatRequestDays(item),
             item.workflow_status || 'N/A',
             item.is_late_request ? 'Yes' : '',
             computeRosterPeriods(item),
@@ -1098,7 +1118,7 @@ export async function generatePDF(
           item.end_date
             ? formatAustralianDate(item.end_date)
             : formatAustralianDate(item.start_date),
-          item.days_count || '1',
+          formatRequestDays(item),
           item.workflow_status || 'N/A',
           item.is_late_request ? 'Yes' : '',
           computeRosterPeriods(item),
@@ -1138,22 +1158,6 @@ export async function generatePDF(
       styles: { fontSize: 7 },
       headStyles: { fillColor: [155, 89, 182] },
     })
-  } else if (reportType === 'flight-requests') {
-    autoTable(doc, {
-      startY: yPos,
-      head: [['Pilot', 'Rank', 'Type', 'Flight Date', 'Description', 'Status']],
-
-      body: report.data.map((item: any) => [
-        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
-        item.pilot?.role || 'N/A',
-        item.request_type,
-        formatAustralianDate(item.flight_date),
-        item.description,
-        item.status,
-      ]),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [41, 128, 185] },
-    })
   } else if (reportType === 'certifications') {
     if (shouldGroup && primaryGroupField) {
       // Grouped rendering for certifications
@@ -1179,7 +1183,7 @@ export async function generatePDF(
           startY: yPos,
           head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
           body: groupData.map((item: any) => [
-            `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+            [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') || 'N/A',
             item.pilot?.role || 'N/A',
             item.check_type?.check_description || item.check_type?.check_code || 'N/A',
             formatAustralianDate(item.expiry_date),
@@ -1212,7 +1216,7 @@ export async function generatePDF(
         head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
 
         body: report.data.map((item: any) => [
-          `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+          [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') || 'N/A',
           item.pilot?.role || 'N/A',
           item.check_type?.check_description || item.check_type?.check_code || 'N/A',
           formatAustralianDate(item.expiry_date),
@@ -1591,7 +1595,7 @@ export async function generateLeaveBidsReport(
         leave_bid_options: enrichedOptions,
         name: bid.pilot ? `${bid.pilot.first_name} ${bid.pilot.last_name}` : 'N/A',
         rank: bid.pilot?.role || 'N/A',
-        seniority: bid.pilot?.seniority_number || 0,
+        seniority: bid.pilot?.seniority_number ?? null,
         roster_periods_all: Array.from(allRosterPeriods),
         bid_year,
       }
@@ -1855,8 +1859,11 @@ export async function generatePilotInfoReport(
     enrichedData.sort((a: any, b: any) => {
       // Captains first, then First Officers
       if (a.rank !== b.rank) return a.rank === 'Captain' ? -1 : 1
-      // Within rank, sort by seniority number
-      return (a.seniority_number || 999) - (b.seniority_number || 999)
+      // Within rank, sort by seniority number; null/missing seniority sorts last (use ?? not || so 0 isn't buried)
+      const aSen = a.seniority_number ?? Number.POSITIVE_INFINITY
+      const bSen = b.seniority_number ?? Number.POSITIVE_INFINITY
+      if (aSen === bSen) return 0
+      return aSen < bSen ? -1 : 1
     })
   }
 

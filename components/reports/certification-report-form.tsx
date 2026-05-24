@@ -45,7 +45,7 @@ import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hook
 import type { ReportFilters } from '@/types/reports'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
-import { generateRosterPeriods } from '@/lib/utils/roster-periods'
+import { generateRosterPeriods, getDefaultReportYears } from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
   filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
@@ -109,7 +109,9 @@ export function CertificationReportForm() {
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
   const selectedCategories = form.watch('categories') ?? []
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods(getDefaultReportYears(), {
+    currentAndFutureOnly: true,
+  })
 
   // Filter check types by selected categories
   const filteredCheckTypes =
