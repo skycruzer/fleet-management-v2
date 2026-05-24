@@ -1,101 +1,74 @@
-# Certifications Page — Finish Componentized Migration + Design Polish
+# Code Review Remediation — fix/pilot-page-review-and-rbac-casing
 
-## Context
+All 15 findings from the xhigh-effort code review have been fixed.
 
-- Live route `app/dashboard/certifications/page.tsx` is an old 777-line inline
-  client component — single flat table, no tabs.
-- A cleaner componentized version exists but is **orphaned** (nothing imports it):
-  `certifications-page-client.tsx` + `certifications-tabs.tsx` (tabs: All /
-  Attention / By Category) + `certifications-table` / `attention-required-view` /
-  `category-view` / `certification-stat-cards`.
-- The route redirect `/dashboard/certifications/expiring → ?tab=attention`
-  (`next.config.js:137`) is **broken** — the live page has no tabs and ignores
-  `?tab`. The componentized version reads `?tab` via nuqs → migration fixes it.
+## Group A — RBAC casing migration completion (HIGH) ✅
 
-## Visual thesis
+- [x] **Fix #1a** `app/api/retirement/export/csv/route.ts:42` — lowercase compare
+- [x] **Fix #1b** `app/api/retirement/export/pdf/route.ts:42` — lowercase compare
+- [x] **Fix #1c** `app/api/analytics/succession-pipeline/route.ts:40` — lowercase compare
+- [x] **Fix #1d** `lib/services/user-service.ts` — new `UserRoleLiteral` type alias; types, `getUsersByRole` signature, and `getUserStats` byRole keys lowercased
+- [x] **Fix #1e** `lib/validations/user-validation.ts:15` — Zod enum lowercased
+- [x] **Fix #1f** `app/dashboard/admin/users/new/page.tsx:34` — default role → `'manager'`
+- [x] **Fix #1g** `app/api/users/route.ts:27` — searchParams role type assertion lowercased
+- [x] **Skipped** `components/dashboard/personalized-greeting.tsx` — `'Admin'` strings are unreachable display fallbacks (never shown to authenticated users; real role flows from DB)
 
-Calm, operations-grade compliance surface — extend the existing Linear-inspired
-dashboard language (compact header, restrained tokens, status-colored accents) to
-the certifications page. No new design system; consistency plus one honest
-interaction layer (stat cards that actually navigate).
+## Group B — Certifications page client correctness (HIGH) ✅
 
-## Content plan
+- [x] **Fix #2 + #8** Dropped `refreshData()` entirely; rely on `router.refresh()` + render-phase prop sync (single source of truth). Fixes the truncate-to-50 bug AND the RSC-vs-client race.
+- [x] **Fix #3** Restored DELETE flow — Trash button on the All tab (`certifications-table.tsx`), AlertDialog confirm in page client, DELETE fetch with CSRF token
+- [x] **Fix #5** Top-bar Export now scopes to active tab — on Attention, exports only expired/expiring rows; aria-label updates accordingly; filename suffixes `_attention` so the CSV is self-describing
+- [x] **Fix #9** `activeStatus` state wired to `CertificationStatCards` — the clicked card now gets the ring-2 highlight
+- [x] **Fix #14** `fetchFormData` errors surface via destructive toast
+- [x] **Bonus (B2 from review)** Edit button restored to default All tab
 
-Header (h1 + subtitle, Export + Add) → 4 stat cards (Total / Current / Expiring /
-Expired) → tabs (All / Attention / By Category) → per-tab content (table /
-priority-grouped accordion / category accordion) → certification form dialog.
+## Group C — requireRole admin-session staleness (HIGH) ✅
 
-## Interaction plan
+- [x] **Fix #4** `lib/middleware/authorization-middleware.ts:332` — admin-session branch now delegates to `verifyUserRole(adminSession.user.id, requiredRoles)`, hitting the DB by PK each call. Role demotions take effect immediately.
 
-1. Stat card click → routes to the relevant tab (Expired/Expiring → Attention,
-   Total/Current → All) via the nuqs `tab` URL param.
-2. Stat cards stagger-fade in on mount (~60ms stagger, 8px rise).
-3. Tab panel cross-fade on switch. Motion subtle — no celebration.
+## Group D — Date arithmetic correctness (MEDIUM) ✅
 
-## Plan
+- [x] **Fix #6** `lib/utils/retirement-utils.ts:63` — day-borrow uses retirement's prior month, not today's
+- [x] **Fix #11** `components/pilots/retirement-information-card.tsx` — `careerStartAge` now applies the same birthday-passed adjustment as `currentAge`
+- [x] **Fix #13** `lib/utils/retirement-utils.ts` — new `parseLocalDate` helper parses `YYYY-MM-DD` via local-time constructor so Vercel-region TZ can't drift Feb 29 → Feb 28 before the leap clamp
 
-### 1. Wire the migration
+## Group E — Server-side certifications data path (MEDIUM) ✅
 
-- [ ] Rewrite `app/dashboard/certifications/page.tsx` as an async **server**
-      component: fetch `getCertificationsUnpaginated()`, derive `stats`
-      (count by `status.color` — matches `refreshData()` and the old page) and
-      `categories`, render `<CertificationsPageClient />`. Existing `loading.tsx`
-      covers the load state.
-- [ ] Delete the old 777-line inline client implementation.
+- [x] **Fix #7** `lib/services/certification-service.ts:203` — `getCertificationsUnpaginated` loops by `PAGE_SIZE=1000` driven by the DB `total` count; 50-page safety cap (50k rows)
 
-### 2. Fix bugs in `certifications-page-client.tsx`
+## Group F — Component contracts and UX (MEDIUM) ✅
 
-- [ ] Pilots fetch: `pilotsData.data` → `pilotsData.data?.pilots || pilotsData.data || []`
-      (`/api/pilots` returns `{ data: { pilots: [] } }`) — current code sets
-      `pilots` to an object, breaking the form dialog's pilot select.
-- [ ] `Pilot` interface: `employee_number` → `employee_id`.
-- [ ] Remove unused `categories` prop (dead — destructured, never used).
+- [x] **Fix #10** `components/pilots/pilot-certifications-tab.tsx` — added prop-sync `useEffect` mirroring `pilot-detail-tabs:91-93`
+- [x] **Fix #12** `components/pilots/pilot-detail-tabs.tsx` — two stacked badges (red for expired, yellow for expiring); each number stays tied to its colour
 
-### 3. Design polish (Module C — match existing system)
+## Group G — Latent bug (LOW) ✅
 
-- [ ] Header consistency: `<h2 font-bold>` → `<h1 font-semibold tracking-tight
-    lg:text-2xl>` to match `pilots/page.tsx`. Root `space-y-4` → `space-y-6`;
-      header/button gaps aligned to siblings.
-- [ ] Interactive stat cards: pass `onStatClick` → set nuqs `tab`
-      (Expired/Expiring → `attention`, Total/Current → `all`); pass `activeStatus`
-      for the ring state. Justifies the card affordance + quick navigation.
-- [ ] Subtle motion (Framer Motion, already a dep): stat-cards stagger-fade on
-      mount; tab-panel cross-fade on switch.
+- [x] **Fix #15** `lib/services/pilot-service.ts:633` — `createPilotWithCertifications` pilotJson now includes `captain_qualifications` (mirrors `createPilot`)
 
-### 4. Verify
+## Validation
 
-- [ ] `npm run validate` (type-check + lint). Full `npm run build` may hang
-      locally — Vercel CI is the source of truth.
-- [ ] Visual check: screenshot `/dashboard/certifications`, `?tab=attention`,
-      `?tab=category`.
+- [x] `npm run lint` — clean
+- [x] `npm run format:check` — clean (one Prettier issue in rewritten file auto-formatted)
+- [x] `npm run type-check` — fails on pre-existing environmental `aria-query`/`uuid` duplicate type-root errors only; no new TS errors from these edits. Vercel CI remains the source of truth per project convention.
 
-## Review
+## Files touched (16)
 
-Status: **implementation complete** — pending visual confirmation by user.
-
-Changed files:
-
-- `app/dashboard/certifications/page.tsx` — now an async server component
-  (was a 777-line `'use client'` monolith). Fetches certifications, derives
-  stats, renders `<CertificationsPageClient />`.
-- `app/dashboard/certifications/certifications-page-client.tsx` — dropped unused
-  `categories` prop; fixed pilots fetch and `refreshData()` (both expected the
-  wrong response shape — `/api/*` returns `{ data: { pilots|certifications } }`);
-  `Pilot.employee_id`; header → `<h1>` matching sibling pages; stat cards wired
-  to switch tabs via nuqs `tab` param.
-- `components/certifications/certification-stat-cards.tsx` — stagger-fade entrance
-  (respects reduced motion); focus-visible ring on now-interactive cards.
-- `components/certifications/certifications-tabs.tsx` — tab-panel cross-fade.
-
-Verification:
-
-- `npx eslint` on all 4 files — clean.
-- `npx tsc --noEmit` — 0 errors in changed files (2 pre-existing env-only errors:
-  `aria-query 2` / `uuid 2` duplicate `@types` dirs — local artifact, not CI).
-- Visual: **not completed** — port 3000 is running a different project
-  ("Webstore"); a fleet dev server was started on :3001 but `/dashboard/*` is
-  auth-gated. User to confirm at `localhost:3001/dashboard/certifications`.
-
-Deviation from plan: `activeStatus` ring NOT passed to stat cards — clicking
-navigates (not a 1:1 toggle filter), so a persistent ring would mislead. Cards
-get `onStatClick` + hover/focus affordances only.
+```
+app/api/retirement/export/csv/route.ts
+app/api/retirement/export/pdf/route.ts
+app/api/analytics/succession-pipeline/route.ts
+app/api/users/route.ts
+app/dashboard/admin/users/new/page.tsx
+app/dashboard/certifications/certifications-page-client.tsx
+components/certifications/certifications-tabs.tsx
+components/certifications/certifications-table.tsx
+components/pilots/pilot-detail-tabs.tsx
+components/pilots/pilot-certifications-tab.tsx
+components/pilots/retirement-information-card.tsx
+lib/middleware/authorization-middleware.ts
+lib/services/user-service.ts
+lib/services/certification-service.ts
+lib/services/pilot-service.ts
+lib/utils/retirement-utils.ts
+lib/validations/user-validation.ts
+```

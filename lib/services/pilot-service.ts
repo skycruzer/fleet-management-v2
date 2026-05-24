@@ -630,6 +630,9 @@ export async function createPilotWithCertifications(
       date_of_birth: pilotData.date_of_birth || null,
       commencement_date: pilotData.commencement_date || null,
       is_active: pilotData.is_active,
+      // Mirror createPilot's persistence: PilotFormData declares this field
+      // and the sibling createPilot writes it, so the atomic path must too.
+      captain_qualifications: pilotData.captain_qualifications ?? null,
     }
 
     // Prepare certifications for PostgreSQL function (JSON array for RPC)
