@@ -7,6 +7,24 @@
 // Default retirement age (fallback if settings not available)
 const DEFAULT_RETIREMENT_AGE = 65
 
+/**
+ * Parse a date input as LOCAL time, not UTC.
+ *
+ * `new Date('1980-02-29')` is treated by the spec as UTC midnight; in any
+ * timezone west of UTC that becomes 1980-02-28 local — which silently loses
+ * the leap day before any downstream clamp can run. For YYYY-MM-DD strings
+ * we therefore construct the Date via the local-time constructor instead.
+ */
+function parseLocalDate(input: string | Date): Date {
+  if (input instanceof Date) return input
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input)
+  if (match) {
+    const [, y, m, d] = match
+    return new Date(Number(y), Number(m) - 1, Number(d))
+  }
+  return new Date(input)
+}
+
 export interface RetirementCountdown {
   years: number
   months: number
@@ -28,7 +46,7 @@ export function calculateRetirementCountdown(
 ): RetirementCountdown | null {
   if (!dateOfBirth) return null
 
-  const birth = new Date(dateOfBirth)
+  const birth = parseLocalDate(dateOfBirth)
   const today = new Date()
 
   // Calculate retirement date using provided or default retirement age
@@ -57,11 +75,19 @@ export function calculateRetirementCountdown(
   let months = retirementDate.getMonth() - today.getMonth()
   let days = retirementDate.getDate() - today.getDate()
 
-  // Adjust for negative days
+  // Adjust for negative days: borrow from the month preceding the RETIREMENT
+  // date (not today's previous month). Otherwise countdowns are off-by-one
+  // whenever today's previous month and retirement's previous month differ in
+  // length (e.g. today=Feb 20, retirement=May 5: borrowing Jan's 31 vs Apr's 30
+  // changes the answer by one day).
   if (days < 0) {
     months--
-    const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0)
-    days += previousMonth.getDate()
+    const monthBeforeRetirement = new Date(
+      retirementDate.getFullYear(),
+      retirementDate.getMonth(),
+      0
+    )
+    days += monthBeforeRetirement.getDate()
   }
 
   // Adjust for negative months

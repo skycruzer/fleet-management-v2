@@ -109,9 +109,17 @@ export function RetirementInformationCard({
 
   if (commencementDate) {
     careerStartDate = new Date(commencementDate)
-    const birthYear = birthDate.getFullYear()
-    const commencementYear = careerStartDate.getFullYear()
-    careerStartAge = commencementYear - birthYear
+    // Same birthday-passed adjustment we apply to currentAge above — a plain
+    // year subtraction over-counts by up to a year when the pilot's birthday
+    // falls AFTER their commencement month within the commencement year.
+    careerStartAge = careerStartDate.getFullYear() - birthDate.getFullYear()
+    const commencementMonthDelta = careerStartDate.getMonth() - birthDate.getMonth()
+    if (
+      commencementMonthDelta < 0 ||
+      (commencementMonthDelta === 0 && careerStartDate.getDate() < birthDate.getDate())
+    ) {
+      careerStartAge--
+    }
   }
 
   const totalCareerYears = retirementAge - careerStartAge
