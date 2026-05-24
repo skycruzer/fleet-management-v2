@@ -326,18 +326,12 @@ export async function requireRole(
     const adminSession = await validateAdminSession()
 
     if (adminSession.isValid && adminSession.user?.id) {
-      // The admin session carries the user's role directly (lowercase, from
-      // admin-auth-service). Verify it against the required roles — do NOT
-      // blanket-authorize just because the user holds a valid session.
-      const sessionRole = (adminSession.user.role ?? '').toLowerCase() as UserRole
-      if (requiredRoles.includes(sessionRole)) {
-        return { authorized: true }
-      }
-      return {
-        authorized: false,
-        error: 'Insufficient permissions',
-        statusCode: 403,
-      }
+      // Re-verify the role against the DB on every call. The admin session
+      // bakes the role in at login time; trusting that cached value would
+      // mean a demoted admin keeps elevated access until their session
+      // expires. verifyUserRole hits an_users by id (PK), so this is a single
+      // indexed lookup — cheap enough to do per request.
+      return await verifyUserRole(adminSession.user.id, requiredRoles)
     }
 
     return {
