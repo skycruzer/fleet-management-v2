@@ -7,7 +7,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { parseLocalDate } from '@/lib/utils/retirement-utils'
+import { parseLocalDate, DEFAULT_RETIREMENT_AGE } from '@/lib/utils/retirement-utils'
 import type { Database } from '@/types/supabase'
 
 /**
@@ -22,6 +22,16 @@ function computeRetirementDate(dateOfBirth: string | Date, retirementAge: number
   // Feb-29 born in non-leap retirement year overflows to Mar 1 — clamp back.
   if (retirement.getMonth() !== birth.getMonth()) retirement.setDate(0)
   return retirement
+}
+
+/**
+ * Count completed full months between two dates using calendar arithmetic.
+ * Math.floor(ms / 30.44 days) returned 11 for a pilot retiring in exactly 12
+ * calendar months. Calendar-aware math returns the correct 12.
+ */
+function monthsBetween(from: Date, to: Date): number {
+  const months = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())
+  return to.getDate() < from.getDate() ? months - 1 : months
 }
 
 type Pilot = Database['public']['Tables']['pilots']['Row']
@@ -97,9 +107,9 @@ export async function getRetirementForecast(
     // Already retired (negative years)
     if (yearsToRetirement < 0) return
 
-    const monthsUntilRetirement = Math.floor(
-      (retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
-    )
+    // Calendar-aware month count — `Math.floor(ms / 30.44 days)` returned 11
+    // for a pilot retiring in exactly 12 calendar months.
+    const monthsUntilRetirement = monthsBetween(today, retirementDate)
 
     const pilotData = {
       id: pilot.id,
@@ -238,7 +248,10 @@ export async function getRetirementForecastByRank(retirementAge: number = 65): P
  * @param retirementAge - Retirement age from system settings
  * @returns Monthly timeline data for charts
  */
-export async function getMonthlyRetirementTimeline(retirementAge: number = 65): Promise<{
+export async function getMonthlyRetirementTimeline(
+  retirementAge: number = DEFAULT_RETIREMENT_AGE,
+  horizonMonths: number = 60
+): Promise<{
   timeline: Array<{
     month: string
     year: number
@@ -284,10 +297,13 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
   }
 
   const today = new Date()
-  const fiveYearsFromNow = new Date(today)
-  fiveYearsFromNow.setFullYear(today.getFullYear() + 5)
+  // `fiveYearsFromNow` is retained as a variable name for clarity in this file's
+  // longstanding comments, but it now reflects the caller-provided horizon. The
+  // forecast report passes 24 (2-year) or 60 (5-year) so timeline buckets and
+  // shortage warnings stay aligned with the user's chosen time horizon.
+  const fiveYearsFromNow = new Date(today.getFullYear(), today.getMonth() + horizonMonths, 1)
 
-  // Create month buckets for next 5 years
+  // Create month buckets for the chosen horizon
   const monthlyBuckets = new Map<
     string,
     {
@@ -305,11 +321,11 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
     }
   >()
 
-  // Initialize buckets for all months in next 5 years. Walking by counter +
-  // local-Date constructor avoids the `setMonth(getMonth()+1)` skip bug: on the
-  // 31st of months without 31 days, Date silently rolls forward (Jan 31 →
+  // Initialize buckets for all months in the chosen horizon. Walking by counter
+  // + local-Date constructor avoids the `setMonth(getMonth()+1)` skip bug: on
+  // the 31st of months without 31 days, Date silently rolls forward (Jan 31 →
   // Mar 3), dropping a whole month bucket and any retirements in it.
-  const totalMonths = 12 * 5
+  const totalMonths = horizonMonths
   for (let i = 0; i <= totalMonths; i++) {
     const bucketDate = new Date(today.getFullYear(), today.getMonth() + i, 1)
     if (bucketDate > fiveYearsFromNow) break
@@ -330,8 +346,11 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
 
     const retirementDate = computeRetirementDate(pilot.date_of_birth, retirementAge)
 
-    // Skip if already retired or beyond 5 years
-    if (retirementDate <= today || retirementDate > fiveYearsFromNow) return
+    // Boundary convention: include retirements in [today, horizon). Aligned with
+    // getRetirementForecastByRank (yearsToRetirement < 2.0 / < 5.0) so a pilot
+    // retiring exactly on the cutoff lands in exactly one bucket — previously
+    // they were dropped from BOTH the forecast counters and the timeline.
+    if (retirementDate < today || retirementDate >= fiveYearsFromNow) return
 
     const monthKey = `${retirementDate.getFullYear()}-${String(retirementDate.getMonth() + 1).padStart(2, '0')}`
     const bucket = monthlyBuckets.get(monthKey)
@@ -390,9 +409,10 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
  * @returns Crew impact data with warnings
  */
 export async function getCrewImpactAnalysis(
-  retirementAge: number = 65,
+  retirementAge: number = DEFAULT_RETIREMENT_AGE,
   requiredCaptains: number = 10,
-  requiredFirstOfficers: number = 10
+  requiredFirstOfficers: number = 10,
+  horizonMonths: number = 60
 ): Promise<{
   monthly: Array<{
     month: string
@@ -435,8 +455,9 @@ export async function getCrewImpactAnalysis(
   const currentCaptains = currentPilots?.filter((p) => p.role === 'Captain').length || 0
   const currentFirstOfficers = currentPilots?.filter((p) => p.role === 'First Officer').length || 0
 
-  // Get monthly retirement timeline
-  const { timeline } = await getMonthlyRetirementTimeline(retirementAge)
+  // Get monthly retirement timeline scoped to the chosen horizon so shortage
+  // warnings reflect the user's selected time window. Was hardcoded to 5yr.
+  const { timeline } = await getMonthlyRetirementTimeline(retirementAge, horizonMonths)
 
   const monthly: Array<{
     month: string
@@ -470,8 +491,16 @@ export async function getCrewImpactAnalysis(
     const captainShortage = Math.max(0, requiredCaptains - runningCaptains)
     const firstOfficerShortage = Math.max(0, requiredFirstOfficers - runningFirstOfficers)
 
-    const captainUtilization = (requiredCaptains / runningCaptains) * 100
-    const firstOfficerUtilization = (requiredFirstOfficers / runningFirstOfficers) * 100
+    // Guard against div-by-zero or negative running totals (data anomaly or
+    // full attrition). Either case is unambiguously critical — treat as
+    // Infinity utilisation rather than letting NaN/-50% propagate into the
+    // average-utilisation summary downstream.
+    const captainUtilization =
+      runningCaptains <= 0 ? Number.POSITIVE_INFINITY : (requiredCaptains / runningCaptains) * 100
+    const firstOfficerUtilization =
+      runningFirstOfficers <= 0
+        ? Number.POSITIVE_INFINITY
+        : (requiredFirstOfficers / runningFirstOfficers) * 100
 
     // Determine warning level based on utilization
     let warningLevel: 'none' | 'low' | 'medium' | 'high' | 'critical' = 'none'
@@ -544,12 +573,24 @@ export async function getCrewImpactAnalysis(
   })
 
   const criticalMonths = monthly.filter((m) => m.warningLevel === 'critical').length
-  const avgCaptainUtil = Math.round(
-    monthly.reduce((sum, m) => sum + m.captainUtilization, 0) / monthly.length
-  )
-  const avgFirstOfficerUtil = Math.round(
-    monthly.reduce((sum, m) => sum + m.firstOfficerUtilization, 0) / monthly.length
-  )
+
+  // Average only across finite values so a single Infinity (the running-zero
+  // guard above) doesn't poison the whole average into NaN. Empty input falls
+  // back to 0 rather than dividing by zero.
+  const finiteCaptainUtils = monthly.map((m) => m.captainUtilization).filter(Number.isFinite)
+  const finiteFirstOfficerUtils = monthly
+    .map((m) => m.firstOfficerUtilization)
+    .filter(Number.isFinite)
+  const avgCaptainUtil =
+    finiteCaptainUtils.length > 0
+      ? Math.round(finiteCaptainUtils.reduce((sum, v) => sum + v, 0) / finiteCaptainUtils.length)
+      : 0
+  const avgFirstOfficerUtil =
+    finiteFirstOfficerUtils.length > 0
+      ? Math.round(
+          finiteFirstOfficerUtils.reduce((sum, v) => sum + v, 0) / finiteFirstOfficerUtils.length
+        )
+      : 0
 
   return {
     monthly,

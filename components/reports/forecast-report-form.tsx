@@ -44,7 +44,7 @@ import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
 
 const formSchema = z.object({
-  timeHorizon: z.enum(['2yr', '5yr', '10yr']).default('5yr'),
+  timeHorizon: z.enum(['2yr', '5yr']).default('5yr'),
   sectionRetirement: z.boolean().default(true),
   sectionSuccession: z.boolean().default(true),
   sectionShortage: z.boolean().default(true),
@@ -223,12 +223,6 @@ export function ForecastReportForm() {
                       <RadioGroupItem value="5yr" id="horizon-5yr" />
                       <Label htmlFor="horizon-5yr" className="cursor-pointer font-normal">
                         5 Years (Recommended)
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="10yr" id="horizon-10yr" />
-                      <Label htmlFor="horizon-10yr" className="cursor-pointer font-normal">
-                        10 Years
                       </Label>
                     </div>
                   </RadioGroup>

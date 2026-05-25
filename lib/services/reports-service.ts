@@ -35,7 +35,7 @@ import {
   getCertificationStatus,
   getDaysUntilExpiry,
 } from '@/lib/utils/certification-status'
-import { parseLocalDate } from '@/lib/utils/retirement-utils'
+import { parseLocalDate, DEFAULT_RETIREMENT_AGE } from '@/lib/utils/retirement-utils'
 import { generateReportTitle, generateReportDescription } from '@/lib/utils/report-title-generator'
 import { formatAustralianDate, formatAustralianDateTime } from '@/lib/utils/date-format'
 
@@ -1880,11 +1880,14 @@ export async function generatePilotInfoReport(
 ): Promise<ReportData> {
   const supabase = createAdminClient()
 
-  // Query pilots with certifications
-  const { data: pilots, error } = await supabase
-    .from('pilots')
-    .select(
-      `
+  // Query pilots with certifications. Paginate-to-exhaustion (mirrors
+  // certification-service.getCertificationsUnpaginated) so we don't silently
+  // truncate at Supabase's default 1000-row limit when the org grows past it
+  // — the table here can include inactive/historical pilots when
+  // filters.activeStatus = 'all', so the row count is unbounded by intent.
+  const PAGE_SIZE = 1000
+  const MAX_PAGES = 50
+  const selectFields = `
       id,
       employee_id,
       first_name,
@@ -1910,15 +1913,26 @@ export async function generatePilotInfoReport(
         check_types (check_code, check_description)
       )
     `
-    )
-    .order('seniority_number', { ascending: true, nullsFirst: false })
 
-  if (error) {
-    throw new Error(`Failed to fetch pilots: ${error.message}`)
+  const pilots: any[] = []
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const from = page * PAGE_SIZE
+    const { data: chunk, error } = await supabase
+      .from('pilots')
+      .select(selectFields)
+      .order('seniority_number', { ascending: true, nullsFirst: false })
+      .range(from, from + PAGE_SIZE - 1)
+
+    if (error) {
+      throw new Error(`Failed to fetch pilots: ${error.message}`)
+    }
+    if (!chunk || chunk.length === 0) break
+    pilots.push(...chunk)
+    if (chunk.length < PAGE_SIZE) break
   }
 
   // Apply filters
-  let filteredData = pilots || []
+  let filteredData = pilots
 
   // Filter by rank
   if (filters.rank && filters.rank.length > 0) {
@@ -1941,13 +1955,25 @@ export async function generatePilotInfoReport(
     )
   }
 
-  // Filter by qualifications (applies to Captains only — First Officers pass through)
+  // Filter by qualifications. Captain qualifications are a Captain-only attribute,
+  // so when the user picks "Examiners" they mean "Captains who are examiners" —
+  // including all First Officers (because the filter is "inapplicable" to them)
+  // produced surprising results. Now non-Captains are excluded entirely whenever
+  // any qualification filter is active.
   if (filters.qualifications && filters.qualifications.length > 0) {
     filteredData = filteredData.filter((pilot: any) => {
-      // Qualifications only apply to Captains — non-Captains are not excluded
-      if (pilot.role !== 'Captain') return true
+      if (pilot.role !== 'Captain') return false
       const quals = parseCaptainQualifications(pilot.captain_qualifications)
-      if (!quals) return false
+      if (!quals) {
+        // Malformed JSON in captain_qualifications — log so admins can fix the
+        // record. Filter still excludes (we can't classify them safely).
+        if (pilot.captain_qualifications != null) {
+          console.warn(
+            `[reports] pilot ${pilot.id} (${pilot.first_name} ${pilot.last_name}) has malformed captain_qualifications; excluded from qualification-filtered report.`
+          )
+        }
+        return false
+      }
 
       return filters.qualifications!.some((q) => {
         if (q === 'line_captain') return quals.line_captain
@@ -1979,7 +2005,7 @@ export async function generatePilotInfoReport(
     // Use parseLocalDate so date-only DOB strings (`YYYY-MM-DD`) aren't shifted by
     // UTC parsing — without it, Feb-29 / late-month births land on the wrong day
     // in non-UTC server timezones and disagree with the pilot detail card.
-    const retirementAge = 65
+    const retirementAge = DEFAULT_RETIREMENT_AGE
     const now = new Date()
     let retirementDate: string | null = null
     let yearsInService: number | null = null
@@ -2124,14 +2150,16 @@ export async function generateForecastReport(
   const timeHorizon = filters.timeHorizon || '5yr'
   const sections = filters.forecastSections || ['retirement', 'succession', 'shortage']
 
-  // Get retirement age from system (default 65)
-  const retirementAge = 65
+  // Use the centralized default until a real system-settings lookup exists.
+  const retirementAge = DEFAULT_RETIREMENT_AGE
 
   // Parallel data fetching for efficiency
   const [retirementData, successionData, crewImpactData] = await Promise.all([
     sections.includes('retirement') ? getRetirementForecastByRank(retirementAge) : null,
     sections.includes('succession') ? getCaptainPromotionCandidates() : null,
-    sections.includes('shortage') ? getCrewImpactAnalysis(retirementAge) : null,
+    sections.includes('shortage')
+      ? getCrewImpactAnalysis(retirementAge, 10, 10, timeHorizon === '2yr' ? 24 : 60)
+      : null,
   ])
 
   // Get succession readiness score if succession section is included

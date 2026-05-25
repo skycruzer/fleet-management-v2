@@ -121,8 +121,11 @@ export const ReportFiltersSchema = z.object({
   licenceType: z.array(z.enum(['ATPL', 'CPL'])).optional(),
   // Leave Bids Report filters
   year: z.number().int().min(2020).max(2050).optional(),
-  // Forecast Report filters
-  timeHorizon: z.enum(['2yr', '5yr', '10yr']).optional(),
+  // Forecast Report filters. Only 2yr and 5yr are implemented by the forecast
+  // service; '10yr' was previously accepted by the schema but silently
+  // downgraded to 5yr, leaving users with no signal that their selection
+  // didn't apply. Add it back here only when the service handles it natively.
+  timeHorizon: z.enum(['2yr', '5yr']).optional(),
   forecastSections: z.array(z.enum(['retirement', 'succession', 'shortage'])).optional(),
   // Grouping support for PDF exports and previews
   groupBy: z.array(z.enum(['rosterPeriod', 'rank', 'category'])).optional(),

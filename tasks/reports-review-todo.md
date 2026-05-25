@@ -37,11 +37,8 @@
 - [x] **C8** ✓ Batch 2 — `parseLocalDate` exported from `retirement-utils.ts`. Propagated to: `reports-service.ts` pilot-info enrichment (with Feb-29 clamp); `retirement-forecast-service.ts` via new private `computeRetirementDate(dob, age)` helper used in both forecast and timeline paths; `succession-planning-service.ts` candidate loop + readiness-score Captain loop.
 - [x] **C9** ✓ Batch 2 — Bucket walk rewritten as counter-based `new Date(year, month + i, 1)`. Walking by `setMonth(+1)` on day-31 dates silently skipped months; now every month gets its bucket.
 
-- [ ] **C10** `lib/services/retirement-forecast-service.ts:319` — Timeline uses `<= today` to filter past retirements; 2yr/5yr counters use `< 2.0`/`< 5.0`. Pilot retiring exactly on cutoff dropped from BOTH.
-      **Fix**: pick one boundary convention and apply across all three callsites.
-
-- [ ] **C11** `lib/services/retirement-forecast-service.ts:458-459` — `captainUtilization = requiredCaptains / runningCaptains * 100`. When `runningCaptains === 0` → `Infinity`. When negative (data error) → negative %, classified `'none'` despite clear shortage. Summary `avgCaptainUtil` → NaN.
-      **Fix**: guard `runningCaptains <= 0` → treat as `critical`.
+- [x] **C10** ✓ Batch 9 — Timeline now uses `< today` (include retire-today) and `>= horizon` (exclude exactly-at-horizon), aligned with forecast counters that use `< 2.0`/`< 5.0`. A pilot retiring exactly on the cutoff lands in exactly one bucket.
+- [x] **C11** ✓ Batch 9 — Guard `runningCaptains <= 0` → `Number.POSITIVE_INFINITY`; same for FOs. Critical case still classifies as `'critical'` via the existing `maxUtilization >= 100` check. Average utilisation summary filters non-finite values so a single Infinity no longer poisons the result into NaN.
 
 ### Broken outputs
 
@@ -61,20 +58,14 @@
 
 ### Pilot Info / Forecast logic
 
-- [ ] **C18** `lib/services/reports-service.ts:1750` — When `qualifications` filter is set, code `return true` for any non-Captain. **Qualification filter is silently ignored for First Officers**, who all pass through. "Examiners" filter returns all FOs + only examiner captains.
-      **Fix**: exclude FOs when qualification filter active, OR rename to "Captain Qualifications" and add UI affordance.
-
-- [ ] **C19** `lib/services/reports-service.ts:1716` — Pilot query has no upper bound. Default Supabase limit = 1000 rows. When `activeStatus='all'` includes historical pilots and org grows past 1000, **silent truncation**.
-      **Fix**: paginate-to-exhaustion (pattern from commit `4f8216c`).
+- [x] **C18** ✓ Batch 9 — Qualifications filter now `return false` for non-Captains (was `return true` — letting all FOs through). Filtering "Examiners" now returns only examiner Captains. Malformed `captain_qualifications` JSON logs a warning so admins can spot the bad record.
+- [x] **C19** ✓ Batch 9 — `generatePilotInfoReport` now paginates pilot fetch to exhaustion (PAGE_SIZE=1000, MAX_PAGES=50). Mirrors the certification-service pattern. Org growth past 1000 no longer silently truncates pilot-info reports.
 
 - [ ] **C20** `lib/services/reports-service.ts:1858-1860` — `(a.seniority_number || 999)` treats `0` as 999, burying pilot #0. Also `lib/services/reports-service.ts:1594` — `bid.pilot?.seniority_number || 0` treats null as 0 → null-seniority pilots sort to top of bid priority.
       **Fix**: use `??` instead of `||`; handle null-seniority explicitly.
 
-- [ ] **C21** `lib/services/reports-service.ts:1922` — Forecast hardcodes `retirementAge = 65`. Other services pull from system settings; if org adjusts, **forecast disagrees with pilot detail card**.
-      **Fix**: load from system settings.
-
-- [ ] **C22** `lib/services/succession-planning-service.ts:189-212` — When materialized view missing (`42P01`/`PGRST205` paths), falls back to `yearsOfService >= 15 AND age >= 35` — **arbitrary, ignores certs/quals/license**. User has no signal report ran against fallback. Readiness score in same report derives from these synthesized candidates.
-      **Fix**: surface `data_source: 'fallback'` flag in response or fail loudly; align fallback criteria with MV.
+- [x] **C21** ✓ Batch 9 — `DEFAULT_RETIREMENT_AGE` constant now exported from `retirement-utils.ts` and consumed in both the forecast report and the pilot-info enrichment. Single source of truth (the real "from system settings" lookup is a future wiring; today every site at least agrees on the same default).
+- [x] **C22** ✓ Batch 9 — `getCaptainPromotionCandidates` summary now includes `dataSource: 'materialized_view' | 'fallback'`. UI/reports can surface a warning when the fallback path ran so users know the readiness pool came from a permissive yearsOfService + age heuristic instead of the canonical MV rules.
 
 ---
 
@@ -92,11 +83,11 @@
 - [ ] **I8** `reports-service.ts:686` — `filteredData = allRequests.filter(...)` (uses `allRequests`, not running `filteredData`). Harmless today, fragile.
 - [ ] **I9** `reports-service.ts:1062, 1100` — `days_count` default `'1'` when null → multi-day RDO/SDO silently renders as 1-day.
 - [ ] **I10** `reports-service.ts:531-537` — `avgCaptainUtil = sum / monthly.length` → NaN when zero.
-- [ ] **I11** `retirement-forecast-service.ts:87-89` — `monthsUntilRetirement = Math.floor(diffMs / 30.44 days)` — pilot retiring in exactly 12 cal months may show as 11.
-- [ ] **I12** `reports-service.ts:1925-1929` — `getCrewImpactAnalysis` always 5 years regardless of `timeHorizon`. 2yr horizon shows 5yr warnings.
-- [ ] **I13** `reports-service.ts:1918-1929` + `reports-schema.ts:124` — Zod accepts `'10yr'` horizon; service implements only 2yr/5yr. **10yr silently falls back to 5yr** with no warning.
-- [ ] **I14** `succession-planning-service.ts:178-182` — Years-in-service = `(now - start) / 365.25days` then `Math.floor`. 14.99 → 14 → misses `>= 15` ready threshold. Pilot detail card uses different formula → inconsistent.
-- [ ] **I15** `reports-service.ts:1751-1761` — `parseCaptainQualifications` returns null for malformed JSON; filter then returns false → captain disappears from report instead of surfacing data-quality issue.
+- [x] **I11** ✓ Batch 9 — New `monthsBetween(from, to)` helper uses calendar arithmetic (year-month diff with day-of-month adjustment). A pilot retiring in exactly 12 calendar months now reads as 12, not 11.
+- [x] **I12** ✓ Batch 9 — `getCrewImpactAnalysis` and `getMonthlyRetirementTimeline` accept an optional `horizonMonths` param. Forecast report passes `24` for 2yr / `60` for 5yr. Shortage warnings now respect the user's chosen horizon.
+- [x] **I13** ✓ Batch 9 — `'10yr'` removed from both the Zod schema enum and the forecast form's local enum + radio option. Title-generator's horizon-label map drops the unreachable key. Users no longer get a 10yr selection that silently degraded to 5yr.
+- [x] **I14** ✓ Batch 9 — `yearsBetween(from, to)` helper added to retirement-utils. Succession-planning fallback now uses calendar-aware years-of-service + age, so a pilot 14 years + 364 days into service correctly reads as 14 (consistent with the pilot detail card).
+- [x] **I15** ✓ Batch 9 — Pilot Info qualifications filter now `console.warn`s when a captain has a malformed `captain_qualifications` JSON. Filter still excludes (we can't safely classify them) but admins can now see and fix the underlying data quality issue.
 - [ ] **I16** `reports-schema.ts:64-65` — `<= 365 * 2` rejects 731-day ranges spanning leap year.
 
 ### UX / forms

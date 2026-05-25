@@ -4,8 +4,28 @@
  * Retirement age is configured in system settings (default: 65 years)
  */
 
-// Default retirement age (fallback if settings not available)
-const DEFAULT_RETIREMENT_AGE = 65
+// Default retirement age (fallback if settings not available).
+// Exported so retirement-forecast-service, succession-planning-service, and
+// reports-service stop hardcoding their own copy of 65 — single source of truth.
+export const DEFAULT_RETIREMENT_AGE = 65
+
+/**
+ * Completed full years between two dates using calendar arithmetic.
+ * Math.floor(ms / 365.25 days) returned 14 for a pilot 14.99 years in service,
+ * missing the `>= 15` "Ready" threshold a calendar day too early.
+ *
+ * Returns a non-negative integer (caps at 0 for future-dated `from`).
+ */
+export function yearsBetween(from: Date, to: Date): number {
+  let years = to.getFullYear() - from.getFullYear()
+  if (
+    to.getMonth() < from.getMonth() ||
+    (to.getMonth() === from.getMonth() && to.getDate() < from.getDate())
+  ) {
+    years--
+  }
+  return Math.max(0, years)
+}
 
 /**
  * Parse a date input as LOCAL time, not UTC.
