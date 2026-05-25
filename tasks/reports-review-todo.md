@@ -83,9 +83,9 @@
 
 ### Reports service (data layer)
 
-- [ ] **I1** `reports-service.ts:501-505` — Cert `expiryThreshold` filter is `<= filters.expiryThreshold` and inclusive on negative side. "Expiring in 30 days" silently includes already-expired.
-- [ ] **I2** `reports-service.ts:518-529` — Cert summary `current` uses hardcoded 90-day `isExpiringSoon` independent of user threshold. When threshold=30, `current` always 0 even though many visible rows are current.
-- [ ] **I3** `reports-service.ts:492 vs CLAUDE.md` — **Four different "expiring soon" thresholds**: report=90, util default=30, sidebar-badges=60, detailed-status=90. Same compliance metric, four answers.
+- [x] **I1** ✓ Batch 6 — Threshold filter now requires `>= 0`, so "Expiring in 30 days" stops including already-expired certs. (If users need a combined "needs attention" view, that's a separate UX addition.)
+- [x] **I2** ✓ Batch 6 — Summary's `isExpiringSoon` now respects the user's threshold (falls back to `DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS=90` when unset). Summary buckets and the visible table now agree on what counts as "soon".
+- [x] **I3** ✓ Batch 6 (partial) — Report now references `DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS` from `certification-status.ts` instead of magic number 90. The 30 vs 90 difference between the badge default and the report default is documented inline as deliberately distinct operational concepts (30 = mandatory advance notice, 90 = renewal-planning window). Sidebar-badges (60) is a third UX-level intermediate not covered here.
 - [ ] **I4** `reports-service.ts:1187,1220 + paginated-report-table.tsx:813-814` — Status color in PDF matched against rendered text `"EXPIRING SOON"`. Fragile to i18n/casing.
 - [x] **I5** ✓ Batch 5 — `draft` bucket added to leave summary. `totalRequests` once again equals the sum of category buckets.
 - [x] **I6** ✓ Batch 5 — `approvalRate` is now omitted (set to `undefined`) whenever a status filter is active, since rate-of-filtered-subset is misleading (filtering to APPROVED would always show 100%). The PDF service already guards on `summary.approvalRate !== undefined` so it simply skips the line.

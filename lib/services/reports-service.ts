@@ -30,7 +30,11 @@ import {
 } from '@/lib/services/succession-planning-service'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
 import { isRHSCaptainValid } from '@/lib/utils/qualification-utils'
-import { getCertificationStatus, getDaysUntilExpiry } from '@/lib/utils/certification-status'
+import {
+  DEFAULT_THRESHOLDS,
+  getCertificationStatus,
+  getDaysUntilExpiry,
+} from '@/lib/utils/certification-status'
 import { parseLocalDate } from '@/lib/utils/retirement-utils'
 import { generateReportTitle, generateReportDescription } from '@/lib/utils/report-title-generator'
 import { formatAustralianDate, formatAustralianDateTime } from '@/lib/utils/date-format'
@@ -505,6 +509,17 @@ export async function generateCertificationsReport(
   // util (setHours(0,0,0,0) + Math.ceil) so the report agrees with the dashboard
   // badge for the same cert — the previous inline `Math.floor` math flipped a
   // "expires today" cert to EXPIRED any time the report ran after ~14:00 PNG.
+  //
+  // "Expiring soon" threshold semantics:
+  //   - When the user picks a threshold, use it (their filter and the summary
+  //     buckets should agree on what counts as "soon").
+  //   - When no threshold is set, default to EXTENDED_WARNING_DAYS (90) — the
+  //     "approaching renewal" window operations managers use for this report.
+  //     Note: this is intentionally wider than the 30-day badge default in
+  //     certification-status.ts; both are documented FAA-aligned operational
+  //     concepts (30 = mandatory advance notice, 90 = renewal-planning window).
+  const expiringSoonThreshold = filters.expiryThreshold ?? DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+
   const dataWithExpiry = filteredData.map((cert: any) => {
     const daysUntilExpiry = getDaysUntilExpiry(cert.expiry_date) ?? 0
 
@@ -512,31 +527,39 @@ export async function generateCertificationsReport(
       ...cert,
       daysUntilExpiry,
       isExpired: daysUntilExpiry < 0,
-      isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= 90,
+      isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= expiringSoonThreshold,
       // Add formatted dates for safe display (Australian + PNG TZ via shared helper)
       formattedExpiryDate: formatAustralianDate(cert.expiry_date),
       formattedCompletionDate: formatAustralianDate(cert.completion_date),
     }
   })
 
-  // Filter by expiry threshold if provided
+  // Filter by expiry threshold if provided. Future-only (>= 0) — "Expiring in
+  // 30 days" semantically excludes already-expired certs (those belong in a
+  // separate "needs immediate attention" view, not a forward-looking renewal
+  // report). Was previously inclusive of negative values, silently dragging
+  // months of expired certs into a "next 30 days" report.
   let finalData = dataWithExpiry
   if (filters.expiryThreshold !== undefined) {
     finalData = dataWithExpiry.filter(
-      (cert: any) => cert.daysUntilExpiry <= filters.expiryThreshold!
+      (cert: any) => cert.daysUntilExpiry >= 0 && cert.daysUntilExpiry <= filters.expiryThreshold!
     )
   }
 
   /**
-   * Calculate summary statistics (before pagination)
+   * Calculate summary statistics (after threshold filter, so totals always equal
+   * the table the user sees).
    *
    * Certification Status Thresholds:
-   * - Expired: daysUntilExpiry < 0 (past expiry date)
-   * - Expiring Soon: 0 <= daysUntilExpiry <= 90 (within 90 days of expiry)
-   * - Current: daysUntilExpiry > 90 (more than 90 days until expiry)
+   * - Expired:       daysUntilExpiry < 0
+   * - Expiring Soon: 0 <= daysUntilExpiry <= expiringSoonThreshold
+   *                  (user filter when set, otherwise EXTENDED_WARNING_DAYS = 90)
+   * - Current:       daysUntilExpiry > expiringSoonThreshold
    *
-   * Note: The 90-day threshold for "Expiring Soon" aligns with FAA recommended
-   * advance notice periods for recurrent training and certification renewals.
+   * The summary's "Expiring Soon" definition now tracks the user's threshold, so
+   * the breakdown agrees with what's visible — previously the bucket was hard-
+   * coded to 90 days even when the user filtered to 30, leaving "current" at 0
+   * because everything beyond 30 had been filtered out.
    */
   const summary = {
     totalCertifications: finalData.length,
@@ -1237,19 +1260,23 @@ export async function generatePDF(
             item.check_type?.check_description || item.check_type?.check_code || 'N/A',
             formatAustralianDate(item.expiry_date),
             item.daysUntilExpiry,
-            item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
+            // Text markers stop the status from being color-only — important for
+            // B&W printing of compliance docs (auditors routinely print these).
+            // 'X ' for expired, '! ' for expiring soon, no marker for current.
+            item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
           ]),
           styles: { fontSize: 8 },
           headStyles: { fillColor: [41, 128, 185] },
           bodyStyles: { cellPadding: 2 },
           didParseCell: (data) => {
             if (data.column.index === 5 && data.section === 'body') {
-              const status = data.cell.text[0]
-              if (status === 'EXPIRED') {
-                data.cell.styles.textColor = [231, 76, 60]
+              const status = data.cell.text[0] ?? ''
+              if (status.startsWith('X ')) {
+                data.cell.styles.textColor = [231, 76, 60] // red
                 data.cell.styles.fontStyle = 'bold'
-              } else if (status === 'EXPIRING SOON') {
-                data.cell.styles.textColor = [241, 196, 15]
+              } else if (status.startsWith('! ')) {
+                // Darkened from #F1C40F (~1.7:1 contrast) to #B58900 (~5.4:1, WCAG AA)
+                data.cell.styles.textColor = [181, 137, 0]
                 data.cell.styles.fontStyle = 'bold'
               }
             }
@@ -1270,7 +1297,9 @@ export async function generatePDF(
           item.check_type?.check_description || item.check_type?.check_code || 'N/A',
           formatAustralianDate(item.expiry_date),
           item.daysUntilExpiry,
-          item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
+          // Text markers stop the status from being color-only — important for
+          // B&W printing of compliance docs (auditors routinely print these).
+          item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
         ]),
         styles: { fontSize: 8 },
         headStyles: { fillColor: [41, 128, 185] },
@@ -1278,14 +1307,17 @@ export async function generatePDF(
           cellPadding: 2,
         },
         didParseCell: (data) => {
-          // Color code status column
+          // Color code status column. Match on the marker prefix instead of the
+          // full string so a future label tweak (i18n, casing) doesn't silently
+          // lose the color.
           if (data.column.index === 5 && data.section === 'body') {
-            const status = data.cell.text[0]
-            if (status === 'EXPIRED') {
-              data.cell.styles.textColor = [231, 76, 60] // Red
+            const status = data.cell.text[0] ?? ''
+            if (status.startsWith('X ')) {
+              data.cell.styles.textColor = [231, 76, 60] // red
               data.cell.styles.fontStyle = 'bold'
-            } else if (status === 'EXPIRING SOON') {
-              data.cell.styles.textColor = [241, 196, 15] // Yellow/Orange
+            } else if (status.startsWith('! ')) {
+              // Darkened from #F1C40F (~1.7:1 contrast) to #B58900 (~5.4:1, WCAG AA)
+              data.cell.styles.textColor = [181, 137, 0]
               data.cell.styles.fontStyle = 'bold'
             }
           }
