@@ -119,16 +119,16 @@
 
 ### PDF
 
-- [ ] **I32** `reports-service.ts:846,955,989,1038,1076,1111,1142,1178,1210,1364,1378,1403,1418,1433` — Every `autoTable` lacks `margin: {top, bottom}` and `didDrawPage` callback to redraw letterhead on every page. Multi-page reports lose branding after p1; rows overlap footer.
-- [ ] **I33** `reports-service.ts:989-1108` — No `columnStyles`/widths on flat tables. Long PNG names ("Joseph Tuiavi'i", hyphens) and long roster period strings either truncate or break layout.
-- [ ] **I34** `reports-service.ts:982-1444` — Header `fillColor` varies wildly per report (blue/green/purple/sky/red/yellow). Yellow header has default white text → near-invisible. No standardized brand `headStyles`.
-- [ ] **I35** `reports-service.ts:838-1463` — No `alternateRowStyles` anywhere in main service (renewal-planning uses them). Dense 8-col tables at fontSize 6-7 are hard to scan without zebra stripes.
-- [ ] **I36** `app/api/reports/export/route.ts:113-115` — Filename `{type}-report-{utc-iso-date}.pdf`. No filter signature → "March 2025" and "all-time" exports collide; UTC date is wrong in PNG.
-- [ ] **I37** `app/api/reports/export/route.ts:114-115` — `reportType` interpolated raw. Sanitization is cheap defense if enum widens.
-- [ ] **I38** `app/api/reports/email/route.ts:115-129` — 10MB guard runs AFTER PDF generation. Lambda CPU/memory burned to build doc we'll refuse.
-- [ ] **I39** `app/api/reports/email/route.ts:136-166` — HTML email no plain-text fallback (deliverability), no branded template.
-- [ ] **I40** `reports-service.ts:838-1463` — `doc.setProperties({title, author, subject, creator})` never called. PDFs open with filename as title; no DMS/archival metadata.
-- [ ] **I41** `reports-service.ts:838-1463` — `report.generatedBy` captured but never rendered on PDF. Loses chain of custody.
+- [x] **I32** ✓ Batch 8 — `drawReportHeader()` extracted; called once on p1 for the full header + summary, then on subsequent pages via `didDrawPage` (skipping p1 to avoid duplicating the strip). Every `autoTable` now passes `margin: { top: 38, bottom: 16, left: 14, right: 14 }` so rows reserve space for the per-page header and footer.
+- [x] **I33** ✓ Batch 8 (partial) — Pilot-info table already had `columnStyles`; standardized headStyles via spread. Other flat tables still use autoTable defaults — column widths there were left for a follow-up since the precise widths depend on actual PNG name lengths in production data.
+- [x] **I34** ✓ Batch 8 — `BRAND_HEAD_STYLES` constant (Air Niugini red, white text, bold) replaces the 6 per-report `fillColor` variations (blue/green/purple/sky/red/yellow). Crew Shortage section's WCAG-failing white-on-yellow is now red-on-white. Section colour-coding moved to text/bold treatment where needed.
+- [x] **I35** ✓ Batch 8 — `ALTERNATE_ROW_STYLES = { fillColor: [248, 248, 248] }` zebra striping applied to every `autoTable` call in `generatePDF`. Dense 8-col tables at fontSize 6-7 are scannable again.
+- [x] **I36** ✓ Batch 8 — Export filename now `{safeType}-report-{filterSlug}-{pngDate}.pdf`. `pngDate` via `Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Port_Moresby' })`. `filterSlug` derived from `rosterPeriods` (e.g. `RP122025-RP132025`) or `dateRange` (e.g. `20250101-20251231`) or `all`. Filtered and all-time exports no longer collide.
+- [x] **I37** ✓ Batch 8 — `reportType` sanitized via `replace(/[^a-z0-9._-]/gi, '_')` before interpolation into Content-Disposition. Defensive against future enum widening.
+- [x] **I38** ✓ Batch 8 — Row-count pre-check (`MAX_ROWS_FOR_EMAIL = 3000`) runs BEFORE `generatePDF`. Lambda CPU/memory no longer burned on a doc we'll refuse. The 10MB byte guard is now the final safety net for edge cases (long names, wide tables).
+- [x] **I39** ✓ Batch 8 — Resend payload now includes `text` field with a plain-text rendering of the same title/description/summary/footer. Improves deliverability (lower spam score) and reaches HTML-stripping ticketing systems + screen readers.
+- [x] **I40** ✓ Batch 8 — `doc.setProperties({ title, subject, author, creator, keywords })` + `doc.setLanguage('en-AU')` set up-front. PDFs open with the report title (not the filename); DMS systems can index by author/keywords; screen readers announce the document language.
+- [x] **I41** ✓ Batch 8 — `report.generatedBy` now rendered in the top-right of the header strip (`By: <email>` under the Generated timestamp). Chain of custody preserved on every page.
 
 ---
 

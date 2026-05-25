@@ -110,9 +110,34 @@ export async function POST(request: NextRequest) {
       executionTime,
     })
 
-    // Create filename
-    const timestamp = new Date().toISOString().split('T')[0]
-    const filename = `${reportType}-report-${timestamp}.pdf`
+    // Filename: PNG-local date + filter signature + sanitized report type.
+    // - PNG date stops the filename rolling over a day late on the UTC server.
+    // - Filter signature (roster periods or date range) keeps a "March" export
+    //   from colliding with an "all-time" export of the same type.
+    // - reportType is enum-validated by Zod but we sanitize anyway as cheap
+    //   defense if the enum widens later.
+    const safeType = reportType.replace(/[^a-z0-9._-]/gi, '_')
+    const pngDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Pacific/Port_Moresby',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+    const filterSlug = (() => {
+      if (filters?.rosterPeriods && filters.rosterPeriods.length > 0) {
+        return filters.rosterPeriods
+          .map((p) => p.replace(/[^A-Z0-9]/gi, ''))
+          .slice(0, 3)
+          .join('-')
+      }
+      if (filters?.dateRange?.startDate && filters?.dateRange?.endDate) {
+        const start = filters.dateRange.startDate.slice(0, 10).replace(/-/g, '')
+        const end = filters.dateRange.endDate.slice(0, 10).replace(/-/g, '')
+        return `${start}-${end}`
+      }
+      return 'all'
+    })()
+    const filename = `${safeType}-report-${filterSlug}-${pngDate}.pdf`
 
     // Return PDF as downloadable file
     // Convert Buffer to Uint8Array for NextResponse

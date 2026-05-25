@@ -917,6 +917,35 @@ export async function generatePDF(
   const orientation = reportType === 'pilot-info' ? 'landscape' : 'portrait'
   const doc = new jsPDF({ orientation })
   const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+
+  // Air Niugini brand red — one constant so every table head looks the same
+  // regardless of report. Replaces the previous per-report fillColor scatter
+  // (blue/green/purple/sky/red/yellow) that included a WCAG-failing white-on-
+  // yellow combination on the Crew Shortage table.
+  const BRAND_HEAD_STYLES = {
+    fillColor: [231, 76, 60] as [number, number, number],
+    textColor: [255, 255, 255] as [number, number, number],
+    fontStyle: 'bold' as const,
+  }
+  // Subtle zebra striping makes dense 8-column tables at fontSize 6-7 scannable.
+  const ALTERNATE_ROW_STYLES = {
+    fillColor: [248, 248, 248] as [number, number, number],
+  }
+  // Margins reserve space for the per-page letterhead and footer so autoTable
+  // doesn't render rows underneath them on page 2+.
+  const PAGE_MARGIN = { top: 38, bottom: 16, left: 14, right: 14 }
+
+  // PDF metadata so viewers show the report title (not the filename) and DMS
+  // systems can index author/keywords. setLanguage helps screen readers.
+  doc.setProperties({
+    title: report.title,
+    subject: report.description,
+    author: report.generatedBy || 'Air Niugini Fleet Management System',
+    creator: 'Air Niugini Fleet Management System',
+    keywords: `air-niugini,fleet,${reportType},${report.generatedAt}`,
+  })
+  doc.setLanguage('en-AU')
 
   // Resolve the days-count cell for RDO/SDO/Flight Request rows. Computes from start/end
   // dates when `days_count` is null so multi-day requests don't silently render as "1".
@@ -932,14 +961,15 @@ export async function generatePDF(
     return '-'
   }
 
-  // Logo + Header
+  // Cache the logo bytes once so multi-page reports don't re-read the file
+  // on every page draw inside the didDrawPage callback.
+  let logoBase64: string | null = null
   try {
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
     const logoData = readFileSync(logoPath)
-    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-    doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
+    logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
   } catch {
-    // Logo not found — continue without it
+    // Logo not found — continue without it (already-failed draws will simply skip)
   }
 
   // Split title: base title (before first " - ") and filter segments (after)
@@ -953,25 +983,53 @@ export async function generatePDF(
           .join('  |  ')
       : ''
 
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text(baseTitle, 34, 15, { align: 'left' })
+  // Draw the brand letterhead. Called both on page 1 (immediately, so the
+  // filter/summary block below stays where it was) and via didDrawPage on
+  // subsequent pages so multi-page reports don't lose branding after p1.
+  const drawReportHeader = () => {
+    if (logoBase64) {
+      try {
+        doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
+      } catch {
+        // skip — cached but couldn't be re-added
+      }
+    }
 
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(100)
-  doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
-  doc.setTextColor(0)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0)
+    doc.text(baseTitle, 34, 15, { align: 'left' })
 
-  doc.setFontSize(8)
-  doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth - 14, 15, {
-    align: 'right',
-  })
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(100)
+    doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
+    doc.setTextColor(0)
 
-  // Header separator
-  doc.setDrawColor(200)
-  doc.setLineWidth(0.3)
-  doc.line(14, 28, pageWidth - 14, 28)
+    doc.setFontSize(8)
+    doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth - 14, 15, {
+      align: 'right',
+    })
+    if (report.generatedBy) {
+      doc.setTextColor(100)
+      doc.text(`By: ${report.generatedBy}`, pageWidth - 14, 20, { align: 'right' })
+      doc.setTextColor(0)
+    }
+
+    // Header separator
+    doc.setDrawColor(200)
+    doc.setLineWidth(0.3)
+    doc.line(14, 28, pageWidth - 14, 28)
+  }
+
+  // didDrawPage callback for autoTable. Fires after EVERY page autoTable
+  // produces. Skip page 1 — the main code already drew the header + summary
+  // there and rendering it again would duplicate the strip.
+  const drawSubsequentPageHeader = (data: any) => {
+    if (data.pageNumber > 1) drawReportHeader()
+  }
+
+  drawReportHeader()
 
   // Filter + summary compact block below separator
   let yPos = 31
@@ -1067,7 +1125,10 @@ export async function generatePDF(
             computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [41, 128, 185] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 15 || yPos + 50
@@ -1103,7 +1164,10 @@ export async function generatePDF(
           computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
-        headStyles: { fillColor: [41, 128, 185] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
   } else if (reportType === 'rdo-sdo' || reportType === 'flight-requests') {
@@ -1158,7 +1222,10 @@ export async function generatePDF(
             computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [46, 204, 113] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 15 || yPos + 50
@@ -1196,7 +1263,10 @@ export async function generatePDF(
           computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
-        headStyles: { fillColor: [46, 204, 113] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
   } else if (reportType === 'all-requests') {
@@ -1228,7 +1298,10 @@ export async function generatePDF(
         computeRosterPeriods(item),
       ]),
       styles: { fontSize: 7 },
-      headStyles: { fillColor: [155, 89, 182] },
+      headStyles: BRAND_HEAD_STYLES,
+      alternateRowStyles: ALTERNATE_ROW_STYLES,
+      margin: PAGE_MARGIN,
+      didDrawPage: drawSubsequentPageHeader,
     })
   } else if (reportType === 'certifications') {
     if (shouldGroup && primaryGroupField) {
@@ -1266,7 +1339,10 @@ export async function generatePDF(
             item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
           ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [41, 128, 185] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
           bodyStyles: { cellPadding: 2 },
           didParseCell: (data) => {
             if (data.column.index === 5 && data.section === 'body') {
@@ -1302,7 +1378,10 @@ export async function generatePDF(
           item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
         ]),
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [41, 128, 185] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
         bodyStyles: {
           cellPadding: 2,
         },
@@ -1364,7 +1443,7 @@ export async function generatePDF(
     ]
     const pilotTableStyles = { fontSize: 6, cellPadding: 1.5 }
     const pilotHeadStyles = {
-      fillColor: [52, 152, 219] as [number, number, number],
+      ...BRAND_HEAD_STYLES,
       fontSize: 6,
     }
     const pilotColumnStyles: Record<number, any> = {
@@ -1453,7 +1532,10 @@ export async function generatePDF(
           styles: pilotTableStyles,
           headStyles: pilotHeadStyles,
           columnStyles: pilotColumnStyles,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
           didParseCell: pilotDidParseCell,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 12 || yPos + 50
@@ -1467,7 +1549,10 @@ export async function generatePDF(
         styles: pilotTableStyles,
         headStyles: pilotHeadStyles,
         columnStyles: pilotColumnStyles,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
         didParseCell: pilotDidParseCell,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
   } else if (reportType === 'forecast') {
@@ -1497,7 +1582,10 @@ export async function generatePDF(
               item.monthsUntilRetirement?.toString() || 'N/A',
             ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [231, 76, 60] }, // Red for retirement
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       } else if (sectionName === 'Succession Planning') {
         autoTable(doc, {
@@ -1512,7 +1600,10 @@ export async function generatePDF(
               item.qualificationGaps?.join(', ') || 'None',
             ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [46, 204, 113] }, // Green for succession
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       } else if (sectionName === 'Crew Shortage Predictions') {
         autoTable(doc, {
@@ -1526,7 +1617,10 @@ export async function generatePDF(
             item.message || '-',
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [241, 196, 15] }, // Yellow for warnings
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       }
 
