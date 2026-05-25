@@ -148,11 +148,94 @@
 
 ## DESIGN RECOMMENDATIONS (bigger ideas — needs your call)
 
-- [ ] **D1 — Group 6 reports into 3 categories** (Operations / Compliance / Planning) to clean up the tab bar on mobile and give users a mental model. Two-level nav.
-- [ ] **D2 — Extract `<ReportForm>` shell** to absorb the 4,000 lines of near-duplicate filter/action code across the 6 forms. Single `reportType` + `filterSchema` prop. Forces consistency, easier to add reports later.
-- [ ] **D3 — Move action buttons to sticky footer inside the Card** so Preview/Export/Email is always reachable on long forms (cert form has 800px of grids above the buttons).
-- [ ] **D4 — Bookmark/share filter URLs via nuqs** — every filter (tab, filterMode, rosterPeriods, status[], rank[]) serialized to query params. Solves both "preserve filters across tab switches" and "share report links." Highest-leverage single UX win.
-- [ ] **D5 — Unify Preview + Export into one "Run Report" flow** — Preview-then-Export is two round-trips for the same query. Run once → modal opens with `[Export PDF][Export CSV][Email][Close]` in footer.
+- [x] **D1** ✓ Batch 10 — Two-level tab nav landed. Outer category bar (Operations / Compliance / Planning) groups the six reports; inner tabs show the reports within the active category. Categories: Operations = Leave + Flight; Compliance = Certifications + Pilot Info; Planning = Leave Bids + Forecast. The `?tab=` URL param still identifies the specific report — existing links keep working. Mental model is cleaner and the inner tab bar fits without wrapping on common viewport widths.
+- [ ] **D2 — Extract `<ReportForm>` shell** — Deferred to a dedicated PR. **Plan below.**
+- [ ] **D3 — Move action buttons to sticky footer inside the Card** — Smaller D2 sibling; defer until after D2 lands.
+- [ ] **D4 — Bookmark/share filter URLs via nuqs** — Tab state is already nuqs-synced (Batch 7); the rest is deferred to a dedicated PR. **Plan below.**
+- [x] **D5** ✓ Batches 7 + 10 — Functionally complete: the preview dialog footer now hosts Export PDF + Email Report (Batch 7), so users can act on the preview without going back to the form. The form action row still keeps its own Email button as a "skip preview" shortcut, which is intentional (some users know exactly what they want to send). Full "Run Report → action footer" with CSV export added would need the new CSV path (N11) first.
+
+### D2 migration plan (extract `<ReportForm>` shell)
+
+**Goal**: collapse the ~4,000 lines of near-duplicate filter/action code across the 6 form components into one shell + per-report config. Forces consistency in action button order, preset wiring, loading state, error toasts, and Preview/Email dialog plumbing.
+
+**Files involved**:
+
+- New: `components/reports/report-form-shell.tsx` (the new shell)
+- New: `lib/types/report-form-config.ts` (config interface)
+- Refactor: `components/reports/leave-report-form.tsx`, `flight-request-report-form.tsx`, `leave-bids-report-form.tsx`, `certification-report-form.tsx`, `pilot-info-report-form.tsx`, `forecast-report-form.tsx` — each becomes a thin wrapper that supplies its own filter fields + schema and renders the shell.
+
+**Suggested shape**:
+
+```ts
+// lib/types/report-form-config.ts
+export interface ReportFormConfig<TInput extends Record<string, unknown>> {
+  reportType: ReportType
+  formSchema: z.ZodSchema<TInput>
+  defaultValues: TInput
+  /** Map react-hook-form values → ReportFilters for the API call */
+  buildFilters: (values: TInput) => ReportFilters
+  /** Apply a saved preset back onto the form values */
+  applyPreset: (filters: ReportFilters, form: UseFormReturn<TInput>) => void
+  /** The report-specific filter UI (date range, status checkboxes, etc.) */
+  renderFilters: (ctx: { form: UseFormReturn<TInput>; onChange: () => void }) => ReactNode
+}
+```
+
+**Shell responsibilities** (absorbed from every form):
+
+- TanStack Query plumbing: `useReportPreview`, `useReportExport`, `usePrefetchReport`
+- Toast error/success handling (the 4-useEffect pattern duplicated 6×)
+- Action row: Preview / Export / Email buttons with consistent variants + ordering
+- Active filter badge
+- Filter preset manager
+- Email dialog wiring
+- Preview dialog wiring (already accepts optional `filters` + `onEmail`)
+
+**Suggested order**:
+
+1. Lift the 4 toast/effect hooks into a `useReportFormActions(reportType)` hook → drop into all 6 forms unchanged (no shell yet). Verify behaviour unchanged.
+2. Create `ReportFormShell` that renders the common chrome + accepts `children` for the per-report filter UI. Migrate `leave-report-form.tsx` first (simplest filter set) as the reference implementation.
+3. Migrate the other 5 forms one at a time. Verify each manually (load preview, export, email) before moving to the next.
+4. Delete the now-unused boilerplate from each form file.
+
+**Risk areas**:
+
+- Saved filter presets reference current field names (e.g. `statusPending`). Renaming them via the migration would invalidate any presets users have already created. Keep field names stable.
+- `nuqs` state (if migrated alongside) needs to live in the shell to share across reports; otherwise punt to D4.
+
+### D4 migration plan (nuqs filter sync)
+
+**Goal**: every filter (rosterPeriods, dateRange, status[], rank[], qualifications[], etc.) serialized to URL query params so reports can be shared via link and survive refresh. Tab state already done (Batch 7).
+
+**Files involved**:
+
+- New: `lib/hooks/use-report-filter-state.ts` (centralizing the parsers)
+- Refactor: all 6 report form components — replace the local `useForm` state for filter fields with `useQueryState`-backed equivalents. (D2 makes this a one-file change instead of six; do D2 first.)
+- Touch: `lib/utils/roster-periods.ts` (potential helper for parseAsArrayOf roster codes)
+
+**Suggested URL shape**:
+
+```
+/dashboard/reports?tab=leave
+  &rp=RP12-2025,RP13-2025          # rosterPeriods (csv, no slashes for URL friendliness)
+  &from=2026-01-01&to=2026-03-31   # dateRange
+  &status=DRAFT,SUBMITTED           # status[] (csv)
+  &rank=Captain                     # rank[] (csv)
+  &mode=roster                      # filterMode
+```
+
+**Suggested order**:
+
+1. After D2: add `useReportFilterState()` hook in the shell that mirrors form state ↔ URL state via `useQueryStates` (nuqs batch API).
+2. Add per-report parsers in the hook (lifted from each form's current `buildFilters`).
+3. Defaults map to "no filter" (omit from URL), so clean `/reports?tab=leave` keeps current behaviour.
+4. Add a "Copy report link" affordance to the action row.
+
+**Risk areas**:
+
+- Saved filter presets stored in the DB shouldn't conflict with URL state — load order matters (preset overrides URL on apply).
+- Long roster-period lists could blow out URL length (RFC 2616 recommends < 2048 chars). Cap or use a deflated representation if a user picks > ~30 periods.
+- Browsers/clients that strip query params from share previews would degrade gracefully (back to default filters).
 
 ---
 
