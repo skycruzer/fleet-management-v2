@@ -14,6 +14,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { parseLocalDate } from '@/lib/utils/retirement-utils'
 
 /**
  * Succession Candidate Type
@@ -172,8 +173,8 @@ async function getFallbackPromotionCandidates(
   pilots?.forEach((pilot: any) => {
     if (!pilot.commencement_date || !pilot.date_of_birth) return
 
-    const commencementDate = new Date(pilot.commencement_date)
-    const birthDate = new Date(pilot.date_of_birth)
+    const commencementDate = parseLocalDate(pilot.commencement_date)
+    const birthDate = parseLocalDate(pilot.date_of_birth)
 
     const yearsOfService = Math.floor(
       (now.getTime() - commencementDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
@@ -304,9 +305,12 @@ export async function getSuccessionReadinessScore(): Promise<{
     pilots?.forEach((pilot: any) => {
       if (pilot.role !== 'Captain' || !pilot.date_of_birth) return
 
-      const birthDate = new Date(pilot.date_of_birth)
+      // parseLocalDate + Feb-29 clamp so this matches retirement-forecast-service
+      // and the pilot detail card. Without it, late-month/leap-day DOBs drift.
+      const birthDate = parseLocalDate(pilot.date_of_birth)
       const retirementDate = new Date(birthDate)
       retirementDate.setFullYear(retirementDate.getFullYear() + 65)
+      if (retirementDate.getMonth() !== birthDate.getMonth()) retirementDate.setDate(0)
 
       if (retirementDate >= now && retirementDate <= fiveYearsFromNow) {
         upcomingCaptainRetirements++

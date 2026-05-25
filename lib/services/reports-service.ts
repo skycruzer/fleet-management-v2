@@ -30,7 +30,8 @@ import {
 } from '@/lib/services/succession-planning-service'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
 import { isRHSCaptainValid } from '@/lib/utils/qualification-utils'
-import { getCertificationStatus } from '@/lib/utils/certification-status'
+import { getCertificationStatus, getDaysUntilExpiry } from '@/lib/utils/certification-status'
+import { parseLocalDate } from '@/lib/utils/retirement-utils'
 import { generateReportTitle, generateReportDescription } from '@/lib/utils/report-title-generator'
 import { formatAustralianDate, formatAustralianDateTime } from '@/lib/utils/date-format'
 
@@ -495,24 +496,21 @@ export async function generateCertificationsReport(
     )
   }
 
-  // Calculate expiry and filter by threshold
-  const today = new Date()
-
+  // Calculate expiry and filter by threshold. Use the shared `getDaysUntilExpiry`
+  // util (setHours(0,0,0,0) + Math.ceil) so the report agrees with the dashboard
+  // badge for the same cert — the previous inline `Math.floor` math flipped a
+  // "expires today" cert to EXPIRED any time the report ran after ~14:00 PNG.
   const dataWithExpiry = filteredData.map((cert: any) => {
-    const expiryDate = new Date(cert.expiry_date)
-    const completionDate = cert.completion_date ? new Date(cert.completion_date) : null
-    const daysUntilExpiry = Math.floor(
-      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    )
+    const daysUntilExpiry = getDaysUntilExpiry(cert.expiry_date) ?? 0
 
     return {
       ...cert,
       daysUntilExpiry,
       isExpired: daysUntilExpiry < 0,
       isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= 90,
-      // Add formatted dates for safe display
-      formattedExpiryDate: expiryDate.toLocaleDateString(),
-      formattedCompletionDate: completionDate?.toLocaleDateString() || 'N/A',
+      // Add formatted dates for safe display (Australian + PNG TZ via shared helper)
+      formattedExpiryDate: formatAustralianDate(cert.expiry_date),
+      formattedCompletionDate: formatAustralianDate(cert.completion_date),
     }
   })
 
@@ -1801,7 +1799,10 @@ export async function generatePilotInfoReport(
 
     const quals = parseCaptainQualifications(pilot.captain_qualifications)
 
-    // Compute retirement and service dates
+    // Compute retirement and service dates.
+    // Use parseLocalDate so date-only DOB strings (`YYYY-MM-DD`) aren't shifted by
+    // UTC parsing — without it, Feb-29 / late-month births land on the wrong day
+    // in non-UTC server timezones and disagree with the pilot detail card.
     const retirementAge = 65
     const now = new Date()
     let retirementDate: string | null = null
@@ -1809,10 +1810,12 @@ export async function generatePilotInfoReport(
     let yearsToRetirement: number | null = null
 
     if (pilot.date_of_birth) {
-      const dob = new Date(pilot.date_of_birth)
+      const dob = parseLocalDate(pilot.date_of_birth)
       const retDate = new Date(dob)
       retDate.setFullYear(retDate.getFullYear() + retirementAge)
-      retirementDate = retDate.toISOString().split('T')[0]
+      // Feb-29 → Mar 1 overflow clamp (matches calculateRetirementCountdown).
+      if (retDate.getMonth() !== dob.getMonth()) retDate.setDate(0)
+      retirementDate = `${retDate.getFullYear()}-${String(retDate.getMonth() + 1).padStart(2, '0')}-${String(retDate.getDate()).padStart(2, '0')}`
       yearsToRetirement = Math.max(
         0,
         parseFloat(
@@ -1822,7 +1825,7 @@ export async function generatePilotInfoReport(
     }
 
     if (pilot.commencement_date) {
-      const commDate = new Date(pilot.commencement_date)
+      const commDate = parseLocalDate(pilot.commencement_date)
       yearsInService = parseFloat(
         ((now.getTime() - commDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1)
       )

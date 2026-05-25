@@ -14,8 +14,11 @@ const DEFAULT_RETIREMENT_AGE = 65
  * timezone west of UTC that becomes 1980-02-28 local — which silently loses
  * the leap day before any downstream clamp can run. For YYYY-MM-DD strings
  * we therefore construct the Date via the local-time constructor instead.
+ *
+ * Exported so retirement-forecast-service, succession-planning-service, and
+ * pilot-info reports can use the same parsing instead of repeating the bug.
  */
-function parseLocalDate(input: string | Date): Date {
+export function parseLocalDate(input: string | Date): Date {
   if (input instanceof Date) return input
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input)
   if (match) {

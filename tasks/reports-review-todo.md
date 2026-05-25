@@ -31,20 +31,11 @@
 
 ### Timezone & date math (FAA compliance impact)
 
-- [ ] **C5** `lib/services/reports-service.ts:479-486` — Cert `daysUntilExpiry`: `new Date()` keeps current time; date-only column `expiry_date` parses to UTC midnight. After ~14:00 PNG, a cert expiring **today** shows as **EXPIRED (-1 day)**. Plus `Math.floor` rounds toward -∞ where `certification-status.ts:68-76` uses `Math.ceil` after `setHours(0,0,0,0)`. **Same cert: dashboard shows yellow, report shows red.**
-      **Fix**: use the shared `getDaysUntilExpiry()` and `getCertificationStatus()` utils.
-
-- [ ] **C6** `lib/utils/date-format.ts:25,52` — `formatAustralianDate`/`formatAustralianDateTime` pass no `timeZone` to `toLocale*`. On Vercel (UTC), PNG dates render off-by-one or 10 hours behind.
-      **Fix**: pass `timeZone: 'Pacific/Port_Moresby'`; for date-only strings, split on `-` to avoid TZ shift entirely.
-
-- [ ] **C7** `lib/utils/roster-periods.ts:54-87` — **Second roster anchor that disagrees with `roster-utils.ts`.** Uses `new Date('2025-10-11')` (UTC midnight) + `setDate()` (local) + `toISOString().split('T')[0]` (back to UTC). On PNG/Sydney servers this drifts the roster start/end by one day. CLAUDE.md anchor (RP13/2025 = 2025-11-08) is honored in `roster-utils.ts` but violated by `roster-periods.ts`. **All roster-period filters that route through `roster-periods.ts` miss the last day of every period.**
-      **Fix**: use `new Date(2025, 9, 11)` constructor + date-fns `format(date, 'yyyy-MM-dd')`; reconcile to a single anchor module.
-
-- [ ] **C8** `lib/services/reports-service.ts:1781-1798` (Pilot Info) / `lib/services/retirement-forecast-service.ts:76-78, 307-309` / `lib/services/succession-planning-service.ts:189-212` — None use the new `parseLocalDate` helper. Feb-29 / TZ bug from commit `568b96e` only fixed in `retirement-utils.ts`. Pilots born late month get off-by-one retirement dates; can land in wrong 2yr/5yr horizon or skip monthly buckets.
-      **Fix**: import `parseLocalDate` or extract shared `computeRetirementDate(dob, age)` util.
-
-- [ ] **C9** `lib/services/retirement-forecast-service.ts:296-308` — Bucket walk uses `current.setMonth(current.getMonth() + 1)` starting from `today`. On the 31st of months without 31 days, JS silently rolls forward (Jan 31 → Mar 3), **skipping Feb entirely**. Pilots retiring in skipped month → `monthlyBuckets.get(...)===undefined` → dropped silently.
-      **Fix**: `new Date(today.getFullYear(), today.getMonth() + i, 1)` with counter.
+- [x] **C5** ✓ Batch 2 — Cert pipeline now uses shared `getDaysUntilExpiry()` (setHours(0,0,0,0) + Math.ceil). Report and dashboard agree for the same cert. `formattedExpiryDate` now goes through `formatAustralianDate` for consistency.
+- [x] **C6** ✓ Batch 2 — Both `formatAustralianDate` and `formatAustralianDateTime` pass `timeZone: 'Pacific/Port_Moresby'`. Date-only `YYYY-MM-DD` strings get string-sliced to `DD/MM/YYYY` before the Date-roundtrip to skip any TZ shift entirely.
+- [ ] **C7** `lib/utils/roster-periods.ts:54-87` — Still pending (Batch 4). Second roster anchor that drifts on non-UTC servers.
+- [x] **C8** ✓ Batch 2 — `parseLocalDate` exported from `retirement-utils.ts`. Propagated to: `reports-service.ts` pilot-info enrichment (with Feb-29 clamp); `retirement-forecast-service.ts` via new private `computeRetirementDate(dob, age)` helper used in both forecast and timeline paths; `succession-planning-service.ts` candidate loop + readiness-score Captain loop.
+- [x] **C9** ✓ Batch 2 — Bucket walk rewritten as counter-based `new Date(year, month + i, 1)`. Walking by `setMonth(+1)` on day-31 dates silently skipped months; now every month gets its bucket.
 
 - [ ] **C10** `lib/services/retirement-forecast-service.ts:319` — Timeline uses `<= today` to filter past retirements; 2yr/5yr counters use `< 2.0`/`< 5.0`. Pilot retiring exactly on cutoff dropped from BOTH.
       **Fix**: pick one boundary convention and apply across all three callsites.

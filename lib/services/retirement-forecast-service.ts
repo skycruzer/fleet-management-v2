@@ -7,7 +7,22 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { parseLocalDate } from '@/lib/utils/retirement-utils'
 import type { Database } from '@/types/supabase'
+
+/**
+ * Compute a pilot's retirement date from DOB + retirement age, using the same
+ * parseLocalDate + Feb-29 clamp as retirement-utils.calculateRetirementCountdown
+ * so every screen agrees on the same date for the same pilot.
+ */
+function computeRetirementDate(dateOfBirth: string | Date, retirementAge: number): Date {
+  const birth = parseLocalDate(dateOfBirth)
+  const retirement = new Date(birth)
+  retirement.setFullYear(birth.getFullYear() + retirementAge)
+  // Feb-29 born in non-leap retirement year overflows to Mar 1 — clamp back.
+  if (retirement.getMonth() !== birth.getMonth()) retirement.setDate(0)
+  return retirement
+}
 
 type Pilot = Database['public']['Tables']['pilots']['Row']
 
@@ -73,9 +88,7 @@ export async function getRetirementForecast(
   pilots.forEach((pilot) => {
     if (!pilot.date_of_birth) return
 
-    const birthDate = new Date(pilot.date_of_birth)
-    const retirementDate = new Date(birthDate)
-    retirementDate.setFullYear(birthDate.getFullYear() + retirementAge)
+    const retirementDate = computeRetirementDate(pilot.date_of_birth, retirementAge)
 
     // Calculate years to retirement with precise decimal value (no rounding)
     const yearsToRetirement =
@@ -292,28 +305,30 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
     }
   >()
 
-  // Initialize buckets for all months in next 5 years
-  const current = new Date(today)
-  while (current <= fiveYearsFromNow) {
-    const key = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`
+  // Initialize buckets for all months in next 5 years. Walking by counter +
+  // local-Date constructor avoids the `setMonth(getMonth()+1)` skip bug: on the
+  // 31st of months without 31 days, Date silently rolls forward (Jan 31 →
+  // Mar 3), dropping a whole month bucket and any retirements in it.
+  const totalMonths = 12 * 5
+  for (let i = 0; i <= totalMonths; i++) {
+    const bucketDate = new Date(today.getFullYear(), today.getMonth() + i, 1)
+    if (bucketDate > fiveYearsFromNow) break
+    const key = `${bucketDate.getFullYear()}-${String(bucketDate.getMonth() + 1).padStart(2, '0')}`
     monthlyBuckets.set(key, {
       month: key,
-      year: current.getFullYear(),
+      year: bucketDate.getFullYear(),
       captains: 0,
       firstOfficers: 0,
       total: 0,
       pilots: [],
     })
-    current.setMonth(current.getMonth() + 1)
   }
 
   // Distribute pilots into monthly buckets
   pilots.forEach((pilot) => {
     if (!pilot.date_of_birth) return
 
-    const birthDate = new Date(pilot.date_of_birth)
-    const retirementDate = new Date(birthDate)
-    retirementDate.setFullYear(birthDate.getFullYear() + retirementAge)
+    const retirementDate = computeRetirementDate(pilot.date_of_birth, retirementAge)
 
     // Skip if already retired or beyond 5 years
     if (retirementDate <= today || retirementDate > fiveYearsFromNow) return
