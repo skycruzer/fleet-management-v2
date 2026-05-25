@@ -56,14 +56,9 @@
 
 ### Schema/UI ↔ DB mismatches
 
-- [ ] **C15** `components/reports/leave-bids-report-form.tsx:104-107` + `lib/validations/reports-schema.ts:91-94` — Form/Zod exposes `PROCESSING` status. **DB constraint allows only PENDING|APPROVED|REJECTED|WITHDRAWN**. Filter by Processing → always 0. `WITHDRAWN` missing from UI.
-      **Fix**: drop `PROCESSING`; add `WITHDRAWN` checkbox + summary bucket.
-
-- [ ] **C16** `lib/services/reports-service.ts:625-641` (All Requests) — Single `filters.status` applied to two incompatible columns (`workflow_status` vs `status`) with disjoint vocabularies. `PENDING` returns 0 pilot_requests; `SUBMITTED` returns 0 leave_bids. Cross-system status filter cannot work as-is.
-      **Fix**: map filter values per-table, or compute unified `effective_status`.
-
-- [ ] **C17** `lib/services/reports-service.ts:1535-1537` — Leave-bids `rosterPeriods` filter uses `.in('roster_period_code', ...)` against the primary column only. Multi-period bids (bid options spanning RP13 with primary RP12) **silently filtered out** when RP13 selected.
-      **Fix**: post-fetch filter against `roster_periods_all`, or overlap on option start/end dates.
+- [x] **C15** ✓ Batch 5 — `PROCESSING` removed from `ReportFiltersSchema` and leave-bids form. `WITHDRAWN` checkbox added to the form alongside the existing schema entry and summary bucket.
+- [x] **C16** ✓ Batch 5 — `filters.status` is now split into `workflowStatuses` (applied to `pilot_requests` via `workflow_status`) and `bidStatuses` (applied to `leave_bids` via `status`). When the user actively filters status, each source is included only if at least one of its applicable statuses was selected — prevents over-permissive "no applicable filter → all rows" leaks.
+- [x] **C17** ✓ Batch 5 — DB-level `.in('roster_period_code', ...)` filter removed. Replaced with a post-enrichment filter against `bid.roster_periods_all`, which is the union of the primary roster period and every option's computed period. Multi-period bids now match when their options span the selected period.
 
 ### Pilot Info / Forecast logic
 
@@ -92,8 +87,8 @@
 - [ ] **I2** `reports-service.ts:518-529` — Cert summary `current` uses hardcoded 90-day `isExpiringSoon` independent of user threshold. When threshold=30, `current` always 0 even though many visible rows are current.
 - [ ] **I3** `reports-service.ts:492 vs CLAUDE.md` — **Four different "expiring soon" thresholds**: report=90, util default=30, sidebar-badges=60, detailed-status=90. Same compliance metric, four answers.
 - [ ] **I4** `reports-service.ts:1187,1220 + paginated-report-table.tsx:813-814` — Status color in PDF matched against rendered text `"EXPIRING SOON"`. Fragile to i18n/casing.
-- [ ] **I5** `reports-service.ts:191-211` — Leave summary lacks `draft` bucket; DRAFT rows in `totalRequests` but not in any breakdown → `sum ≠ total`.
-- [ ] **I6** `reports-service.ts:1612, 1644` — `approvalRate` denominator uses post-filter total. Filter to APPROVED → approvalRate=100% always.
+- [x] **I5** ✓ Batch 5 — `draft` bucket added to leave summary. `totalRequests` once again equals the sum of category buckets.
+- [x] **I6** ✓ Batch 5 — `approvalRate` is now omitted (set to `undefined`) whenever a status filter is active, since rate-of-filtered-subset is misleading (filtering to APPROVED would always show 100%). The PDF service already guards on `summary.approvalRate !== undefined` so it simply skips the line.
 - [ ] **I7** `reports-service.ts:1583-1587` — `bid_year` from `enrichedOptions[0].start_date` (storage order, not priority). Year filter (l. 1601-1603) can exclude bid based on wrong year.
 - [ ] **I8** `reports-service.ts:686` — `filteredData = allRequests.filter(...)` (uses `allRequests`, not running `filteredData`). Harmless today, fragile.
 - [ ] **I9** `reports-service.ts:1062, 1100` — `days_count` default `'1'` when null → multi-day RDO/SDO silently renders as 1-day.

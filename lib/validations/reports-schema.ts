@@ -87,9 +87,10 @@ export const ReportFiltersSchema = z.object({
         'APPROVED',
         'DENIED',
         'WITHDRAWN',
-        // leave_bids statuses
+        // leave_bids statuses (DB constraint: PENDING|APPROVED|REJECTED|WITHDRAWN)
+        // 'PROCESSING' was previously exposed but is not a valid DB value, so filters
+        // including it returned zero rows. Removed.
         'PENDING',
-        'PROCESSING',
         'REJECTED',
       ])
     )

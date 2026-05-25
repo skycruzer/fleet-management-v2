@@ -207,10 +207,15 @@ export async function generateLeaveReport(
     filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
-  // Calculate summary statistics (before pagination)
-  // Note: workflow_status values are UPPERCASE in database (3-table architecture)
+  // Calculate summary statistics (before pagination).
+  // Note: workflow_status values are UPPERCASE in database (3-table architecture).
+  // Every workflow_status value gets its own bucket so the breakdown sums to
+  // totalRequests — previously `draft` was missing, so DRAFT rows appeared in
+  // the total but in no category, making the summary look internally broken.
   const summary = {
     totalRequests: filteredData.length,
+
+    draft: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DRAFT').length,
 
     submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
       .length,
@@ -617,8 +622,27 @@ export async function generateAllRequestsReport(
       .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
-  if (filters.status && filters.status.length > 0) {
-    rdoSdoQuery = rdoSdoQuery.in('workflow_status', filters.status)
+  // Split `filters.status` by which table the status value can actually appear in.
+  // pilot_requests uses workflow_status (DRAFT/SUBMITTED/IN_REVIEW/APPROVED/DENIED/WITHDRAWN);
+  // leave_bids uses status (PENDING/APPROVED/REJECTED/WITHDRAWN). Without this split, the
+  // same array got passed to both .in() filters — e.g. picking PENDING returned 0 from
+  // pilot_requests (no such workflow_status), and picking SUBMITTED returned 0 from
+  // leave_bids (no such bid status), silently dropping rows the user expected to see.
+  const PILOT_REQUEST_STATUSES = new Set([
+    'DRAFT',
+    'SUBMITTED',
+    'IN_REVIEW',
+    'APPROVED',
+    'DENIED',
+    'WITHDRAWN',
+  ])
+  const LEAVE_BID_STATUSES = new Set(['PENDING', 'APPROVED', 'REJECTED', 'WITHDRAWN'])
+  const statusIsActive = !!filters.status && filters.status.length > 0
+  const workflowStatuses = filters.status?.filter((s) => PILOT_REQUEST_STATUSES.has(s)) ?? []
+  const bidStatuses = filters.status?.filter((s) => LEAVE_BID_STATUSES.has(s)) ?? []
+
+  if (workflowStatuses.length > 0) {
+    rdoSdoQuery = rdoSdoQuery.in('workflow_status', workflowStatuses)
   }
 
   if (filters.rosterPeriod) {
@@ -640,8 +664,8 @@ export async function generateAllRequestsReport(
       .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
-  if (filters.status && filters.status.length > 0) {
-    leaveQuery = leaveQuery.in('workflow_status', filters.status)
+  if (workflowStatuses.length > 0) {
+    leaveQuery = leaveQuery.in('workflow_status', workflowStatuses)
   }
 
   if (filters.rosterPeriod) {
@@ -654,8 +678,8 @@ export async function generateAllRequestsReport(
     .select('*, pilot:pilots!pilot_id(is_active)')
     .order('created_at', { ascending: false })
 
-  if (filters.status && filters.status.length > 0) {
-    leaveBidsQuery = leaveBidsQuery.in('status', filters.status)
+  if (bidStatuses.length > 0) {
+    leaveBidsQuery = leaveBidsQuery.in('status', bidStatuses)
   }
 
   // Execute all queries in parallel
@@ -675,18 +699,25 @@ export async function generateAllRequestsReport(
     throw new Error(`Failed to fetch leave bids: ${leaveBidsResult.error.message}`)
   }
 
+  // When the user actively filtered status, exclude any source for which no
+  // applicable status value was chosen. Otherwise the source would return ALL
+  // rows (unfiltered) and over-include — e.g. filtering only by DRAFT would
+  // accidentally surface every leave bid.
+  const includeWorkflow = !statusIsActive || workflowStatuses.length > 0
+  const includeBids = !statusIsActive || bidStatuses.length > 0
+
   // Combine all data with source tags
   // Filter out inactive pilots (Supabase can't filter on joined table fields)
   const allRequests: any[] = [
-    ...(rdoSdoResult.data || [])
+    ...(includeWorkflow ? rdoSdoResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'RDO/SDO' })),
 
-    ...(leaveResult.data || [])
+    ...(includeWorkflow ? leaveResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'LEAVE' })),
 
-    ...(leaveBidsResult.data || [])
+    ...(includeBids ? leaveBidsResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'LEAVE_BID' })),
   ]
@@ -1554,9 +1585,12 @@ export async function generateLeaveBidsReport(
     query = query.in('status', filters.status)
   }
 
-  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
-    query = query.in('roster_period_code', filters.rosterPeriods)
-  }
+  // NOTE: filters.rosterPeriods is intentionally NOT applied at the DB level.
+  // The primary `roster_period_code` column only reflects the bid's primary period
+  // — bids whose options span other periods (e.g. primary RP12, options reaching
+  // into RP13) would be silently filtered out when the user selects RP13.
+  // We apply this filter post-enrichment against `roster_periods_all`, which is
+  // the union of the primary code and every option's computed roster period.
 
   if (filters.pilotId) {
     query = query.eq('pilot_id', filters.pilotId)
@@ -1624,15 +1658,31 @@ export async function generateLeaveBidsReport(
     enrichedData = enrichedData.filter((bid: any) => bid.bid_year === filters.year)
   }
 
+  // Filter by roster periods (post-enrichment — see note on the DB-level
+  // filter above for why this is intentionally not pushed into the query).
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    enrichedData = enrichedData.filter((bid: any) =>
+      bid.roster_periods_all?.some((rp: string) => filters.rosterPeriods!.includes(rp))
+    )
+  }
+
   // Filter by rank (post-query — Supabase can't filter on joined fields)
   if (filters.rank && filters.rank.length > 0) {
     enrichedData = enrichedData.filter((bid: any) => filters.rank!.includes(bid.rank))
   }
 
-  // Calculate enhanced summary statistics
+  // Calculate enhanced summary statistics.
+  // `approvalRate` is omitted when the user actively filters by status — the
+  // ratio of approved-to-total within a status-narrowed subset is misleading
+  // (filtering to APPROVED would always show 100%).
   const totalBids = enrichedData.length
   const approvedCount = enrichedData.filter((b: any) => b.status === 'APPROVED').length
-  const approvalRate = totalBids > 0 ? Math.round((approvedCount / totalBids) * 100) : 0
+  const statusFilterActive = (filters.status?.length ?? 0) > 0
+  const approvalRate = statusFilterActive
+    ? undefined
+    : totalBids > 0
+      ? Math.round((approvedCount / totalBids) * 100)
+      : 0
 
   // Bids per roster period (count each bid in all affected periods)
   const bidsByRosterPeriod: Record<string, number> = {}
