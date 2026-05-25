@@ -33,7 +33,7 @@
 
 - [x] **C5** ✓ Batch 2 — Cert pipeline now uses shared `getDaysUntilExpiry()` (setHours(0,0,0,0) + Math.ceil). Report and dashboard agree for the same cert. `formattedExpiryDate` now goes through `formatAustralianDate` for consistency.
 - [x] **C6** ✓ Batch 2 — Both `formatAustralianDate` and `formatAustralianDateTime` pass `timeZone: 'Pacific/Port_Moresby'`. Date-only `YYYY-MM-DD` strings get string-sliced to `DD/MM/YYYY` before the Date-roundtrip to skip any TZ shift entirely.
-- [ ] **C7** `lib/utils/roster-periods.ts:54-87` — Still pending (Batch 4). Second roster anchor that drifts on non-UTC servers.
+- [x] **C7** ✓ Batch 4 — Anchor switched to local-time constructor (`new Date(2025, 9, 11)`). Output uses date-fns `format(date, 'yyyy-MM-dd')` instead of `toISOString().split('T')[0]` so the returned date strings reflect local calendar days. `generateRosterPeriods`' today-comparison also switched to local format so it doesn't mix UTC `today` with local `endDate`. (The dual-anchor situation between `roster-periods.ts` and `roster-utils.ts` is mathematically consistent — RP12 anchor + 28 days = RP13 anchor — and was left as-is. A future refactor could consolidate to one anchor module.)
 - [x] **C8** ✓ Batch 2 — `parseLocalDate` exported from `retirement-utils.ts`. Propagated to: `reports-service.ts` pilot-info enrichment (with Feb-29 clamp); `retirement-forecast-service.ts` via new private `computeRetirementDate(dob, age)` helper used in both forecast and timeline paths; `succession-planning-service.ts` candidate loop + readiness-score Captain loop.
 - [x] **C9** ✓ Batch 2 — Bucket walk rewritten as counter-based `new Date(year, month + i, 1)`. Walking by `setMonth(+1)` on day-31 dates silently skipped months; now every month gets its bucket.
 
