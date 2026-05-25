@@ -101,12 +101,12 @@
 
 ### UX / forms
 
-- [ ] **I17** `reports-client.tsx:22-23,37` — Active tab in `useState`, not nuqs. CLAUDE.md says nuqs is used. Not bookmarkable, lost on refresh, per-tab filter state erased.
+- [x] **I17** ✓ Batch 7 — Active tab now uses `useQueryState` + `parseAsStringLiteral` (matches the pattern already used in certifications-page-client.tsx). Tab is URL-synced (`?tab=leave`), shareable, and survives refresh. Per-tab filter state still resets when switching tabs — that's a separate UX call (would require lifting filter state into the URL, which is the bigger D4 nuqs work).
 - [ ] **I18** `reports-client.tsx:38-66` — 6 tabs with `flex-wrap` collapse messily on mobile/tablet into uneven rows; no scroll affordance.
-- [ ] **I19** `report-preview-dialog.tsx:43-46, 154-162` — Preview is "first N records", but you can't paginate inside it OR export from it. User goes back to form and re-runs as export.
+- [x] **I19** ✓ Batch 7 — Preview dialog now has Export PDF + Email Report buttons in its footer (gated on the new optional `filters` + `onEmail` props). All 6 forms pass them through, so users can act on what they're previewing without going back to the form. Pagination inside preview is a separate API-shape change (preview endpoint doesn't accept a `page` param yet) — deferred.
 - [ ] **I20** `Across all 6 forms` — 24 duplicated `useEffect`s (4 per form × 6) registering toast for previewError/exportMutation/etc. Leave-bids form uses mutate callbacks instead — inconsistent contract.
-- [ ] **I21** `report-email-dialog.tsx:42, 81-96` — Recipient validation is `min(1)` only, no email format. "joh@" fails silently after roundtrip.
-- [ ] **I22** `paginated-report-table.tsx:927-932` — Loading spinner missing `role="status"`, `aria-label`, reduced-motion. Screen readers silent; users with reduced-motion get spinning ring.
+- [x] **I21** ✓ Batch 7 — `recipientListSchema(allowEmpty)` Zod superRefine splits the input on `,;` and validates each token with `z.string().email()`. Invalid tokens surface inline (`Invalid emails: joh@, blah`). To/CC/BCC all share the validator. The handler no longer needs to split/clean — the schema already did.
+- [x] **I22** ✓ Batch 7 — Spinner wrapped in `role="status" aria-live="polite"` with sr-only "Loading report data..." label. `animate-spin` → `motion-safe:animate-spin` so `prefers-reduced-motion` users get a static ring instead of a spinning one. CSS-level fix, no JS hook needed.
 - [ ] **I23** `leave-bids-report-form.tsx` vs others — Action button order/variants inconsistent. Leave-bids: `[solid Preview][outline Export][outline Email]`; others: `[outline][solid][secondary]`.
 - [ ] **I24** `leave-report-form.tsx:131,450` — Field `statusPending` labelled "Draft" but maps to DB value `DRAFT`. Form variable vs label vs DB term mismatch.
 - [ ] **I25** `flight-request-report-form.tsx:118` — "Pending" checkbox maps to `'DRAFT'` but flight requests start at `'SUBMITTED'`. Users filter "Pending", get nothing.

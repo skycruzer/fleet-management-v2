@@ -825,6 +825,8 @@ export function CertificationReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="certifications"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

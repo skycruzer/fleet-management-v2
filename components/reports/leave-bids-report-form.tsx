@@ -400,6 +400,8 @@ export function LeaveBidsReportForm() {
           onOpenChange={setShowPreview}
           reportData={previewData}
           reportType="leave-bids"
+          filters={currentFilters}
+          onEmail={() => setShowEmail(true)}
         />
       )}
 

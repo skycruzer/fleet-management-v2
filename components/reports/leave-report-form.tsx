@@ -744,6 +744,8 @@ export function LeaveReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="leave"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

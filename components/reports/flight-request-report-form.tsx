@@ -634,6 +634,8 @@ export function FlightRequestReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="flight-requests"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

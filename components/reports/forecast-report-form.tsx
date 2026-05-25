@@ -454,6 +454,8 @@ export function ForecastReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="forecast"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

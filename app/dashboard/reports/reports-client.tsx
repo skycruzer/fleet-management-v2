@@ -8,7 +8,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useQueryState, parseAsStringLiteral } from 'nuqs'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LeaveReportForm } from '@/components/reports/leave-report-form'
@@ -19,8 +19,21 @@ import { PilotInfoReportForm } from '@/components/reports/pilot-info-report-form
 import { ForecastReportForm } from '@/components/reports/forecast-report-form'
 import { Calendar, Plane, Award, ClipboardList, Users, TrendingUp } from 'lucide-react'
 
+// URL-synced via nuqs so report links are shareable and the tab survives refresh.
+const TAB_VALUES = [
+  'leave',
+  'flight-requests',
+  'leave-bids',
+  'certifications',
+  'pilot-info',
+  'forecast',
+] as const
+
 export function ReportsClient() {
-  const [activeTab, setActiveTab] = useState<string>('leave')
+  const [activeTab, setActiveTab] = useQueryState(
+    'tab',
+    parseAsStringLiteral(TAB_VALUES).withDefault('leave')
+  )
 
   return (
     <div className="space-y-6">
@@ -34,7 +47,13 @@ export function ReportsClient() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          void setActiveTab(value as (typeof TAB_VALUES)[number])
+        }}
+        className="space-y-6"
+      >
         <TabsList className="flex h-auto w-full flex-wrap gap-1 sm:flex-nowrap sm:overflow-x-auto">
           <TabsTrigger value="leave" className="flex items-center gap-2 whitespace-nowrap">
             <Calendar className="h-4 w-4" />

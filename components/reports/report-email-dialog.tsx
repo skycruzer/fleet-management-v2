@@ -38,10 +38,40 @@ import { useToast } from '@/hooks/use-toast'
 import { Mail, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ReportType, ReportFilters } from '@/types/reports'
 
+// Split recipient input on commas or semicolons (Outlook uses semicolons) and
+// validate each token. Surfaces "joh@" / typos inline instead of after a server
+// round-trip with a generic toast.
+const splitRecipients = (raw: string): string[] =>
+  raw
+    .split(/[,;]/)
+    .map((email) => email.trim())
+    .filter(Boolean)
+
+const recipientListSchema = (allowEmpty: boolean) =>
+  z.string().superRefine((raw, ctx) => {
+    const tokens = splitRecipients(raw)
+    if (tokens.length === 0) {
+      if (!allowEmpty) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'At least one recipient is required',
+        })
+      }
+      return
+    }
+    const invalid = tokens.filter((t) => !z.string().email().safeParse(t).success)
+    if (invalid.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Invalid email${invalid.length > 1 ? 's' : ''}: ${invalid.join(', ')}`,
+      })
+    }
+  })
+
 const formSchema = z.object({
-  recipients: z.string().min(1, 'At least one recipient is required'),
-  cc: z.string().optional(),
-  bcc: z.string().optional(),
+  recipients: recipientListSchema(false),
+  cc: recipientListSchema(true).optional(),
+  bcc: recipientListSchema(true).optional(),
   subject: z.string().optional(),
   message: z.string().optional(),
 })
@@ -77,23 +107,10 @@ export function ReportEmailDialog({
   const onSubmit = async (values: z.input<typeof formSchema>) => {
     setIsLoading(true)
     try {
-      // Split by comma or semicolon to support both formats (Outlook uses semicolons)
-      const recipients = values.recipients
-        .split(/[,;]/)
-        .map((email) => email.trim())
-        .filter(Boolean)
-      const cc = values.cc
-        ? values.cc
-            .split(/[,;]/)
-            .map((email) => email.trim())
-            .filter(Boolean)
-        : undefined
-      const bcc = values.bcc
-        ? values.bcc
-            .split(/[,;]/)
-            .map((email) => email.trim())
-            .filter(Boolean)
-        : undefined
+      // Tokens are validated by the schema before we get here, so a simple split is enough.
+      const recipients = splitRecipients(values.recipients)
+      const cc = values.cc ? splitRecipients(values.cc) : undefined
+      const bcc = values.bcc ? splitRecipients(values.bcc) : undefined
 
       const response = await fetch('/api/reports/email', {
         method: 'POST',
