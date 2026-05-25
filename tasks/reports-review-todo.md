@@ -51,8 +51,7 @@
 - [ ] **C13** `lib/services/reports-service.ts:971,1005,1147,1182,1215` — Pilot name composed via `` `${item.pilot?.first_name} ${item.pilot?.last_name}` ``. When pilot soft-deleted → cell shows literal `"undefined undefined"`.
       **Fix**: guard `item.pilot ? ... : 'N/A'`; leave/rdo branches already do this.
 
-- [ ] **C14** `lib/services/reports-service.ts:1187-1235` — Cert status column uses color-only differentiation. Yellow `#F1C40F` on white = ~1.7:1 contrast (**WCAG AA fails**). No symbol/icon. PDFs are routinely printed B&W by compliance auditors.
-      **Fix**: prefix with text marker (`! `, `X `, `OK `) — default font lacks unicode glyphs; darken yellow; bold EXPIRED/EXPIRING SOON for redundancy.
+- [x] **C14** ✓ Batch 6 — Status cells now prefix with text markers (`X EXPIRED`, `! EXPIRING SOON`) so distinction survives B&W printing. Yellow darkened from #F1C40F (~1.7:1) to #B58900 (~5.4:1, WCAG AA). Both warning statuses are bold. didParseCell matches on the marker prefix (`startsWith('X ')` / `startsWith('! ')`) so a future i18n/casing tweak doesn't silently lose the color — incidentally addresses I4 too.
 
 ### Schema/UI ↔ DB mismatches
 
@@ -86,7 +85,7 @@
 - [x] **I1** ✓ Batch 6 — Threshold filter now requires `>= 0`, so "Expiring in 30 days" stops including already-expired certs. (If users need a combined "needs attention" view, that's a separate UX addition.)
 - [x] **I2** ✓ Batch 6 — Summary's `isExpiringSoon` now respects the user's threshold (falls back to `DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS=90` when unset). Summary buckets and the visible table now agree on what counts as "soon".
 - [x] **I3** ✓ Batch 6 (partial) — Report now references `DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS` from `certification-status.ts` instead of magic number 90. The 30 vs 90 difference between the badge default and the report default is documented inline as deliberately distinct operational concepts (30 = mandatory advance notice, 90 = renewal-planning window). Sidebar-badges (60) is a third UX-level intermediate not covered here.
-- [ ] **I4** `reports-service.ts:1187,1220 + paginated-report-table.tsx:813-814` — Status color in PDF matched against rendered text `"EXPIRING SOON"`. Fragile to i18n/casing.
+- [x] **I4** ✓ Batch 6 (side-effect of C14) — PDF status matcher switched to `startsWith('X ')` / `startsWith('! ')`. Label tweaks (i18n/casing/copy edits) won't lose the color. The paginated-report-table.tsx variant is still text-coupled — left for the UX batch.
 - [x] **I5** ✓ Batch 5 — `draft` bucket added to leave summary. `totalRequests` once again equals the sum of category buckets.
 - [x] **I6** ✓ Batch 5 — `approvalRate` is now omitted (set to `undefined`) whenever a status filter is active, since rate-of-filtered-subset is misleading (filtering to APPROVED would always show 100%). The PDF service already guards on `summary.approvalRate !== undefined` so it simply skips the line.
 - [ ] **I7** `reports-service.ts:1583-1587` — `bid_year` from `enrichedOptions[0].start_date` (storage order, not priority). Year filter (l. 1601-1603) can exclude bid based on wrong year.
