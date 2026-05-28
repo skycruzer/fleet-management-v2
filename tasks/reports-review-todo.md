@@ -42,10 +42,10 @@
 
 ### Broken outputs
 
-- [ ] **C12** `lib/services/reports-service.ts:1141-1156` (PDF `flight-requests` branch) — references `item.pilot?.first_name`, `item.flight_date`, `item.description`, `item.status`. None of these exist on unified `pilot_requests` rows (uses `name`, `start_date`, `workflow_status`). **Every Flight Requests PDF renders "undefined undefined" / "N/A" for every cell.** Preview works because it uses a generic table.
+- [x] **C12** ✓ Batch 1 (`e594f4f`) — The `flight-requests` PDF branch now shares the `rdo-sdo` renderer (unified `pilot_requests` shape). Comment at `reports-service.ts:1174` documents the merge "to avoid field drift". Cells use `item.start_date` / `item.workflow_status` / `item.name`, not the broken `flight_date` / `status`. Verified 2026-05-29.
       **Fix**: route the `flight-requests` PDF branch through the `rdo-sdo` branch (the service already redirects) or rewrite to use unified-schema fields.
 
-- [ ] **C13** `lib/services/reports-service.ts:971,1005,1147,1182,1215` — Pilot name composed via `` `${item.pilot?.first_name} ${item.pilot?.last_name}` ``. When pilot soft-deleted → cell shows literal `"undefined undefined"`.
+- [x] **C13** ✓ Batch 1 (`e594f4f`) — All PDF name cells now use `[item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') || 'N/A'` (with `item.name ||` preferred first). A soft-deleted pilot renders `N/A`, never `"undefined undefined"`. Verified 2026-05-29. (Note: the leave-bids `name` field at `reports-service.ts:1774` still uses a template literal but is guarded by `bid.pilot ? … : 'N/A'`.)
       **Fix**: guard `item.pilot ? ... : 'N/A'`; leave/rdo branches already do this.
 
 - [x] **C14** ✓ Batch 6 — Status cells now prefix with text markers (`X EXPIRED`, `! EXPIRING SOON`) so distinction survives B&W printing. Yellow darkened from #F1C40F (~1.7:1) to #B58900 (~5.4:1, WCAG AA). Both warning statuses are bold. didParseCell matches on the marker prefix (`startsWith('X ')` / `startsWith('! ')`) so a future i18n/casing tweak doesn't silently lose the color — incidentally addresses I4 too.
@@ -61,7 +61,7 @@
 - [x] **C18** ✓ Batch 9 — Qualifications filter now `return false` for non-Captains (was `return true` — letting all FOs through). Filtering "Examiners" now returns only examiner Captains. Malformed `captain_qualifications` JSON logs a warning so admins can spot the bad record.
 - [x] **C19** ✓ Batch 9 — `generatePilotInfoReport` now paginates pilot fetch to exhaustion (PAGE_SIZE=1000, MAX_PAGES=50). Mirrors the certification-service pattern. Org growth past 1000 no longer silently truncates pilot-info reports.
 
-- [ ] **C20** `lib/services/reports-service.ts:1858-1860` — `(a.seniority_number || 999)` treats `0` as 999, burying pilot #0. Also `lib/services/reports-service.ts:1594` — `bid.pilot?.seniority_number || 0` treats null as 0 → null-seniority pilots sort to top of bid priority.
+- [x] **C20** ✓ Sort fixed in earlier batch + display remnant fixed 2026-05-29. Pilot-info sort uses `a.seniority_number ?? Number.POSITIVE_INFINITY` (`reports-service.ts:2088-2089`, with comment "use ?? not || so 0 isn't buried"); DB order uses `nullsFirst: false` (`:1923`); bid enrichment uses `?? null` (`:1776`). Final remnant: display cell `pilotRowMapper` (`:1487`) changed from `item.seniority_number || '-'` to `!= null ? … : '-'` so seniority `0` renders as `0`, consistent with neighboring cells.
       **Fix**: use `??` instead of `||`; handle null-seniority explicitly.
 
 - [x] **C21** ✓ Batch 9 — `DEFAULT_RETIREMENT_AGE` constant now exported from `retirement-utils.ts` and consumed in both the forecast report and the pilot-info enrichment. Single source of truth (the real "from system settings" lookup is a future wiring; today every site at least agrees on the same default).

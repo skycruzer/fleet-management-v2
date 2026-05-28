@@ -1484,7 +1484,7 @@ export async function generatePDF(
           })
         : '-'
     const pilotRowMapper = (item: any) => [
-      item.seniority_number || '-',
+      item.seniority_number != null ? item.seniority_number : '-',
       item.employee_id || '-',
       item.name || '-',
       item.rank || '-',
