@@ -347,7 +347,12 @@ export function LeaveBidsReportForm() {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" onClick={handlePreview} disabled={isPreviewLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePreview}
+              disabled={isPreviewLoading}
+            >
               {isPreviewLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -366,12 +371,7 @@ export function LeaveBidsReportForm() {
               )}
             </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleExport}
-              disabled={exportMutation.isPending}
-            >
+            <Button type="button" onClick={handleExport} disabled={exportMutation.isPending}>
               {exportMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -385,7 +385,7 @@ export function LeaveBidsReportForm() {
               )}
             </Button>
 
-            <Button type="button" variant="outline" onClick={handleEmail}>
+            <Button type="button" variant="secondary" onClick={handleEmail}>
               <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>

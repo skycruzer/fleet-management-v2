@@ -79,34 +79,34 @@
 - [x] **I4** ✓ Batch 6 (side-effect of C14) — PDF status matcher switched to `startsWith('X ')` / `startsWith('! ')`. Label tweaks (i18n/casing/copy edits) won't lose the color. The paginated-report-table.tsx variant is still text-coupled — left for the UX batch.
 - [x] **I5** ✓ Batch 5 — `draft` bucket added to leave summary. `totalRequests` once again equals the sum of category buckets.
 - [x] **I6** ✓ Batch 5 — `approvalRate` is now omitted (set to `undefined`) whenever a status filter is active, since rate-of-filtered-subset is misleading (filtering to APPROVED would always show 100%). The PDF service already guards on `summary.approvalRate !== undefined` so it simply skips the line.
-- [ ] **I7** `reports-service.ts:1583-1587` — `bid_year` from `enrichedOptions[0].start_date` (storage order, not priority). Year filter (l. 1601-1603) can exclude bid based on wrong year.
-- [ ] **I8** `reports-service.ts:686` — `filteredData = allRequests.filter(...)` (uses `allRequests`, not running `filteredData`). Harmless today, fragile.
-- [ ] **I9** `reports-service.ts:1062, 1100` — `days_count` default `'1'` when null → multi-day RDO/SDO silently renders as 1-day.
-- [ ] **I10** `reports-service.ts:531-537` — `avgCaptainUtil = sum / monthly.length` → NaN when zero.
+- [x] **I7** ✓ 2026-05-29 — `bid_year` now derived from the highest-priority dated option (`priority` 1 = top choice) via a `reduce`, not `enrichedOptions[0]` storage order. Year filter no longer keys off whichever option happened to load first.
+- [x] **I8** ✓ 2026-05-29 — rank filter now chains off `filteredData.filter(...)` instead of `allRequests.filter(...)`. Robust if a second pre-filter is ever added upstream.
+- [x] **I9** ✓ Already fixed (verified 2026-05-29) — `formatRequestDays()` helper computes day count from `start_date`/`end_date` when `days_count` is null, so multi-day RDO/SDO no longer renders as "1".
+- [x] **I10** ✓ Already fixed (verified 2026-05-29) — the `sum / monthly.length` utilization-average code no longer exists; the cert-report path was refactored and the only remaining `.length` divisions are `Math.ceil(x / pageSize)` with `pageSize >= 1` (no NaN).
 - [x] **I11** ✓ Batch 9 — New `monthsBetween(from, to)` helper uses calendar arithmetic (year-month diff with day-of-month adjustment). A pilot retiring in exactly 12 calendar months now reads as 12, not 11.
 - [x] **I12** ✓ Batch 9 — `getCrewImpactAnalysis` and `getMonthlyRetirementTimeline` accept an optional `horizonMonths` param. Forecast report passes `24` for 2yr / `60` for 5yr. Shortage warnings now respect the user's chosen horizon.
 - [x] **I13** ✓ Batch 9 — `'10yr'` removed from both the Zod schema enum and the forecast form's local enum + radio option. Title-generator's horizon-label map drops the unreachable key. Users no longer get a 10yr selection that silently degraded to 5yr.
 - [x] **I14** ✓ Batch 9 — `yearsBetween(from, to)` helper added to retirement-utils. Succession-planning fallback now uses calendar-aware years-of-service + age, so a pilot 14 years + 364 days into service correctly reads as 14 (consistent with the pilot detail card).
 - [x] **I15** ✓ Batch 9 — Pilot Info qualifications filter now `console.warn`s when a captain has a malformed `captain_qualifications` JSON. Filter still excludes (we can't safely classify them) but admins can now see and fix the underlying data quality issue.
-- [ ] **I16** `reports-schema.ts:64-65` — `<= 365 * 2` rejects 731-day ranges spanning leap year.
+- [x] **I16** ✓ 2026-05-29 — cap raised to `365 * 2 + 1` (731 days) so a 2-calendar-year range that includes one leap day validates.
 
 ### UX / forms
 
 - [x] **I17** ✓ Batch 7 — Active tab now uses `useQueryState` + `parseAsStringLiteral` (matches the pattern already used in certifications-page-client.tsx). Tab is URL-synced (`?tab=leave`), shareable, and survives refresh. Per-tab filter state still resets when switching tabs — that's a separate UX call (would require lifting filter state into the URL, which is the bigger D4 nuqs work).
-- [ ] **I18** `reports-client.tsx:38-66` — 6 tabs with `flex-wrap` collapse messily on mobile/tablet into uneven rows; no scroll affordance.
+- [x] **I18** ✓ Already fixed (verified 2026-05-29) — TabsList now `flex h-auto w-full flex-wrap gap-1 sm:flex-nowrap sm:overflow-x-auto` with `whitespace-nowrap` triggers; wraps cleanly on mobile, horizontal-scrolls from `sm` up.
 - [x] **I19** ✓ Batch 7 — Preview dialog now has Export PDF + Email Report buttons in its footer (gated on the new optional `filters` + `onEmail` props). All 6 forms pass them through, so users can act on what they're previewing without going back to the form. Pagination inside preview is a separate API-shape change (preview endpoint doesn't accept a `page` param yet) — deferred.
 - [ ] **I20** `Across all 6 forms` — 24 duplicated `useEffect`s (4 per form × 6) registering toast for previewError/exportMutation/etc. Leave-bids form uses mutate callbacks instead — inconsistent contract.
 - [x] **I21** ✓ Batch 7 — `recipientListSchema(allowEmpty)` Zod superRefine splits the input on `,;` and validates each token with `z.string().email()`. Invalid tokens surface inline (`Invalid emails: joh@, blah`). To/CC/BCC all share the validator. The handler no longer needs to split/clean — the schema already did.
 - [x] **I22** ✓ Batch 7 — Spinner wrapped in `role="status" aria-live="polite"` with sr-only "Loading report data..." label. `animate-spin` → `motion-safe:animate-spin` so `prefers-reduced-motion` users get a static ring instead of a spinning one. CSS-level fix, no JS hook needed.
-- [ ] **I23** `leave-bids-report-form.tsx` vs others — Action button order/variants inconsistent. Leave-bids: `[solid Preview][outline Export][outline Email]`; others: `[outline][solid][secondary]`.
-- [ ] **I24** `leave-report-form.tsx:131,450` — Field `statusPending` labelled "Draft" but maps to DB value `DRAFT`. Form variable vs label vs DB term mismatch.
-- [ ] **I25** `flight-request-report-form.tsx:118` — "Pending" checkbox maps to `'DRAFT'` but flight requests start at `'SUBMITTED'`. Users filter "Pending", get nothing.
-- [ ] **I26** `leave-bids-report-form.tsx:38` / `leave-report-form.tsx:72` / `certification-report-form.tsx:112` — Hardcoded `[2025, 2026]` year ranges, will go stale in 2027. Three different policies across forms.
-- [ ] **I27** `leave-report-form.tsx:34` + others — `DatePresetButtons` imported but never rendered (dead code per "user request" comments). Dead handlers too.
-- [ ] **I28** `report-preview-dialog.tsx:68` — Fixed `max-w-5xl`. 18-col pilot-info table → horizontal scroll inevitable but no shadow/scroll-hint.
+- [x] **I23** ✓ 2026-05-29 — leave-bids action buttons re-aligned to the canonical pattern used by the other 5 forms: Preview `outline`, Export PDF `solid` (default), Email Report `secondary`.
+- [x] **I24** ✓ 2026-05-29 — form field renamed `statusPending` → `statusDraft` across leave + flight forms. Variable, "Draft" label, and DB value `DRAFT` now all agree.
+- [x] **I25** ✓ Resolved (verified 2026-05-29) — checkbox label is now "Draft" (was the misleading "Pending") and maps to `DRAFT`, a valid `WorkflowStatusEnum` value. Requests are created `SUBMITTED` (unified-request-service:476), but DRAFT is a legitimate lifecycle state, so the honest "Draft" label is the correct fix — checkbox kept, not removed.
+- [x] **I26** ✓ Already fixed (verified 2026-05-29) — year options now derive from `new Date().getFullYear()` (e.g. leave-bids `Array.from({length:3}, (_,i) => currentYear - 1 + i)`); no hardcoded `[2025, 2026]` arrays remain.
+- [x] **I27** ✓ 2026-05-29 — the form imports/handlers were already gone; deleted the orphan `components/reports/date-preset-buttons.tsx` (verified zero importers).
+- [x] **I28** ✓ 2026-05-29 — `paginated-report-table` table switched `w-full` → `min-w-full` with `whitespace-nowrap` headers, so wide reports (18-col pilot-info) overflow the `overflow-x-auto` container and surface a scrollbar instead of cramming columns. Body cells still wrap.
 - [ ] **I29** `filter-preset-manager.tsx:37` — Presets only for 4 of 6 report types (excludes pilot-info, forecast). Inconsistent affordance.
 - [ ] **I30** `All forms` — Unfiltered preview fires `{}` and returns everything. No "this will fetch all N records, continue?" confirm.
-- [ ] **I31** `leave-report-form.tsx:312-322` — Raw `<input type="date">`. No `endDate >= startDate` validation, no clear button.
+- [x] **I31** ✓ 2026-05-29 — added a schema `.refine` enforcing `endDate >= startDate` (date-range mode, both set) surfaced via `<FormMessage />`, plus a native `min={startDate}` on the End Date input. (Clear handled by existing roster/date toggle.)
 
 ### PDF
 

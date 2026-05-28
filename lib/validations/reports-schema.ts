@@ -62,7 +62,7 @@ export const DateRangeSchema = z
       const start = new Date(data.startDate)
       const end = new Date(data.endDate)
       const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-      return daysDiff <= 365 * 2 // Max 2 years
+      return daysDiff <= 365 * 2 + 1 // Max 2 years (731 days — a 2-yr span can include one leap day)
     },
     {
       message: 'Date range cannot exceed 2 years',

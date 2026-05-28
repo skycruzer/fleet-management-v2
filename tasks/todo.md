@@ -72,3 +72,36 @@ lib/services/pilot-service.ts
 lib/utils/retirement-utils.ts
 lib/validations/user-validation.ts
 ```
+
+---
+
+# IMPORTANT Reports Findings (2026-05-29)
+
+Plan for the open IMPORTANT items in `reports-review-todo.md`. Verified current code first — several were already fixed and only need ticking.
+
+## Already fixed — tick only
+
+- [ ] I9, I10, I18, I26 (+ I24 label half) — confirmed fixed in code; update checkboxes in findings doc.
+
+## Batch A — correctness bugs (recommended)
+
+- [ ] **I7** `reports-service.ts:1766-1768` — derive `bid_year` from priority/earliest option, not `enrichedOptions[0]` storage order.
+- [ ] **I16** `reports-schema.ts:65` — bump `daysDiff <= 365 * 2` to allow 731-day leap-spanning ranges.
+- [ ] **I31** `leave-report-form.tsx` — add `endDate >= startDate` cross-field zod validation.
+- [ ] **I8** `reports-service.ts:758` — chain `filteredData.filter` instead of `allRequests.filter`.
+
+## Batch A2 — needs domain confirmation
+
+- [ ] **I25** — confirm FLIGHT requests' initial workflow_status; remap or remove the "Draft" checkbox if DRAFT never occurs.
+
+## Batch B — low-risk polish
+
+- [ ] **I27** delete orphan `date-preset-buttons.tsx` · **I24** rename `statusPending`→`statusDraft` · **I28** preview-dialog scroll hint · **I23** standardize button order/variants.
+
+## Batch C — small features
+
+- [ ] **I29** presets for pilot-info + forecast · **I30** "fetch all N records?" confirm on unfiltered preview/export.
+
+## Deferred
+
+- [ ] **I20** dedupe 24 `useEffect` toasts across all 6 forms — broad refactor, low value, risky. Defer to a dedicated PR.

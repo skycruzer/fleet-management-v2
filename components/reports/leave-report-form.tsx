@@ -24,6 +24,7 @@ import {
   FormItem,
   FormLabel,
   FormDescription,
+  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -45,25 +46,34 @@ import {
   rosterPeriodsToDateRange,
 } from '@/lib/utils/roster-periods'
 
-const formSchema = z.object({
-  filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  rosterPeriods: z.array(z.string()).default([]),
-  statusPending: z.boolean().default(false),
-  statusSubmitted: z.boolean().default(false),
-  statusInReview: z.boolean().default(false),
-  statusApproved: z.boolean().default(false),
-  statusRejected: z.boolean().default(false),
-  rankCaptain: z.boolean().default(false),
-  rankFirstOfficer: z.boolean().default(false),
-  leaveTypeAnnual: z.boolean().default(false),
-  leaveTypeSick: z.boolean().default(false),
-  leaveTypeLSL: z.boolean().default(false),
-  leaveTypeLWOP: z.boolean().default(false),
-  leaveTypeMaternity: z.boolean().default(false),
-  leaveTypeCompassionate: z.boolean().default(false),
-})
+const formSchema = z
+  .object({
+    filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    rosterPeriods: z.array(z.string()).default([]),
+    statusDraft: z.boolean().default(false),
+    statusSubmitted: z.boolean().default(false),
+    statusInReview: z.boolean().default(false),
+    statusApproved: z.boolean().default(false),
+    statusRejected: z.boolean().default(false),
+    rankCaptain: z.boolean().default(false),
+    rankFirstOfficer: z.boolean().default(false),
+    leaveTypeAnnual: z.boolean().default(false),
+    leaveTypeSick: z.boolean().default(false),
+    leaveTypeLSL: z.boolean().default(false),
+    leaveTypeLWOP: z.boolean().default(false),
+    leaveTypeMaternity: z.boolean().default(false),
+    leaveTypeCompassionate: z.boolean().default(false),
+  })
+  .refine(
+    (data) => {
+      // Only validate when in date-range mode with both dates set.
+      if (data.filterMode !== 'dateRange' || !data.startDate || !data.endDate) return true
+      return new Date(data.startDate) <= new Date(data.endDate)
+    },
+    { message: 'End date must be on or after the start date', path: ['endDate'] }
+  )
 
 export function LeaveReportForm() {
   const [currentFilters, setCurrentFilters] = useState<ReportFilters>({})
@@ -94,7 +104,7 @@ export function LeaveReportForm() {
       startDate: '',
       endDate: '',
       rosterPeriods: [],
-      statusPending: false,
+      statusDraft: false,
       statusSubmitted: false,
       statusInReview: false,
       statusApproved: false,
@@ -132,7 +142,7 @@ export function LeaveReportForm() {
     }
 
     const statuses: NonNullable<ReportFilters['status']> = []
-    if (values.statusPending) statuses.push('DRAFT')
+    if (values.statusDraft) statuses.push('DRAFT')
     if (values.statusApproved) statuses.push('APPROVED')
     if (values.statusRejected) statuses.push('DENIED')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
@@ -251,7 +261,7 @@ export function LeaveReportForm() {
     }
 
     // Apply status filters — must mirror buildFilters() so all 5 values round-trip
-    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusDraft', filters.status?.includes('DRAFT') || false)
     form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
     form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
@@ -326,6 +336,7 @@ export function LeaveReportForm() {
                     <FormControl>
                       <Input
                         type="date"
+                        min={form.watch('startDate') || undefined}
                         {...field}
                         onChange={(e) => {
                           field.onChange(e)
@@ -336,6 +347,7 @@ export function LeaveReportForm() {
                         }}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -400,7 +412,7 @@ export function LeaveReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: true,
+                      statusDraft: true,
                       statusSubmitted: true,
                       statusInReview: true,
                       statusApproved: true,
@@ -418,7 +430,7 @@ export function LeaveReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: false,
+                      statusDraft: false,
                       statusSubmitted: false,
                       statusInReview: false,
                       statusApproved: false,
@@ -434,7 +446,7 @@ export function LeaveReportForm() {
             <div className="flex flex-wrap gap-4">
               <FormField
                 control={form.control}
-                name="statusPending"
+                name="statusDraft"
                 render={({ field }) => (
                   <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>

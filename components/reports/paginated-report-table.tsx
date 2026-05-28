@@ -909,12 +909,15 @@ export function PaginatedReportTable({
       {/* Table */}
       <div className="rounded-md border">
         <div className="relative overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="min-w-full text-sm">
             <thead className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id} className="border-b">
                   {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="h-10 px-3 text-left align-middle font-medium">
+                    <th
+                      key={header.id}
+                      className="h-10 px-3 text-left align-middle font-medium whitespace-nowrap"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}

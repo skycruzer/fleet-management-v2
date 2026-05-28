@@ -755,7 +755,7 @@ export async function generateAllRequestsReport(
   // Filter by rank if needed
   let filteredData = allRequests
   if (filters.rank && filters.rank.length > 0) {
-    filteredData = allRequests.filter((item: any) => filters.rank!.includes(item.rank))
+    filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
@@ -1762,10 +1762,16 @@ export async function generateLeaveBidsReport(
         allRosterPeriods.add(bid.roster_period_code)
       }
 
-      // Extract bid year from first option's start_date
+      // Extract bid year from the highest-priority dated option (priority 1 = top
+      // choice), not storage order — otherwise the year filter could include/exclude
+      // a bid based on whichever option happened to be returned first.
       let bid_year = new Date().getFullYear()
-      if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
-        bid_year = new Date(enrichedOptions[0].start_date).getFullYear()
+      const datedOptions = enrichedOptions.filter((o: any) => o.start_date)
+      if (datedOptions.length > 0) {
+        const primaryOption = datedOptions.reduce((best: any, o: any) =>
+          (o.priority ?? Infinity) < (best.priority ?? Infinity) ? o : best
+        )
+        bid_year = new Date(primaryOption.start_date).getFullYear()
       }
 
       return {

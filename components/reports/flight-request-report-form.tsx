@@ -50,7 +50,7 @@ const formSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   rosterPeriods: z.array(z.string()).default([]),
-  statusPending: z.boolean().default(false),
+  statusDraft: z.boolean().default(false),
   statusSubmitted: z.boolean().default(false),
   statusInReview: z.boolean().default(false),
   statusApproved: z.boolean().default(false),
@@ -85,7 +85,7 @@ export function FlightRequestReportForm() {
       startDate: '',
       endDate: '',
       rosterPeriods: [],
-      statusPending: false,
+      statusDraft: false,
       statusSubmitted: false,
       statusInReview: false,
       statusApproved: false,
@@ -119,7 +119,7 @@ export function FlightRequestReportForm() {
     }
 
     const statuses: NonNullable<ReportFilters['status']> = []
-    if (values.statusPending) statuses.push('DRAFT')
+    if (values.statusDraft) statuses.push('DRAFT')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
     if (values.statusInReview) statuses.push('IN_REVIEW')
     if (values.statusApproved) statuses.push('APPROVED')
@@ -231,7 +231,7 @@ export function FlightRequestReportForm() {
     }
 
     // Apply status filters
-    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusDraft', filters.status?.includes('DRAFT') || false)
     form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
     form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
@@ -369,7 +369,7 @@ export function FlightRequestReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: true,
+                      statusDraft: true,
                       statusSubmitted: true,
                       statusInReview: true,
                       statusApproved: true,
@@ -387,7 +387,7 @@ export function FlightRequestReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: false,
+                      statusDraft: false,
                       statusSubmitted: false,
                       statusInReview: false,
                       statusApproved: false,
@@ -403,7 +403,7 @@ export function FlightRequestReportForm() {
             <div className="flex flex-wrap gap-4">
               <FormField
                 control={form.control}
-                name="statusPending"
+                name="statusDraft"
                 render={({ field }) => (
                   <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
