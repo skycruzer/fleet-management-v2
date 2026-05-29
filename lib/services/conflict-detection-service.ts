@@ -180,7 +180,8 @@ export async function checkOverlappingRequests(requestInput: RequestInput): Prom
 
     if (error) {
       logger.error('Error checking overlapping requests', { error })
-      return conflicts
+      // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+      throw new Error(`overlap check failed: ${error.message}`)
     }
 
     // Filter out the current request if updating
@@ -226,6 +227,8 @@ export async function checkOverlappingRequests(requestInput: RequestInput): Prom
     logger.error('Error in checkOverlappingRequests', {
       error: error instanceof Error ? error : String(error),
     })
+    // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+    throw error
   }
 
   return conflicts
@@ -254,7 +257,8 @@ export async function checkCrewAvailability(
 
     if (pilotsError || !pilots) {
       logger.error('Error fetching pilots for availability check', { error: pilotsError })
-      return { conflicts, warnings }
+      // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+      throw new Error(`availability check failed: ${pilotsError?.message ?? 'no pilots returned'}`)
     }
 
     const totalCrew = pilots.length
@@ -272,7 +276,8 @@ export async function checkCrewAvailability(
 
     if (leaveError) {
       logger.error('Error fetching approved leave', { error: leaveError })
-      return { conflicts, warnings }
+      // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+      throw new Error(`availability check failed: ${leaveError.message}`)
     }
 
     // Count unique pilots on leave
@@ -314,6 +319,8 @@ export async function checkCrewAvailability(
     logger.error('Error in checkCrewAvailability', {
       error: error instanceof Error ? error : String(error),
     })
+    // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+    throw error
   }
 
   return { conflicts, warnings }
@@ -340,7 +347,8 @@ export async function checkDuplicateRequests(requestInput: RequestInput): Promis
 
     if (error) {
       logger.error('Error checking duplicate requests', { error })
-      return conflicts
+      // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+      throw new Error(`duplicate check failed: ${error.message}`)
     }
 
     // Filter out the current request if updating
@@ -374,6 +382,8 @@ export async function checkDuplicateRequests(requestInput: RequestInput): Promis
     logger.error('Error in checkDuplicateRequests', {
       error: error instanceof Error ? error : String(error),
     })
+    // Fail closed: propagate so detectConflicts denies approval on transient DB errors
+    throw error
   }
 
   return conflicts

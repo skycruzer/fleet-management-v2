@@ -67,7 +67,7 @@ export interface RetirementForecast {
  * @returns Retirement forecast data
  */
 export async function getRetirementForecast(
-  retirementAge: number = 65
+  retirementAge: number = DEFAULT_RETIREMENT_AGE
 ): Promise<RetirementForecast> {
   const supabase = createAdminClient()
 
@@ -159,7 +159,9 @@ export async function getRetirementForecast(
  * @param retirementAge - Retirement age from system settings
  * @returns Retirement forecast grouped by rank
  */
-export async function getRetirementForecastByRank(retirementAge: number = 65): Promise<{
+export async function getRetirementForecastByRank(
+  retirementAge: number = DEFAULT_RETIREMENT_AGE
+): Promise<{
   twoYears: {
     captains: number
     firstOfficers: number
@@ -611,7 +613,9 @@ export async function getCrewImpactAnalysis(
  * @param retirementAge - Retirement age from system settings
  * @returns PDF buffer
  */
-export async function generateRetirementForecastPDF(retirementAge: number = 65): Promise<Buffer> {
+export async function generateRetirementForecastPDF(
+  retirementAge: number = DEFAULT_RETIREMENT_AGE
+): Promise<Buffer> {
   const puppeteer = await import('puppeteer')
 
   const { timeline, summary } = await getMonthlyRetirementTimeline(retirementAge)
@@ -792,7 +796,9 @@ export async function generateRetirementForecastPDF(retirementAge: number = 65):
  * @param retirementAge - Retirement age from system settings
  * @returns CSV string
  */
-export async function generateRetirementForecastCSV(retirementAge: number = 65): Promise<string> {
+export async function generateRetirementForecastCSV(
+  retirementAge: number = DEFAULT_RETIREMENT_AGE
+): Promise<string> {
   const Papa = await import('papaparse')
 
   const { timeline } = await getMonthlyRetirementTimeline(retirementAge)
@@ -815,13 +821,20 @@ export async function generateRetirementForecastCSV(retirementAge: number = 65):
         (pilot.retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       )
 
+      // Format from LOCAL components, not toISOString(). retirementDate is built
+      // via local-time arithmetic (computeRetirementDate); toISOString() converts
+      // back to UTC and can shift the exported date one day earlier on UTC hosts
+      // (Vercel) vs PNG (UTC+10), disagreeing with the PDF/UI which format locally.
+      const d = pilot.retirementDate
+      const retirementDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
       rows.push({
         Month: bucket.month,
         'Pilot ID': pilot.id,
         'Employee ID': 'N/A', // Could be fetched if needed
         Name: pilot.name,
         Rank: pilot.rank,
-        'Retirement Date': pilot.retirementDate.toISOString().split('T')[0],
+        'Retirement Date': retirementDateStr,
         'Days Until Retirement': daysUntil,
       })
     })

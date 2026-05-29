@@ -1070,10 +1070,13 @@ export async function resetPassword(
     const supabase = createAdminClient()
     const bcrypt = require('bcryptjs')
 
-    // Validate token first. Use a separate rate-limit bucket from the standalone
-    // GET validation path: the POST reset route is already IP rate-limited, so this
-    // internal call must not consume (or be blocked by) the anonymous validation budget.
-    const validation = await validatePasswordResetToken(token, 'reset')
+    // Validate token first. Key the rate-limit bucket by a token-derived hash so
+    // each distinct reset token gets its own 3/hour budget rather than sharing one
+    // global 'reset' bucket (which would lock out the 4th pilot system-wide). The
+    // POST reset route is already IP rate-limited for brute-force protection.
+    const crypto = require('crypto')
+    const tokenKey = `reset:${crypto.createHash('sha256').update(token).digest('hex').slice(0, 16)}`
+    const validation = await validatePasswordResetToken(token, tokenKey)
     if (!validation.success || !validation.data) {
       return {
         success: false,

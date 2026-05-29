@@ -113,19 +113,26 @@ export async function checkUpcomingDeadlines(lookAheadCount: number = 3): Promis
     const periods = getUpcomingRosterPeriods(lookAheadCount)
     const alerts: DeadlineAlert[] = []
 
+    // Fetch all requests ONCE (not per-period) and filter in memory, mirroring
+    // getAllDeadlineAlerts to avoid redundant per-period DB round-trips
+    const result = await getAllPilotRequests({})
+
+    if (!result.success || !result.data) {
+      return alerts
+    }
+
+    const allRequests = result.data
+
     for (const period of periods) {
       // Check if this period is at a milestone
       const milestone = ALERT_MILESTONES.find((m) => m === period.daysUntilDeadline)
 
       if (milestone !== undefined && milestone >= 0) {
-        // Get request counts for this roster period
-        const result = await getAllPilotRequests({
-          roster_period: period.code,
-        })
+        // Filter the in-memory result set by this roster period (matches the
+        // original getAllPilotRequests({ roster_period }) exact-match semantics)
+        const requests = allRequests.filter((r) => r.roster_period === period.code)
 
-        if (result.success && result.data) {
-          const requests = result.data
-
+        {
           const pendingCount = requests.filter(
             (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
           ).length
@@ -385,12 +392,19 @@ export async function sendDeadlineAlertEmail(
     const subject = generateEmailSubject(alert)
     const html = generateEmailBody(alert, recipientName)
 
-    const { data, error } = await getResendClient().emails.send({
-      from: FROM_EMAIL,
-      to: recipientEmail,
-      subject,
-      html,
-    })
+    const { data, error } = await getResendClient().emails.send(
+      {
+        from: FROM_EMAIL,
+        to: recipientEmail,
+        subject,
+        html,
+      },
+      {
+        // Dedupe retries (e.g. cron re-runs within the 24h key window) so the same
+        // milestone alert isn't sent twice to the same recipient.
+        idempotencyKey: `deadline-alert/${alert.rosterPeriod.code}-${alert.milestone}/${recipientEmail}`,
+      }
+    )
 
     if (error) {
       await logger.error('Failed to send deadline alert email', {
@@ -480,15 +494,24 @@ export async function sendScheduledDeadlineAlerts(): Promise<AlertCheckResult> {
       },
     ]
 
-    // Send emails to all recipients for each alert
-    for (const alert of alerts) {
-      for (const recipient of recipients) {
-        const emailResult = await sendDeadlineAlertEmail(alert, recipient.email, recipient.name)
-        result.emailsSent.push(emailResult)
+    // Send emails to all recipients for each alert. Throttle to stay under Resend's
+    // 2 req/s limit when this fans out to many alerts × recipients (best-effort per
+    // recipient — we intentionally don't use atomic batch send, which fails all-or-nothing).
+    const flatSends = alerts.flatMap((alert) =>
+      recipients.map((recipient) => ({ alert, recipient }))
+    )
+    for (let i = 0; i < flatSends.length; i++) {
+      const { alert, recipient } = flatSends[i]
+      const emailResult = await sendDeadlineAlertEmail(alert, recipient.email, recipient.name)
+      result.emailsSent.push(emailResult)
 
-        if (!emailResult.success) {
-          result.errors.push(`Failed to send alert to ${recipient.email}: ${emailResult.error}`)
-        }
+      if (!emailResult.success) {
+        result.errors.push(`Failed to send alert to ${recipient.email}: ${emailResult.error}`)
+      }
+
+      // Space out subsequent sends (~1.7/s) to avoid 429s; skip after the last one.
+      if (i < flatSends.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 600))
       }
     }
 

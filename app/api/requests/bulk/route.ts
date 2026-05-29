@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
     let failureCount = 0
     const errors: Array<{ id: string; error: string }> = []
 
-    for (const requestId of request_ids) {
+    // Process a single request id and record its outcome
+    const processOne = async (requestId: string) => {
       try {
         if (action === 'delete') {
           // Delete request using service layer
@@ -111,6 +112,23 @@ export async function POST(request: NextRequest) {
           id: requestId,
           error: error instanceof Error ? error.message : String(error),
         })
+      }
+    }
+
+    if (action === 'approve') {
+      // Keep approvals sequential: updateRequestStatus runs a per-request atomic
+      // crew-availability check for LEAVE, and parallel approvals of overlapping
+      // leave could each see stale availability.
+      for (const requestId of request_ids) {
+        await processOne(requestId)
+      }
+    } else {
+      // Denials and deletes are independent and safe to run concurrently.
+      // Use bounded parallelism (chunks) to cut latency without overloading the DB.
+      const CHUNK_SIZE = 10
+      for (let i = 0; i < request_ids.length; i += CHUNK_SIZE) {
+        const chunk = request_ids.slice(i, i + CHUNK_SIZE)
+        await Promise.allSettled(chunk.map((requestId) => processOne(requestId)))
       }
     }
 

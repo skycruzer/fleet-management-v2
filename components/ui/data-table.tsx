@@ -183,7 +183,7 @@ export function DataTable<T extends Record<string, any>>({
             ) : (
               rowsToRender.map((row, index) => (
                 <TableRow
-                  key={index}
+                  key={(row as { id?: string | number }).id ?? index}
                   className={
                     onRowClick
                       ? 'hover:bg-muted/50 focus:ring-primary cursor-pointer focus:ring-2 focus:outline-none focus:ring-inset'

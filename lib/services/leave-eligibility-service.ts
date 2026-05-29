@@ -169,10 +169,21 @@ export interface LeaveRequestCheck {
 // CREW REQUIREMENTS
 // ===================================
 
+// Short-TTL memo for the immutable `pilot_requirements` settings row. A single
+// eligibility check reads crew requirements 2-3 times (and bulk checks dozens of
+// times), yet the value changes only on rare admin settings updates — so cache it
+// briefly to eliminate redundant DB traffic on this hot path.
+const CREW_REQUIREMENTS_TTL_MS = 60_000
+let crewRequirementsCache: { value: CrewRequirements; expiresAt: number } | null = null
+
 /**
  * Get minimum crew requirements from settings
  */
 export async function getCrewRequirements(): Promise<CrewRequirements> {
+  if (crewRequirementsCache && crewRequirementsCache.expiresAt > Date.now()) {
+    return crewRequirementsCache.value
+  }
+
   const supabase = createAdminClient()
 
   const { data: settings, error } = await supabase
@@ -182,7 +193,8 @@ export async function getCrewRequirements(): Promise<CrewRequirements> {
     .single()
 
   if (error || !settings) {
-    // Default fallback values based on current system
+    // Default fallback values based on current system. Not cached, so a transient
+    // read failure doesn't pin defaults until the TTL expires.
     return {
       minimumCaptains: 10, // 5 per hull × 2 aircraft
       minimumFirstOfficers: 10,
@@ -193,7 +205,7 @@ export async function getCrewRequirements(): Promise<CrewRequirements> {
   }
 
   const reqs = settings.value as PilotRequirementsSetting
-  return {
+  const requirements: CrewRequirements = {
     minimumCaptains: (reqs.minimum_captains_per_hull || 5) * (reqs.number_of_aircraft || 2),
     minimumFirstOfficers:
       (reqs.minimum_first_officers_per_hull || 5) * (reqs.number_of_aircraft || 2),
@@ -201,6 +213,9 @@ export async function getCrewRequirements(): Promise<CrewRequirements> {
     captainsPerHull: reqs.minimum_captains_per_hull || 5,
     firstOfficersPerHull: reqs.minimum_first_officers_per_hull || 5,
   }
+
+  crewRequirementsCache = { value: requirements, expiresAt: Date.now() + CREW_REQUIREMENTS_TTL_MS }
+  return requirements
 }
 
 // ===================================
