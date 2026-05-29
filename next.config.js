@@ -180,6 +180,17 @@ const nextConfig = {
         destination: '/portal/dashboard',
         permanent: true,
       },
+      // Legacy /pilot request pages (Supabase-Auth-gated, non-functional) → canonical portal.
+      {
+        source: '/pilot/leave',
+        destination: '/portal/leave-requests',
+        permanent: true,
+      },
+      {
+        source: '/pilot/flight-requests',
+        destination: '/portal/flight-requests',
+        permanent: true,
+      },
     ]
   },
 
