@@ -81,13 +81,13 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL':
+      case 'critical':
         return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
-      case 'SERIOUS':
+      case 'high':
         return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
-      case 'MODERATE':
+      case 'medium':
         return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'MINOR':
+      case 'low':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
         return 'bg-muted/30 text-foreground'
@@ -96,15 +96,13 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case 'RESOLVED':
-      case 'CLOSED':
+      case 'resolved':
+      case 'closed':
         return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
-      case 'UNDER_INVESTIGATION':
+      case 'under_review':
         return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
-      case 'ACTION_TAKEN':
+      case 'open':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      case 'APPEALED':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
       default:
         return 'bg-muted/30 text-foreground'
     }
@@ -172,21 +170,21 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Serious</span>
+                <span className="text-muted-foreground text-sm">High</span>
                 <span className="font-semibold text-[var(--color-badge-orange)]">
-                  {stats.bySeverity.serious}
+                  {stats.bySeverity.high}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Moderate</span>
+                <span className="text-muted-foreground text-sm">Medium</span>
                 <span className="font-semibold text-[var(--color-warning-600)]">
-                  {stats.bySeverity.moderate}
+                  {stats.bySeverity.medium}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Minor</span>
+                <span className="text-muted-foreground text-sm">Low</span>
                 <span className="font-semibold text-[var(--color-primary-600)]">
-                  {stats.bySeverity.minor}
+                  {stats.bySeverity.low}
                 </span>
               </div>
             </div>
