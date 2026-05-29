@@ -12,8 +12,11 @@ import { z } from 'zod'
 // ENUMS & CONSTANTS
 // ===================================
 
-export const UserRoleEnum = z.enum(['Admin', 'Manager', 'User'], {
-  message: 'Role must be one of: Admin, Manager, User',
+// Lowercase to match the DB CHECK constraint on an_users.role
+// (an_users_role_check accepts 'admin' | 'manager' only — 'user' is here for
+// future expansion and is rejected by the DB until the constraint is widened).
+export const UserRoleEnum = z.enum(['admin', 'manager', 'user'], {
+  message: 'Role must be one of: admin, manager, user',
 })
 
 // ===================================

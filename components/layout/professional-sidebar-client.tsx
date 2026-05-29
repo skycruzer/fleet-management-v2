@@ -186,7 +186,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             'group relative flex min-h-[36px] items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-100',
             isCollapsed && 'justify-center px-0',
             active
-              ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
+              ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
           )}
         >
@@ -223,13 +223,21 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           {item.badge && isCollapsed && (
             <span
               className={cn(
-                'absolute top-1 right-1 h-2 w-2 rounded-full',
-                item.badgeVariant === 'warning' && 'bg-warning',
-                item.badgeVariant === 'danger' && 'bg-destructive',
-                !item.badgeVariant && 'bg-muted-foreground'
+                'absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] leading-4 font-medium tabular-nums',
+                item.badgeVariant === 'warning' && 'bg-warning/10 text-warning',
+                item.badgeVariant === 'danger' && 'bg-destructive/10 text-destructive',
+                !item.badgeVariant && 'bg-muted-foreground/10 text-muted-foreground'
               )}
-              aria-label={`${item.badge} items`}
-            />
+              aria-label={
+                item.badgeVariant === 'danger'
+                  ? `${item.badge} items requiring attention`
+                  : item.badgeVariant === 'warning'
+                    ? `${item.badge} items expiring soon`
+                    : `${item.badge} new items`
+              }
+            >
+              {item.badge}
+            </span>
           )}
         </div>
       </Link>

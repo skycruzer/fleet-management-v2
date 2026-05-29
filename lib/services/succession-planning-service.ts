@@ -14,6 +14,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { parseLocalDate, yearsBetween } from '@/lib/utils/retirement-utils'
 
 /**
  * Succession Candidate Type
@@ -52,6 +53,12 @@ export async function getCaptainPromotionCandidates(
     readyCount: number
     potentialCount: number
     developingCount: number
+    // Surface which path produced these candidates. The materialized view
+    // captures the canonical rules (certifications, qualifications, licence,
+    // etc.); the fallback path uses a far simpler yearsOfService + age heuristic.
+    // Reports/UI can warn when 'fallback' so users know the readiness pool
+    // is derived from a permissive proxy, not the full rule set.
+    dataSource: 'materialized_view' | 'fallback'
   }
 }> {
   const supabase = createAdminClient()
@@ -116,6 +123,7 @@ export async function getCaptainPromotionCandidates(
         readyCount: ready.length,
         potentialCount: potential.length,
         developingCount: developing.length,
+        dataSource: 'materialized_view',
       },
     }
   } catch (error) {
@@ -149,6 +157,7 @@ async function getFallbackPromotionCandidates(
     readyCount: number
     potentialCount: number
     developingCount: number
+    dataSource: 'materialized_view' | 'fallback'
   }
 }> {
   const supabase = createAdminClient()
@@ -172,14 +181,14 @@ async function getFallbackPromotionCandidates(
   pilots?.forEach((pilot: any) => {
     if (!pilot.commencement_date || !pilot.date_of_birth) return
 
-    const commencementDate = new Date(pilot.commencement_date)
-    const birthDate = new Date(pilot.date_of_birth)
+    const commencementDate = parseLocalDate(pilot.commencement_date)
+    const birthDate = parseLocalDate(pilot.date_of_birth)
 
-    const yearsOfService = Math.floor(
-      (now.getTime() - commencementDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-    )
-
-    const age = Math.floor((now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+    // Calendar-aware so a pilot 14 years + 364 days in service correctly reads
+    // as 14 (not as the 14.99-floored value the old ms/365.25 math returned
+    // — which was inconsistent with the pilot detail card on those same dates).
+    const yearsOfService = yearsBetween(commencementDate, now)
+    const age = yearsBetween(birthDate, now)
 
     // Calculate readiness
     let promotionReadiness: SuccessionCandidate['promotionReadiness']
@@ -245,6 +254,7 @@ async function getFallbackPromotionCandidates(
       readyCount: ready.length,
       potentialCount: potential.length,
       developingCount: developing.length,
+      dataSource: 'fallback',
     },
   }
 }
@@ -304,9 +314,12 @@ export async function getSuccessionReadinessScore(): Promise<{
     pilots?.forEach((pilot: any) => {
       if (pilot.role !== 'Captain' || !pilot.date_of_birth) return
 
-      const birthDate = new Date(pilot.date_of_birth)
+      // parseLocalDate + Feb-29 clamp so this matches retirement-forecast-service
+      // and the pilot detail card. Without it, late-month/leap-day DOBs drift.
+      const birthDate = parseLocalDate(pilot.date_of_birth)
       const retirementDate = new Date(birthDate)
       retirementDate.setFullYear(retirementDate.getFullYear() + 65)
+      if (retirementDate.getMonth() !== birthDate.getMonth()) retirementDate.setDate(0)
 
       if (retirementDate >= now && retirementDate <= fiveYearsFromNow) {
         upcomingCaptainRetirements++

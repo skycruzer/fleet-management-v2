@@ -309,12 +309,12 @@ export function RequestsTable({
 
   const getStatusBadge = (status: PilotRequest['workflow_status']) => {
     const variants: Record<PilotRequest['workflow_status'], { variant: any; label: string }> = {
-      DRAFT: { variant: 'secondary', label: 'Draft' },
-      SUBMITTED: { variant: 'default', label: 'Submitted' },
-      IN_REVIEW: { variant: 'secondary', label: 'In Review' },
-      APPROVED: { variant: 'default', label: 'Approved' },
+      DRAFT: { variant: 'outline', label: 'Draft' },
+      SUBMITTED: { variant: 'info', label: 'Submitted' },
+      IN_REVIEW: { variant: 'warning', label: 'In Review' },
+      APPROVED: { variant: 'success', label: 'Approved' },
       DENIED: { variant: 'destructive', label: 'Denied' },
-      WITHDRAWN: { variant: 'outline', label: 'Withdrawn' },
+      WITHDRAWN: { variant: 'secondary', label: 'Withdrawn' },
     }
 
     const { variant, label } = variants[status]

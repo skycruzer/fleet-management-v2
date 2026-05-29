@@ -207,11 +207,9 @@ export function PublishedRostersClient({
 
         {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-              <p className="text-muted-foreground mt-3 text-sm">Loading roster data...</p>
-            </div>
+          <div className="space-y-6">
+            <div className="animate-shimmer bg-muted h-10 w-full rounded-lg" />
+            <div className="animate-shimmer bg-muted h-[500px] w-full rounded-lg" />
           </div>
         )}
 

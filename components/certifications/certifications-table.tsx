@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, DataTableSearch, useTableFilter, type Column } from '@/components/ui/data-table'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Eye, FileText, Download } from 'lucide-react'
+import { Eye, FileText, Download, Pencil, Trash2 } from 'lucide-react'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 import { RankBadge } from '@/components/pilots/rank-badge'
 import { exportToCSV, generateFilename } from '@/lib/utils/export-utils'
@@ -19,9 +19,15 @@ import { formatDate } from '@/lib/utils/date-utils'
 
 interface CertificationsTableProps {
   certifications: CertificationWithDetails[]
+  onEditCertification?: (certId: string) => void
+  onDeleteCertification?: (certId: string) => void
 }
 
-export function CertificationsTable({ certifications }: CertificationsTableProps) {
+export function CertificationsTable({
+  certifications,
+  onEditCertification,
+  onDeleteCertification,
+}: CertificationsTableProps) {
   // Filter function for search
   const filterFn = React.useCallback((cert: CertificationWithDetails, query: string) => {
     const searchStr = query.toLowerCase()
@@ -173,15 +179,38 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       id: 'actions',
       header: 'Actions',
       cell: (row) => (
-        <Link href={`/dashboard/pilots/${row.pilot_id}`}>
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={`View pilot ${row.pilot?.first_name} ${row.pilot?.last_name}`}
-          >
-            <Eye className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </Link>
+        <div className="flex items-center justify-end gap-1">
+          <Link href={`/dashboard/pilots/${row.pilot_id}`}>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={`View pilot ${row.pilot?.first_name} ${row.pilot?.last_name}`}
+            >
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </Link>
+          {onEditCertification && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onEditCertification(row.id)}
+              aria-label={`Edit ${row.check_type?.check_code} certification for ${row.pilot?.first_name} ${row.pilot?.last_name}`}
+            >
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          )}
+          {onDeleteCertification && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onDeleteCertification(row.id)}
+              aria-label={`Delete ${row.check_type?.check_code} certification for ${row.pilot?.first_name} ${row.pilot?.last_name}`}
+              className="text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)] hover:text-[var(--color-status-high)]"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          )}
+        </div>
       ),
     },
   ]

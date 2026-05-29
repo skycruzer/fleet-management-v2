@@ -209,6 +209,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       revalidatePath('/dashboard/requests')
       revalidatePath(`/dashboard/requests/${id}`)
       revalidatePath('/dashboard/leave/approve')
+      // Revalidate analytics and dashboard (field changes affect metrics)
+      revalidatePath('/dashboard')
+      revalidatePath('/dashboard/analytics')
+      revalidatePath('/dashboard/compliance')
+      // Revalidate portal paths
+      revalidatePath('/portal/leave-requests')
+      revalidatePath('/portal/dashboard')
 
       return NextResponse.json({
         success: true,

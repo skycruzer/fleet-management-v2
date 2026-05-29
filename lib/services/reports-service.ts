@@ -13,6 +13,7 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
@@ -29,7 +30,12 @@ import {
 } from '@/lib/services/succession-planning-service'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
 import { isRHSCaptainValid } from '@/lib/utils/qualification-utils'
-import { getCertificationStatus } from '@/lib/utils/certification-status'
+import {
+  DEFAULT_THRESHOLDS,
+  getCertificationStatus,
+  getDaysUntilExpiry,
+} from '@/lib/utils/certification-status'
+import { parseLocalDate, DEFAULT_RETIREMENT_AGE } from '@/lib/utils/retirement-utils'
 import { generateReportTitle, generateReportDescription } from '@/lib/utils/report-title-generator'
 import { formatAustralianDate, formatAustralianDateTime } from '@/lib/utils/date-format'
 
@@ -56,18 +62,37 @@ const REPORT_CACHE_CONFIG = {
 }
 
 /**
- * Generate cache key from report type and filters
+ * Deterministic JSON serializer: recursively sorts object keys so semantically-equal
+ * filters always produce the same string. Plain `JSON.stringify(obj, keys.sort())` uses
+ * the second arg as an ALLOWLIST and silently drops nested-object keys not in the list,
+ * which was producing identical cache keys for different date ranges.
+ * Arrays are NOT sorted — order is significant for fields like `groupBy`.
+ */
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value)
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`
+  const obj = value as Record<string, unknown>
+  const keys = Object.keys(obj).sort()
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(',')}}`
+}
+
+/**
+ * Generate cache key from report type and filters.
+ * Uses SHA-256 (not a truncated base64 prefix) so two filter sets that happen to share
+ * a leading prefix don't collide.
  */
 function generateCacheKey(reportType: ReportType, filters: ReportFilters): string {
-  // Sort filter keys for consistent cache keys
-  let filterString: string
-  try {
-    filterString = JSON.stringify(filters, Object.keys(filters).sort())
-  } catch {
-    filterString = String(filters)
-  }
-  const hash = Buffer.from(filterString).toString('base64url').substring(0, 48)
+  const hash = createHash('sha256').update(stableStringify(filters)).digest('base64url')
   return `report:${reportType}:${hash}`
+}
+
+/**
+ * Resolve the invalidation tag for a report type. Returns undefined for unknown types
+ * rather than throwing, so the caching path stays best-effort.
+ */
+function getReportCacheTag(reportType: ReportType): string | undefined {
+  const key = reportType.toUpperCase().replace(/-/g, '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS
+  return REPORT_CACHE_CONFIG.TAGS[key]
 }
 
 /**
@@ -186,10 +211,15 @@ export async function generateLeaveReport(
     filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
-  // Calculate summary statistics (before pagination)
-  // Note: workflow_status values are UPPERCASE in database (3-table architecture)
+  // Calculate summary statistics (before pagination).
+  // Note: workflow_status values are UPPERCASE in database (3-table architecture).
+  // Every workflow_status value gets its own bucket so the breakdown sums to
+  // totalRequests — previously `draft` was missing, so DRAFT rows appeared in
+  // the total but in no category, making the summary look internally broken.
   const summary = {
     totalRequests: filteredData.length,
+
+    draft: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DRAFT').length,
 
     submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
       .length,
@@ -475,45 +505,61 @@ export async function generateCertificationsReport(
     )
   }
 
-  // Calculate expiry and filter by threshold
-  const today = new Date()
+  // Calculate expiry and filter by threshold. Use the shared `getDaysUntilExpiry`
+  // util (setHours(0,0,0,0) + Math.ceil) so the report agrees with the dashboard
+  // badge for the same cert — the previous inline `Math.floor` math flipped a
+  // "expires today" cert to EXPIRED any time the report ran after ~14:00 PNG.
+  //
+  // "Expiring soon" threshold semantics:
+  //   - When the user picks a threshold, use it (their filter and the summary
+  //     buckets should agree on what counts as "soon").
+  //   - When no threshold is set, default to EXTENDED_WARNING_DAYS (90) — the
+  //     "approaching renewal" window operations managers use for this report.
+  //     Note: this is intentionally wider than the 30-day badge default in
+  //     certification-status.ts; both are documented FAA-aligned operational
+  //     concepts (30 = mandatory advance notice, 90 = renewal-planning window).
+  const expiringSoonThreshold = filters.expiryThreshold ?? DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
 
   const dataWithExpiry = filteredData.map((cert: any) => {
-    const expiryDate = new Date(cert.expiry_date)
-    const completionDate = cert.completion_date ? new Date(cert.completion_date) : null
-    const daysUntilExpiry = Math.floor(
-      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    )
+    const daysUntilExpiry = getDaysUntilExpiry(cert.expiry_date) ?? 0
 
     return {
       ...cert,
       daysUntilExpiry,
       isExpired: daysUntilExpiry < 0,
-      isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= 90,
-      // Add formatted dates for safe display
-      formattedExpiryDate: expiryDate.toLocaleDateString(),
-      formattedCompletionDate: completionDate?.toLocaleDateString() || 'N/A',
+      isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= expiringSoonThreshold,
+      // Add formatted dates for safe display (Australian + PNG TZ via shared helper)
+      formattedExpiryDate: formatAustralianDate(cert.expiry_date),
+      formattedCompletionDate: formatAustralianDate(cert.completion_date),
     }
   })
 
-  // Filter by expiry threshold if provided
+  // Filter by expiry threshold if provided. Future-only (>= 0) — "Expiring in
+  // 30 days" semantically excludes already-expired certs (those belong in a
+  // separate "needs immediate attention" view, not a forward-looking renewal
+  // report). Was previously inclusive of negative values, silently dragging
+  // months of expired certs into a "next 30 days" report.
   let finalData = dataWithExpiry
   if (filters.expiryThreshold !== undefined) {
     finalData = dataWithExpiry.filter(
-      (cert: any) => cert.daysUntilExpiry <= filters.expiryThreshold!
+      (cert: any) => cert.daysUntilExpiry >= 0 && cert.daysUntilExpiry <= filters.expiryThreshold!
     )
   }
 
   /**
-   * Calculate summary statistics (before pagination)
+   * Calculate summary statistics (after threshold filter, so totals always equal
+   * the table the user sees).
    *
    * Certification Status Thresholds:
-   * - Expired: daysUntilExpiry < 0 (past expiry date)
-   * - Expiring Soon: 0 <= daysUntilExpiry <= 90 (within 90 days of expiry)
-   * - Current: daysUntilExpiry > 90 (more than 90 days until expiry)
+   * - Expired:       daysUntilExpiry < 0
+   * - Expiring Soon: 0 <= daysUntilExpiry <= expiringSoonThreshold
+   *                  (user filter when set, otherwise EXTENDED_WARNING_DAYS = 90)
+   * - Current:       daysUntilExpiry > expiringSoonThreshold
    *
-   * Note: The 90-day threshold for "Expiring Soon" aligns with FAA recommended
-   * advance notice periods for recurrent training and certification renewals.
+   * The summary's "Expiring Soon" definition now tracks the user's threshold, so
+   * the breakdown agrees with what's visible — previously the bucket was hard-
+   * coded to 90 days even when the user filtered to 30, leaving "current" at 0
+   * because everything beyond 30 had been filtered out.
    */
   const summary = {
     totalCertifications: finalData.length,
@@ -599,8 +645,27 @@ export async function generateAllRequestsReport(
       .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
-  if (filters.status && filters.status.length > 0) {
-    rdoSdoQuery = rdoSdoQuery.in('workflow_status', filters.status)
+  // Split `filters.status` by which table the status value can actually appear in.
+  // pilot_requests uses workflow_status (DRAFT/SUBMITTED/IN_REVIEW/APPROVED/DENIED/WITHDRAWN);
+  // leave_bids uses status (PENDING/APPROVED/REJECTED/WITHDRAWN). Without this split, the
+  // same array got passed to both .in() filters — e.g. picking PENDING returned 0 from
+  // pilot_requests (no such workflow_status), and picking SUBMITTED returned 0 from
+  // leave_bids (no such bid status), silently dropping rows the user expected to see.
+  const PILOT_REQUEST_STATUSES = new Set([
+    'DRAFT',
+    'SUBMITTED',
+    'IN_REVIEW',
+    'APPROVED',
+    'DENIED',
+    'WITHDRAWN',
+  ])
+  const LEAVE_BID_STATUSES = new Set(['PENDING', 'APPROVED', 'REJECTED', 'WITHDRAWN'])
+  const statusIsActive = !!filters.status && filters.status.length > 0
+  const workflowStatuses = filters.status?.filter((s) => PILOT_REQUEST_STATUSES.has(s)) ?? []
+  const bidStatuses = filters.status?.filter((s) => LEAVE_BID_STATUSES.has(s)) ?? []
+
+  if (workflowStatuses.length > 0) {
+    rdoSdoQuery = rdoSdoQuery.in('workflow_status', workflowStatuses)
   }
 
   if (filters.rosterPeriod) {
@@ -622,8 +687,8 @@ export async function generateAllRequestsReport(
       .or(`end_date.gte.${effectiveDateRange.startDate},end_date.is.null`)
   }
 
-  if (filters.status && filters.status.length > 0) {
-    leaveQuery = leaveQuery.in('workflow_status', filters.status)
+  if (workflowStatuses.length > 0) {
+    leaveQuery = leaveQuery.in('workflow_status', workflowStatuses)
   }
 
   if (filters.rosterPeriod) {
@@ -636,8 +701,8 @@ export async function generateAllRequestsReport(
     .select('*, pilot:pilots!pilot_id(is_active)')
     .order('created_at', { ascending: false })
 
-  if (filters.status && filters.status.length > 0) {
-    leaveBidsQuery = leaveBidsQuery.in('status', filters.status)
+  if (bidStatuses.length > 0) {
+    leaveBidsQuery = leaveBidsQuery.in('status', bidStatuses)
   }
 
   // Execute all queries in parallel
@@ -657,18 +722,25 @@ export async function generateAllRequestsReport(
     throw new Error(`Failed to fetch leave bids: ${leaveBidsResult.error.message}`)
   }
 
+  // When the user actively filtered status, exclude any source for which no
+  // applicable status value was chosen. Otherwise the source would return ALL
+  // rows (unfiltered) and over-include — e.g. filtering only by DRAFT would
+  // accidentally surface every leave bid.
+  const includeWorkflow = !statusIsActive || workflowStatuses.length > 0
+  const includeBids = !statusIsActive || bidStatuses.length > 0
+
   // Combine all data with source tags
   // Filter out inactive pilots (Supabase can't filter on joined table fields)
   const allRequests: any[] = [
-    ...(rdoSdoResult.data || [])
+    ...(includeWorkflow ? rdoSdoResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'RDO/SDO' })),
 
-    ...(leaveResult.data || [])
+    ...(includeWorkflow ? leaveResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'LEAVE' })),
 
-    ...(leaveBidsResult.data || [])
+    ...(includeBids ? leaveBidsResult.data || [] : [])
       .filter((r: any) => r.pilot?.is_active === true)
       .map((r: any) => ({ ...r, request_source: 'LEAVE_BID' })),
   ]
@@ -683,7 +755,7 @@ export async function generateAllRequestsReport(
   // Filter by rank if needed
   let filteredData = allRequests
   if (filters.rank && filters.rank.length > 0) {
-    filteredData = allRequests.filter((item: any) => filters.rank!.includes(item.rank))
+    filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
@@ -845,15 +917,59 @@ export async function generatePDF(
   const orientation = reportType === 'pilot-info' ? 'landscape' : 'portrait'
   const doc = new jsPDF({ orientation })
   const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
 
-  // Logo + Header
+  // Air Niugini brand red — one constant so every table head looks the same
+  // regardless of report. Replaces the previous per-report fillColor scatter
+  // (blue/green/purple/sky/red/yellow) that included a WCAG-failing white-on-
+  // yellow combination on the Crew Shortage table.
+  const BRAND_HEAD_STYLES = {
+    fillColor: [231, 76, 60] as [number, number, number],
+    textColor: [255, 255, 255] as [number, number, number],
+    fontStyle: 'bold' as const,
+  }
+  // Subtle zebra striping makes dense 8-column tables at fontSize 6-7 scannable.
+  const ALTERNATE_ROW_STYLES = {
+    fillColor: [248, 248, 248] as [number, number, number],
+  }
+  // Margins reserve space for the per-page letterhead and footer so autoTable
+  // doesn't render rows underneath them on page 2+.
+  const PAGE_MARGIN = { top: 38, bottom: 16, left: 14, right: 14 }
+
+  // PDF metadata so viewers show the report title (not the filename) and DMS
+  // systems can index author/keywords. setLanguage helps screen readers.
+  doc.setProperties({
+    title: report.title,
+    subject: report.description,
+    author: report.generatedBy || 'Air Niugini Fleet Management System',
+    creator: 'Air Niugini Fleet Management System',
+    keywords: `air-niugini,fleet,${reportType},${report.generatedAt}`,
+  })
+  doc.setLanguage('en-AU')
+
+  // Resolve the days-count cell for RDO/SDO/Flight Request rows. Computes from start/end
+  // dates when `days_count` is null so multi-day requests don't silently render as "1".
+  const formatRequestDays = (item: any): string => {
+    if (item.days_count != null) return String(item.days_count)
+    if (item.start_date && item.end_date) {
+      const start = new Date(item.start_date).getTime()
+      const end = new Date(item.end_date).getTime()
+      if (Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+        return String(Math.floor((end - start) / 86400000) + 1)
+      }
+    }
+    return '-'
+  }
+
+  // Cache the logo bytes once so multi-page reports don't re-read the file
+  // on every page draw inside the didDrawPage callback.
+  let logoBase64: string | null = null
   try {
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
     const logoData = readFileSync(logoPath)
-    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-    doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
+    logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
   } catch {
-    // Logo not found — continue without it
+    // Logo not found — continue without it (already-failed draws will simply skip)
   }
 
   // Split title: base title (before first " - ") and filter segments (after)
@@ -867,25 +983,53 @@ export async function generatePDF(
           .join('  |  ')
       : ''
 
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text(baseTitle, 34, 15, { align: 'left' })
+  // Draw the brand letterhead. Called both on page 1 (immediately, so the
+  // filter/summary block below stays where it was) and via didDrawPage on
+  // subsequent pages so multi-page reports don't lose branding after p1.
+  const drawReportHeader = () => {
+    if (logoBase64) {
+      try {
+        doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
+      } catch {
+        // skip — cached but couldn't be re-added
+      }
+    }
 
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(100)
-  doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
-  doc.setTextColor(0)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0)
+    doc.text(baseTitle, 34, 15, { align: 'left' })
 
-  doc.setFontSize(8)
-  doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth - 14, 15, {
-    align: 'right',
-  })
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(100)
+    doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
+    doc.setTextColor(0)
 
-  // Header separator
-  doc.setDrawColor(200)
-  doc.setLineWidth(0.3)
-  doc.line(14, 28, pageWidth - 14, 28)
+    doc.setFontSize(8)
+    doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth - 14, 15, {
+      align: 'right',
+    })
+    if (report.generatedBy) {
+      doc.setTextColor(100)
+      doc.text(`By: ${report.generatedBy}`, pageWidth - 14, 20, { align: 'right' })
+      doc.setTextColor(0)
+    }
+
+    // Header separator
+    doc.setDrawColor(200)
+    doc.setLineWidth(0.3)
+    doc.line(14, 28, pageWidth - 14, 28)
+  }
+
+  // didDrawPage callback for autoTable. Fires after EVERY page autoTable
+  // produces. Skip page 1 — the main code already drew the header + summary
+  // there and rendering it again would duplicate the strip.
+  const drawSubsequentPageHeader = (data: any) => {
+    if (data.pageNumber > 1) drawReportHeader()
+  }
+
+  drawReportHeader()
 
   // Filter + summary compact block below separator
   let yPos = 31
@@ -968,7 +1112,9 @@ export async function generatePDF(
             ],
           ],
           body: groupData.map((item: any) => [
-            item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
+            item.name ||
+              [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') ||
+              'N/A',
             item.rank || item.pilot?.role || 'N/A',
             item.request_type || item.leave_type || 'N/A',
             formatAustralianDate(item.submission_date),
@@ -979,7 +1125,10 @@ export async function generatePDF(
             computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [41, 128, 185] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 15 || yPos + 50
@@ -1002,7 +1151,9 @@ export async function generatePDF(
           ],
         ],
         body: report.data.map((item: any) => [
-          item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
+          item.name ||
+            [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') ||
+            'N/A',
           item.rank || item.pilot?.role || 'N/A',
           item.request_type || item.leave_type || 'N/A',
           formatAustralianDate(item.submission_date),
@@ -1013,10 +1164,15 @@ export async function generatePDF(
           computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
-        headStyles: { fillColor: [41, 128, 185] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
-  } else if (reportType === 'rdo-sdo') {
+  } else if (reportType === 'rdo-sdo' || reportType === 'flight-requests') {
+    // `flight-requests` is a deprecated alias; the service redirects it to generateRdoSdoReport,
+    // so rows share the unified pilot_requests shape — share the renderer to avoid field drift.
     if (shouldGroup && primaryGroupField) {
       // Grouped rendering
       const grouped = groupDataByField(report.data, primaryGroupField)
@@ -1060,13 +1216,16 @@ export async function generatePDF(
             item.end_date
               ? formatAustralianDate(item.end_date)
               : formatAustralianDate(item.start_date),
-            item.days_count || '1',
+            formatRequestDays(item),
             item.workflow_status || 'N/A',
             item.is_late_request ? 'Yes' : '',
             computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [46, 204, 113] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 15 || yPos + 50
@@ -1098,13 +1257,16 @@ export async function generatePDF(
           item.end_date
             ? formatAustralianDate(item.end_date)
             : formatAustralianDate(item.start_date),
-          item.days_count || '1',
+          formatRequestDays(item),
           item.workflow_status || 'N/A',
           item.is_late_request ? 'Yes' : '',
           computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
-        headStyles: { fillColor: [46, 204, 113] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
   } else if (reportType === 'all-requests') {
@@ -1136,23 +1298,10 @@ export async function generatePDF(
         computeRosterPeriods(item),
       ]),
       styles: { fontSize: 7 },
-      headStyles: { fillColor: [155, 89, 182] },
-    })
-  } else if (reportType === 'flight-requests') {
-    autoTable(doc, {
-      startY: yPos,
-      head: [['Pilot', 'Rank', 'Type', 'Flight Date', 'Description', 'Status']],
-
-      body: report.data.map((item: any) => [
-        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
-        item.pilot?.role || 'N/A',
-        item.request_type,
-        formatAustralianDate(item.flight_date),
-        item.description,
-        item.status,
-      ]),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [41, 128, 185] },
+      headStyles: BRAND_HEAD_STYLES,
+      alternateRowStyles: ALTERNATE_ROW_STYLES,
+      margin: PAGE_MARGIN,
+      didDrawPage: drawSubsequentPageHeader,
     })
   } else if (reportType === 'certifications') {
     if (shouldGroup && primaryGroupField) {
@@ -1179,24 +1328,31 @@ export async function generatePDF(
           startY: yPos,
           head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
           body: groupData.map((item: any) => [
-            `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+            [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') || 'N/A',
             item.pilot?.role || 'N/A',
             item.check_type?.check_description || item.check_type?.check_code || 'N/A',
             formatAustralianDate(item.expiry_date),
             item.daysUntilExpiry,
-            item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
+            // Text markers stop the status from being color-only — important for
+            // B&W printing of compliance docs (auditors routinely print these).
+            // 'X ' for expired, '! ' for expiring soon, no marker for current.
+            item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
           ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [41, 128, 185] },
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
           bodyStyles: { cellPadding: 2 },
           didParseCell: (data) => {
             if (data.column.index === 5 && data.section === 'body') {
-              const status = data.cell.text[0]
-              if (status === 'EXPIRED') {
-                data.cell.styles.textColor = [231, 76, 60]
+              const status = data.cell.text[0] ?? ''
+              if (status.startsWith('X ')) {
+                data.cell.styles.textColor = [231, 76, 60] // red
                 data.cell.styles.fontStyle = 'bold'
-              } else if (status === 'EXPIRING SOON') {
-                data.cell.styles.textColor = [241, 196, 15]
+              } else if (status.startsWith('! ')) {
+                // Darkened from #F1C40F (~1.7:1 contrast) to #B58900 (~5.4:1, WCAG AA)
+                data.cell.styles.textColor = [181, 137, 0]
                 data.cell.styles.fontStyle = 'bold'
               }
             }
@@ -1212,27 +1368,35 @@ export async function generatePDF(
         head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
 
         body: report.data.map((item: any) => [
-          `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+          [item.pilot?.first_name, item.pilot?.last_name].filter(Boolean).join(' ') || 'N/A',
           item.pilot?.role || 'N/A',
           item.check_type?.check_description || item.check_type?.check_code || 'N/A',
           formatAustralianDate(item.expiry_date),
           item.daysUntilExpiry,
-          item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
+          // Text markers stop the status from being color-only — important for
+          // B&W printing of compliance docs (auditors routinely print these).
+          item.isExpired ? 'X EXPIRED' : item.isExpiringSoon ? '! EXPIRING SOON' : 'CURRENT',
         ]),
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [41, 128, 185] },
+        headStyles: BRAND_HEAD_STYLES,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
+        didDrawPage: drawSubsequentPageHeader,
         bodyStyles: {
           cellPadding: 2,
         },
         didParseCell: (data) => {
-          // Color code status column
+          // Color code status column. Match on the marker prefix instead of the
+          // full string so a future label tweak (i18n, casing) doesn't silently
+          // lose the color.
           if (data.column.index === 5 && data.section === 'body') {
-            const status = data.cell.text[0]
-            if (status === 'EXPIRED') {
-              data.cell.styles.textColor = [231, 76, 60] // Red
+            const status = data.cell.text[0] ?? ''
+            if (status.startsWith('X ')) {
+              data.cell.styles.textColor = [231, 76, 60] // red
               data.cell.styles.fontStyle = 'bold'
-            } else if (status === 'EXPIRING SOON') {
-              data.cell.styles.textColor = [241, 196, 15] // Yellow/Orange
+            } else if (status.startsWith('! ')) {
+              // Darkened from #F1C40F (~1.7:1 contrast) to #B58900 (~5.4:1, WCAG AA)
+              data.cell.styles.textColor = [181, 137, 0]
               data.cell.styles.fontStyle = 'bold'
             }
           }
@@ -1279,7 +1443,7 @@ export async function generatePDF(
     ]
     const pilotTableStyles = { fontSize: 6, cellPadding: 1.5 }
     const pilotHeadStyles = {
-      fillColor: [52, 152, 219] as [number, number, number],
+      ...BRAND_HEAD_STYLES,
       fontSize: 6,
     }
     const pilotColumnStyles: Record<number, any> = {
@@ -1320,7 +1484,7 @@ export async function generatePDF(
           })
         : '-'
     const pilotRowMapper = (item: any) => [
-      item.seniority_number || '-',
+      item.seniority_number != null ? item.seniority_number : '-',
       item.employee_id || '-',
       item.name || '-',
       item.rank || '-',
@@ -1368,7 +1532,10 @@ export async function generatePDF(
           styles: pilotTableStyles,
           headStyles: pilotHeadStyles,
           columnStyles: pilotColumnStyles,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
           didParseCell: pilotDidParseCell,
+          didDrawPage: drawSubsequentPageHeader,
         })
 
         yPos = (doc as any).lastAutoTable?.finalY + 12 || yPos + 50
@@ -1382,7 +1549,10 @@ export async function generatePDF(
         styles: pilotTableStyles,
         headStyles: pilotHeadStyles,
         columnStyles: pilotColumnStyles,
+        alternateRowStyles: ALTERNATE_ROW_STYLES,
+        margin: PAGE_MARGIN,
         didParseCell: pilotDidParseCell,
+        didDrawPage: drawSubsequentPageHeader,
       })
     }
   } else if (reportType === 'forecast') {
@@ -1412,7 +1582,10 @@ export async function generatePDF(
               item.monthsUntilRetirement?.toString() || 'N/A',
             ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [231, 76, 60] }, // Red for retirement
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       } else if (sectionName === 'Succession Planning') {
         autoTable(doc, {
@@ -1427,7 +1600,10 @@ export async function generatePDF(
               item.qualificationGaps?.join(', ') || 'None',
             ]),
           styles: { fontSize: 8 },
-          headStyles: { fillColor: [46, 204, 113] }, // Green for succession
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       } else if (sectionName === 'Crew Shortage Predictions') {
         autoTable(doc, {
@@ -1441,7 +1617,10 @@ export async function generatePDF(
             item.message || '-',
           ]),
           styles: { fontSize: 7 },
-          headStyles: { fillColor: [241, 196, 15] }, // Yellow for warnings
+          headStyles: BRAND_HEAD_STYLES,
+          alternateRowStyles: ALTERNATE_ROW_STYLES,
+          margin: PAGE_MARGIN,
+          didDrawPage: drawSubsequentPageHeader,
         })
       }
 
@@ -1532,9 +1711,12 @@ export async function generateLeaveBidsReport(
     query = query.in('status', filters.status)
   }
 
-  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
-    query = query.in('roster_period_code', filters.rosterPeriods)
-  }
+  // NOTE: filters.rosterPeriods is intentionally NOT applied at the DB level.
+  // The primary `roster_period_code` column only reflects the bid's primary period
+  // — bids whose options span other periods (e.g. primary RP12, options reaching
+  // into RP13) would be silently filtered out when the user selects RP13.
+  // We apply this filter post-enrichment against `roster_periods_all`, which is
+  // the union of the primary code and every option's computed roster period.
 
   if (filters.pilotId) {
     query = query.eq('pilot_id', filters.pilotId)
@@ -1580,10 +1762,16 @@ export async function generateLeaveBidsReport(
         allRosterPeriods.add(bid.roster_period_code)
       }
 
-      // Extract bid year from first option's start_date
+      // Extract bid year from the highest-priority dated option (priority 1 = top
+      // choice), not storage order — otherwise the year filter could include/exclude
+      // a bid based on whichever option happened to be returned first.
       let bid_year = new Date().getFullYear()
-      if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
-        bid_year = new Date(enrichedOptions[0].start_date).getFullYear()
+      const datedOptions = enrichedOptions.filter((o: any) => o.start_date)
+      if (datedOptions.length > 0) {
+        const primaryOption = datedOptions.reduce((best: any, o: any) =>
+          (o.priority ?? Infinity) < (best.priority ?? Infinity) ? o : best
+        )
+        bid_year = new Date(primaryOption.start_date).getFullYear()
       }
 
       return {
@@ -1591,7 +1779,7 @@ export async function generateLeaveBidsReport(
         leave_bid_options: enrichedOptions,
         name: bid.pilot ? `${bid.pilot.first_name} ${bid.pilot.last_name}` : 'N/A',
         rank: bid.pilot?.role || 'N/A',
-        seniority: bid.pilot?.seniority_number || 0,
+        seniority: bid.pilot?.seniority_number ?? null,
         roster_periods_all: Array.from(allRosterPeriods),
         bid_year,
       }
@@ -1602,15 +1790,31 @@ export async function generateLeaveBidsReport(
     enrichedData = enrichedData.filter((bid: any) => bid.bid_year === filters.year)
   }
 
+  // Filter by roster periods (post-enrichment — see note on the DB-level
+  // filter above for why this is intentionally not pushed into the query).
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    enrichedData = enrichedData.filter((bid: any) =>
+      bid.roster_periods_all?.some((rp: string) => filters.rosterPeriods!.includes(rp))
+    )
+  }
+
   // Filter by rank (post-query — Supabase can't filter on joined fields)
   if (filters.rank && filters.rank.length > 0) {
     enrichedData = enrichedData.filter((bid: any) => filters.rank!.includes(bid.rank))
   }
 
-  // Calculate enhanced summary statistics
+  // Calculate enhanced summary statistics.
+  // `approvalRate` is omitted when the user actively filters by status — the
+  // ratio of approved-to-total within a status-narrowed subset is misleading
+  // (filtering to APPROVED would always show 100%).
   const totalBids = enrichedData.length
   const approvedCount = enrichedData.filter((b: any) => b.status === 'APPROVED').length
-  const approvalRate = totalBids > 0 ? Math.round((approvedCount / totalBids) * 100) : 0
+  const statusFilterActive = (filters.status?.length ?? 0) > 0
+  const approvalRate = statusFilterActive
+    ? undefined
+    : totalBids > 0
+      ? Math.round((approvedCount / totalBids) * 100)
+      : 0
 
   // Bids per roster period (count each bid in all affected periods)
   const bidsByRosterPeriod: Record<string, number> = {}
@@ -1682,11 +1886,14 @@ export async function generatePilotInfoReport(
 ): Promise<ReportData> {
   const supabase = createAdminClient()
 
-  // Query pilots with certifications
-  const { data: pilots, error } = await supabase
-    .from('pilots')
-    .select(
-      `
+  // Query pilots with certifications. Paginate-to-exhaustion (mirrors
+  // certification-service.getCertificationsUnpaginated) so we don't silently
+  // truncate at Supabase's default 1000-row limit when the org grows past it
+  // — the table here can include inactive/historical pilots when
+  // filters.activeStatus = 'all', so the row count is unbounded by intent.
+  const PAGE_SIZE = 1000
+  const MAX_PAGES = 50
+  const selectFields = `
       id,
       employee_id,
       first_name,
@@ -1712,15 +1919,26 @@ export async function generatePilotInfoReport(
         check_types (check_code, check_description)
       )
     `
-    )
-    .order('seniority_number', { ascending: true, nullsFirst: false })
 
-  if (error) {
-    throw new Error(`Failed to fetch pilots: ${error.message}`)
+  const pilots: any[] = []
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const from = page * PAGE_SIZE
+    const { data: chunk, error } = await supabase
+      .from('pilots')
+      .select(selectFields)
+      .order('seniority_number', { ascending: true, nullsFirst: false })
+      .range(from, from + PAGE_SIZE - 1)
+
+    if (error) {
+      throw new Error(`Failed to fetch pilots: ${error.message}`)
+    }
+    if (!chunk || chunk.length === 0) break
+    pilots.push(...chunk)
+    if (chunk.length < PAGE_SIZE) break
   }
 
   // Apply filters
-  let filteredData = pilots || []
+  let filteredData = pilots
 
   // Filter by rank
   if (filters.rank && filters.rank.length > 0) {
@@ -1743,13 +1961,25 @@ export async function generatePilotInfoReport(
     )
   }
 
-  // Filter by qualifications (applies to Captains only — First Officers pass through)
+  // Filter by qualifications. Captain qualifications are a Captain-only attribute,
+  // so when the user picks "Examiners" they mean "Captains who are examiners" —
+  // including all First Officers (because the filter is "inapplicable" to them)
+  // produced surprising results. Now non-Captains are excluded entirely whenever
+  // any qualification filter is active.
   if (filters.qualifications && filters.qualifications.length > 0) {
     filteredData = filteredData.filter((pilot: any) => {
-      // Qualifications only apply to Captains — non-Captains are not excluded
-      if (pilot.role !== 'Captain') return true
+      if (pilot.role !== 'Captain') return false
       const quals = parseCaptainQualifications(pilot.captain_qualifications)
-      if (!quals) return false
+      if (!quals) {
+        // Malformed JSON in captain_qualifications — log so admins can fix the
+        // record. Filter still excludes (we can't classify them safely).
+        if (pilot.captain_qualifications != null) {
+          console.warn(
+            `[reports] pilot ${pilot.id} (${pilot.first_name} ${pilot.last_name}) has malformed captain_qualifications; excluded from qualification-filtered report.`
+          )
+        }
+        return false
+      }
 
       return filters.qualifications!.some((q) => {
         if (q === 'line_captain') return quals.line_captain
@@ -1777,18 +2007,23 @@ export async function generatePilotInfoReport(
 
     const quals = parseCaptainQualifications(pilot.captain_qualifications)
 
-    // Compute retirement and service dates
-    const retirementAge = 65
+    // Compute retirement and service dates.
+    // Use parseLocalDate so date-only DOB strings (`YYYY-MM-DD`) aren't shifted by
+    // UTC parsing — without it, Feb-29 / late-month births land on the wrong day
+    // in non-UTC server timezones and disagree with the pilot detail card.
+    const retirementAge = DEFAULT_RETIREMENT_AGE
     const now = new Date()
     let retirementDate: string | null = null
     let yearsInService: number | null = null
     let yearsToRetirement: number | null = null
 
     if (pilot.date_of_birth) {
-      const dob = new Date(pilot.date_of_birth)
+      const dob = parseLocalDate(pilot.date_of_birth)
       const retDate = new Date(dob)
       retDate.setFullYear(retDate.getFullYear() + retirementAge)
-      retirementDate = retDate.toISOString().split('T')[0]
+      // Feb-29 → Mar 1 overflow clamp (matches calculateRetirementCountdown).
+      if (retDate.getMonth() !== dob.getMonth()) retDate.setDate(0)
+      retirementDate = `${retDate.getFullYear()}-${String(retDate.getMonth() + 1).padStart(2, '0')}-${String(retDate.getDate()).padStart(2, '0')}`
       yearsToRetirement = Math.max(
         0,
         parseFloat(
@@ -1798,7 +2033,7 @@ export async function generatePilotInfoReport(
     }
 
     if (pilot.commencement_date) {
-      const commDate = new Date(pilot.commencement_date)
+      const commDate = parseLocalDate(pilot.commencement_date)
       yearsInService = parseFloat(
         ((now.getTime() - commDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1)
       )
@@ -1855,8 +2090,11 @@ export async function generatePilotInfoReport(
     enrichedData.sort((a: any, b: any) => {
       // Captains first, then First Officers
       if (a.rank !== b.rank) return a.rank === 'Captain' ? -1 : 1
-      // Within rank, sort by seniority number
-      return (a.seniority_number || 999) - (b.seniority_number || 999)
+      // Within rank, sort by seniority number; null/missing seniority sorts last (use ?? not || so 0 isn't buried)
+      const aSen = a.seniority_number ?? Number.POSITIVE_INFINITY
+      const bSen = b.seniority_number ?? Number.POSITIVE_INFINITY
+      if (aSen === bSen) return 0
+      return aSen < bSen ? -1 : 1
     })
   }
 
@@ -1918,14 +2156,16 @@ export async function generateForecastReport(
   const timeHorizon = filters.timeHorizon || '5yr'
   const sections = filters.forecastSections || ['retirement', 'succession', 'shortage']
 
-  // Get retirement age from system (default 65)
-  const retirementAge = 65
+  // Use the centralized default until a real system-settings lookup exists.
+  const retirementAge = DEFAULT_RETIREMENT_AGE
 
   // Parallel data fetching for efficiency
   const [retirementData, successionData, crewImpactData] = await Promise.all([
     sections.includes('retirement') ? getRetirementForecastByRank(retirementAge) : null,
     sections.includes('succession') ? getCaptainPromotionCandidates() : null,
-    sections.includes('shortage') ? getCrewImpactAnalysis(retirementAge) : null,
+    sections.includes('shortage')
+      ? getCrewImpactAnalysis(retirementAge, 10, 10, timeHorizon === '2yr' ? 24 : 60)
+      : null,
   ])
 
   // Get succession readiness score if succession section is included
@@ -2167,7 +2407,11 @@ export async function generateReport(
 
   // For preview (paginated), use caching
   const cacheKey = generateCacheKey(reportType, filters)
+  const cacheTag = getReportCacheTag(reportType)
 
+  // unifiedCacheService.getOrSet expects ttl in MILLISECONDS (it divides by 1000 for Redis).
+  // Passing TTL_SECONDS directly killed the local cache after 300 ms and gave Redis a
+  // floor-to-zero TTL, leaving the whole cache layer effectively disabled.
   return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
@@ -2194,7 +2438,8 @@ export async function generateReport(
           throw new Error(`Unknown report type: ${reportType}`)
       }
     },
-    REPORT_CACHE_CONFIG.TTL_SECONDS
+    REPORT_CACHE_CONFIG.TTL_SECONDS * 1000,
+    { tags: cacheTag ? [cacheTag] : undefined }
   )
 }
 
@@ -2205,11 +2450,8 @@ export async function generateReport(
 export function invalidateReportCache(reportType?: ReportType): void {
   if (reportType) {
     // Invalidate specific report type
-    invalidateCacheByTag(
-      REPORT_CACHE_CONFIG.TAGS[
-        reportType.toUpperCase().replace('-', '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS
-      ]
-    )
+    const tag = getReportCacheTag(reportType)
+    if (tag) invalidateCacheByTag(tag)
   } else {
     // Invalidate all reports
     Object.values(REPORT_CACHE_CONFIG.TAGS).forEach((tag) => invalidateCacheByTag(tag))

@@ -41,34 +41,41 @@ export default function PilotDetailPage() {
   const [retirementAge, setRetirementAge] = useState<number>(65)
 
   // Fetch pilot details with useCallback for stable reference
-  const fetchPilotDetails = useCallback(async () => {
-    if (!pilotId) return
+  const fetchPilotDetails = useCallback(
+    async (silent = false) => {
+      if (!pilotId) return
 
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/pilots/${pilotId}`)
+      try {
+        if (!silent) setLoading(true)
+        const response = await fetch(`/api/pilots/${pilotId}`)
 
-      if (!response.ok) {
-        setError('Failed to fetch pilot details')
-        return
-      }
-
-      const data = await response.json()
-
-      if (data.success) {
-        setPilot(data.data)
-        if (data.systemSettings?.pilot_retirement_age) {
-          setRetirementAge(data.systemSettings.pilot_retirement_age)
+        if (!response.ok) {
+          const body = await response.json().catch(() => null)
+          setError(
+            body?.error ||
+              (response.status === 404 ? 'Pilot not found' : 'Failed to fetch pilot details')
+          )
+          return
         }
-      } else {
-        setError(data.error || 'Failed to fetch pilot details')
+
+        const data = await response.json()
+
+        if (data.success) {
+          setPilot(data.data)
+          if (data.systemSettings?.pilot_retirement_age) {
+            setRetirementAge(data.systemSettings.pilot_retirement_age)
+          }
+        } else {
+          setError(data.error || 'Failed to fetch pilot details')
+        }
+      } catch (err) {
+        setError('Failed to fetch pilot details')
+      } finally {
+        if (!silent) setLoading(false)
       }
-    } catch (err) {
-      setError('Failed to fetch pilot details')
-    } finally {
-      setLoading(false)
-    }
-  }, [pilotId])
+    },
+    [pilotId]
+  )
 
   // Fetch certifications with useCallback for stable reference
   const fetchCertifications = useCallback(async () => {
@@ -156,8 +163,9 @@ export default function PilotDetailPage() {
   }
 
   function handleCertificationUpdate() {
-    // Refresh both pilot and certifications data
-    fetchPilotDetails()
+    // Silent refresh — don't blank the whole page back to a full-screen spinner
+    // (which would unmount the tabs and bounce the user off the Certifications tab).
+    fetchPilotDetails(true)
     fetchCertifications()
   }
 

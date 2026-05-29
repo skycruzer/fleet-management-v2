@@ -76,12 +76,21 @@ export function PilotCertificationsTab({
   const [saving, setSaving] = useState(false)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
-  // Fetch certifications on mount if not provided
+  // Fetch certifications on mount and whenever the pilot changes, if none were
+  // supplied. Re-running is keyed on the pilot identity only.
   useEffect(() => {
     if (!initialCertifications || initialCertifications.length === 0) {
       fetchCertifications()
     }
-  }, [])
+  }, [pilot.id])
+
+  // Re-sync local state when the parent supplies a refreshed certifications
+  // list — mirrors the prop-sync effect in PilotDetailTabs so refreshes
+  // initiated higher up (page-level handleCertificationUpdate) reach this leaf
+  // instead of stopping at the mid-tree component.
+  useEffect(() => {
+    setCertifications(initialCertifications || [])
+  }, [initialCertifications])
 
   async function fetchCertifications() {
     try {

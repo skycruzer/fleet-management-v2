@@ -181,10 +181,6 @@ test.describe('Certification Management - Create Certification', () => {
     await page.getByLabel(/check type|certification type/i).click()
     await page.getByRole('option').first().click()
 
-    // Set check date (today)
-    const checkDate = dateUtils.getToday()
-    await page.getByLabel(/check date/i).fill(checkDate)
-
     // Set expiry date (1 year from now)
     const expiryDate = dateUtils.getFutureDate(365)
     await page.getByLabel(/expiry date/i).fill(expiryDate)
@@ -197,30 +193,6 @@ test.describe('Certification Management - Create Certification', () => {
 
     // Dialog should close
     await expect(page.getByRole('dialog')).not.toBeVisible()
-  })
-
-  test('should validate expiry date is after check date', async ({ page }) => {
-    await page.getByRole('button', { name: /add|new certification/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
-
-    // Select pilot and check type
-    await page.getByLabel(/pilot/i).click()
-    await page.getByRole('option').first().click()
-    await page.getByLabel(/check type/i).click()
-    await page.getByRole('option').first().click()
-
-    // Set expiry date before check date
-    const checkDate = dateUtils.getToday()
-    const expiryDate = dateUtils.getPastDate(30)
-
-    await page.getByLabel(/check date/i).fill(checkDate)
-    await page.getByLabel(/expiry date/i).fill(expiryDate)
-
-    // Try to submit
-    await page.getByRole('button', { name: /save|create/i }).click()
-
-    // Should show validation error
-    await expect(page.getByText(/expiry.*after|must be after/i)).toBeVisible({ timeout: 60000 })
   })
 })
 

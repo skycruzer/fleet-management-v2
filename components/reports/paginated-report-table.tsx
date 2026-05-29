@@ -909,12 +909,15 @@ export function PaginatedReportTable({
       {/* Table */}
       <div className="rounded-md border">
         <div className="relative overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="min-w-full text-sm">
             <thead className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id} className="border-b">
                   {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="h-10 px-3 text-left align-middle font-medium">
+                    <th
+                      key={header.id}
+                      className="h-10 px-3 text-left align-middle font-medium whitespace-nowrap"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -927,8 +930,16 @@ export function PaginatedReportTable({
               {isLoading ? (
                 <tr>
                   <td colSpan={columns.length} className="h-24 text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+                    <div
+                      className="flex items-center justify-center"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {/* motion-safe: variant respects prefers-reduced-motion at the
+                          CSS level — no JS hook needed. Screen readers get the sr-only
+                          label so the silent spinner is no longer invisible to them. */}
+                      <div className="border-primary h-8 w-8 rounded-full border-4 border-t-transparent motion-safe:animate-spin" />
+                      <span className="sr-only">Loading report data...</span>
                     </div>
                   </td>
                 </tr>

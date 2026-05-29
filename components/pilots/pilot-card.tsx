@@ -40,7 +40,8 @@ export function PilotCard({ pilot }: PilotCardProps) {
   const { shouldAnimate, getVariants } = useAnimationSettings()
 
   const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
-  const initials = `${pilot.first_name[0]}${pilot.last_name[0]}`.toUpperCase()
+  const initials =
+    `${pilot.first_name?.[0] ?? ''}${pilot.last_name?.[0] ?? ''}`.toUpperCase() || '?'
   const isCaptain = pilot.role === 'Captain'
 
   return (

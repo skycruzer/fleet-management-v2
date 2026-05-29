@@ -198,11 +198,28 @@ export async function getCertifications(
 }
 
 /**
- * Get all certifications without pagination (for legacy compatibility)
+ * Get every certification, paging through the underlying paginated fetcher
+ * until exhausted. The page size below is just a batching constant — callers
+ * receive the full result set. We rely on the DB-side `total` count (not the
+ * returned array length) because EXCLUDED_CATEGORIES filtering can shrink the
+ * returned array below pageSize for a non-final page. A safety cap of 50 pages
+ * (50,000 rows) protects against runaway loops.
  */
 export async function getCertificationsUnpaginated(): Promise<CertificationWithDetails[]> {
-  const result = await getCertifications(1, 1000)
-  return result.certifications
+  const PAGE_SIZE = 1000
+  const SAFETY_PAGE_CAP = 50
+
+  const firstPage = await getCertifications(1, PAGE_SIZE)
+  const total = firstPage.total
+  const all: CertificationWithDetails[] = [...firstPage.certifications]
+
+  const totalPages = Math.min(Math.ceil(total / PAGE_SIZE), SAFETY_PAGE_CAP)
+  for (let page = 2; page <= totalPages; page++) {
+    const next = await getCertifications(page, PAGE_SIZE)
+    all.push(...next.certifications)
+  }
+
+  return all
 }
 
 /**

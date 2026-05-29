@@ -84,6 +84,7 @@ export interface PilotFormData {
   commencement_date?: string | null
   seniority_number?: number | null
   is_active: boolean
+  captain_qualifications?: string[] | null
 }
 
 export interface PilotWithRetirement extends Pilot {
@@ -555,6 +556,7 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           commencement_date: commencementDate,
           seniority_number: seniorityNumber,
           is_active: pilotData.is_active,
+          captain_qualifications: pilotData.captain_qualifications ?? null,
         },
       ])
       .select()
@@ -628,6 +630,9 @@ export async function createPilotWithCertifications(
       date_of_birth: pilotData.date_of_birth || null,
       commencement_date: pilotData.commencement_date || null,
       is_active: pilotData.is_active,
+      // Mirror createPilot's persistence: PilotFormData declares this field
+      // and the sibling createPilot writes it, so the atomic path must too.
+      captain_qualifications: pilotData.captain_qualifications ?? null,
     }
 
     // Prepare certifications for PostgreSQL function (JSON array for RPC)

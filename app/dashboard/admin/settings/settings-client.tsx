@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import type { SystemSetting } from '@/lib/services/admin-service'
+import { CalendarDays, ClipboardList, Plane, Wrench } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface SettingsClientProps {
@@ -141,7 +142,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* Fleet Configuration */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">⚓ Fleet Configuration</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <Plane className="text-muted-foreground h-5 w-5" aria-hidden="true" />
+              Fleet Configuration
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -184,7 +188,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* Certification Configuration */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">📋 Certification Settings</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <ClipboardList className="text-muted-foreground h-5 w-5" aria-hidden="true" />
+              Certification Settings
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -227,7 +234,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* Leave Management Settings */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">🏖️ Leave Management</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <CalendarDays className="text-muted-foreground h-5 w-5" aria-hidden="true" />
+              Leave Management
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -270,7 +280,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* System Settings */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">🔧 System Settings</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <Wrench className="text-muted-foreground h-5 w-5" aria-hidden="true" />
+              System Settings
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings

@@ -51,8 +51,8 @@ export function EmptyState({
     : { initial: { opacity: 1 }, animate: { opacity: 1 } }
 
   const iconVariants = shouldAnimate
-    ? { initial: { scale: 0 }, animate: { scale: 1 } }
-    : { initial: { scale: 1 }, animate: { scale: 1 } }
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 } }
+    : { initial: { opacity: 1 }, animate: { opacity: 1 } }
 
   return (
     <Card className={cn('text-center', isCompact ? 'p-8' : 'p-12', className)}>
@@ -68,9 +68,7 @@ export function EmptyState({
             initial={iconVariants.initial}
             animate={iconVariants.animate}
             transition={
-              shouldAnimate
-                ? { delay: 0.1, type: 'spring', stiffness: 200, damping: 20 }
-                : { duration: 0 }
+              shouldAnimate ? { delay: 0.1, duration: 0.3, ease: EASING.easeOut } : { duration: 0 }
             }
             className={cn(
               'mb-6 flex items-center justify-center rounded-full',

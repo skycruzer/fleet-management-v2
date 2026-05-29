@@ -13,14 +13,29 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import type { ReportData, ReportType } from '@/types/reports'
+import { Button } from '@/components/ui/button'
+import type { ReportData, ReportFilters, ReportType } from '@/types/reports'
 import Image from 'next/image'
-import { Calendar, Plane, Award, BarChart3, Users, TrendingUp, Info } from 'lucide-react'
+import {
+  Calendar,
+  Plane,
+  Award,
+  BarChart3,
+  Users,
+  TrendingUp,
+  Info,
+  Download,
+  Loader2,
+  Mail,
+} from 'lucide-react'
+import { useReportExport } from '@/lib/hooks/use-report-query'
+import { useToast } from '@/hooks/use-toast'
 import { PaginatedReportTable } from './paginated-report-table'
 
 interface ReportPreviewDialogProps {
@@ -28,6 +43,17 @@ interface ReportPreviewDialogProps {
   onOpenChange: (open: boolean) => void
   reportData: ReportData | null
   reportType: ReportType
+  /**
+   * Filters used to build the preview. Passed through to Export and Email
+   * actions so the user can act on what they're previewing without going
+   * back to the form. Optional for callers that haven't been migrated yet.
+   */
+  filters?: ReportFilters
+  /**
+   * Open the email dialog. Called when the user clicks Email Report from
+   * inside the preview. Caller owns the email dialog's open state.
+   */
+  onEmail?: () => void
 }
 
 export function ReportPreviewDialog({
@@ -35,7 +61,34 @@ export function ReportPreviewDialog({
   onOpenChange,
   reportData,
   reportType,
+  filters,
+  onEmail,
 }: ReportPreviewDialogProps) {
+  const exportMutation = useReportExport()
+  const { toast } = useToast()
+
+  const handleExport = () => {
+    if (!filters) return
+    exportMutation.mutate(
+      { reportType, filters },
+      {
+        onSuccess: () => {
+          toast({
+            title: 'Report Exported',
+            description: 'PDF has been downloaded successfully',
+          })
+        },
+        onError: (error) => {
+          toast({
+            title: 'Export Failed',
+            description: error instanceof Error ? error.message : 'Failed to export PDF',
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }
+
   if (!reportData) return null
 
   // Server returns a single page; the preview API doesn't accept a `page` param,
@@ -165,6 +218,28 @@ export function ReportPreviewDialog({
             </Card>
           </div>
         </ScrollArea>
+
+        {filters && (
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
+            {onEmail && (
+              <Button variant="secondary" onClick={onEmail}>
+                <Mail className="mr-2 h-4 w-4" />
+                Email Report
+              </Button>
+            )}
+            <Button onClick={handleExport} disabled={exportMutation.isPending}>
+              {exportMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Export PDF
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   )

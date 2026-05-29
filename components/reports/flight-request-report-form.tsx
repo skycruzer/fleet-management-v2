@@ -31,24 +31,26 @@ import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
-import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
 import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
-import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
-import { generateRosterPeriods, rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
+import {
+  generateRosterPeriods,
+  getDefaultReportYears,
+  rosterPeriodsToDateRange,
+} from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
   filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   rosterPeriods: z.array(z.string()).default([]),
-  statusPending: z.boolean().default(false),
+  statusDraft: z.boolean().default(false),
   statusSubmitted: z.boolean().default(false),
   statusInReview: z.boolean().default(false),
   statusApproved: z.boolean().default(false),
@@ -83,7 +85,7 @@ export function FlightRequestReportForm() {
       startDate: '',
       endDate: '',
       rosterPeriods: [],
-      statusPending: false,
+      statusDraft: false,
       statusSubmitted: false,
       statusInReview: false,
       statusApproved: false,
@@ -94,7 +96,9 @@ export function FlightRequestReportForm() {
   })
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods(getDefaultReportYears(), {
+    currentAndFutureOnly: true,
+  })
 
   // Build filters from form values (uses input type for optional handling)
   const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
@@ -115,7 +119,7 @@ export function FlightRequestReportForm() {
     }
 
     const statuses: NonNullable<ReportFilters['status']> = []
-    if (values.statusPending) statuses.push('DRAFT')
+    if (values.statusDraft) statuses.push('DRAFT')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
     if (values.statusInReview) statuses.push('IN_REVIEW')
     if (values.statusApproved) statuses.push('APPROVED')
@@ -203,13 +207,6 @@ export function FlightRequestReportForm() {
     }
   }
 
-  // Handle date preset selection
-  const handleDatePresetSelect = (dateRange: DateRange) => {
-    form.setValue('startDate', dateRange.startDate)
-    form.setValue('endDate', dateRange.endDate)
-    handleFormChange()
-  }
-
   // Separate loading states for each button
   const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
   const isExportButtonLoading = exportMutation.isPending
@@ -234,7 +231,7 @@ export function FlightRequestReportForm() {
     }
 
     // Apply status filters
-    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusDraft', filters.status?.includes('DRAFT') || false)
     form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
     form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
@@ -314,8 +311,6 @@ export function FlightRequestReportForm() {
             </div>
           )}
 
-          {/* Date Presets removed per user request */}
-
           {/* Roster Period Selection - Only show if roster mode */}
           {filterMode === 'roster' && (
             <FormField
@@ -374,7 +369,7 @@ export function FlightRequestReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: true,
+                      statusDraft: true,
                       statusSubmitted: true,
                       statusInReview: true,
                       statusApproved: true,
@@ -392,7 +387,7 @@ export function FlightRequestReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: false,
+                      statusDraft: false,
                       statusSubmitted: false,
                       statusInReview: false,
                       statusApproved: false,
@@ -408,7 +403,7 @@ export function FlightRequestReportForm() {
             <div className="flex flex-wrap gap-4">
               <FormField
                 control={form.control}
-                name="statusPending"
+                name="statusDraft"
                 render={({ field }) => (
                   <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
@@ -639,6 +634,8 @@ export function FlightRequestReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="flight-requests"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

@@ -34,11 +34,13 @@ export const CreateDisciplinarySchema = z.object({
   pilot_id: z.string().uuid('Invalid pilot ID format'),
   incident_date: dateSchema.describe('Date of the incident in YYYY-MM-DD format'),
   incident_type_id: z.string().uuid('Invalid incident type ID format'),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], {
-    message: 'Severity must be one of: LOW, MEDIUM, HIGH, CRITICAL',
+  // Lowercase to match the DB CHECK constraints + the form (see disciplinary_matters
+  // check constraints: severity in low/medium/high/critical, status in open/under_review/resolved/closed).
+  severity: z.enum(['low', 'medium', 'high', 'critical'], {
+    message: 'Severity must be one of: low, medium, high, critical',
   }),
-  status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'PENDING_ACTION', 'RESOLVED', 'CLOSED'], {
-    message: 'Status must be one of: OPEN, UNDER_INVESTIGATION, PENDING_ACTION, RESOLVED, CLOSED',
+  status: z.enum(['open', 'under_review', 'resolved', 'closed'], {
+    message: 'Status must be one of: open, under_review, resolved, closed',
   }),
 
   // Optional fields

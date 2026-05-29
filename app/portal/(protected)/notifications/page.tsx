@@ -13,9 +13,10 @@ import { useEffect, useState } from 'react'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Badge, type BadgeProps } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { PageHead } from '@/components/ui/page-head'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Notification {
@@ -35,6 +36,7 @@ export default function NotificationsPage() {
   const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -112,6 +114,14 @@ export default function NotificationsPage() {
   }
 
   const deleteNotification = async (notificationId: string) => {
+    const ok = await confirm({
+      title: 'Delete notification?',
+      description: 'This notification will be permanently removed.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!ok) return
+
     setDeletingId(notificationId)
 
     try {
@@ -135,21 +145,21 @@ export default function NotificationsPage() {
     }
   }
 
-  const getNotificationBadgeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      leave_approved: 'bg-[var(--color-success-500)]',
-      leave_denied: 'bg-[var(--color-danger-500)]',
-      flight_approved: 'bg-[var(--color-primary-500)]',
-      flight_denied: 'bg-[var(--color-badge-orange)]',
-      certification_expiring: 'bg-[var(--color-warning-500)]',
-      certification_expired: 'bg-[var(--color-danger-600)]',
-      task_assigned: 'bg-[var(--color-info-bg)]0',
-      registration_approved: 'bg-[var(--color-success-600)]',
-      registration_denied: 'bg-[var(--color-danger-600)]',
-      system_alert: 'bg-muted-foreground',
-      general: 'bg-muted-foreground',
+  const getNotificationBadgeVariant = (type: string): BadgeProps['variant'] => {
+    const variants: Record<string, BadgeProps['variant']> = {
+      leave_approved: 'success',
+      registration_approved: 'success',
+      leave_denied: 'destructive',
+      flight_denied: 'destructive',
+      certification_expired: 'destructive',
+      registration_denied: 'destructive',
+      certification_expiring: 'warning',
+      flight_approved: 'info',
+      task_assigned: 'info',
+      system_alert: 'secondary',
+      general: 'secondary',
     }
-    return colors[type] || 'bg-muted-foreground'
+    return variants[type] || 'secondary'
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length
@@ -215,14 +225,10 @@ export default function NotificationsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="mb-2 flex items-center gap-2">
-                        <Badge className={getNotificationBadgeColor(notification.type)}>
+                        <Badge variant={getNotificationBadgeVariant(notification.type)}>
                           {notification.type.replace(/_/g, ' ')}
                         </Badge>
-                        {!notification.read && (
-                          <Badge variant="outline" className="bg-[var(--color-info-bg)]">
-                            New
-                          </Badge>
-                        )}
+                        {!notification.read && <Badge variant="info">New</Badge>}
                       </div>
                       <CardTitle className="text-xl">{notification.title}</CardTitle>
                       <CardDescription className="mt-1">
@@ -273,6 +279,7 @@ export default function NotificationsPage() {
           </div>
         )}
       </main>
+      <ConfirmDialog />
     </div>
   )
 }

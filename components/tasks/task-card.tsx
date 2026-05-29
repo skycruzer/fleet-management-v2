@@ -134,12 +134,14 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
         {task.category && (
           <div className="flex items-center gap-1">
             {task.category.icon && <span>{task.category.icon}</span>}
-            <span
-              className="truncate"
-              style={task.category.color ? { color: task.category.color } : undefined}
-            >
-              {task.category.name}
-            </span>
+            {task.category.color && (
+              <span
+                className="h-2 w-2 flex-shrink-0 rounded-full"
+                style={{ backgroundColor: task.category.color }}
+                aria-hidden="true"
+              />
+            )}
+            <span className="truncate">{task.category.name}</span>
           </div>
         )}
 

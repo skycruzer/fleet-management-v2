@@ -73,6 +73,8 @@ export function RosterToolbar({
         />
         {searchQuery && (
           <button
+            type="button"
+            aria-label="Clear search"
             onClick={() => onSearchChange('')}
             className="text-muted-foreground hover:text-foreground absolute top-2.5 right-2.5"
           >

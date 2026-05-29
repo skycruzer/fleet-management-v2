@@ -9,9 +9,9 @@
 
 import { useState, useEffect, ReactNode, Suspense, lazy } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { cn } from '@/lib/utils'
 import { RefreshCw, BarChart3, Loader2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 // Lazy load the analytics content
 const AnalyticsContent = lazy(() => import('./analytics-content'))
@@ -65,41 +65,23 @@ export function PlanningPageClient({ activeTab, children }: PlanningPageClientPr
   })
 
   return (
-    <>
-      {/* Tab Navigation */}
-      <div className="border-border border-b">
-        <nav className="-mb-px flex gap-6">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
-                  currentTab === tab.id
-                    ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
-                    : 'text-muted-foreground hover:text-foreground/80 hover:border-border border-transparent'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
-      </div>
+    <Tabs value={currentTab} onValueChange={(value) => handleTabChange(value as TabId)}>
+      <TabsList className="w-auto">
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
+            <tab.icon className="h-4 w-4" aria-hidden="true" />
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
-      {/* Tab Content */}
-      <div>
-        {currentTab === 'renewals' && renewalsContent}
+      <TabsContent value="renewals">{renewalsContent}</TabsContent>
 
-        {currentTab === 'analytics' && (
-          <Suspense fallback={<AnalyticsLoadingFallback />}>
-            <AnalyticsContent />
-          </Suspense>
-        )}
-      </div>
-    </>
+      <TabsContent value="analytics">
+        <Suspense fallback={<AnalyticsLoadingFallback />}>
+          <AnalyticsContent />
+        </Suspense>
+      </TabsContent>
+    </Tabs>
   )
 }

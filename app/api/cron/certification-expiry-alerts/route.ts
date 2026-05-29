@@ -2,10 +2,13 @@
  * Certification Expiry Alerts Cron Job
  * Developer: Maurice Rondeau
  *
- * Runs daily at 6:00 AM to check for expiring certifications
- * and send bell notifications to pilots with portal accounts.
+ * DISABLED (per request): pilot certification-expiry reminders are not sent.
+ * The cron schedule was removed from vercel.json and this route is guarded
+ * below so it cannot send notifications even if invoked manually. To re-enable,
+ * set PILOT_CERT_REMINDERS_ENABLED to true and restore the cron entry in vercel.json.
  *
- * Schedule: Daily at 6:00 AM (configured in vercel.json)
+ * When enabled, runs daily at 6:00 AM to check for expiring certifications
+ * and send bell notifications to pilots with portal accounts.
  */
 
 import crypto from 'crypto'
@@ -15,8 +18,20 @@ import { createNotification, type NotificationType } from '@/lib/services/notifi
 
 export const dynamic = 'force-dynamic'
 
+// Feature flag — pilot certification-expiry reminders are disabled by request.
+const PILOT_CERT_REMINDERS_ENABLED = false
+
 export async function GET(request: Request) {
   try {
+    // Reminders disabled: do not send pilots certificate-expiry notifications.
+    if (!PILOT_CERT_REMINDERS_ENABLED) {
+      return NextResponse.json({
+        success: true,
+        disabled: true,
+        message: 'Pilot certification-expiry reminders are disabled.',
+      })
+    }
+
     // Verify this is a cron job request (Vercel sets this header)
     const authHeader = request.headers.get('authorization')
     const expectedToken = `Bearer ${process.env.CRON_SECRET}`

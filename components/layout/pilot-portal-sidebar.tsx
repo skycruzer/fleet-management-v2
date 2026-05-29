@@ -86,22 +86,14 @@ export function PilotPortalSidebar({
   const pathname = usePathname()
   const { shouldAnimate } = useAnimationSettings()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  // Initialize isDesktop as false to match server render, then update after hydration
-  const [isDesktop, setIsDesktop] = useState(false)
   // Track mount status for hydration
   const [mounted, setMounted] = useState(false)
   const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
 
-  // Track screen size for responsive sidebar positioning - update after mount
-  // Uses lg breakpoint (1024px) for consistency with admin portal
+  // Desktop sidebar visibility is CSS-driven (lg:!translate-x-0); only the mobile
+  // drawer uses the motion transform, so we just need mount status for hydration.
   useEffect(() => {
     setMounted(true)
-    // Set initial desktop state after hydration
-    setIsDesktop(window.innerWidth >= 1024)
-
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024)
-    window.addEventListener('resize', checkDesktop)
-    return () => window.removeEventListener('resize', checkDesktop)
   }, [])
 
   const isActive = (href: string) => {
@@ -195,16 +187,10 @@ export function PilotPortalSidebar({
 
       {/* Sidebar - Desktop (always visible) and Mobile (slide in) */}
       <motion.aside
-        initial={
-          shouldAnimate
-            ? { x: isDesktop ? 0 : -240 }
-            : { x: isDesktop ? 0 : mobileMenuOpen ? 0 : -240 }
-        }
-        animate={{
-          x: isDesktop ? 0 : mobileMenuOpen ? 0 : -240,
-        }}
+        initial={shouldAnimate ? { x: -240 } : { x: mobileMenuOpen ? 0 : -240 }}
+        animate={{ x: mobileMenuOpen ? 0 : -240 }}
         transition={shouldAnimate ? { duration: 0.3, ease: 'easeOut' } : { duration: 0 }}
-        className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)]"
+        className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)] lg:[transform:none!important]"
         role="navigation"
         aria-label="Pilot portal navigation"
       >
@@ -276,7 +262,7 @@ export function PilotPortalSidebar({
                   className={cn(
                     'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                     isActive('/portal/dashboard')
-                      ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
+                      ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       : 'text-foreground hover:bg-muted'
                   )}
                 >
@@ -330,7 +316,7 @@ export function PilotPortalSidebar({
                       className={cn(
                         'group relative flex min-h-[36px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                         active
-                          ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
+                          ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                           : 'text-foreground hover:bg-muted'
                       )}
                     >

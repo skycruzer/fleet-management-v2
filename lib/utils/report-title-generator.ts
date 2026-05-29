@@ -196,7 +196,6 @@ function formatTimeHorizon(horizon: string): string | null {
   const horizonLabels: Record<string, string> = {
     '2yr': '2 Year Horizon',
     '5yr': '5 Year Horizon',
-    '10yr': '10 Year Horizon',
   }
 
   return horizonLabels[horizon] || horizon
@@ -411,8 +410,7 @@ export function generateReportDescription(reportType: ReportType, filters: Repor
     certifications: () => 'Comprehensive report of pilot certifications and compliance',
     'pilot-info': () => 'Comprehensive pilot profiles, qualifications, and certifications summary',
     forecast: (f) => {
-      const horizon =
-        f.timeHorizon === '2yr' ? '2-year' : f.timeHorizon === '10yr' ? '10-year' : '5-year'
+      const horizon = f.timeHorizon === '2yr' ? '2-year' : '5-year'
       return `Retirement forecasts, succession planning, and crew shortage predictions (${horizon} horizon)`
     },
   }

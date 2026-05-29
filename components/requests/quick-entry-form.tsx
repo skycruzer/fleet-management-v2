@@ -259,100 +259,35 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
   }
 
   const nextStep = async () => {
-    // Get current form values
-    const formValues = form.getValues()
-
-    // Validate specific fields based on step
+    // Validate the current step's fields via react-hook-form. This populates
+    // inline <FormMessage /> errors and (with the default shouldFocusError)
+    // moves focus to the first invalid field.
     let isValid = false
 
     if (currentStep === 1) {
-      // Step 1: Check required fields manually first
-      const { pilot_id, request_category, submission_channel, leave_type, flight_type } = formValues
+      // Step 1: Basic info — validate base fields plus the conditional type
+      // field for the selected category.
+      const fields: Array<keyof QuickEntryFormInput> = [
+        'pilot_id',
+        'request_category',
+        'submission_channel',
+      ]
+      if (selectedCategory === 'LEAVE') fields.push('leave_type')
+      if (selectedCategory === 'FLIGHT') fields.push('flight_type')
 
-      // Check pilot_id
-      if (!pilot_id || pilot_id.trim() === '') {
-        console.error('❌ Pilot ID is missing')
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a pilot.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      // Check request_category
-      if (!request_category) {
-        console.error('❌ Request category is missing')
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a request category.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      // Check conditional type fields
-      if (request_category === 'LEAVE' && !leave_type) {
-        console.error('❌ Leave type is missing')
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a leave type.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      if (request_category === 'FLIGHT' && !flight_type) {
-        console.error('❌ Flight type is missing')
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a flight request type.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      // Check submission_channel
-      if (!submission_channel) {
-        console.error('❌ Submission channel is missing')
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a submission channel.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      isValid = true
+      isValid = await form.trigger(fields)
     } else if (currentStep === 2) {
-      // Step 2: Validate dates
-      const { start_date, end_date, request_category } = formValues
-
-      if (!start_date || start_date.trim() === '') {
-        toast({
-          title: 'Validation Error',
-          description: 'Please select a start date.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      // End date is required for LEAVE, LEAVE_BID, and FLIGHT (RDO/SDO)
+      // Step 2: Dates — start_date always; end_date when the category requires it.
+      const fields: Array<keyof QuickEntryFormInput> = ['start_date']
       if (
-        (request_category === 'LEAVE' ||
-          request_category === 'LEAVE_BID' ||
-          request_category === 'FLIGHT') &&
-        (!end_date || end_date.trim() === '')
+        selectedCategory === 'LEAVE' ||
+        selectedCategory === 'LEAVE_BID' ||
+        selectedCategory === 'FLIGHT'
       ) {
-        toast({
-          title: 'Validation Error',
-          description: 'Please select an end date for this request.',
-          variant: 'destructive',
-        })
-        return
+        fields.push('end_date')
       }
 
-      isValid = true
+      isValid = await form.trigger(fields)
     } else {
       // Steps 3 and 4 don't have validation
       isValid = true

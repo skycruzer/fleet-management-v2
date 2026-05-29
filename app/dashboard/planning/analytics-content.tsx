@@ -65,7 +65,7 @@ export default function AnalyticsContent() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'txt' : 'csv'}`
+      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'csv'}`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)

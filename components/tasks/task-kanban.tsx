@@ -12,6 +12,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { useToast } from '@/hooks/use-toast'
 import {
   DndContext,
   DragEndEvent,
@@ -82,6 +83,7 @@ function SortableTaskCard({
 
 export default function TaskKanban({ tasks }: TaskKanbanProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [activeTask, setActiveTask] = useState<TaskWithRelations | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
 
@@ -132,11 +134,26 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
 
       if (!response.ok || !result.success) {
         console.error('Failed to update task:', result.error)
+        toast({
+          title: 'Could not update task',
+          description: result.error || 'Status change failed. Please try again.',
+          variant: 'destructive',
+        })
+      } else {
+        toast({
+          title: 'Task updated',
+          description: 'Status change saved.',
+        })
       }
 
       router.refresh()
     } catch (error) {
       console.error('Error updating task:', error)
+      toast({
+        title: 'Could not update task',
+        description: 'A network error occurred. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
       setIsUpdating(false)
     }
@@ -209,7 +226,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
       {/* Drag Overlay */}
       <DragOverlay>
         {activeTask ? (
-          <div className="scale-105 rotate-3">
+          <div className="scale-105">
             <TaskCard task={activeTask} isDragging />
           </div>
         ) : null}

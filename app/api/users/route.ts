@@ -24,7 +24,7 @@ export async function GET(_request: NextRequest) {
 
     // Get query parameters
     const searchParams = _request.nextUrl.searchParams
-    const role = searchParams.get('role') as 'Admin' | 'Manager' | 'User' | null
+    const role = searchParams.get('role') as 'admin' | 'manager' | 'user' | null
 
     // Fetch users
     const users = role ? await getUsersByRole(role) : await getAllUsers()

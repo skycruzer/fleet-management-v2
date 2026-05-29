@@ -100,15 +100,15 @@ You'll receive immediate feedback on approval status.`,
         question: 'What do the certification colors mean?',
         answer: `Certification status colors:
 
-🔴 **Red (Expired)**: Certification has expired (days_until_expiry < 0)
+**Red (Expired)**: Certification has expired (days_until_expiry < 0)
 - Immediate action required
 - Pilot may not be flight-ready
 
-🟡 **Yellow (Expiring Soon)**: Expiring within 30 days
+**Yellow (Expiring Soon)**: Expiring within 30 days
 - Schedule renewal immediately
 - Plan ahead to avoid expiry
 
-🟢 **Green (Current)**: More than 30 days until expiry
+**Green (Current)**: More than 30 days until expiry
 - Certification is current
 - No immediate action needed
 

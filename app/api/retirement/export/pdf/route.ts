@@ -38,8 +38,8 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 })
     }
 
-    // Only Admin and Manager can export PDFs
-    if (userData.role !== 'Admin' && userData.role !== 'Manager') {
+    // Only Admin and Manager can export PDFs (DB stores lowercase per an_users_role_check)
+    if (userData.role !== 'admin' && userData.role !== 'manager') {
       return NextResponse.json(
         { success: false, error: 'Insufficient permissions' },
         { status: 403 }

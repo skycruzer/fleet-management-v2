@@ -7,10 +7,25 @@
  * Uses HTTP-only cookies for secure session storage.
  */
 
+import { z } from 'zod'
 import { cookies } from 'next/headers'
 import { validateRedisSession, type RedisSessionData } from '@/lib/services/redis-session-service'
 
 const SESSION_COOKIE_NAME = 'pilot_session_token'
+
+/**
+ * Schema for the legacy JSON session cookie. Validates the actual fields stored
+ * by the legacy cookie format (token/pilot_id/pilot_email/expires_at) so that
+ * malformed cookies are rejected explicitly rather than failing silently.
+ */
+const LegacySessionSchema = z.object({
+  token: z.string().min(1),
+  pilot_id: z.string().min(1),
+  pilot_email: z.string().email(),
+  expires_at: z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: 'Invalid expires_at date',
+  }),
+})
 
 export interface PilotSession {
   id: string
@@ -90,7 +105,7 @@ function mapRedisDataToPilotSession(data: RedisSessionData): PilotSession {
  */
 function parseLegacyCookie(cookieValue: string): PilotSession | null {
   try {
-    const sessionData = JSON.parse(cookieValue)
+    const sessionData = LegacySessionSchema.parse(JSON.parse(cookieValue))
     const expiresAt = new Date(sessionData.expires_at)
 
     if (expiresAt < new Date()) {
@@ -103,7 +118,8 @@ function parseLegacyCookie(cookieValue: string): PilotSession | null {
       pilot_email: sessionData.pilot_email,
       expires_at: sessionData.expires_at,
     }
-  } catch {
+  } catch (error) {
+    console.warn('Invalid legacy pilot session cookie:', error)
     return null
   }
 }
@@ -126,7 +142,7 @@ export function validateSessionFromCookie(cookieValue: string | undefined): Pilo
   }
 
   try {
-    const sessionData = JSON.parse(cookieValue)
+    const sessionData = LegacySessionSchema.parse(JSON.parse(cookieValue))
     const expiresAt = new Date(sessionData.expires_at)
     if (expiresAt < new Date()) {
       return null
@@ -138,7 +154,8 @@ export function validateSessionFromCookie(cookieValue: string | undefined): Pilo
       pilot_email: sessionData.pilot_email,
       expires_at: sessionData.expires_at,
     }
-  } catch {
+  } catch (error) {
+    console.warn('Invalid legacy pilot session cookie:', error)
     return null
   }
 }

@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { validatePasswordResetToken, resetPassword } from '@/lib/services/pilot-portal-service'
+import { getClientIp } from '@/lib/rate-limit'
 import { z } from 'zod'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
@@ -60,8 +61,9 @@ export async function GET(request: Request) {
       )
     }
 
-    // Validate token
-    const result = await validatePasswordResetToken(token)
+    // Validate token — rate-limited per client IP (3/hour) to prevent brute-force
+    // enumeration of reset tokens without locking out legitimate users system-wide.
+    const result = await validatePasswordResetToken(token, getClientIp(request))
 
     if (!result.success) {
       return NextResponse.json(

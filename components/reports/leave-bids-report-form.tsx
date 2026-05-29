@@ -42,9 +42,9 @@ const formSchema = z.object({
   year: z.string().default('all'),
   rosterPeriods: z.array(z.string()).default([]),
   statusPending: z.boolean().default(false),
-  statusProcessing: z.boolean().default(false),
   statusApproved: z.boolean().default(false),
   statusRejected: z.boolean().default(false),
+  statusWithdrawn: z.boolean().default(false),
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
 })
@@ -77,9 +77,9 @@ export function LeaveBidsReportForm() {
       year: 'all',
       rosterPeriods: [],
       statusPending: false,
-      statusProcessing: false,
       statusApproved: false,
       statusRejected: false,
+      statusWithdrawn: false,
       rankCaptain: false,
       rankFirstOfficer: false,
     },
@@ -99,12 +99,12 @@ export function LeaveBidsReportForm() {
       filters.rosterPeriods = values.rosterPeriods
     }
 
-    // Status filters
+    // Status filters — DB constraint allows PENDING|APPROVED|REJECTED|WITHDRAWN
     const statusFilters: NonNullable<ReportFilters['status']> = []
     if (values.statusPending) statusFilters.push('PENDING')
-    if (values.statusProcessing) statusFilters.push('PROCESSING')
     if (values.statusApproved) statusFilters.push('APPROVED')
     if (values.statusRejected) statusFilters.push('REJECTED')
+    if (values.statusWithdrawn) statusFilters.push('WITHDRAWN')
     if (statusFilters.length > 0) {
       filters.status = statusFilters
     }
@@ -181,9 +181,9 @@ export function LeaveBidsReportForm() {
   const handlePresetApply = (preset: any) => {
     const statusMap: any = {
       PENDING: 'statusPending',
-      PROCESSING: 'statusProcessing',
       APPROVED: 'statusApproved',
       REJECTED: 'statusRejected',
+      WITHDRAWN: 'statusWithdrawn',
     }
 
     // Reset all fields first
@@ -287,16 +287,6 @@ export function LeaveBidsReportForm() {
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="statusProcessing"
-                  checked={values.statusProcessing}
-                  onCheckedChange={(checked) => form.setValue('statusProcessing', Boolean(checked))}
-                />
-                <label htmlFor="statusProcessing" className="cursor-pointer text-sm">
-                  Processing
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
                   id="statusApproved"
                   checked={values.statusApproved}
                   onCheckedChange={(checked) => form.setValue('statusApproved', Boolean(checked))}
@@ -313,6 +303,16 @@ export function LeaveBidsReportForm() {
                 />
                 <label htmlFor="statusRejected" className="cursor-pointer text-sm">
                   Rejected
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="statusWithdrawn"
+                  checked={values.statusWithdrawn}
+                  onCheckedChange={(checked) => form.setValue('statusWithdrawn', Boolean(checked))}
+                />
+                <label htmlFor="statusWithdrawn" className="cursor-pointer text-sm">
+                  Withdrawn
                 </label>
               </div>
             </div>
@@ -347,7 +347,12 @@ export function LeaveBidsReportForm() {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" onClick={handlePreview} disabled={isPreviewLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePreview}
+              disabled={isPreviewLoading}
+            >
               {isPreviewLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -366,12 +371,7 @@ export function LeaveBidsReportForm() {
               )}
             </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleExport}
-              disabled={exportMutation.isPending}
-            >
+            <Button type="button" onClick={handleExport} disabled={exportMutation.isPending}>
               {exportMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -385,7 +385,7 @@ export function LeaveBidsReportForm() {
               )}
             </Button>
 
-            <Button type="button" variant="outline" onClick={handleEmail}>
+            <Button type="button" variant="secondary" onClick={handleEmail}>
               <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>
@@ -400,6 +400,8 @@ export function LeaveBidsReportForm() {
           onOpenChange={setShowPreview}
           reportData={previewData}
           reportType="leave-bids"
+          filters={currentFilters}
+          onEmail={() => setShowEmail(true)}
         />
       )}
 

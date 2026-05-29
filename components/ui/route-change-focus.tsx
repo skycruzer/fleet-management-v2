@@ -27,11 +27,21 @@ export function RouteChangeFocusManager() {
       // Priority: h1 > main > body
       const targetElement = h1 || mainContent || document.body
 
-      if (targetElement instanceof HTMLElement) {
+      // Don't steal focus if the user is actively typing in a field.
+      const active = document.activeElement
+      const isTyping =
+        active instanceof HTMLElement &&
+        (active.tagName === 'INPUT' ||
+          active.tagName === 'TEXTAREA' ||
+          active.tagName === 'SELECT' ||
+          active.isContentEditable)
+
+      if (targetElement instanceof HTMLElement && !isTyping) {
         // Set tabindex temporarily to make it focusable
         const originalTabIndex = targetElement.getAttribute('tabindex')
         targetElement.setAttribute('tabindex', '-1')
-        targetElement.focus({ preventScroll: false })
+        // preventScroll: true — the explicit scrollTo below handles scrolling with the motion preference
+        targetElement.focus({ preventScroll: true })
 
         // Restore or remove tabindex after focus
         targetElement.addEventListener(
@@ -45,13 +55,16 @@ export function RouteChangeFocusManager() {
           },
           { once: true }
         )
-
-        // Announce page change to screen readers
-        announcePageChange()
       }
 
-      // Scroll to top of page
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // Announce page change to screen readers (even when focus was not moved)
+      announcePageChange()
+
+      // Scroll to top of page, respecting the user's motion preference (WCAG 2.3.3)
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
     }
 
     handleRouteChange()

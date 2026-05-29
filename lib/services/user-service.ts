@@ -10,11 +10,16 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
+// Lowercase to match the DB CHECK constraint on an_users.role
+// (an_users_role_check accepts 'admin' | 'manager' only — 'user' is here for
+// future expansion and is rejected by the DB until the constraint is widened).
+export type UserRoleLiteral = 'admin' | 'manager' | 'user'
+
 export interface User {
   id: string
   email: string
   name: string
-  role: 'Admin' | 'Manager' | 'User'
+  role: UserRoleLiteral
   created_at: string | null
   updated_at: string | null
 }
@@ -22,7 +27,7 @@ export interface User {
 export interface UserFormData {
   email: string
   name: string
-  role: 'Admin' | 'Manager' | 'User'
+  role: UserRoleLiteral
 }
 
 export interface UserWithStats extends User {
@@ -288,7 +293,7 @@ export async function deleteUser(userId: string): Promise<void> {
 /**
  * Get users by role
  */
-export async function getUsersByRole(role: 'Admin' | 'Manager' | 'User'): Promise<User[]> {
+export async function getUsersByRole(role: UserRoleLiteral): Promise<User[]> {
   const supabase = createAdminClient()
 
   try {
@@ -316,7 +321,7 @@ export async function getUsersByRole(role: 'Admin' | 'Manager' | 'User'): Promis
  */
 export async function getUserStats(): Promise<{
   total: number
-  byRole: { Admin: number; Manager: number; User: number }
+  byRole: { admin: number; manager: number; user: number }
 }> {
   const supabase = createAdminClient()
 
@@ -328,14 +333,14 @@ export async function getUserStats(): Promise<{
     const stats = (users || []).reduce(
       (acc, user) => {
         acc.total++
-        if (user.role === 'Admin') acc.byRole.Admin++
-        else if (user.role === 'Manager') acc.byRole.Manager++
-        else if (user.role === 'User') acc.byRole.User++
+        if (user.role === 'admin') acc.byRole.admin++
+        else if (user.role === 'manager') acc.byRole.manager++
+        else if (user.role === 'user') acc.byRole.user++
         return acc
       },
       {
         total: 0,
-        byRole: { Admin: 0, Manager: 0, User: 0 },
+        byRole: { admin: 0, manager: 0, user: 0 },
       }
     )
 

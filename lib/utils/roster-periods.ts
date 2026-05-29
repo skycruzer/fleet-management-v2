@@ -3,8 +3,33 @@
  * Author: Maurice Rondeau
  * Date: November 16, 2025
  *
- * Shared utilities for roster period generation and date conversion
+ * Shared utilities for roster period generation and date conversion.
+ *
+ * All date math is anchored in LOCAL time. The previous version used
+ * `new Date('YYYY-MM-DD')` (UTC midnight) plus `setDate()` (local) plus
+ * `toISOString().split('T')[0]` (back to UTC) — on PNG/Sydney servers the
+ * round-trip drifted by one day, making every roster-period filter miss
+ * the last day of every period.
  */
+
+import { format } from 'date-fns'
+
+/**
+ * Format a Date as `YYYY-MM-DD` using LOCAL year/month/day. Mirrors what
+ * users see on their calendar, regardless of where the server runs.
+ */
+function formatLocalISODate(date: Date): string {
+  return format(date, 'yyyy-MM-dd')
+}
+
+/**
+ * Default year window for forward-looking report filters: current year + next year.
+ * Use this instead of hardcoding `[2025, 2026]` so forms don't go stale at year rollover.
+ */
+export function getDefaultReportYears(): number[] {
+  const currentYear = new Date().getFullYear()
+  return [currentYear, currentYear + 1]
+}
 
 /**
  * Generate roster periods for given years
@@ -26,7 +51,10 @@ export function generateRosterPeriods(
 
   if (!options?.currentAndFutureOnly) return periods
 
-  const today = new Date().toISOString().split('T')[0]
+  // Both `today` and `range.endDate` must use the same calendar — formatting
+  // `today` via UTC while `endDate` is local would let a period "leak past
+  // expiry" by up to one day at PNG noon UTC.
+  const today = formatLocalISODate(new Date())
   return periods.filter((period) => {
     const range = rosterPeriodToDateRange(period)
     return range ? range.endDate >= today : false
@@ -60,8 +88,11 @@ export function rosterPeriodToDateRange(rosterPeriod: string): {
 
   const { period, year } = parsed
 
-  // Known anchor: RP12/2025 starts on 2025-10-11
-  const anchorDate = new Date('2025-10-11')
+  // Known anchor: RP12/2025 starts on 2025-10-11.
+  // Build via the local-time constructor (NOT `new Date('2025-10-11')`, which
+  // is UTC midnight) so subsequent `setDate()` math stays in local time and
+  // doesn't drift when the server is in UTC. Month index 9 = October.
+  const anchorDate = new Date(2025, 9, 11)
   const anchorPeriod = 12
   const anchorYear = 2025
 
@@ -82,8 +113,8 @@ export function rosterPeriodToDateRange(rosterPeriod: string): {
   endDate.setDate(endDate.getDate() + 27)
 
   return {
-    startDate: startDate.toISOString().split('T')[0],
-    endDate: endDate.toISOString().split('T')[0],
+    startDate: formatLocalISODate(startDate),
+    endDate: formatLocalISODate(endDate),
   }
 }
 

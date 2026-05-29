@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
+import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
 
 type UserFormData = z.infer<typeof UserCreateSchema>
@@ -31,7 +32,7 @@ export default function NewUserPage() {
   } = useForm<UserFormData>({
     resolver: zodResolver(UserCreateSchema),
     defaultValues: {
-      role: 'User',
+      role: 'manager',
     },
   })
 
@@ -145,9 +146,9 @@ export default function NewUserPage() {
                   errors.role ? 'border-[var(--color-danger-500)]' : 'border-border'
                 }`}
               >
-                <option value="User">User (Read-only access)</option>
-                <option value="Manager">Manager (View and approve requests)</option>
-                <option value="Admin">Admin (Full system access)</option>
+                <option value="user">User (Read-only access)</option>
+                <option value="manager">Manager (View and approve requests)</option>
+                <option value="admin">Admin (Full system access)</option>
               </select>
               {errors.role && (
                 <p className="text-sm text-[var(--color-danger-600)]">{errors.role.message}</p>
@@ -197,7 +198,7 @@ export default function NewUserPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
-                  <span className="animate-spin">⏳</span>
+                  <Spinner size="sm" variant="white" className="h-4 w-4" />
                   <span>Creating...</span>
                 </span>
               ) : (

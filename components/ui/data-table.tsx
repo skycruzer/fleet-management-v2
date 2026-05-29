@@ -36,6 +36,28 @@ interface DataTableProps<T> {
 
 type SortDirection = 'asc' | 'desc' | null
 
+/**
+ * Compare two cell values for sorting. Numbers (and numeric strings such as a
+ * seniority number) are compared numerically so #2 sorts before #10; everything
+ * else falls back to locale-aware string comparison. Nullish/empty values sort
+ * last.
+ */
+function compareValues(a: unknown, b: unknown): number {
+  const aNil = a == null || a === ''
+  const bNil = b == null || b === ''
+  if (aNil && bNil) return 0
+  if (aNil) return 1
+  if (bNil) return -1
+
+  const aNum = typeof a === 'number' ? a : Number(a)
+  const bNum = typeof b === 'number' ? b : Number(b)
+  if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+    return aNum - bNum
+  }
+
+  return String(a).localeCompare(String(b))
+}
+
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
@@ -47,10 +69,6 @@ export function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   const [sortColumn, setSortColumn] = React.useState<string | null>(null)
   const [sortDirection, setSortDirection] = React.useState<SortDirection>(null)
-
-  // Pagination state
-  const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
-    usePagination(data, initialPageSize)
 
   // Handle column sorting
   const handleSort = (columnId: string) => {
@@ -79,27 +97,33 @@ export function DataTable<T extends Record<string, any>>({
     return ''
   }
 
-  // Sort data (use paginatedData if pagination is enabled, otherwise use all data)
-  const dataToSort = enablePagination ? paginatedData : data
-
+  // Sort the FULL dataset before paginating, so a column sort orders rows
+  // across every page rather than only reordering the current page slice.
   const sortedData = React.useMemo(() => {
     if (!sortColumn || !sortDirection) {
-      return dataToSort
+      return data
     }
 
     const column = columns.find((col) => col.id === sortColumn)
-    if (!column) return dataToSort
+    if (!column) return data
 
-    return [...dataToSort].sort((a, b) => {
+    return [...data].sort((a, b) => {
       const aValue = getValue(a, column)
       const bValue = getValue(b, column)
 
       if (aValue === bValue) return 0
 
-      const comparison = String(aValue ?? '').localeCompare(String(bValue ?? ''))
+      const comparison = compareValues(aValue, bValue)
       return sortDirection === 'asc' ? comparison : -comparison
     })
-  }, [dataToSort, sortColumn, sortDirection, columns])
+  }, [data, sortColumn, sortDirection, columns])
+
+  // Pagination state — operates on the already-sorted data.
+  const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
+    usePagination(sortedData, initialPageSize)
+
+  // Rows actually rendered: a paginated slice when pagination is on, else all.
+  const rowsToRender = enablePagination ? paginatedData : sortedData
 
   // Render sort icon
   const renderSortIcon = (columnId: string) => {
@@ -150,16 +174,16 @@ export function DataTable<T extends Record<string, any>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedData.length === 0 ? (
+            {rowsToRender.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   {emptyMessage}
                 </TableCell>
               </TableRow>
             ) : (
-              sortedData.map((row, index) => (
+              rowsToRender.map((row, index) => (
                 <TableRow
-                  key={index}
+                  key={(row as { id?: string | number }).id ?? index}
                   className={
                     onRowClick
                       ? 'hover:bg-muted/50 focus:ring-primary cursor-pointer focus:ring-2 focus:outline-none focus:ring-inset'

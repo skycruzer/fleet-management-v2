@@ -170,6 +170,23 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
       )
     }
 
+    // Validate request ID format (UUID) before reaching the service layer
+    const idValidation = PilotLeaveCancelSchema.safeParse({ request_id: requestId })
+
+    if (!idValidation.success) {
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: idValidation.error.issues[0].message,
+            category: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('request ID').category,
+            severity: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('request ID').severity,
+          },
+          400
+        ),
+        { status: 400 }
+      )
+    }
+
     const body = await request.json()
 
     // Validate request data

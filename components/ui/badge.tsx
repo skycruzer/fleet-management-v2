@@ -8,15 +8,20 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-[#e0e1e6] bg-[#f0f0f3] text-[#1c2024]',
-        secondary: 'border-transparent bg-[#f0f0f3] text-[#60646c]',
-        destructive: 'border-transparent bg-[#fff0f0] text-[#cd2b31]',
-        outline: 'border-[#e0e1e6] bg-transparent text-[#1c2024]',
-        warning: 'border-transparent bg-[#fff4e0] text-[#ad5700]',
-        success: 'border-transparent bg-[#e9f9ee] text-[#18794e]',
-        info: 'border-transparent bg-[#edf6ff] text-[#0d74ce]',
+        default:
+          'border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-foreground)]',
+        secondary:
+          'border-transparent bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)]',
+        destructive:
+          'border-transparent bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]',
+        outline: 'border-[var(--color-border)] bg-transparent text-[var(--color-foreground)]',
+        warning:
+          'border-transparent bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]',
+        success:
+          'border-transparent bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]',
+        info: 'border-transparent bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]',
         // Dot variant with animated pulse for live status
-        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current before:animate-pulse border-transparent bg-[#f0f0f3] text-[#60646c]',
+        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current before:animate-pulse border-transparent bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)]',
       },
       size: {
         sm: 'px-1.5 py-0 text-[0.65rem]',

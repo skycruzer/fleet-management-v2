@@ -51,6 +51,7 @@ export function LoginForm() {
             autoComplete="email"
             required
             disabled={isPending}
+            autoFocusFirst
             className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:ring-muted-foreground/30 pl-10"
           />
         </div>

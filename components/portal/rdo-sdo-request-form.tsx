@@ -55,6 +55,20 @@ const rdoSdoRequestSchema = z
       path: ['end_date'],
     }
   )
+  .refine(
+    (data) => {
+      if (!data.end_date) return true // single-day request when no end_date
+      const start = new Date(data.start_date)
+      const end = new Date(data.end_date)
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return true
+      const inclusiveDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return inclusiveDays <= 31
+    },
+    {
+      message: 'Request cannot exceed 31 days',
+      path: ['end_date'],
+    }
+  )
 
 type RdoSdoRequestFormData = z.infer<typeof rdoSdoRequestSchema>
 
@@ -152,8 +166,13 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
 
   if (showSuccess) {
     return (
-      <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
-        <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+      <Alert
+        className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" aria-hidden="true" />
         <AlertDescription className="text-[var(--color-status-low)]">
           {requestType} request submitted successfully! Redirecting...
         </AlertDescription>
@@ -249,7 +268,12 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
 
       {/* Days Count Display */}
       {startDate && (
-        <div className="border-accent/20 bg-accent/5 rounded-lg border p-4">
+        <div
+          className="border-accent/20 bg-accent/5 rounded-lg border p-4"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           <p className="text-foreground text-sm font-medium">
             <strong>Request Duration:</strong> {daysCount} day{daysCount !== 1 ? 's' : ''}
           </p>

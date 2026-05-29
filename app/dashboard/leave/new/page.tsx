@@ -210,7 +210,7 @@ export default function NewLeaveRequestPage() {
           {Object.keys(errors).length > 0 && (
             <div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
               <p className="text-destructive mb-2 text-sm font-medium">
-                ⚠️ Please fix the following errors:
+                Please fix the following errors:
               </p>
               <ul className="text-destructive/80 list-inside list-disc space-y-1 text-sm">
                 {errors.pilot_id && <li>Pilot selection is required</li>}
@@ -227,7 +227,7 @@ export default function NewLeaveRequestPage() {
           {/* Conflict Warning */}
           {conflicts.length > 0 && (
             <div className="border-warning/20 bg-warning/5 rounded-lg border p-4">
-              <p className="text-warning mb-2 text-sm font-medium">⚠️ Date Conflict Detected</p>
+              <p className="text-warning mb-2 text-sm font-medium">Date Conflict Detected</p>
               <p className="text-warning/80 text-sm">
                 You have existing leave requests that overlap with these dates. Manager approval
                 required.

@@ -16,11 +16,14 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
 /**
  * User roles in the system
  */
+// NOTE: values are lowercase to match the `an_users.role` CHECK constraint
+// in the database (`admin` / `manager`). Capitalized values silently broke
+// every role comparison — see verifyUserRole / verifyResourceOwnership.
 export enum UserRole {
-  ADMIN = 'Admin',
-  MANAGER = 'Manager',
-  USER = 'User',
-  PILOT = 'Pilot',
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  USER = 'user',
+  PILOT = 'pilot',
 }
 
 /**
@@ -62,7 +65,9 @@ export async function getUserRole(userId: string): Promise<UserRole | null> {
       return null
     }
 
-    return userData.role as UserRole
+    // The DB enforces lowercase roles; normalize defensively so a stray-cased
+    // value still maps onto the UserRole enum.
+    return userData.role.toLowerCase() as UserRole
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'authorization-middleware/getUserRole',
@@ -321,11 +326,11 @@ export async function requireRole(
     const adminSession = await validateAdminSession()
 
     if (adminSession.isValid && adminSession.user?.id) {
-      // Admin-session users are authenticated admins - check if Admin role is allowed
-      if (requiredRoles.includes(UserRole.ADMIN)) {
-        return { authorized: true }
-      }
-      // For other roles, verify against the database
+      // Re-verify the role against the DB on every call. The admin session
+      // bakes the role in at login time; trusting that cached value would
+      // mean a demoted admin keeps elevated access until their session
+      // expires. verifyUserRole hits an_users by id (PK), so this is a single
+      // indexed lookup — cheap enough to do per request.
       return await verifyUserRole(adminSession.user.id, requiredRoles)
     }
 

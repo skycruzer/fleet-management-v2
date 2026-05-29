@@ -80,9 +80,9 @@ export interface MatterStats {
   resolvedMatters: number
   underInvestigation: number
   bySeverity: {
-    minor: number
-    moderate: number
-    serious: number
+    low: number
+    medium: number
+    high: number
     critical: number
   }
   byStatus: {
@@ -93,17 +93,10 @@ export interface MatterStats {
 }
 
 // Constants
-export const MATTER_STATUSES = [
-  'REPORTED',
-  'UNDER_INVESTIGATION',
-  'PENDING_DECISION',
-  'ACTION_TAKEN',
-  'RESOLVED',
-  'CLOSED',
-  'APPEALED',
-] as const
+// Canonical values match the DB CHECK constraints (disciplinary_matters) and the form.
+export const MATTER_STATUSES = ['open', 'under_review', 'resolved', 'closed'] as const
 
-export const MATTER_SEVERITIES = ['MINOR', 'MODERATE', 'SERIOUS', 'CRITICAL'] as const
+export const MATTER_SEVERITIES = ['low', 'medium', 'high', 'critical'] as const
 
 // ============================================================================
 // MATTER CRUD OPERATIONS
@@ -197,7 +190,7 @@ export async function getMatters(
     }
 
     if (!filters?.includeResolved) {
-      query = query.neq('status', 'RESOLVED').neq('status', 'CLOSED')
+      query = query.neq('status', 'resolved').neq('status', 'closed')
     }
 
     // Search query
@@ -406,7 +399,7 @@ export async function updateMatter(
     // Auto-set resolved_date if status changed to RESOLVED or CLOSED
     if (
       updates.status &&
-      (updates.status === 'RESOLVED' || updates.status === 'CLOSED') &&
+      (updates.status === 'resolved' || updates.status === 'closed') &&
       !oldMatter.resolved_date
     ) {
       updates.resolved_date = new Date().toISOString()
@@ -470,7 +463,7 @@ export async function deleteMatter(matterId: string): Promise<ServiceResponse> {
     // Soft delete (update status)
     const { error } = await supabase
       .from('disciplinary_matters')
-      .update({ status: 'CLOSED', updated_at: new Date().toISOString() })
+      .update({ status: 'closed', updated_at: new Date().toISOString() })
       .eq('id', matterId)
 
     if (error) {
@@ -542,19 +535,19 @@ export async function getMatterStats(filters?: {
     // Calculate statistics
     const totalMatters = matters.length
     const openMatters = matters.filter(
-      (m) => m.status !== 'RESOLVED' && m.status !== 'CLOSED'
+      (m) => m.status !== 'resolved' && m.status !== 'closed'
     ).length
     const resolvedMatters = matters.filter(
-      (m) => m.status === 'RESOLVED' || m.status === 'CLOSED'
+      (m) => m.status === 'resolved' || m.status === 'closed'
     ).length
-    const underInvestigation = matters.filter((m) => m.status === 'UNDER_INVESTIGATION').length
+    const underInvestigation = matters.filter((m) => m.status === 'under_review').length
 
     // By severity
     const bySeverity = {
-      minor: matters.filter((m) => m.severity === 'MINOR').length,
-      moderate: matters.filter((m) => m.severity === 'MODERATE').length,
-      serious: matters.filter((m) => m.severity === 'SERIOUS').length,
-      critical: matters.filter((m) => m.severity === 'CRITICAL').length,
+      low: matters.filter((m) => m.severity === 'low').length,
+      medium: matters.filter((m) => m.severity === 'medium').length,
+      high: matters.filter((m) => m.severity === 'high').length,
+      critical: matters.filter((m) => m.severity === 'critical').length,
     }
 
     // By status
@@ -568,12 +561,12 @@ export async function getMatterStats(filters?: {
     const now = new Date()
     const overdueMatters = matters.filter(
       (m) =>
-        m.due_date && new Date(m.due_date) < now && m.status !== 'RESOLVED' && m.status !== 'CLOSED'
+        m.due_date && new Date(m.due_date) < now && m.status !== 'resolved' && m.status !== 'closed'
     ).length
 
     // Average resolution days (for resolved matters)
     const resolvedWithDates = matters.filter(
-      (m) => m.resolved_date && (m.status === 'RESOLVED' || m.status === 'CLOSED')
+      (m) => m.resolved_date && (m.status === 'resolved' || m.status === 'closed')
     )
     const totalDays = resolvedWithDates.reduce((sum, m) => {
       if (m.resolved_date && m.reported_date) {

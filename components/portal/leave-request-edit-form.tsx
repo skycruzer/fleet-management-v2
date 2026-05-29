@@ -102,9 +102,12 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
 
   if (success) {
     return (
-      <div className="py-8 text-center">
-        <CheckCircle className="mx-auto mb-4 h-16 w-16 text-[var(--color-status-low)]" />
-        <h3 className="text-xl font-bold text-[var(--color-status-low)]">Request Updated!</h3>
+      <div className="py-8 text-center" role="status" aria-live="polite" aria-atomic="true">
+        <CheckCircle
+          className="mx-auto mb-4 h-16 w-16 text-[var(--color-status-low)]"
+          aria-hidden="true"
+        />
+        <h3 className="text-foreground text-xl font-bold">Request Updated</h3>
         <p className="text-muted-foreground mt-2">
           Your leave request has been updated successfully.
         </p>
@@ -183,10 +186,11 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
           placeholder="Provide any additional context or reason for your leave request..."
           rows={4}
           maxLength={500}
+          aria-describedby="reason_counter"
           {...form.register('reason')}
           disabled={isSubmitting}
         />
-        <p className="text-muted-foreground text-xs">
+        <p id="reason_counter" className="text-muted-foreground text-xs">
           {form.watch('reason')?.length || 0}/500 characters
         </p>
         {form.formState.errors.reason && (

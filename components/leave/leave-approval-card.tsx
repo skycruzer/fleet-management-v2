@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, XCircle, AlertTriangle, Clock, Calendar, User, FileText } from 'lucide-react'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 import { toast } from 'sonner'
@@ -74,8 +75,17 @@ export function LeaveApprovalCard({
 }: LeaveApprovalCardProps) {
   const [isApproving, setIsApproving] = useState(false)
   const [isDenying, setIsDenying] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const handleApprove = async () => {
+    const ok = await confirm({
+      title: 'Approve request?',
+      description: `Approve ${request.request_type} for ${request.name}?`,
+      confirmText: 'Approve',
+      variant: 'default',
+    })
+    if (!ok) return
+
     setIsApproving(true)
     try {
       await onApprove(request.id)
@@ -92,6 +102,14 @@ export function LeaveApprovalCard({
   }
 
   const handleDeny = async () => {
+    const ok = await confirm({
+      title: 'Deny request?',
+      description: `Deny ${request.request_type} for ${request.name}? The pilot will be notified.`,
+      confirmText: 'Deny',
+      variant: 'destructive',
+    })
+    if (!ok) return
+
     setIsDenying(true)
     try {
       await onDeny(request.id)
@@ -373,6 +391,8 @@ export function LeaveApprovalCard({
           })}
         </p>
       </div>
+
+      <ConfirmDialog />
     </Card>
   )
 }

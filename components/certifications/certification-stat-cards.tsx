@@ -9,6 +9,7 @@
 
 'use client'
 
+import { motion, useReducedMotion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { CheckCircle, Clock, AlertCircle, FileCheck } from 'lucide-react'
 
@@ -30,6 +31,8 @@ export function CertificationStatCards({
   onStatClick,
   activeStatus,
 }: CertificationStatCardsProps) {
+  const prefersReducedMotion = useReducedMotion()
+
   const cards = [
     {
       key: 'all' as const,
@@ -66,42 +69,59 @@ export function CertificationStatCards({
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-4">
+    <motion.div
+      className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-4"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.06 } },
+      }}
+    >
       {cards.map((card) => {
         const Icon = card.icon
         const isActive = activeStatus === card.key
         const isClickable = !!onStatClick
 
         return (
-          <Card
+          <motion.div
             key={card.key}
-            className={`p-3 transition-all ${
-              isClickable ? 'cursor-pointer hover:shadow-md' : ''
-            } ${isActive ? 'ring-primary ring-2 ring-offset-2' : ''}`}
-            onClick={() => onStatClick?.(card.key)}
-            role={isClickable ? 'button' : undefined}
-            tabIndex={isClickable ? 0 : undefined}
-            onKeyDown={(e) => {
-              if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault()
-                onStatClick?.(card.key)
-              }
+            variants={{
+              hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
+              visible: { opacity: 1, y: 0 },
             }}
           >
-            <div className="flex items-center gap-2">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full ${card.bgClass}`}
-              >
-                <Icon className={`h-4 w-4 ${card.iconClass}`} aria-hidden="true" />
+            <Card
+              className={`p-3 transition-all ${
+                isClickable
+                  ? 'focus-visible:ring-primary cursor-pointer hover:shadow-md focus-visible:ring-2 focus-visible:outline-none'
+                  : ''
+              } ${isActive ? 'ring-primary ring-2 ring-offset-2' : ''}`}
+              onClick={() => onStatClick?.(card.key)}
+              role={isClickable ? 'button' : undefined}
+              tabIndex={isClickable ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault()
+                  onStatClick?.(card.key)
+                }
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full ${card.bgClass}`}
+                >
+                  <Icon className={`h-4 w-4 ${card.iconClass}`} aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-foreground text-xl font-bold">{card.value}</p>
+                  <p className="text-muted-foreground text-xs">{card.label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-foreground text-xl font-bold">{card.value}</p>
-                <p className="text-muted-foreground text-xs">{card.label}</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         )
       })}
-    </div>
+    </motion.div>
   )
 }

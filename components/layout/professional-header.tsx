@@ -12,7 +12,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDate } from '@/lib/utils/date-utils'
-import { Bell, User, Settings, LogOut, HelpCircle, MessageSquare } from 'lucide-react'
+import {
+  Bell,
+  User,
+  Settings,
+  LogOut,
+  HelpCircle,
+  MessageSquare,
+  AlertTriangle,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { cn } from '@/lib/utils'
@@ -208,39 +219,62 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
                     No notifications
                   </div>
                 ) : (
-                  notifications.map((notification) => (
-                    <button
-                      key={notification.id}
-                      onClick={() => handleNotificationClick(notification)}
-                      className={cn(
-                        'border-border hover:bg-muted/50 w-full border-b px-3 py-2.5 text-left transition-colors',
-                        !notification.read && 'bg-[var(--color-info-bg)]'
-                      )}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div
-                          className={cn(
-                            'mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full',
-                            notification.type === 'warning' && 'bg-warning',
-                            notification.type === 'success' && 'bg-success',
-                            notification.type === 'error' && 'bg-destructive',
-                            notification.type === 'info' && 'bg-accent'
-                          )}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-foreground text-sm font-medium">
-                            {notification.title}
-                          </p>
-                          <p className="text-muted-foreground line-clamp-2 text-xs">
-                            {notification.message}
-                          </p>
-                          <p className="text-muted-foreground/70 mt-0.5 text-xs">
-                            {formatTimeAgo(notification.created_at)}
-                          </p>
+                  notifications.map((notification) => {
+                    // Non-color signal for the notification type: an icon + an
+                    // sr-only label so colorblind and screen-reader users get
+                    // the type, not just the dot's background color.
+                    const typeLabel =
+                      notification.type === 'warning'
+                        ? 'Warning'
+                        : notification.type === 'success'
+                          ? 'Success'
+                          : notification.type === 'error'
+                            ? 'Error'
+                            : 'Info'
+                    const TypeIcon =
+                      notification.type === 'warning'
+                        ? AlertTriangle
+                        : notification.type === 'success'
+                          ? CheckCircle
+                          : notification.type === 'error'
+                            ? AlertCircle
+                            : Info
+                    return (
+                      <button
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={cn(
+                          'border-border hover:bg-muted/50 w-full border-b px-3 py-2.5 text-left transition-colors',
+                          !notification.read && 'bg-[var(--color-info-bg)]'
+                        )}
+                      >
+                        <div className="flex items-start gap-2">
+                          <TypeIcon
+                            className={cn(
+                              'mt-0.5 h-3.5 w-3.5 flex-shrink-0',
+                              notification.type === 'warning' && 'text-warning',
+                              notification.type === 'success' && 'text-success',
+                              notification.type === 'error' && 'text-destructive',
+                              notification.type === 'info' && 'text-accent'
+                            )}
+                            aria-hidden="true"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-foreground text-sm font-medium">
+                              <span className="sr-only">{typeLabel}: </span>
+                              {notification.title}
+                            </p>
+                            <p className="text-muted-foreground line-clamp-2 text-xs">
+                              {notification.message}
+                            </p>
+                            <p className="text-muted-foreground/70 mt-0.5 text-xs">
+                              {formatTimeAgo(notification.created_at)}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  ))
+                      </button>
+                    )
+                  })
                 )}
               </div>
               <div className="border-border border-t px-3 py-2">

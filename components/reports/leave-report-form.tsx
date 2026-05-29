@@ -11,7 +11,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { formatDate } from '@/lib/utils/date-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,6 +24,7 @@ import {
   FormItem,
   FormLabel,
   FormDescription,
+  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -31,37 +32,48 @@ import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
-import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
 import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
-import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
-import { generateRosterPeriods, rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
+import {
+  generateRosterPeriods,
+  getDefaultReportYears,
+  rosterPeriodsToDateRange,
+} from '@/lib/utils/roster-periods'
 
-const formSchema = z.object({
-  filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  rosterPeriods: z.array(z.string()).default([]),
-  statusPending: z.boolean().default(false),
-  statusSubmitted: z.boolean().default(false),
-  statusInReview: z.boolean().default(false),
-  statusApproved: z.boolean().default(false),
-  statusRejected: z.boolean().default(false),
-  rankCaptain: z.boolean().default(false),
-  rankFirstOfficer: z.boolean().default(false),
-  leaveTypeAnnual: z.boolean().default(false),
-  leaveTypeSick: z.boolean().default(false),
-  leaveTypeLSL: z.boolean().default(false),
-  leaveTypeLWOP: z.boolean().default(false),
-  leaveTypeMaternity: z.boolean().default(false),
-  leaveTypeCompassionate: z.boolean().default(false),
-})
+const formSchema = z
+  .object({
+    filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    rosterPeriods: z.array(z.string()).default([]),
+    statusDraft: z.boolean().default(false),
+    statusSubmitted: z.boolean().default(false),
+    statusInReview: z.boolean().default(false),
+    statusApproved: z.boolean().default(false),
+    statusRejected: z.boolean().default(false),
+    rankCaptain: z.boolean().default(false),
+    rankFirstOfficer: z.boolean().default(false),
+    leaveTypeAnnual: z.boolean().default(false),
+    leaveTypeSick: z.boolean().default(false),
+    leaveTypeLSL: z.boolean().default(false),
+    leaveTypeLWOP: z.boolean().default(false),
+    leaveTypeMaternity: z.boolean().default(false),
+    leaveTypeCompassionate: z.boolean().default(false),
+  })
+  .refine(
+    (data) => {
+      // Only validate when in date-range mode with both dates set.
+      if (data.filterMode !== 'dateRange' || !data.startDate || !data.endDate) return true
+      return new Date(data.startDate) <= new Date(data.endDate)
+    },
+    { message: 'End date must be on or after the start date', path: ['endDate'] }
+  )
 
 export function LeaveReportForm() {
   const [currentFilters, setCurrentFilters] = useState<ReportFilters>({})
@@ -69,7 +81,9 @@ export function LeaveReportForm() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const { toast } = useToast()
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods(getDefaultReportYears(), {
+    currentAndFutureOnly: true,
+  })
   const prefetchReport = usePrefetchReport()
 
   // TanStack Query hooks
@@ -90,7 +104,7 @@ export function LeaveReportForm() {
       startDate: '',
       endDate: '',
       rosterPeriods: [],
-      statusPending: false,
+      statusDraft: false,
       statusSubmitted: false,
       statusInReview: false,
       statusApproved: false,
@@ -128,7 +142,7 @@ export function LeaveReportForm() {
     }
 
     const statuses: NonNullable<ReportFilters['status']> = []
-    if (values.statusPending) statuses.push('DRAFT')
+    if (values.statusDraft) statuses.push('DRAFT')
     if (values.statusApproved) statuses.push('APPROVED')
     if (values.statusRejected) statuses.push('DENIED')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
@@ -225,15 +239,6 @@ export function LeaveReportForm() {
     }
   }
 
-  // Handle date preset selection
-  const handleDatePresetSelect = (dateRange: DateRange) => {
-    // Clear roster periods when date preset is selected
-    form.setValue('rosterPeriods', [])
-    form.setValue('startDate', dateRange.startDate)
-    form.setValue('endDate', dateRange.endDate)
-    handleFormChange()
-  }
-
   // Separate loading states for each button
   const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
   const isExportButtonLoading = exportMutation.isPending
@@ -256,7 +261,7 @@ export function LeaveReportForm() {
     }
 
     // Apply status filters — must mirror buildFilters() so all 5 values round-trip
-    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusDraft', filters.status?.includes('DRAFT') || false)
     form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
     form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
@@ -331,6 +336,7 @@ export function LeaveReportForm() {
                     <FormControl>
                       <Input
                         type="date"
+                        min={form.watch('startDate') || undefined}
                         {...field}
                         onChange={(e) => {
                           field.onChange(e)
@@ -341,13 +347,12 @@ export function LeaveReportForm() {
                         }}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
           )}
-
-          {/* Date Presets removed per user request */}
 
           {/* Roster Period Selection - Only show if roster mode */}
           {filterMode === 'roster' && (
@@ -407,7 +412,7 @@ export function LeaveReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: true,
+                      statusDraft: true,
                       statusSubmitted: true,
                       statusInReview: true,
                       statusApproved: true,
@@ -425,7 +430,7 @@ export function LeaveReportForm() {
                   onClick={() => {
                     form.reset({
                       ...form.getValues(),
-                      statusPending: false,
+                      statusDraft: false,
                       statusSubmitted: false,
                       statusInReview: false,
                       statusApproved: false,
@@ -441,7 +446,7 @@ export function LeaveReportForm() {
             <div className="flex flex-wrap gap-4">
               <FormField
                 control={form.control}
-                name="statusPending"
+                name="statusDraft"
                 render={({ field }) => (
                   <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
@@ -689,13 +694,20 @@ export function LeaveReportForm() {
           </div>
 
           {/* Active Filters Badge */}
-          {activeFilterCount > 0 && (
+          {activeFilterCount > 0 ? (
             <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
               <Filter className="text-muted-foreground h-4 w-4" />
               <span className="text-muted-foreground text-sm">Active filters:</span>
               <Badge variant="secondary" className="font-normal">
                 {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
               </Badge>
+            </div>
+          ) : (
+            <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
+              <Filter className="text-muted-foreground h-4 w-4" />
+              <p className="text-muted-foreground text-sm">
+                No filters selected — the report will include all leave requests.
+              </p>
             </div>
           )}
 
@@ -751,6 +763,8 @@ export function LeaveReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="leave"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog

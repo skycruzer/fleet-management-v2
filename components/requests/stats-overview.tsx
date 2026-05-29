@@ -56,7 +56,10 @@ function StatCard({ label, value, icon, description, variant, href, isActive }: 
   }
 
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      aria-label={`${isActive ? 'Remove filter' : 'Filter requests by'} ${label}: ${value}${description ? ` (${description})` : ''}`}
+    >
       <Card
         className={cn(
           'cursor-pointer p-3 transition-all hover:shadow-md',

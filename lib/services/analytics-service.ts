@@ -27,6 +27,7 @@ import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, CACHE_KEYS, CACHE_TTL } from './redis-cache-service'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import type { HistoricalRetirementTrends } from '@/types/database-views'
+import { parseLocalDate } from '@/lib/utils/retirement-utils'
 
 /**
  * Internal function to compute pilot analytics (called on cache miss)
@@ -71,9 +72,13 @@ async function computePilotAnalytics() {
 
       // Calculate retirement metrics
       if (pilot.date_of_birth && pilot.is_active) {
-        const birthDate = new Date(pilot.date_of_birth)
+        const birthDate = parseLocalDate(pilot.date_of_birth)
         const retirementDate = new Date(birthDate)
         retirementDate.setFullYear(retirementDate.getFullYear() + retirementAge)
+        // Feb-29 birth date overflows to Mar 1 in a non-leap target year; clamp back.
+        if (retirementDate.getMonth() !== birthDate.getMonth()) {
+          retirementDate.setDate(0)
+        }
 
         const yearsToRetirement = Math.floor(
           (retirementDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
@@ -628,7 +633,7 @@ export async function getMultiYearRetirementForecast(
       pilots?.forEach((pilot) => {
         if (!pilot.date_of_birth) return
 
-        const birthDate = new Date(pilot.date_of_birth)
+        const birthDate = parseLocalDate(pilot.date_of_birth)
         const retirementYear = birthDate.getFullYear() + retirementAge
 
         if (retirementYear === targetYear) {
@@ -752,9 +757,13 @@ export async function predictCrewShortages(
       pilots?.forEach((pilot) => {
         if (!pilot.date_of_birth) return
 
-        const birthDate = new Date(pilot.date_of_birth)
+        const birthDate = parseLocalDate(pilot.date_of_birth)
         const retirementDate = new Date(birthDate)
         retirementDate.setFullYear(retirementDate.getFullYear() + retirementAge)
+        // Feb-29 birth date overflows to Mar 1 in a non-leap target year; clamp back.
+        if (retirementDate.getMonth() !== birthDate.getMonth()) {
+          retirementDate.setDate(0)
+        }
 
         const retirementMonth = retirementDate.getMonth()
         const retirementYear = retirementDate.getFullYear()

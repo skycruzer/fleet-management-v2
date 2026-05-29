@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { Lock, Eye, EyeOff, AlertCircle, Loader2, ShieldCheck } from 'lucide-react'
@@ -20,9 +21,29 @@ export default function ChangePasswordPage() {
   const { csrfToken } = useCsrfToken()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
   const [showOldPassword, setShowOldPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Password strength indicator (mirrors reset-password flow)
+  const getPasswordStrength = (pwd: string) => {
+    if (!pwd) return { strength: 0, label: '', color: '' }
+
+    let strength = 0
+    if (pwd.length >= 8) strength++
+    if (/[A-Z]/.test(pwd)) strength++
+    if (/[a-z]/.test(pwd)) strength++
+    if (/[0-9]/.test(pwd)) strength++
+    if (/[^A-Za-z0-9]/.test(pwd)) strength++
+
+    if (strength <= 2) return { strength: 33, label: 'Weak', color: 'bg-[var(--color-danger-500)]' }
+    if (strength === 3)
+      return { strength: 66, label: 'Good', color: 'bg-[var(--color-warning-500)]' }
+    return { strength: 100, label: 'Strong', color: 'bg-[var(--color-success-500)]' }
+  }
+
+  const passwordStrength = getPasswordStrength(newPassword)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -34,9 +55,33 @@ export default function ChangePasswordPage() {
     const newPassword = formData.get('newPassword') as string
     const confirmPassword = formData.get('confirmPassword') as string
 
-    // Client-side validation
+    // Client-side validation (mirrors reset-password complexity policy)
     if (newPassword.length < 8) {
       setError('New password must be at least 8 characters.')
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[A-Z]/.test(newPassword)) {
+      setError('New password must contain at least one uppercase letter.')
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[a-z]/.test(newPassword)) {
+      setError('New password must contain at least one lowercase letter.')
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      setError('New password must contain at least one number.')
+      setIsLoading(false)
+      return
+    }
+
+    if (!/[^A-Za-z0-9]/.test(newPassword)) {
+      setError('New password must contain at least one special character.')
       setIsLoading(false)
       return
     }
@@ -111,7 +156,7 @@ export default function ChangePasswordPage() {
               </label>
               <div className="relative">
                 <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                <input
+                <Input
                   id="oldPassword"
                   name="oldPassword"
                   type={showOldPassword ? 'text' : 'password'}
@@ -119,7 +164,8 @@ export default function ChangePasswordPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  showIcon={false}
+                  className="border-border bg-background text-foreground pr-9 pl-9"
                 />
                 <button
                   type="button"
@@ -142,7 +188,7 @@ export default function ChangePasswordPage() {
               </label>
               <div className="relative">
                 <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                <input
+                <Input
                   id="newPassword"
                   name="newPassword"
                   type={showNewPassword ? 'text' : 'password'}
@@ -151,7 +197,10 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  showIcon={false}
+                  className="border-border bg-background text-foreground pr-9 pl-9"
                 />
                 <button
                   type="button"
@@ -161,6 +210,58 @@ export default function ChangePasswordPage() {
                 >
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
+              </div>
+
+              {/* Password Strength Indicator */}
+              {newPassword && (
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Password strength:</span>
+                    <span
+                      className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-600)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-400)]' : 'text-[var(--color-danger-400)]'}`}
+                    >
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  <div className="bg-muted/60 h-1.5 w-full rounded-full">
+                    <div
+                      className={`h-full rounded-full transition-all ${passwordStrength.color}`}
+                      style={{ width: `${passwordStrength.strength}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Password Requirements */}
+              <div className="text-muted-foreground mt-2 space-y-1 text-xs">
+                <p className="font-medium">Password must contain:</p>
+                <ul className="ml-4 space-y-0.5">
+                  <li className={newPassword.length >= 8 ? 'text-[var(--color-success-600)]' : ''}>
+                    • At least 8 characters
+                  </li>
+                  <li
+                    className={/[A-Z]/.test(newPassword) ? 'text-[var(--color-success-600)]' : ''}
+                  >
+                    • One uppercase letter
+                  </li>
+                  <li
+                    className={/[a-z]/.test(newPassword) ? 'text-[var(--color-success-600)]' : ''}
+                  >
+                    • One lowercase letter
+                  </li>
+                  <li
+                    className={/[0-9]/.test(newPassword) ? 'text-[var(--color-success-600)]' : ''}
+                  >
+                    • One number
+                  </li>
+                  <li
+                    className={
+                      /[^A-Za-z0-9]/.test(newPassword) ? 'text-[var(--color-success-600)]' : ''
+                    }
+                  >
+                    • One special character
+                  </li>
+                </ul>
               </div>
             </div>
 
@@ -174,7 +275,7 @@ export default function ChangePasswordPage() {
               </label>
               <div className="relative">
                 <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                <input
+                <Input
                   id="confirmPassword"
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -183,7 +284,8 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  showIcon={false}
+                  className="border-border bg-background text-foreground pr-9 pl-9"
                 />
                 <button
                   type="button"

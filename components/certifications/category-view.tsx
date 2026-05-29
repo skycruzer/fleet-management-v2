@@ -99,6 +99,12 @@ function CategoryAccordion({
   const [isOpen, setIsOpen] = useState(false)
   const compliance = getCategoryCompliance(category.stats)
   const total = category.certifications.length
+  // Slugify the category name into a valid, space-free DOM id so the button's
+  // aria-controls and the panel's id stay matched (category names contain spaces).
+  const panelId = `category-${category.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')}`
 
   return (
     <Card className="overflow-hidden">
@@ -107,7 +113,7 @@ function CategoryAccordion({
         onClick={() => setIsOpen(!isOpen)}
         className="hover:bg-muted/50 flex w-full items-center justify-between p-3 text-left transition-all"
         aria-expanded={isOpen}
-        aria-controls={`category-${category.name}`}
+        aria-controls={panelId}
       >
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-info-bg)]">
@@ -159,7 +165,7 @@ function CategoryAccordion({
 
       {/* Accordion Content */}
       {isOpen && (
-        <div id={`category-${category.name}`} className="bg-muted/20 border-t px-3 py-2.5">
+        <div id={panelId} className="bg-muted/20 border-t px-3 py-2.5">
           <div className="space-y-1.5 xl:grid xl:grid-cols-2 xl:gap-1.5 xl:space-y-0 2xl:grid-cols-3">
             {category.certifications.map((cert) => (
               <div

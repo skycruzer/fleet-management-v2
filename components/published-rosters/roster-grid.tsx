@@ -187,10 +187,12 @@ export function RosterGrid({
                 return (
                   <th
                     key={d}
+                    aria-current={today ? 'date' : undefined}
                     className={cn(
                       'px-0.5 py-1.5 text-center font-normal',
                       !compact && 'min-w-[52px]',
-                      today && 'bg-blue-500/10 dark:bg-blue-500/20',
+                      today &&
+                        'bg-blue-500/10 ring-2 ring-blue-500/60 ring-inset dark:bg-blue-500/20',
                       weekend && !today && 'bg-muted/30',
                       isWeekBoundary && 'border-l-border border-l-2'
                     )}
@@ -300,11 +302,11 @@ export function RosterGrid({
                           key={p.pilotId ?? `${p.name}-${i}`}
                           className="flex items-center gap-2 text-sm"
                         >
-                          <span className="h-2 w-2 rounded-full bg-blue-500" />
+                          <span className="bg-primary h-2 w-2 rounded-full" />
                           {p.pilotId ? (
                             <Link
                               href={`/dashboard/pilots?id=${p.pilotId}`}
-                              className="hover:text-blue-600 hover:underline dark:hover:text-blue-400"
+                              className="hover:text-primary hover:underline"
                             >
                               {p.name}
                             </Link>
@@ -328,11 +330,11 @@ export function RosterGrid({
                           key={p.pilotId ?? `${p.name}-${i}`}
                           className="flex items-center gap-2 text-sm"
                         >
-                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                          <span className="bg-muted-foreground h-2 w-2 rounded-full" />
                           {p.pilotId ? (
                             <Link
                               href={`/dashboard/pilots?id=${p.pilotId}`}
-                              className="hover:text-blue-600 hover:underline dark:hover:text-blue-400"
+                              className="hover:text-primary hover:underline"
                             >
                               {p.name}
                             </Link>
@@ -388,7 +390,7 @@ function PilotRowComponent({
         {pilot.pilotId ? (
           <Link
             href={`/dashboard/pilots?id=${pilot.pilotId}`}
-            className="text-foreground hover:text-blue-600 hover:underline dark:hover:text-blue-400"
+            className="text-foreground hover:text-primary hover:underline"
           >
             {pilot.lastName} {pilot.firstName.charAt(0)}.
           </Link>

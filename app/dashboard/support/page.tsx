@@ -6,8 +6,10 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { FileQuestion, ArrowLeft, BookOpen, Video, CheckCircle2 } from 'lucide-react'
+import { FileQuestion, ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react'
 import { SupportContactButtons } from '@/components/support/support-contact-buttons'
+import { Breadcrumb } from '@/components/navigation/breadcrumb'
+import { env } from '@/lib/env'
 
 export const metadata = {
   title: 'Support & Help - Fleet Management V2',
@@ -19,13 +21,7 @@ const quickLinks = [
     icon: BookOpen,
     title: 'Documentation',
     description: 'Browse our comprehensive documentation',
-    href: '/dashboard/docs',
-  },
-  {
-    icon: Video,
-    title: 'Video Tutorials',
-    description: 'Watch step-by-step video guides',
-    href: '/dashboard/tutorials',
+    href: '/docs',
   },
   {
     icon: FileQuestion,
@@ -47,6 +43,8 @@ const commonIssues = [
 export default function SupportPage() {
   return (
     <div className="space-y-6">
+      <Breadcrumb />
+
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -72,7 +70,7 @@ export default function SupportPage() {
           <div>
             <h3 className="text-foreground text-lg font-semibold">Support Available</h3>
             <p className="text-muted-foreground text-sm">
-              Our support team is online and ready to help you
+              Find help resources and contact options below
             </p>
           </div>
         </div>
@@ -129,18 +127,10 @@ export default function SupportPage() {
       {/* System Information */}
       <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">System Information</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-1">
           <div>
             <p className="text-muted-foreground text-sm font-medium">Application Version</p>
-            <p className="text-foreground text-lg font-bold">v2.0.0</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Database Status</p>
-            <p className="text-lg font-bold text-[var(--color-success-400)]">Connected</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Support Hours</p>
-            <p className="text-foreground text-lg font-bold">24/7</p>
+            <p className="text-foreground text-lg font-bold">v{env.NEXT_PUBLIC_APP_VERSION}</p>
           </div>
         </div>
       </Card>

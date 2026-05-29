@@ -13,6 +13,7 @@ import {
 } from '@/lib/services/notification-service'
 import Link from 'next/link'
 import { ArrowLeft, Bell, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 // Server action for marking all notifications as read
 async function markAllAsReadAction(formData: FormData) {
@@ -89,12 +90,9 @@ export default async function NotificationsPage() {
         {unreadNotifications.length > 0 && (
           <form action={markAllAsReadAction}>
             <input type="hidden" name="userId" value={userId} />
-            <button
-              type="submit"
-              className="rounded-lg bg-[var(--color-primary-600)] px-4 py-2 text-white hover:bg-[var(--color-primary-700)]"
-            >
+            <Button type="submit" variant="primary">
               Mark All as Read
-            </button>
+            </Button>
           </form>
         )}
       </div>

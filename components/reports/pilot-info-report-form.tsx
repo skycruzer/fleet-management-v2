@@ -619,6 +619,8 @@ export function PilotInfoReportForm() {
         onOpenChange={setShowPreview}
         reportData={previewData ?? null}
         reportType="pilot-info"
+        filters={currentFilters}
+        onEmail={() => setShowEmail(true)}
       />
 
       <ReportEmailDialog
