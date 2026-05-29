@@ -360,7 +360,12 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
 
               {/* Date Preview with Roster Periods */}
               {option.start_date && option.end_date && (
-                <div className="bg-background/80 border-border/50 mt-3 space-y-2 rounded-lg border px-3 py-2">
+                <div
+                  className="bg-background/80 border-border/50 mt-3 space-y-2 rounded-lg border px-3 py-2"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  role="status"
+                >
                   <div>
                     <p className="text-foreground text-sm font-medium">
                       {format(new Date(option.start_date), 'MMM dd, yyyy')} -{' '}
@@ -391,7 +396,8 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
                       </div>
                       {option.roster_periods.length > 1 && (
                         <p className="text-warning mt-1 text-xs">
-                          ⚠️ Spans multiple roster periods ({option.roster_periods.length})
+                          This leave bid spans multiple roster periods (
+                          {option.roster_periods.length}). This may affect scheduling.
                         </p>
                       )}
                     </div>

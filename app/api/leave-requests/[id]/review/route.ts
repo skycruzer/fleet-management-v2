@@ -13,7 +13,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { createNotification } from '@/lib/services/notification-service'
@@ -94,14 +93,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Update leave request status using service function
     const result = await updateLeaveRequestStatus(requestId, status, auth.userId!, comments)
 
-    // Fetch the leave request details to get pilot information
-    const supabase = createAdminClient()
-    const { data: leaveRequest } = await supabase
-      .from('pilot_requests')
-      .select('*')
-      .eq('id', requestId)
-      .eq('request_category', 'LEAVE')
-      .single()
+    // Don't report success (200) when the update actually failed.
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error || 'Failed to update leave request' },
+        { status: 400 }
+      )
+    }
+
+    // Use the mutated record returned by the service layer (transaction-consistent,
+    // cache-invalidated) rather than re-querying the database for stale/uncommitted rows.
+    const leaveRequest = result.data
 
     // Create notification for pilot if they have start/end dates
     if (leaveRequest?.pilot_user_id && leaveRequest.start_date && leaveRequest.end_date) {

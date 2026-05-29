@@ -11,6 +11,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Database } from '@/types/supabase'
+import { passwordResetRateLimit } from '@/lib/rate-limit'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
@@ -971,12 +972,27 @@ export async function requestPasswordReset(
  * Validate password reset token
  *
  * @param token - Reset token from email link
+ * @param identifier - Rate-limit key (caller IP). Defaults to 'global' so that even
+ *   callers that cannot supply an IP still share a capped validation budget. This
+ *   prevents unauthenticated brute-forcing of the 64-hex-char tokens.
  * @returns Service response with validation status
  */
 export async function validatePasswordResetToken(
-  token: string
+  token: string,
+  identifier: string = 'global'
 ): Promise<ServiceResponse<{ userId: string; email: string }>> {
   try {
+    // Rate limit token validation to prevent brute-force enumeration of reset
+    // tokens. Reuses the password-reset limiter (3 per hour). Falls back to a
+    // no-op when Redis is not configured (development).
+    const { success: withinLimit } = await passwordResetRateLimit.limit(`validate:${identifier}`)
+    if (!withinLimit) {
+      return {
+        success: false,
+        error: 'Too many attempts. Please wait before trying again.',
+      }
+    }
+
     const supabase = createAdminClient()
 
     // Find token
@@ -1054,8 +1070,10 @@ export async function resetPassword(
     const supabase = createAdminClient()
     const bcrypt = require('bcryptjs')
 
-    // Validate token first
-    const validation = await validatePasswordResetToken(token)
+    // Validate token first. Use a separate rate-limit bucket from the standalone
+    // GET validation path: the POST reset route is already IP rate-limited, so this
+    // internal call must not consume (or be blocked by) the anonymous validation budget.
+    const validation = await validatePasswordResetToken(token, 'reset')
     if (!validation.success || !validation.data) {
       return {
         success: false,
