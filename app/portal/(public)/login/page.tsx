@@ -102,6 +102,7 @@ export default function PilotLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="username"
+                  autoFocusFirst
                   className="pl-9"
                 />
               </div>

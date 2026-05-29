@@ -176,6 +176,7 @@ export function RequestCardCompact({
                     variant="ghost"
                     className="h-8 w-8 p-0 text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)] hover:text-[var(--color-status-low)]"
                     onClick={() => onApprove(request.id)}
+                    aria-label={`Approve request from ${request.pilotName}`}
                   >
                     <CheckCircle2 className="h-4 w-4" />
                   </Button>
@@ -186,6 +187,7 @@ export function RequestCardCompact({
                     variant="ghost"
                     className="h-8 w-8 p-0 text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)] hover:text-[var(--color-status-high)]"
                     onClick={() => onDeny(request.id)}
+                    aria-label={`Deny request from ${request.pilotName}`}
                   >
                     <XCircle className="h-4 w-4" />
                   </Button>
@@ -196,7 +198,12 @@ export function RequestCardCompact({
             {/* More menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  aria-label={`More actions for request from ${request.pilotName}`}
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -235,6 +242,8 @@ export function RequestCardCompact({
                 size="sm"
                 className="h-8 w-8 p-0"
                 onClick={() => setIsExpanded(!isExpanded)}
+                aria-label={isExpanded ? 'Hide details' : 'Show details'}
+                aria-expanded={isExpanded}
               >
                 <ChevronDown
                   className={cn(

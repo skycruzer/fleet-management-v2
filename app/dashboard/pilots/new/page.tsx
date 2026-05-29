@@ -47,6 +47,24 @@ const CAPTAIN_QUALIFICATIONS = [
   { value: 'examiner', label: 'Examiner' },
 ] as const
 
+// Human-readable labels for validation summary (matches on-form field labels)
+const FIELD_LABELS: Record<string, string> = {
+  employee_id: 'Employee ID',
+  role: 'Rank',
+  first_name: 'First Name',
+  middle_name: 'Middle Name',
+  last_name: 'Last Name',
+  contract_type: 'Contract Type',
+  commencement_date: 'Commencement Date',
+  is_active: 'Employment Status',
+  date_of_birth: 'Date of Birth',
+  nationality: 'Nationality',
+  email: 'Email Address',
+  passport_number: 'Passport Number',
+  passport_expiry: 'Passport Expiry Date',
+  captain_qualifications: 'Captain Qualifications',
+}
+
 export default function NewPilotPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -205,11 +223,14 @@ export default function NewPilotPage() {
               Please fix the following errors:
             </p>
             <ul className="mt-2 list-inside list-disc text-sm text-[var(--color-warning-500)]">
-              {Object.entries(formState.errors).map(([field, err]) => (
-                <li key={field}>
-                  <strong>{field.replace(/_/g, ' ')}:</strong> {err?.message || `Invalid ${field}`}
-                </li>
-              ))}
+              {Object.entries(formState.errors).map(([field, err]) => {
+                const label = FIELD_LABELS[field] ?? field.replace(/_/g, ' ')
+                return (
+                  <li key={field}>
+                    <strong>{label}:</strong> {err?.message || `Invalid ${label}`}
+                  </li>
+                )
+              })}
             </ul>
           </div>
         )}

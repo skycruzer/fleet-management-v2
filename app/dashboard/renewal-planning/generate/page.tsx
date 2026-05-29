@@ -326,8 +326,17 @@ export default function GeneratePlanPage() {
                 type="number"
                 min={1}
                 max={24}
+                autoFocusFirst
                 value={monthsAhead}
-                onChange={(e) => setMonthsAhead(Number(e.target.value))}
+                onChange={(e) => {
+                  const raw = e.target.value
+                  const parsed = Number(raw)
+                  if (raw === '' || Number.isNaN(parsed)) {
+                    setMonthsAhead(1)
+                    return
+                  }
+                  setMonthsAhead(Math.min(24, Math.max(1, Math.trunc(parsed))))
+                }}
                 className="mt-2 max-w-[200px]"
               />
               <p className="text-muted-foreground mt-2 text-sm">

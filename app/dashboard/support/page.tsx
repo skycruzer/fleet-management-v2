@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { FileQuestion, ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react'
 import { SupportContactButtons } from '@/components/support/support-contact-buttons'
+import { Breadcrumb } from '@/components/navigation/breadcrumb'
 import { env } from '@/lib/env'
 
 export const metadata = {
@@ -42,6 +43,8 @@ const commonIssues = [
 export default function SupportPage() {
   return (
     <div className="space-y-6">
+      <Breadcrumb />
+
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>

@@ -694,13 +694,20 @@ export function LeaveReportForm() {
           </div>
 
           {/* Active Filters Badge */}
-          {activeFilterCount > 0 && (
+          {activeFilterCount > 0 ? (
             <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
               <Filter className="text-muted-foreground h-4 w-4" />
               <span className="text-muted-foreground text-sm">Active filters:</span>
               <Badge variant="secondary" className="font-normal">
                 {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
               </Badge>
+            </div>
+          ) : (
+            <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
+              <Filter className="text-muted-foreground h-4 w-4" />
+              <p className="text-muted-foreground text-sm">
+                No filters selected — the report will include all leave requests.
+              </p>
             </div>
           )}
 

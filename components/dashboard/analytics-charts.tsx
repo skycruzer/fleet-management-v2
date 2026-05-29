@@ -24,6 +24,7 @@ import {
   LabelList,
 } from 'recharts'
 import { motion, easeOut } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 
 function useChartColors() {
   const [colors, setColors] = useState({
@@ -87,11 +88,13 @@ const chartTransition = {
 }
 
 function AccessibleTooltip({ active, payload, label }: any) {
+  const { shouldAnimate } = useAnimationSettings()
   if (active && payload && payload.length) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : false}
         animate={{ opacity: 1, scale: 1 }}
+        transition={shouldAnimate ? undefined : { duration: 0 }}
         className="bg-background border-border rounded-lg border p-3 shadow-lg"
         role="tooltip"
         aria-live="polite"
@@ -117,6 +120,7 @@ interface PilotRankChartProps {
 
 export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankChartProps) {
   const colors = useChartColors()
+  const { shouldAnimate } = useAnimationSettings()
   const tooltipStyle = {
     backgroundColor: colors.tooltipBg,
     border: `1px solid ${colors.tooltipBorder}`,
@@ -129,10 +133,10 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
     <motion.div
       role="img"
       aria-label={`Pilot distribution: ${captains} Captains, ${firstOfficers} First Officers, ${inactive} Inactive`}
-      initial="hidden"
+      initial={shouldAnimate ? 'hidden' : false}
       animate="visible"
       variants={chartVariants}
-      transition={chartTransition}
+      transition={shouldAnimate ? chartTransition : { duration: 0 }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
@@ -168,6 +172,7 @@ interface CertificationPieChartProps {
 
 export function CertificationPieChart({ current, expiring, expired }: CertificationPieChartProps) {
   const colors = useChartColors()
+  const { shouldAnimate } = useAnimationSettings()
   const tooltipStyle = {
     backgroundColor: colors.tooltipBg,
     border: `1px solid ${colors.tooltipBorder}`,
@@ -179,10 +184,10 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
     <motion.div
       role="img"
       aria-label={`Certification status: ${current} Current, ${expiring} Expiring, ${expired} Expired`}
-      initial="hidden"
+      initial={shouldAnimate ? 'hidden' : false}
       animate="visible"
       variants={chartVariants}
-      transition={chartTransition}
+      transition={shouldAnimate ? chartTransition : { duration: 0 }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
@@ -218,6 +223,7 @@ interface LeaveTypeChartProps {
 
 export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
   const colors = useChartColors()
+  const { shouldAnimate } = useAnimationSettings()
   const tooltipStyle = {
     backgroundColor: colors.tooltipBg,
     border: `1px solid ${colors.tooltipBorder}`,
@@ -230,10 +236,10 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
     <motion.div
       role="img"
       aria-label={`Leave type breakdown: ${data.map((t) => `${t.type} (${t.count} requests, ${t.totalDays} days)`).join(', ')}`}
-      initial="hidden"
+      initial={shouldAnimate ? 'hidden' : false}
       animate="visible"
       variants={chartVariants}
-      transition={chartTransition}
+      transition={shouldAnimate ? chartTransition : { duration: 0 }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart

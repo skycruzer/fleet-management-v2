@@ -16,7 +16,7 @@ import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, AlertTriangle, ListFilter } from 'lucide-react'
+import { CheckCircle, AlertTriangle, ListFilter, Clock } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -118,16 +118,7 @@ export default async function LeaveApprovalPage() {
               <p className="text-muted-foreground text-sm font-medium">Pending</p>
               <p className="text-3xl font-bold">{requests.length}</p>
             </div>
-            <div className="text-[var(--color-primary-500)]">
-              <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
+            <Clock className="h-12 w-12 text-[var(--color-primary-500)]" />
           </div>
         </Card>
 

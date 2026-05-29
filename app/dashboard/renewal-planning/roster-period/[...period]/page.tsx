@@ -33,6 +33,18 @@ interface PageProps {
   params: Promise<{ period: string[] }>
 }
 
+// Renewal status is stored lowercase in the DB. The full constraint domain is
+// 'planned' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+// (see migration 20260118000001_fix_renewal_plan_status_constraint). Map all five
+// so manually-edited/imported rows aren't mislabeled as "Planned".
+const STATUS_LABELS: Record<string, string> = {
+  planned: 'Planned',
+  confirmed: 'Confirmed',
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+}
+
 export default async function RosterPeriodDetailPage({ params }: PageProps) {
   const { period: periodArray } = await params
 
@@ -271,7 +283,7 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
                               : 'secondary'
                         }
                       >
-                        {renewal.status}
+                        {STATUS_LABELS[renewal.status] ?? 'Planned'}
                       </Badge>
                     </TableCell>
                   </TableRow>

@@ -55,6 +55,20 @@ const rdoSdoRequestSchema = z
       path: ['end_date'],
     }
   )
+  .refine(
+    (data) => {
+      if (!data.end_date) return true // single-day request when no end_date
+      const start = new Date(data.start_date)
+      const end = new Date(data.end_date)
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return true
+      const inclusiveDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return inclusiveDays <= 31
+    },
+    {
+      message: 'Request cannot exceed 31 days',
+      path: ['end_date'],
+    }
+  )
 
 type RdoSdoRequestFormData = z.infer<typeof rdoSdoRequestSchema>
 

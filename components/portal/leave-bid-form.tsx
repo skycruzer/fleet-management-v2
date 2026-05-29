@@ -60,6 +60,10 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string>('')
+  const [errorField, setErrorField] = useState<{
+    priority: number
+    field?: 'start_date' | 'end_date'
+  } | null>(null)
   const [success, setSuccess] = useState<string>('')
 
   // Generate year options (next year and up to 2 years ahead)
@@ -113,6 +117,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
       prev.map((opt) => (opt.priority === priority ? { ...opt, [field]: value } : opt))
     )
     setError('')
+    setErrorField(null)
     setSuccess('')
   }
 
@@ -124,6 +129,8 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
           : opt
       )
     )
+    setError('')
+    setErrorField(null)
   }
 
   const validateBid = (): boolean => {
@@ -131,6 +138,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
     const filledOptions = options.filter((opt) => opt.start_date && opt.end_date)
     if (filledOptions.length === 0) {
       setError('Please fill at least one leave option')
+      setErrorField(null)
       return false
     }
 
@@ -142,12 +150,14 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
       // End date must be after start date
       if (endDate <= startDate) {
         setError(`Option ${opt.priority}: End date must be after start date`)
+        setErrorField({ priority: opt.priority, field: 'end_date' })
         return false
       }
 
       // Must be for the selected bid year
       if (startDate.getFullYear() !== bidYear && endDate.getFullYear() !== bidYear) {
         setError(`Option ${opt.priority}: Leave dates must be in ${bidYear}`)
+        setErrorField({ priority: opt.priority })
         return false
       }
     }
@@ -164,6 +174,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
 
     setIsSubmitting(true)
     setError('')
+    setErrorField(null)
     setSuccess('')
 
     try {
@@ -278,8 +289,8 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
         </Alert>
 
         {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
+          <Alert variant="destructive" role="alert">
+            <AlertDescription id="leave-bid-error">{error}</AlertDescription>
           </Alert>
         )}
 
@@ -334,6 +345,13 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
                     className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
                     min={`${bidYear}-01-01`}
                     max={`${bidYear}-12-31`}
+                    aria-invalid={
+                      errorField?.priority === option.priority &&
+                      (errorField.field === undefined || errorField.field === 'start_date')
+                    }
+                    aria-describedby={
+                      errorField?.priority === option.priority ? 'leave-bid-error' : undefined
+                    }
                   />
                 </div>
 
@@ -354,6 +372,13 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
                     min={option.start_date || `${bidYear}-01-01`}
                     max={`${bidYear}-12-31`}
                     disabled={!option.start_date}
+                    aria-invalid={
+                      errorField?.priority === option.priority &&
+                      (errorField.field === undefined || errorField.field === 'end_date')
+                    }
+                    aria-describedby={
+                      errorField?.priority === option.priority ? 'leave-bid-error' : undefined
+                    }
                   />
                 </div>
               </div>
@@ -421,6 +446,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
                 { priority: 4, start_date: '', end_date: '', roster_periods: [] },
               ])
               setError('')
+              setErrorField(null)
               setSuccess('')
             }}
           >
