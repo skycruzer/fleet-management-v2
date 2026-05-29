@@ -41,7 +41,6 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
@@ -69,9 +68,6 @@ interface Certification {
   pilot_id: string
   check_type_id: string
   expiry_date: string | null
-  // Optional fields for backwards compatibility
-  completion_date?: string | null
-  notes?: string | null
 }
 
 interface CertificationFormDialogProps {
@@ -87,29 +83,11 @@ interface CertificationFormDialogProps {
 // VALIDATION SCHEMA
 // ===================================
 
-const certificationFormSchema = z
-  .object({
-    pilot_id: z.string().uuid('Must select a pilot'),
-    check_type_id: z.string().uuid('Must select a check type'),
-    completion_date: z.string().optional(), // Optional - date the check was completed
-    expiry_date: z.string().min(1, 'Expiry date is required'),
-    notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
-  })
-  .refine(
-    (data) => {
-      // Only validate if both dates are provided
-      if (data.completion_date && data.expiry_date) {
-        const checkDate = new Date(data.completion_date)
-        const expiryDate = new Date(data.expiry_date)
-        return expiryDate > checkDate
-      }
-      return true
-    },
-    {
-      message: 'Expiry date must be after check date',
-      path: ['expiry_date'],
-    }
-  )
+const certificationFormSchema = z.object({
+  pilot_id: z.string().uuid('Must select a pilot'),
+  check_type_id: z.string().uuid('Must select a check type'),
+  expiry_date: z.string().min(1, 'Expiry date is required'),
+})
 
 type CertificationFormData = z.infer<typeof certificationFormSchema>
 
@@ -136,13 +114,9 @@ export function CertificationFormDialog({
     defaultValues: {
       pilot_id: certification?.pilot_id || '',
       check_type_id: certification?.check_type_id || '',
-      completion_date: certification?.completion_date
-        ? new Date(certification.completion_date).toISOString().split('T')[0]
-        : '',
       expiry_date: certification?.expiry_date
         ? new Date(certification.expiry_date).toISOString().split('T')[0]
         : '',
-      notes: certification?.notes || '',
     },
   })
 
@@ -152,13 +126,9 @@ export function CertificationFormDialog({
       form.reset({
         pilot_id: certification?.pilot_id || '',
         check_type_id: certification?.check_type_id || '',
-        completion_date: certification?.completion_date
-          ? new Date(certification.completion_date).toISOString().split('T')[0]
-          : '',
         expiry_date: certification?.expiry_date
           ? new Date(certification.expiry_date).toISOString().split('T')[0]
           : '',
-        notes: certification?.notes || '',
       })
     }
   }, [open, certification, form])
@@ -167,25 +137,10 @@ export function CertificationFormDialog({
   useFormUnsavedChanges(form, { skipWarning: isSubmitting })
 
   const onSubmit = async (data: CertificationFormData) => {
-    // Additional validation check before submission (only if both dates provided)
-    if (data.completion_date && data.expiry_date) {
-      const checkDate = new Date(data.completion_date)
-      const expiryDate = new Date(data.expiry_date)
-
-      if (expiryDate <= checkDate) {
-        form.setError('expiry_date', {
-          type: 'manual',
-          message: 'Expiry date must be after check date',
-        })
-        return
-      }
-    }
-
     setIsSubmitting(true)
 
     try {
       // Convert dates to ISO datetime format for API
-      // NOTE: completion_date and notes are UI-only - not stored in pilot_checks table
       const payload = {
         pilot_id: data.pilot_id,
         check_type_id: data.check_type_id,
@@ -263,7 +218,7 @@ export function CertificationFormDialog({
           </DialogTitle>
           <DialogDescription>
             {mode === 'create'
-              ? 'Enter the certification details below. All fields are required.'
+              ? 'Enter the certification details below.'
               : 'Update the certification details below.'}
           </DialogDescription>
         </DialogHeader>
@@ -317,22 +272,6 @@ export function CertificationFormDialog({
               )}
             />
 
-            {/* Check Date (Optional) */}
-            <FormField
-              control={form.control}
-              name="completion_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check Date (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} value={field.value || ''} />
-                  </FormControl>
-                  <FormDescription>Date the check was completed</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Expiry Date */}
             <FormField
               control={form.control}
@@ -344,27 +283,6 @@ export function CertificationFormDialog({
                     <Input type="date" {...field} />
                   </FormControl>
                   <FormDescription>Date when certification expires</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any additional notes..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>Maximum 500 characters</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

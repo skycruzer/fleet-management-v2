@@ -7,7 +7,7 @@
  * @spec 001-missing-core-features (US1)
  */
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,7 +44,7 @@ type ViewMode = 'card' | 'list'
 // Certification status thresholds (days until expiry)
 const CERTIFICATION_THRESHOLDS = {
   CRITICAL_DAYS: 14, // Critical warning when <= 14 days remaining
-  WARNING_DAYS: 60, // Warning when <= 60 days remaining
+  WARNING_DAYS: 30, // Warning when <= 30 days remaining (aligns with FAA 30-day Yellow threshold)
   VALIDITY_PERIOD: 365, // Assumed certification validity period for progress calculation
 } as const
 
@@ -133,51 +133,55 @@ export default function CertificationsPage() {
     }
   }, [])
 
-  // Fetch certifications on mount with proper cleanup to prevent memory leaks
+  // Track mounted state to avoid setState-after-unmount warnings, since the
+  // fetch callback now lives outside the effect and can be re-invoked on retry.
+  const isMountedRef = useRef(true)
   useEffect(() => {
-    let isMounted = true
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/portal/certifications')
-
-        // Check if component is still mounted before proceeding
-        if (!isMounted) return
-
-        if (!response.ok) {
-          setError('Failed to fetch certifications')
-          setIsLoading(false)
-          return
-        }
-
-        const result = await response.json()
-
-        // Check again after JSON parsing (async operation)
-        if (!isMounted) return
-
-        if (!result.success) {
-          setError(result.error || 'Failed to fetch certifications')
-          setIsLoading(false)
-          return
-        }
-
-        setCertifications(result.data || [])
-        setIsLoading(false)
-      } catch (err) {
-        // Only update state if still mounted
-        if (isMounted) {
-          setError('An unexpected error occurred')
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchData()
-
+    isMountedRef.current = true
     return () => {
-      isMounted = false
+      isMountedRef.current = false
     }
   }, [])
+
+  // Reusable fetch callback so the error state can offer a retry affordance
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const response = await fetch('/api/portal/certifications')
+
+      if (!isMountedRef.current) return
+
+      if (!response.ok) {
+        setError('Failed to fetch certifications')
+        return
+      }
+
+      const result = await response.json()
+
+      if (!isMountedRef.current) return
+
+      if (!result.success) {
+        setError(result.error || 'Failed to fetch certifications')
+        return
+      }
+
+      setCertifications(result.data || [])
+    } catch {
+      if (isMountedRef.current) {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
+    }
+  }, [])
+
+  // Fetch certifications on mount
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   // Apply filters using useMemo (derived state - React Compiler friendly)
   const filteredCerts = useMemo(() => {
@@ -436,6 +440,9 @@ export default function CertificationsPage() {
         {error && (
           <Card className="mb-6 border-[var(--color-status-high-border)] bg-[var(--color-destructive-muted)] p-4">
             <p className="text-[var(--color-danger-500)]">{error}</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => fetchData()}>
+              Try again
+            </Button>
           </Card>
         )}
 
@@ -634,12 +641,12 @@ export default function CertificationsPage() {
                                           <path
                                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                             fill="none"
-                                            stroke={
+                                            className={
                                               status.filterKey === 'critical'
-                                                ? '#ea580c'
+                                                ? 'stroke-[var(--color-badge-orange)]'
                                                 : status.filterKey === 'warning'
-                                                  ? '#ca8a04'
-                                                  : '#16a34a'
+                                                  ? 'stroke-[var(--color-warning-600)]'
+                                                  : 'stroke-[var(--color-success-600)]'
                                             }
                                             strokeWidth="3"
                                             strokeDasharray={`${status.progressPercent}, 100`}
@@ -647,15 +654,14 @@ export default function CertificationsPage() {
                                           <text
                                             x="18"
                                             y="20.5"
-                                            className="text-xs font-semibold"
-                                            textAnchor="middle"
-                                            fill={
+                                            className={`text-xs font-semibold ${
                                               status.filterKey === 'critical'
-                                                ? '#ea580c'
+                                                ? 'fill-[var(--color-badge-orange)]'
                                                 : status.filterKey === 'warning'
-                                                  ? '#ca8a04'
-                                                  : '#16a34a'
-                                            }
+                                                  ? 'fill-[var(--color-warning-600)]'
+                                                  : 'fill-[var(--color-success-600)]'
+                                            }`}
+                                            textAnchor="middle"
                                           >
                                             {Math.round(status.progressPercent)}%
                                           </text>

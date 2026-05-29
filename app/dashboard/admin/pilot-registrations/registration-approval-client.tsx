@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { CheckCircle2 } from 'lucide-react'
 
 interface PendingRegistration {
@@ -41,6 +42,7 @@ interface Props {
 
 export function RegistrationApprovalClient({ initialRegistrations }: Props) {
   const router = useRouter()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [registrations, setRegistrations] = useState<PendingRegistration[]>(initialRegistrations)
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +54,27 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
   }, [initialRegistrations])
 
   const handleApproval = async (registrationId: string, approved: boolean) => {
+    const registration = registrations.find((reg) => reg.id === registrationId)
+    const label = registration
+      ? `${registration.first_name} ${registration.last_name}`
+      : 'this pilot'
+    const confirmed = await confirm(
+      approved
+        ? {
+            title: 'Approve registration?',
+            description: `This will grant ${label} access to the pilot portal. They will be able to sign in immediately.`,
+            confirmText: 'Approve',
+            variant: 'default',
+          }
+        : {
+            title: 'Deny registration?',
+            description: `This will reject ${label}'s registration request. This action cannot be undone.`,
+            confirmText: 'Deny',
+            variant: 'destructive',
+          }
+    )
+    if (!confirmed) return
+
     setIsProcessing(registrationId)
     setError(null)
     setSuccess(null)
@@ -207,6 +230,8 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 /**
  * Retirement Countdown Badge Component
  * Compact badge showing retirement countdown for pilot profile header
- * Color-coded by urgency with pulsing animation for critical timelines
+ * Color-coded by urgency
  *
  * @version 1.0.0
  * @since 2025-10-25
@@ -44,7 +44,7 @@ export function RetirementCountdownBadge({
 
   const status = getRetirementStatus(countdown)
 
-  // Urgency configuration with colors and animations
+  // Urgency configuration with colors
   const urgencyConfig = {
     green: {
       className:
@@ -63,7 +63,7 @@ export function RetirementCountdownBadge({
     },
     red: {
       className:
-        'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)] animate-pulse',
+        'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]',
       icon: AlertCircle,
     },
     gray: {

@@ -187,10 +187,12 @@ export function RosterGrid({
                 return (
                   <th
                     key={d}
+                    aria-current={today ? 'date' : undefined}
                     className={cn(
                       'px-0.5 py-1.5 text-center font-normal',
                       !compact && 'min-w-[52px]',
-                      today && 'bg-blue-500/10 dark:bg-blue-500/20',
+                      today &&
+                        'bg-blue-500/10 ring-2 ring-blue-500/60 ring-inset dark:bg-blue-500/20',
                       weekend && !today && 'bg-muted/30',
                       isWeekBoundary && 'border-l-border border-l-2'
                     )}

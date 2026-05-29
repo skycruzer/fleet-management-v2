@@ -27,16 +27,16 @@ import { motion, easeOut } from 'framer-motion'
 
 function useChartColors() {
   const [colors, setColors] = useState({
-    chart1: '#c47a5a',
-    chart2: '#5a9e6f',
-    chart3: '#d4a54a',
-    chart4: '#b45a3c',
-    chart5: '#6aab80',
-    grid: 'rgba(255,255,255,0.06)',
-    axis: '#8a8078',
-    tooltipBg: '#1c1a18',
-    tooltipText: '#e4e0db',
-    tooltipBorder: 'rgba(255,255,255,0.1)',
+    chart1: '#1c2024',
+    chart2: '#60646c',
+    chart3: '#0d74ce',
+    chart4: '#ab6400',
+    chart5: '#16a34a',
+    grid: 'rgba(0,0,0,0.06)',
+    axis: '#60646c',
+    tooltipBg: '#ffffff',
+    tooltipText: '#1c2024',
+    tooltipBorder: 'rgba(0,0,0,0.1)',
   })
 
   useEffect(() => {
@@ -44,35 +44,28 @@ function useChartColors() {
       const s = getComputedStyle(document.documentElement)
       const get = (name: string, fallback: string) => s.getPropertyValue(name).trim() || fallback
       setColors({
-        chart1: get('--color-chart-1', '#c47a5a'),
-        chart2: get('--color-chart-2', '#5a9e6f'),
-        chart3: get('--color-chart-3', '#d4a54a'),
-        chart4: get('--color-chart-4', '#b45a3c'),
-        chart5: get('--color-chart-5', '#6aab80'),
-        grid: get('--color-chart-grid', 'rgba(255,255,255,0.06)'),
-        axis: get('--color-chart-axis', '#8a8078'),
-        tooltipBg: get('--color-chart-tooltip-bg', '#1c1a18'),
-        tooltipText: get('--color-chart-tooltip-text', '#e4e0db'),
-        tooltipBorder: get('--color-chart-tooltip-border', 'rgba(255,255,255,0.1)'),
+        chart1: get('--color-chart-1', '#1c2024'),
+        chart2: get('--color-chart-2', '#60646c'),
+        chart3: get('--color-chart-3', '#0d74ce'),
+        chart4: get('--color-chart-4', '#ab6400'),
+        chart5: get('--color-chart-5', '#16a34a'),
+        grid: get('--color-chart-grid', 'rgba(0,0,0,0.06)'),
+        axis: get('--color-chart-axis', '#60646c'),
+        tooltipBg: get('--color-chart-tooltip-bg', '#ffffff'),
+        tooltipText: get('--color-chart-tooltip-text', '#1c2024'),
+        tooltipBorder: get('--color-chart-tooltip-border', 'rgba(0,0,0,0.1)'),
       })
     }
 
     readColors()
 
-    // Re-read on theme change via matchMedia (more performant than MutationObserver)
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = () => {
-      // Small delay to let CSS custom properties update after class toggle
-      requestAnimationFrame(readColors)
-    }
-    mq.addEventListener('change', handleChange)
-
-    // Also watch for manual theme toggle (class attribute change on <html>)
+    // Re-read whenever the theme class on <html> changes. next-themes toggles
+    // this class for both manual switches and system (prefers-color-scheme) changes,
+    // so observing the class is the single source of truth.
     const observer = new MutationObserver(() => requestAnimationFrame(readColors))
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 
     return () => {
-      mq.removeEventListener('change', handleChange)
       observer.disconnect()
     }
   }, [])

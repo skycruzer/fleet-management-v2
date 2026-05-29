@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { createClient } from '../../../lib/supabase/client'
-import { User, CheckCircle2, Shield, Building2, Calendar } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 import { SettingsQuickActions } from '@/components/settings/settings-quick-actions'
 import { SettingsDangerZone } from '@/components/settings/settings-danger-zone'
 import { formatDistanceToNow } from 'date-fns'
@@ -76,49 +76,6 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
 
   return (
     <div className="space-y-8">
-      {/* Quick Stats */}
-      <div className="grid gap-6 sm:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Account Status</p>
-              <p className="text-foreground text-2xl font-bold">Active</p>
-            </div>
-            <div className="bg-success/10 rounded-full p-3">
-              <CheckCircle2 className="text-success h-6 w-6" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Last Login</p>
-              <p className="text-foreground text-2xl font-bold">
-                {userData.last_sign_in_at
-                  ? formatDistanceToNow(new Date(userData.last_sign_in_at), { addSuffix: true })
-                  : 'Never'}
-              </p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <User className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Security Level</p>
-              <p className="text-foreground text-2xl font-bold">High</p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <Shield className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
-      </div>
-
       {/* Available Settings */}
       <Card className="p-6">
         <h2 className="text-foreground mb-2 text-xl font-semibold">Available Settings</h2>
@@ -170,6 +127,14 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
                   })}
                 </td>
               </tr>
+              <tr className="hover:bg-muted/50">
+                <td className="text-muted-foreground py-4 text-sm font-medium">Last Login</td>
+                <td className="text-foreground py-4 text-sm">
+                  {userData.last_sign_in_at
+                    ? formatDistanceToNow(new Date(userData.last_sign_in_at), { addSuffix: true })
+                    : 'Never'}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -198,15 +163,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">System Version</td>
                 <td className="py-4">
-                  <Badge variant="outline">v2.5.0</Badge>
+                  <Badge variant="outline">v{process.env.NEXT_PUBLIC_APP_VERSION ?? '0.1.0'}</Badge>
                 </td>
-              </tr>
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground flex items-center gap-2 py-4 text-sm font-medium">
-                  <Calendar className="h-4 w-4" />
-                  Last Updated
-                </td>
-                <td className="text-foreground py-4 text-sm">2025</td>
               </tr>
             </tbody>
           </table>

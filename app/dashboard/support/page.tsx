@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { FileQuestion, ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react'
 import { SupportContactButtons } from '@/components/support/support-contact-buttons'
+import { env } from '@/lib/env'
 
 export const metadata = {
   title: 'Support & Help - Fleet Management V2',
@@ -66,7 +67,7 @@ export default function SupportPage() {
           <div>
             <h3 className="text-foreground text-lg font-semibold">Support Available</h3>
             <p className="text-muted-foreground text-sm">
-              Our support team is online and ready to help you
+              Find help resources and contact options below
             </p>
           </div>
         </div>
@@ -123,18 +124,10 @@ export default function SupportPage() {
       {/* System Information */}
       <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">System Information</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-1">
           <div>
             <p className="text-muted-foreground text-sm font-medium">Application Version</p>
-            <p className="text-foreground text-lg font-bold">v2.0.0</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Database Status</p>
-            <p className="text-lg font-bold text-[var(--color-success-400)]">Connected</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Support Hours</p>
-            <p className="text-foreground text-lg font-bold">24/7</p>
+            <p className="text-foreground text-lg font-bold">v{env.NEXT_PUBLIC_APP_VERSION}</p>
           </div>
         </div>
       </Card>
