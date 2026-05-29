@@ -162,6 +162,24 @@ const nextConfig = {
         destination: '/dashboard/help',
         permanent: true,
       },
+      // Legacy /pilot/* auth surface consolidated into the canonical pilot portal (/portal/*).
+      // The /pilot login/register/dashboard pages were a dead Supabase-Auth-era duplicate;
+      // the live custom Redis-session auth lives under /portal (gated by proxy.ts).
+      {
+        source: '/pilot/login',
+        destination: '/portal/login',
+        permanent: true,
+      },
+      {
+        source: '/pilot/register',
+        destination: '/portal/register',
+        permanent: true,
+      },
+      {
+        source: '/pilot/dashboard',
+        destination: '/portal/dashboard',
+        permanent: true,
+      },
     ]
   },
 

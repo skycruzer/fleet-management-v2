@@ -25,7 +25,7 @@ export default async function PilotLeavePage() {
 
   // Redirect if not authenticated
   if (!user) {
-    redirect('/pilot/login')
+    redirect('/portal/login')
   }
 
   // Check if pilot user
@@ -36,7 +36,7 @@ export default async function PilotLeavePage() {
     .maybeSingle()
 
   if (!pilotUser) {
-    redirect('/pilot/login')
+    redirect('/portal/login')
   }
 
   // Show pending approval message if not approved
