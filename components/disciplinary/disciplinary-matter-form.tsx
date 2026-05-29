@@ -512,7 +512,7 @@ export default function DisciplinaryMatterForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-primary hover:bg-primary/90 focus:ring-primary rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="bg-primary hover:bg-primary/90 focus:ring-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Saving...' : isEdit ? 'Update Matter' : 'Create Matter'}
         </button>

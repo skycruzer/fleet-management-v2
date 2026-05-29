@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
 
 interface PendingRegistration {
   id: string
@@ -105,7 +106,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4 text-6xl">✅</div>
+            <CheckCircle2 className="text-muted-foreground mb-4 h-12 w-12" aria-hidden="true" />
             <p className="text-foreground text-lg font-medium">All caught up!</p>
             <p className="text-muted-foreground mt-2 text-sm">
               There are no pending pilot registrations to review.

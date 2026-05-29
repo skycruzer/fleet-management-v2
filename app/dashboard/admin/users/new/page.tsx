@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
+import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
 
 type UserFormData = z.infer<typeof UserCreateSchema>
@@ -197,7 +198,7 @@ export default function NewUserPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
-                  <span className="animate-spin">⏳</span>
+                  <Spinner size="sm" variant="white" className="h-4 w-4" />
                   <span>Creating...</span>
                 </span>
               ) : (

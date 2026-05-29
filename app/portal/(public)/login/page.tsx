@@ -146,6 +146,7 @@ export default function PilotLoginPage() {
                   type="button"
                   role="checkbox"
                   aria-checked={rememberMe}
+                  aria-labelledby="rememberMe-label"
                   onClick={() => setRememberMe(!rememberMe)}
                   disabled={isLoading}
                   className={`border-border focus-visible:ring-ring flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${rememberMe ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/40'}`}
@@ -166,7 +167,7 @@ export default function PilotLoginPage() {
                   )}
                 </button>
                 <label
-                  htmlFor="rememberMe"
+                  id="rememberMe-label"
                   className="text-muted-foreground cursor-pointer text-sm"
                   onClick={() => setRememberMe(!rememberMe)}
                 >

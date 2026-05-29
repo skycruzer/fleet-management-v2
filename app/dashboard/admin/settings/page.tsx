@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 
 export const metadata = dashboardMetadata.adminSettings
 import { Button } from '@/components/ui/button'
+import { CheckCircle2, Lock, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { getSystemSettings } from '@/lib/services/admin-service'
 import { SettingsClient } from './settings-client'
@@ -39,7 +40,7 @@ export default async function SystemSettingsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">⚙️</span>
+            <Settings className="text-muted-foreground h-7 w-7" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{settings.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Settings</p>
@@ -48,7 +49,7 @@ export default async function SystemSettingsPage() {
         </Card>
         <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">✅</span>
+            <CheckCircle2 className="h-7 w-7 text-[var(--color-success-500)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">
                 {settings.filter((s: any) => s.is_active !== false).length}
@@ -59,7 +60,7 @@ export default async function SystemSettingsPage() {
         </Card>
         <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">🔒</span>
+            <Lock className="h-7 w-7 text-[var(--color-danger-500)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">
                 {settings.filter((s: any) => s.is_system === true).length}

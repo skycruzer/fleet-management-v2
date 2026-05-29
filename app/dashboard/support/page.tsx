@@ -6,7 +6,7 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { FileQuestion, ArrowLeft, BookOpen, Video, CheckCircle2 } from 'lucide-react'
+import { FileQuestion, ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react'
 import { SupportContactButtons } from '@/components/support/support-contact-buttons'
 
 export const metadata = {
@@ -19,13 +19,7 @@ const quickLinks = [
     icon: BookOpen,
     title: 'Documentation',
     description: 'Browse our comprehensive documentation',
-    href: '/dashboard/docs',
-  },
-  {
-    icon: Video,
-    title: 'Video Tutorials',
-    description: 'Watch step-by-step video guides',
-    href: '/dashboard/tutorials',
+    href: '/docs',
   },
   {
     icon: FileQuestion,

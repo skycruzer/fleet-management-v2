@@ -114,7 +114,7 @@ export default function PilotLoginForm() {
         disabled={isSubmitting}
         whileHover={shouldAnimate ? { scale: isSubmitting ? 1 : 1.02 } : undefined}
         whileTap={shouldAnimate ? { scale: isSubmitting ? 1 : 0.98 } : undefined}
-        className="bg-primary hover:bg-primary/90 focus:ring-primary relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary text-primary-foreground relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {/* Animated progress bar */}
         <AnimatePresence>

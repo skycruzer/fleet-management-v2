@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { PageHead } from '@/components/ui/page-head'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Notification {
@@ -35,6 +36,7 @@ export default function NotificationsPage() {
   const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -112,6 +114,14 @@ export default function NotificationsPage() {
   }
 
   const deleteNotification = async (notificationId: string) => {
+    const ok = await confirm({
+      title: 'Delete notification?',
+      description: 'This notification will be permanently removed.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!ok) return
+
     setDeletingId(notificationId)
 
     try {
@@ -143,7 +153,7 @@ export default function NotificationsPage() {
       flight_denied: 'bg-[var(--color-badge-orange)]',
       certification_expiring: 'bg-[var(--color-warning-500)]',
       certification_expired: 'bg-[var(--color-danger-600)]',
-      task_assigned: 'bg-[var(--color-info-bg)]0',
+      task_assigned: 'bg-[var(--color-info-bg)]',
       registration_approved: 'bg-[var(--color-success-600)]',
       registration_denied: 'bg-[var(--color-danger-600)]',
       system_alert: 'bg-muted-foreground',
@@ -273,6 +283,7 @@ export default function NotificationsPage() {
           </div>
         )}
       </main>
+      <ConfirmDialog />
     </div>
   )
 }

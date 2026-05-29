@@ -210,7 +210,7 @@ export default function FlightRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-primary hover:bg-primary/90 focus:ring-primary w-full rounded-md px-4 py-2 text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary text-primary-foreground w-full rounded-md px-4 py-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Request'}
       </button>
