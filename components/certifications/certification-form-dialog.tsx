@@ -13,7 +13,10 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import {
+  CertificationCreateSchema,
+  type CertificationCreate,
+} from '@/lib/validations/certification-validation'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import {
   Dialog,
@@ -83,13 +86,9 @@ interface CertificationFormDialogProps {
 // VALIDATION SCHEMA
 // ===================================
 
-const certificationFormSchema = z.object({
-  pilot_id: z.string().uuid('Must select a pilot'),
-  check_type_id: z.string().uuid('Must select a check type'),
-  expiry_date: z.string().min(1, 'Expiry date is required'),
-})
-
-type CertificationFormData = z.infer<typeof certificationFormSchema>
+// Use the canonical CertificationCreateSchema so this dialog validates identically to
+// the standalone /dashboard/certifications/new page and the API (expiry_date optional).
+type CertificationFormData = CertificationCreate
 
 // ===================================
 // COMPONENT
@@ -110,7 +109,7 @@ export function CertificationFormDialog({
   const { csrfToken } = useCsrfToken()
 
   const form = useForm<CertificationFormData>({
-    resolver: zodResolver(certificationFormSchema),
+    resolver: zodResolver(CertificationCreateSchema),
     defaultValues: {
       pilot_id: certification?.pilot_id || '',
       check_type_id: certification?.check_type_id || '',
@@ -144,7 +143,7 @@ export function CertificationFormDialog({
       const payload = {
         pilot_id: data.pilot_id,
         check_type_id: data.check_type_id,
-        expiry_date: new Date(data.expiry_date).toISOString(),
+        expiry_date: data.expiry_date ? new Date(data.expiry_date).toISOString() : null,
       }
 
       const url =
