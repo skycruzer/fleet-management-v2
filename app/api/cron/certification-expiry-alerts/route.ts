@@ -12,6 +12,7 @@ import crypto from 'crypto'
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, type NotificationType } from '@/lib/services/notification-service'
+import { refreshDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,17 @@ export async function GET(request: Request) {
       !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedToken))
     ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Piggyback: refresh the dashboard materialized view on this daily run.
+    // The view has no dedicated scheduler, so without this it drifts stale
+    // (the May 2026 audit found it 26 days old). A dedicated 3rd Vercel cron is
+    // avoided to stay within the Hobby-plan 2-cron ceiling. Non-fatal — a
+    // refresh failure must never block certification alerts.
+    try {
+      await refreshDashboardMetrics()
+    } catch (refreshError) {
+      console.error('Dashboard metrics refresh failed during cron run:', refreshError)
     }
 
     const supabase = createAdminClient()

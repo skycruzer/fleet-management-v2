@@ -1,66 +1,65 @@
-# Admin Dashboard — UX/UI Redesign (2026-05-22)
+# Dashboard Data Accuracy Fixes (2026-05-31)
 
-User-approved. Decisions: **two-tier card system** (quiet default, loud band only
-for genuine alert states), **light dedup** (remove blatant repeats only).
-Branch: `fix/admin-dashboard-degraded-state` (continues PR #50 — files overlap).
+Audit found the admin dashboard's headline numbers are wrong: materialized-view schema
+drift + a stale view + a pending-status logic gap.
 
-## Batch 1 — Primitives (2 new files)
+## Fix 1 — CRITICAL: realign TS mapping to real view columns (code only)
 
-- [x] 1a. `components/dashboard/dashboard-card.tsx` — one card primitive, two-tier
-- [x] 1b. `components/dashboard/empty-state.tsx` — shared empty-state
+View `pilot_dashboard_metrics` (v2.0.0) returns `current_certifications`,
+`expiring_certifications`, `denied_leave`, `expiring_this_week`, `retirement_due_soon`,
+`overdue_retirement`, `leave_this_month`. The mapping read non-existent names
+(`valid_certifications`, `expiring_soon_certifications`, `rejected_leave`, `total_expired`,
+`total_expiring_30_days`, `pilots_due_retire_2_years`) → `undefined || 0`. Most visible
+effect: FleetInsights "Expiring" always rendered 0 (green).
 
-## Batch 2 — Quiet widgets
+- [ ] Rewrite `types/database-views.ts` `PilotDashboardMetrics` to match the real view
+- [ ] Fix mapping in `lib/services/dashboard-service-v4.ts` `fetchDashboardMetricsFromView()`
 
-- [x] 2a. `todays-priorities.tsx` — DashboardCard; dropped always-on roster row
-      (light dedup); EmptyState; error state retained
-- [x] 2b. `quick-action-cards.tsx` — DashboardCard
-- [x] 2c. `roster-calendar-widget.tsx` — DashboardCard + footer action
-- [x] 2d. `pending-approvals-widget.tsx` — DashboardCard; fixed silent `catch {}`
-      (carryover bug) → log + error state; EmptyState
-- [x] 2e. `fleet-insights-widget.tsx` — status color tokens → semantic set
+## Fix 2 — CRITICAL: view counts only PENDING/SUBMITTED as pending leave (DB migration)
 
-## Batch 3 — Big widgets
+App's pending set is `('SUBMITTED','IN_REVIEW')`; all 6 current pending leave requests are
+`IN_REVIEW` → view says 0.
 
-- [x] 3a. `compact-roster-display.tsx` — de-loud header; `font-black` → `font-bold`
-- [x] 3b. `pilot-requirements-card.tsx` — de-loud header (alert band only when
-      understaffed); dynamic badge (was static "CRITICAL"); removed
-      `hover:scale-[1.02]` false affordance; semantic color tokens; 4 copy-pasted
-      tiles → one `StatTile` component
-- [x] 3c. `retirement-forecast-card.tsx` — DashboardCard + EmptyState; semantic
-      tokens; 4 list blocks → one `ForecastList` component
+- [ ] New migration: redefine view with `pending_leave` including `IN_REVIEW`
+- [ ] Apply to production + refresh + verify live numbers
 
-## Batch 4 — Admin page
+## Fix 3 — HIGH: nothing refreshes the view (26 days stale)
 
-- [x] 4a. `app/dashboard/admin/page.tsx` — raw `<table>` → `components/ui/table`
-- [x] 4b. stat cards clickable (Check Types, Certifications — cards with a real home)
-- [x] 4c. type scale — `h1` `text-2xl`, `h2` `text-lg` (were both `text-xl`)
-- [x] 4d. Suspense streaming — split into 4 independent async section components
+`refresh_dashboard_metrics()` is only called by two manual admin routes; no cron.
 
-## Out of scope (decided)
+- [ ] Add `/api/cron/refresh-dashboard-metrics` (CRON_SECRET-authed, mirrors existing cron)
+- [ ] Register it in `vercel.json` crons
 
-- Aggressive dedup — user chose light dedup; KPI strip in fleet-insights stays
-- CompactRosterDisplay structural split — restyle only (rule 3: simplicity)
-- globals.css token cleanup — not touched; only dashboard widgets standardized
+## Fix 4 — MEDIUM: "expiring within 7 days" includes already-expired certs (copy)
 
-## Review
+- [ ] Today's Priorities: relabel to "expired or expiring within 7 days"
+- [ ] FleetInsights "Pending" card: relabel to "Pending Leave" (its data is leave-only)
 
-All 4 batches complete. Verification:
+## Out of scope (noted, not changed)
 
-- ESLint: clean on all 11 changed files
-- Prettier: clean (fleet-insights, retirement-forecast, admin/page auto-formatted)
-- `tsc --noEmit`: no errors in changed files (2 pre-existing env artifacts
-  unrelated — `aria-query 2` / `uuid 2`, macOS-duplicated `@types` dirs)
+- Fix 5 (LATENT): view's retirement buckets hardcode ages 60/58/55, ignoring configurable
+  `pilot_retirement_age`. Not displayed (RetirementForecastCard uses live service).
 
-Files changed:
+## Status — COMPLETE (2026-05-31)
 
-- NEW components/dashboard/dashboard-card.tsx
-- NEW components/dashboard/empty-state.tsx
-- EDIT components/dashboard/todays-priorities.tsx
-- EDIT components/dashboard/quick-action-cards.tsx
-- EDIT components/dashboard/roster-calendar-widget.tsx
-- EDIT components/dashboard/pending-approvals-widget.tsx
-- EDIT components/dashboard/fleet-insights-widget.tsx
-- EDIT components/dashboard/compact-roster-display.tsx
-- EDIT components/dashboard/pilot-requirements-card.tsx
-- EDIT components/dashboard/retirement-forecast-card.tsx
-- EDIT app/dashboard/admin/page.tsx
+- [x] Fix 1: `types/database-views.ts` + `dashboard-service-v4.ts` mapping realigned
+- [x] Fix 2: migration `20260531000001_fix_dashboard_pending_leave_in_review.sql` written
+      AND applied to production DB (view now v2.1.0)
+- [x] Fix 3: refresh piggybacked onto `certification-expiry-alerts` cron (no new Vercel cron)
+- [x] Fix 4: Today's Priorities + FleetInsights "Pending Leave" labels corrected
+
+## Verification (done)
+
+- [x] ESLint clean on all 5 changed TS/TSX files
+- [x] `tsc --noEmit`: no new errors (only 2 pre-existing macOS @types artifacts)
+- [x] Prettier: TS/TSX clean (`prettier --check .` skips .sql — no CI impact)
+- [x] Live DB after migration matches a live recompute EXACTLY:
+      expired 3=3, expiring 20=20, pending_leave 6=6 (was 0)
+- [x] `refresh_dashboard_metrics()` CONCURRENTLY now succeeds (no 55000); last_refreshed advances
+
+## Deploy note
+
+- Production DB already fixed (migration applied via MCP). Code fixes live only on this
+  branch — deploy (merge → Vercel) so FleetInsights "Expiring" reads the correct column
+  (currently still 0 on old deployed code; "Pending" already reads 6).
+- When `npm run db:deploy` next runs, the committed migration re-applies idempotently.

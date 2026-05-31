@@ -34,7 +34,7 @@ export async function TodaysPriorities() {
     if (priorities.expiringCerts.count > 0) {
       items.push({
         icon: <AlertTriangle className="text-destructive h-4 w-4" aria-hidden="true" />,
-        label: `${priorities.expiringCerts.count} certification${priorities.expiringCerts.count === 1 ? '' : 's'} expiring within 7 days`,
+        label: `${priorities.expiringCerts.count} certification${priorities.expiringCerts.count === 1 ? '' : 's'} expired or expiring within 7 days`,
         count:
           priorities.expiringCerts.critical > 0
             ? `${priorities.expiringCerts.critical} critical`

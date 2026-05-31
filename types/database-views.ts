@@ -25,29 +25,33 @@ export interface PilotDashboardMetrics {
 
   // Certification Metrics
   total_certifications: number
-  valid_certifications: number
-  expiring_soon_certifications: number
+  current_certifications: number
+  expiring_certifications: number
   expired_certifications: number
+  expiring_this_week: number
   compliance_rate: number
 
   // Leave Metrics
   pending_leave: number
   approved_leave: number
-  rejected_leave: number
+  denied_leave: number
+  leave_this_month: number
 
-  // Alert Metrics
-  total_expired: number
-  total_expiring_30_days: number
+  // Alert Counts (mirror cert counts; kept for callers reading alert.* fields)
+  critical_alerts: number
+  warning_alerts: number
 
   // Retirement Metrics
+  overdue_retirement: number
+  retirement_due_soon: number
   pilots_nearing_retirement: number
-  pilots_due_retire_2_years: number
-
-  // Metadata
-  last_refreshed: string
 
   // Category Compliance (JSONB)
   category_compliance: Json
+
+  // Metadata
+  last_refreshed: string
+  schema_version: string
 }
 
 /**

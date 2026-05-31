@@ -123,8 +123,8 @@ export async function FleetInsightsWidget() {
         <MetricCard
           icon={<ClipboardList className="h-5 w-5" aria-hidden="true" />}
           value={String(pendingLeave)}
-          label="Pending"
-          href="/dashboard/requests"
+          label="Pending Leave"
+          href="/dashboard/requests?tab=leave"
         />
       </div>
     </div>
