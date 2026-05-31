@@ -272,29 +272,26 @@ async function fetchDashboardMetricsFromView(startTime: number): Promise<Dashboa
       },
       certifications: {
         total: typedViewData.total_certifications || 0,
-        current: typedViewData.valid_certifications || 0,
-        expiring: typedViewData.expiring_soon_certifications || 0,
+        current: typedViewData.current_certifications || 0,
+        expiring: typedViewData.expiring_certifications || 0,
         expired: typedViewData.expired_certifications || 0,
         complianceRate: Number(typedViewData.compliance_rate) || 100,
       },
       leave: {
         pending: typedViewData.pending_leave || 0,
         approved: typedViewData.approved_leave || 0,
-        denied: typedViewData.rejected_leave || 0,
-        totalThisMonth:
-          (typedViewData.pending_leave || 0) +
-          (typedViewData.approved_leave || 0) +
-          (typedViewData.rejected_leave || 0),
+        denied: typedViewData.denied_leave || 0,
+        totalThisMonth: typedViewData.leave_this_month || 0,
       },
       alerts: {
-        criticalExpired: typedViewData.total_expired || 0,
-        expiringThisWeek: typedViewData.total_expiring_30_days || 0,
+        criticalExpired: typedViewData.expired_certifications || 0,
+        expiringThisWeek: typedViewData.expiring_this_week || 0,
         missingCertifications: 0, // Tracked: tasks/062 #2
       },
       retirement: {
         nearingRetirement: typedViewData.pilots_nearing_retirement || 0,
-        dueSoon: typedViewData.pilots_due_retire_2_years || 0,
-        overdue: 0, // Tracked: tasks/062 #2
+        dueSoon: typedViewData.retirement_due_soon || 0,
+        overdue: typedViewData.overdue_retirement || 0,
       },
       performance: {
         queryTime,
