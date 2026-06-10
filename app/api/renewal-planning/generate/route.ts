@@ -3,42 +3,36 @@
  * POST /api/renewal-planning/generate
  *
  * Generates complete renewal plan for all pilots based on certification expiry dates
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
-export async function POST(request: NextRequest) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Please log in' },
-        { status: 401 }
-      )
-    }
-
+export const POST = createAdminRoute(
+  {
+    operation: 'generateRenewalPlan',
+    endpoint: '/api/renewal-planning/generate',
+    rateLimit: false,
+  },
+  async ({ request, admin }) => {
     // Verify admin/manager role
     // For Supabase Auth users: trust them as admins (only admins can access dashboard via Supabase Auth)
     // For admin-session users: look up by ID in an_users table
     const supabase = createAdminClient()
 
-    if (auth.source === 'admin-session') {
+    if (admin.source === 'admin-session') {
       // Admin session - verify role in an_users table
       const { data: adminUser } = await supabase
         .from('an_users')
         .select('role')
-        .eq('id', auth.userId!)
+        .eq('id', admin.userId)
         .single()
 
       if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
@@ -170,12 +164,5 @@ export async function POST(request: NextRequest) {
       },
       message: `Successfully generated ${renewals.length} renewal plans`,
     })
-  } catch (error: any) {
-    console.error('Error generating renewal plan:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'generateRenewalPlan',
-      endpoint: '/api/renewal-planning/generate',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

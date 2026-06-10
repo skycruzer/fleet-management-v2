@@ -7,10 +7,11 @@
  *
  * GET /api/roster-periods/current - Get roster period containing today
  *
- * @version 1.0.0
+ * @version 1.1.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   getRosterPeriodCodeFromDate,
   getRosterPeriodByCode,
@@ -18,36 +19,20 @@ import {
   parseRosterPeriodCode,
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { authRateLimit, getClientIp } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { authRateLimit } from '@/lib/rate-limit'
 
 /**
  * GET /api/roster-periods/current
  * Get current roster period based on today's date
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const GET = createAdminRoute(
+  {
+    operation: 'getCurrentRosterPeriod',
+    endpoint: '/api/roster-periods/current',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+  },
+  async () => {
     // Ensure roster periods exist (auto-create if missing)
     await ensureRosterPeriodsExist()
 
@@ -99,12 +84,5 @@ export async function GET(request: NextRequest) {
       success: true,
       data: response,
     })
-  } catch (error) {
-    console.error('GET /api/roster-periods/current error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getCurrentRosterPeriod',
-      endpoint: '/api/roster-periods/current',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

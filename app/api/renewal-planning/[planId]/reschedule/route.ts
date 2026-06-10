@@ -3,83 +3,71 @@
  * PUT /api/renewal-planning/:planId/reschedule
  *
  * Updates the planned renewal date for a certification
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import { updatePlannedRenewalDate } from '@/lib/services/certification-renewal-planning-service'
 import { parseISO } from 'date-fns'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ planId: string }> }
-) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const PUT = createAdminRoute(
+  {
+    operation: 'updatePlannedRenewalDate',
+    endpoint: '/api/renewal-planning/[planId]/reschedule',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params }) => {
+    try {
+      const { planId } = params
+      const body = await request.json()
+      const { newDate, reason, userId } = body
 
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      if (!newDate) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'newDate is required',
+          },
+          { status: 400 }
+        )
+      }
 
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
+      const parsedDate = parseISO(newDate)
+      const updated = await updatePlannedRenewalDate(
+        planId,
+        parsedDate,
+        reason || 'Rescheduled via API',
+        userId
       )
-    }
 
-    const { planId } = await params
-    const body = await request.json()
-    const { newDate, reason, userId } = body
-
-    if (!newDate) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'newDate is required',
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: updated.id,
+          pilot: updated.pilot
+            ? `${updated.pilot.first_name} ${updated.pilot.last_name}`
+            : 'Unknown',
+          checkType: updated.check_type?.check_description,
+          previousDate: body.previousDate,
+          newDate: updated.planned_renewal_date,
+          newRosterPeriod: updated.planned_roster_period,
+          status: updated.status,
         },
-        { status: 400 }
-      )
+        message: 'Renewal plan rescheduled successfully',
+      })
+    } catch (error: any) {
+      console.error('Error rescheduling renewal plan:', error)
+      const { planId } = params
+      const sanitized = sanitizeError(error, {
+        operation: 'updatePlannedRenewalDate',
+        resourceId: planId,
+        endpoint: '/api/renewal-planning/[planId]/reschedule',
+      })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode })
     }
-
-    const parsedDate = parseISO(newDate)
-    const updated = await updatePlannedRenewalDate(
-      planId,
-      parsedDate,
-      reason || 'Rescheduled via API',
-      userId
-    )
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: updated.id,
-        pilot: updated.pilot ? `${updated.pilot.first_name} ${updated.pilot.last_name}` : 'Unknown',
-        checkType: updated.check_type?.check_description,
-        previousDate: body.previousDate,
-        newDate: updated.planned_renewal_date,
-        newRosterPeriod: updated.planned_roster_period,
-        status: updated.status,
-      },
-      message: 'Renewal plan rescheduled successfully',
-    })
-  } catch (error: any) {
-    console.error('Error rescheduling renewal plan:', error)
-    const { planId } = await params
-    const sanitized = sanitizeError(error, {
-      operation: 'updatePlannedRenewalDate',
-      resourceId: planId,
-      endpoint: '/api/renewal-planning/[planId]/reschedule',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

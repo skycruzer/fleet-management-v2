@@ -7,15 +7,14 @@
  * AUTHENTICATION: Admin only
  * RATE LIMITING: N/A (admin-only endpoint)
  *
- * @version 1.0.0
+ * @version 2.0.0
  * @since 2026-01
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
-import { unauthorizedResponse, forbiddenResponse } from '@/lib/utils/api-response-helper'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { redisCacheService, checkRedisHealth } from '@/lib/services/redis-cache-service'
 import { unifiedCacheService, getCacheStats } from '@/lib/services/unified-cache-service'
 import { getNoCacheHeaders } from '@/lib/utils/cache-headers'
@@ -31,93 +30,89 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
  * - Cache hit rate
  * - Top accessed keys
  */
-export async function GET(request: NextRequest) {
-  // Check authentication
-  const auth = await getAuthenticatedAdmin()
-  if (!auth.authenticated) {
-    return unauthorizedResponse()
-  }
+export const GET = createAdminRoute(
+  {
+    operation: 'getCacheMetrics',
+    endpoint: '/api/admin/cache-metrics',
+    rateLimit: false,
+    roles: [UserRole.ADMIN],
+  },
+  async () => {
+    try {
+      // Get Redis status and metrics
+      const [redisHealth, redisInfo] = await Promise.all([
+        checkRedisHealth(),
+        redisCacheService.info(),
+      ])
 
-  // Check admin role
-  const roleCheck = await requireRole(request, [UserRole.ADMIN])
-  if (!roleCheck.authorized) {
-    return forbiddenResponse(roleCheck.error || 'Insufficient permissions')
-  }
+      // Get Redis cache metrics (hit/miss tracking)
+      const redisMetrics = redisCacheService.getMetrics()
 
-  try {
-    // Get Redis status and metrics
-    const [redisHealth, redisInfo] = await Promise.all([
-      checkRedisHealth(),
-      redisCacheService.info(),
-    ])
+      // Get local cache statistics
+      const localCacheStats = getCacheStats()
 
-    // Get Redis cache metrics (hit/miss tracking)
-    const redisMetrics = redisCacheService.getMetrics()
+      // Get top accessed keys from local cache
+      const topAccessedKeys = unifiedCacheService.getTopAccessedKeys(10)
 
-    // Get local cache statistics
-    const localCacheStats = getCacheStats()
-
-    // Get top accessed keys from local cache
-    const topAccessedKeys = unifiedCacheService.getTopAccessedKeys(10)
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          timestamp: new Date().toISOString(),
-          redis: {
-            connected: redisHealth,
-            keyCount: redisInfo.keyCount,
-            memory: redisInfo.memory,
-            metrics: {
-              hits: redisMetrics.hits,
-              misses: redisMetrics.misses,
-              sets: redisMetrics.sets,
-              deletes: redisMetrics.deletes,
-              errors: redisMetrics.errors,
-              hitRate: redisMetrics.hitRate,
-              totalOperations: redisMetrics.totalOperations,
-              lastReset: redisMetrics.lastReset.toISOString(),
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            timestamp: new Date().toISOString(),
+            redis: {
+              connected: redisHealth,
+              keyCount: redisInfo.keyCount,
+              memory: redisInfo.memory,
+              metrics: {
+                hits: redisMetrics.hits,
+                misses: redisMetrics.misses,
+                sets: redisMetrics.sets,
+                deletes: redisMetrics.deletes,
+                errors: redisMetrics.errors,
+                hitRate: redisMetrics.hitRate,
+                totalOperations: redisMetrics.totalOperations,
+                lastReset: redisMetrics.lastReset.toISOString(),
+              },
+            },
+            local: {
+              totalEntries: localCacheStats.totalEntries,
+              trackingEntries: localCacheStats.trackingEntries,
+              entries: localCacheStats.entries.map((entry) => ({
+                key: entry.key,
+                ageMinutes: entry.ageMinutes,
+                ttlMinutes: entry.ttlMinutes,
+                expired: entry.expired,
+                accessCount: entry.accessCount,
+                tags: entry.tags,
+              })),
+            },
+            topAccessedKeys,
+            summary: {
+              totalCachedItems: redisInfo.keyCount + localCacheStats.totalEntries,
+              redisHitRate: redisMetrics.hitRate,
+              localCacheSize: localCacheStats.totalEntries,
             },
           },
-          local: {
-            totalEntries: localCacheStats.totalEntries,
-            trackingEntries: localCacheStats.trackingEntries,
-            entries: localCacheStats.entries.map((entry) => ({
-              key: entry.key,
-              ageMinutes: entry.ageMinutes,
-              ttlMinutes: entry.ttlMinutes,
-              expired: entry.expired,
-              accessCount: entry.accessCount,
-              tags: entry.tags,
-            })),
-          },
-          topAccessedKeys,
-          summary: {
-            totalCachedItems: redisInfo.keyCount + localCacheStats.totalEntries,
-            redisHitRate: redisMetrics.hitRate,
-            localCacheSize: localCacheStats.totalEntries,
-          },
         },
-      },
-      {
-        headers: getNoCacheHeaders(), // Metrics should always be fresh
-      }
-    )
-  } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'api/admin/cache-metrics/GET',
-      severity: ErrorSeverity.MEDIUM,
-    })
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch cache metrics',
-      },
-      { status: 500 }
-    )
+        {
+          headers: getNoCacheHeaders(), // Metrics should always be fresh
+        }
+      )
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'api/admin/cache-metrics/GET',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to fetch cache metrics',
+        },
+        { status: 500 }
+      )
+    }
   }
-}
+)
 
 /**
  * POST /api/admin/cache-metrics
@@ -126,71 +121,64 @@ export async function GET(request: NextRequest) {
  * Body:
  * - action: 'reset-metrics' | 'invalidate-all' | 'invalidate-analytics'
  */
-export async function POST(request: NextRequest) {
-  const csrfError = await validateCsrf(request)
-  if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'performCacheAction',
+    endpoint: '/api/admin/cache-metrics',
+    rateLimit: false,
+    roles: [UserRole.ADMIN],
+  },
+  async ({ request }) => {
+    try {
+      const body = await request.json()
+      const { action } = body
 
-  // Check authentication
-  const auth = await getAuthenticatedAdmin()
-  if (!auth.authenticated) {
-    return unauthorizedResponse()
-  }
+      switch (action) {
+        case 'reset-metrics':
+          redisCacheService.resetMetrics()
+          return NextResponse.json({
+            success: true,
+            message: 'Redis metrics reset successfully',
+          })
 
-  // Check admin role
-  const roleCheck = await requireRole(request, [UserRole.ADMIN])
-  if (!roleCheck.authorized) {
-    return forbiddenResponse(roleCheck.error || 'Insufficient permissions')
-  }
+        case 'invalidate-all':
+          unifiedCacheService.invalidateAll()
+          await redisCacheService.flushAll()
+          return NextResponse.json({
+            success: true,
+            message: 'All caches invalidated successfully',
+          })
 
-  try {
-    const body = await request.json()
-    const { action } = body
+        case 'invalidate-analytics':
+          // Import dynamically to avoid circular dependency
+          const { invalidateAnalyticsCaches } = await import('@/lib/services/analytics-service')
+          await invalidateAnalyticsCaches()
+          return NextResponse.json({
+            success: true,
+            message: 'Analytics caches invalidated successfully',
+          })
 
-    switch (action) {
-      case 'reset-metrics':
-        redisCacheService.resetMetrics()
-        return NextResponse.json({
-          success: true,
-          message: 'Redis metrics reset successfully',
-        })
-
-      case 'invalidate-all':
-        unifiedCacheService.invalidateAll()
-        await redisCacheService.flushAll()
-        return NextResponse.json({
-          success: true,
-          message: 'All caches invalidated successfully',
-        })
-
-      case 'invalidate-analytics':
-        // Import dynamically to avoid circular dependency
-        const { invalidateAnalyticsCaches } = await import('@/lib/services/analytics-service')
-        await invalidateAnalyticsCaches()
-        return NextResponse.json({
-          success: true,
-          message: 'Analytics caches invalidated successfully',
-        })
-
-      default:
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Unknown action: ${action}. Valid actions: reset-metrics, invalidate-all, invalidate-analytics`,
-          },
-          { status: 400 }
-        )
+        default:
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Unknown action: ${action}. Valid actions: reset-metrics, invalidate-all, invalidate-analytics`,
+            },
+            { status: 400 }
+          )
+      }
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'api/admin/cache-metrics/POST',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to perform cache action',
+        },
+        { status: 500 }
+      )
     }
-  } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'api/admin/cache-metrics/POST',
-      severity: ErrorSeverity.MEDIUM,
-    })
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to perform cache action',
-      },
-      { status: 500 }
-    )
   }
-}
+)

@@ -7,13 +7,12 @@
  * @route PUT /api/feedback/[id] - Update feedback (status or add response)
  * @auth Admin Supabase Authentication
  *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
- * @updated 2025-11-04 - Critical security hardening
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import {
   getFeedbackById,
@@ -21,29 +20,21 @@ import {
   addAdminResponse,
 } from '@/lib/services/feedback-service'
 // Authorization handled by getAuthenticatedAdmin() - admin users can manage all feedback
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
-
-interface RouteContext {
-  params: Promise<{
-    id: string
-  }>
-}
 
 /**
  * GET /api/feedback/[id]
  *
  * Returns single feedback submission with full details
  */
-export async function GET(request: NextRequest, context: RouteContext) {
-  try {
-    const { id } = await context.params
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getFeedbackById',
+    endpoint: '/api/feedback/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const { id } = params
 
     const result = await getFeedbackById(id)
 
@@ -58,15 +49,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
       success: true,
       data: result.data,
     })
-  } catch (error) {
-    console.error('❌ [API] Error in GET /api/feedback/[id]:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getFeedbackById',
-      feedbackId: (await context.params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PUT /api/feedback/[id]
@@ -77,28 +61,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
  * - { status: 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'DISMISSED' } - Update status
  * - { adminResponse: string } - Add admin response (also sets status to REVIEWED)
  */
-export async function PUT(request: NextRequest, context: RouteContext) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    const { id } = await context.params
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
+export const PUT = createAdminRoute(
+  {
+    operation: 'updateFeedback',
+    endpoint: '/api/feedback/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params, admin }) => {
+    const { id } = params
 
     // NOTE: Authorization is already verified by getAuthenticatedAdmin() above
     // Admin users can manage all feedback - no ownership check needed
@@ -108,7 +78,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     // Handle admin response
     if (body.adminResponse) {
-      const result = await addAdminResponse(id, body.adminResponse, auth.userId!)
+      const result = await addAdminResponse(id, body.adminResponse, admin.userId)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })
@@ -154,12 +124,5 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       { success: false, error: 'No valid update data provided' },
       { status: 400 }
     )
-  } catch (error) {
-    console.error('❌ [API] Error in PUT /api/feedback/[id]:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateFeedback',
-      feedbackId: (await context.params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

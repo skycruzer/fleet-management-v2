@@ -6,6 +6,8 @@
  * @query readiness - Filter by readiness level (optional: Ready, Potential, Developing)
  *
  * NOTE: This endpoint requires Admin or Manager role due to sensitive succession planning data
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import {
@@ -13,24 +15,22 @@ import {
   getSuccessionReadinessScore,
 } from '@/lib/services/succession-planning-service'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { NextRequest, NextResponse } from 'next/server'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 
-export async function GET(request: NextRequest) {
-  try {
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+export const GET = createAdminRoute(
+  {
+    operation: 'getSuccessionPipeline',
+    endpoint: '/api/analytics/succession-pipeline',
+    rateLimit: false,
+  },
+  async ({ request, admin }) => {
     // Check role (Admin/Manager only for succession planning)
     const supabase = createAdminClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', auth.userId!)
+      .eq('id', admin.userId)
       .single()
 
     if (userError || !userData) {
@@ -70,12 +70,5 @@ export async function GET(request: NextRequest) {
       readinessScore,
       isAuthorized,
     })
-  } catch (error) {
-    console.error('Error fetching succession pipeline:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getSuccessionPipeline',
-      endpoint: '/api/analytics/succession-pipeline',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

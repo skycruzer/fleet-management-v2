@@ -4,50 +4,33 @@
  *
  * Deletes all existing renewal plans from the database
  * Use with caution - this is a destructive operation
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
-export async function DELETE(request: NextRequest) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Please log in' },
-        { status: 401 }
-      )
-    }
-
-    // SECURITY: Rate limiting (strict for destructive operations)
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
+export const DELETE = createAdminRoute(
+  {
+    operation: 'clearAllRenewalPlans',
+    endpoint: '/api/renewal-planning/clear',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ admin }) => {
     // Verify admin/manager role
     // For Supabase Auth users: trust them as admins (only admins can access dashboard via Supabase Auth)
     // For admin-session users: look up by ID in an_users table
     const supabase = createAdminClient()
 
-    if (auth.source === 'admin-session') {
+    if (admin.source === 'admin-session') {
       // Admin session - verify role in an_users table
       const { data: adminUser } = await supabase
         .from('an_users')
         .select('role')
-        .eq('id', auth.userId!)
+        .eq('id', admin.userId)
         .single()
 
       if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
@@ -71,12 +54,5 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'All renewal plans have been cleared',
     })
-  } catch (error: any) {
-    console.error('Error clearing renewal plans:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'clearAllRenewalPlans',
-      endpoint: '/api/renewal-planning/clear',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

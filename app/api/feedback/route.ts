@@ -7,10 +7,13 @@
  * @route GET /api/feedback?export=csv - Export feedback to CSV
  * @route GET /api/feedback?stats=true - Get feedback statistics
  * @auth Admin Supabase Authentication
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   getAllFeedback,
   getFeedbackStats,
@@ -32,21 +35,60 @@ import {
  * - export: csv (triggers CSV export)
  * - stats: true (returns statistics instead of data)
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getFeedback',
+    endpoint: '/api/feedback',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    try {
+      // Parse query parameters
+      const { searchParams } = new URL(request.url)
+      const exportFormat = searchParams.get('export')
+      const getStats = searchParams.get('stats') === 'true'
 
-    // Parse query parameters
-    const { searchParams } = new URL(request.url)
-    const exportFormat = searchParams.get('export')
-    const getStats = searchParams.get('stats') === 'true'
+      // Handle CSV export
+      if (exportFormat === 'csv') {
+        const filters: FeedbackFilters = {
+          status: (searchParams.get('status') as FeedbackFilters['status']) || 'all',
+          category: searchParams.get('category') || undefined,
+          search: searchParams.get('search') || undefined,
+          startDate: searchParams.get('startDate') || undefined,
+          endDate: searchParams.get('endDate') || undefined,
+        }
 
-    // Handle CSV export
-    if (exportFormat === 'csv') {
+        const result = await exportFeedbackToCSV(filters)
+
+        if (!result.success || !result.data) {
+          return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+        }
+
+        // Return CSV file
+        return new NextResponse(result.data, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/csv',
+            'Content-Disposition': `attachment; filename="feedback-export-${new Date().toISOString().split('T')[0]}.csv"`,
+          },
+        })
+      }
+
+      // Handle statistics request
+      if (getStats) {
+        const result = await getFeedbackStats()
+
+        if (!result.success) {
+          return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: result.data,
+        })
+      }
+
+      // Handle normal feedback list request
       const filters: FeedbackFilters = {
         status: (searchParams.get('status') as FeedbackFilters['status']) || 'all',
         category: searchParams.get('category') || undefined,
@@ -55,25 +97,7 @@ export async function GET(request: NextRequest) {
         endDate: searchParams.get('endDate') || undefined,
       }
 
-      const result = await exportFeedbackToCSV(filters)
-
-      if (!result.success || !result.data) {
-        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-      }
-
-      // Return CSV file
-      return new NextResponse(result.data, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename="feedback-export-${new Date().toISOString().split('T')[0]}.csv"`,
-        },
-      })
-    }
-
-    // Handle statistics request
-    if (getStats) {
-      const result = await getFeedbackStats()
+      const result = await getAllFeedback(filters)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })
@@ -82,31 +106,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: result.data,
+        count: result.data?.length || 0,
       })
+    } catch (error) {
+      console.error('❌ [API] Error in GET /api/feedback:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Handle normal feedback list request
-    const filters: FeedbackFilters = {
-      status: (searchParams.get('status') as FeedbackFilters['status']) || 'all',
-      category: searchParams.get('category') || undefined,
-      search: searchParams.get('search') || undefined,
-      startDate: searchParams.get('startDate') || undefined,
-      endDate: searchParams.get('endDate') || undefined,
-    }
-
-    const result = await getAllFeedback(filters)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-      count: result.data?.length || 0,
-    })
-  } catch (error) {
-    console.error('❌ [API] Error in GET /api/feedback:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)

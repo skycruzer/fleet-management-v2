@@ -5,14 +5,13 @@
  * PATCH /api/disciplinary/[id] - Update matter
  * DELETE /api/disciplinary/[id] - Soft delete matter
  *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
- * @updated 2025-11-04 - Critical security hardening
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  * @spec 001-missing-core-features (US6, T094)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import {
   getMatterWithTimeline,
@@ -20,28 +19,21 @@ import {
   deleteMatter,
 } from '@/lib/services/disciplinary-service'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
-
-interface RouteParams {
-  params: Promise<{
-    id: string
-  }>
-}
 
 /**
  * GET /api/disciplinary/[id]
  *
  * Get single disciplinary matter with full timeline of actions
  */
-export async function GET(_request: NextRequest, { params }: RouteParams) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { id } = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getMatterWithTimeline',
+    endpoint: '/api/disciplinary/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const { id } = params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -62,15 +54,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Error in GET /api/disciplinary/[id]:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getMatterWithTimeline',
-      matterId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PATCH /api/disciplinary/[id]
@@ -92,27 +77,14 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
  * - notification_date?: string
  * ... and other fields
  */
-export async function PATCH(_request: NextRequest, { params }: RouteParams) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const { id } = await params
+export const PATCH = createAdminRoute(
+  {
+    operation: 'updateMatter',
+    endpoint: '/api/disciplinary/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request: _request, params, admin }) => {
+    const { id } = params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -160,7 +132,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       resolution_notes: body.resolution_notes === '' ? null : body.resolution_notes,
     }
 
-    const result = await updateMatter(id, sanitizedBody, auth.userId!)
+    const result = await updateMatter(id, sanitizedBody, admin.userId)
 
     if (!result.success) {
       if (result.error === 'Matter not found') {
@@ -173,42 +145,22 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
     revalidatePath(`/dashboard/disciplinary/${id}`)
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Error in PATCH /api/disciplinary/[id]:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateMatter',
-      matterId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * DELETE /api/disciplinary/[id]
  *
  * Soft delete matter (sets status to CLOSED)
  */
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const { id } = await params
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deleteMatter',
+    endpoint: '/api/disciplinary/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request: _request, params }) => {
+    const { id } = params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -245,12 +197,5 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { success: true, message: 'Matter closed successfully' },
       { status: 200 }
     )
-  } catch (error) {
-    console.error('Error in DELETE /api/disciplinary/[id]:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'deleteMatter',
-      matterId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
