@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Fleet Management',
-  description: 'Privacy policy for the Fleet Management system',
+  title: 'Privacy Policy',
+  description: 'Privacy policy for Fleet Office',
 }
 
 export default function PrivacyPolicyPage() {
@@ -35,8 +35,7 @@ export default function PrivacyPolicyPage() {
         <CardContent className="prose prose-slate dark:prose-invert max-w-none">
           <h2>1. Information We Collect</h2>
           <p>
-            The Fleet Management system collects information necessary for aviation crew management,
-            including:
+            Fleet Office collects information necessary for aviation crew management, including:
           </p>
           <ul>
             <li>Personal identification information (name, employee ID, contact details)</li>
@@ -50,7 +49,7 @@ export default function PrivacyPolicyPage() {
           <p>Your information is used to:</p>
           <ul>
             <li>Manage pilot certifications and compliance requirements</li>
-            <li>Process leave and flight requests</li>
+            <li>Process leave and RDO/SDO requests</li>
             <li>Generate operational reports and schedules</li>
             <li>Ensure regulatory compliance</li>
             <li>Communicate important updates and notifications</li>
@@ -81,8 +80,7 @@ export default function PrivacyPolicyPage() {
           <h2>6. Contact Us</h2>
           <p>
             For privacy-related inquiries, please contact your fleet management administrator or
-            email us at <a href="mailto:privacy@fleetmanagement.com">privacy@fleetmanagement.com</a>
-            .
+            email us at <a href="mailto:support@pxb767office.app">support@pxb767office.app</a>.
           </p>
         </CardContent>
       </Card>

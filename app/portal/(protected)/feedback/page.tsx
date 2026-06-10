@@ -145,12 +145,12 @@ export default function FeedbackPage() {
         title="Feedback"
         description="View your feedback and conversations with fleet management"
         action={
-          <Link href="/portal/feedback/new">
-            <Button size="sm">
+          <Button asChild size="sm">
+            <Link href="/portal/feedback/new">
               <MessageSquare className="mr-2 h-4 w-4" />
               Submit feedback
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         }
       />
 
@@ -212,12 +212,12 @@ export default function FeedbackPage() {
               <p className="text-muted-foreground mb-4 text-sm">
                 You haven&apos;t submitted any feedback. Share your thoughts and suggestions!
               </p>
-              <Link href="/portal/feedback/new">
-                <Button>
+              <Button asChild>
+                <Link href="/portal/feedback/new">
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Submit Feedback
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         ) : (

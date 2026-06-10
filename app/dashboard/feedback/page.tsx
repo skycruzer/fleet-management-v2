@@ -13,7 +13,7 @@ import { FeedbackDashboardClient } from '@/components/admin/feedback-dashboard-c
 import { Breadcrumb } from '@/components/navigation/breadcrumb'
 
 export const metadata: Metadata = {
-  title: 'Pilot Feedback | Fleet Management',
+  title: 'Pilot Feedback',
   description: 'Review and manage pilot feedback',
 }
 

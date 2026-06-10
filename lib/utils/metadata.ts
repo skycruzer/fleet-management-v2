@@ -14,7 +14,7 @@ export interface PageMetadata {
   noIndex?: boolean
 }
 
-const SITE_NAME = 'Fleet Management V2'
+const SITE_NAME = 'Fleet Office'
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://fleet-management.example.com'
 const DEFAULT_DESCRIPTION =
   'Modern fleet management system for aviation operations - comprehensive pilot certification tracking, leave management, and compliance monitoring.'
@@ -90,9 +90,9 @@ export function generateMetadata({
         },
 
     // Additional metadata
-    authors: [{ name: 'Fleet Management Team' }],
-    creator: 'Fleet Management Team',
-    publisher: 'Fleet Management V2',
+    authors: [{ name: 'Fleet Office Team' }],
+    creator: 'Fleet Office Team',
+    publisher: 'Fleet Office',
 
     // Format detection
     formatDetection: {
@@ -220,7 +220,7 @@ export const portalMetadata = {
   home: generateMetadata({
     title: 'Pilot Portal',
     description:
-      'Pilot self-service portal - view your certifications, submit leave requests, and manage flight requests.',
+      'Pilot self-service portal - view your certifications, submit leave requests, and manage RDO/SDO requests.',
     keywords: ['pilot portal', 'self service', 'pilot dashboard', 'crew portal'],
     path: '/portal',
   }),
@@ -260,18 +260,18 @@ export const portalMetadata = {
   }),
 
   flights: generateMetadata({
-    title: 'Flight Requests',
+    title: 'RDO/SDO Requests',
     description:
-      'Manage flight requests - submit requests for additional flights, route changes, or schedule preferences.',
-    keywords: ['flight requests', 'pilot requests', 'schedule changes'],
+      'Manage RDO/SDO requests - submit requests for rostered or scheduled days off and schedule preferences.',
+    keywords: ['RDO/SDO requests', 'pilot requests', 'schedule changes'],
     path: '/portal/flights',
     noIndex: true,
   }),
 
   flightsNew: generateMetadata({
-    title: 'Submit Flight Request',
-    description: 'Submit a new flight request - request additional flights or schedule changes.',
-    keywords: ['flight request', 'schedule request', 'pilot request'],
+    title: 'Submit RDO/SDO Request',
+    description: 'Submit a new RDO/SDO request - request rostered or scheduled days off.',
+    keywords: ['RDO/SDO request', 'schedule request', 'pilot request'],
     path: '/portal/flights/new',
     noIndex: true,
   }),
@@ -292,7 +292,7 @@ export const portalMetadata = {
 export const authMetadata = {
   login: generateMetadata({
     title: 'Login',
-    description: 'Sign in to Fleet Management V2 - access your pilot portal or admin dashboard.',
+    description: 'Sign in to Fleet Office - access your pilot portal or admin dashboard.',
     keywords: ['login', 'sign in', 'authentication'],
     path: '/auth/login',
     noIndex: true,

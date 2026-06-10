@@ -82,10 +82,10 @@ export default function PortalError({
         <p className="text-muted-foreground mt-6 text-center text-sm">
           If this problem persists, please contact{' '}
           <a
-            href="mailto:mrondeau@airniugini.com.pg"
+            href="mailto:support@pxb767office.app"
             className="text-[var(--color-info)] hover:underline"
           >
-            mrondeau@airniugini.com.pg
+            support@pxb767office.app
           </a>
         </p>
       </div>

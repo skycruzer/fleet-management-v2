@@ -4,10 +4,9 @@
  * Completely separate from Pilot Portal
  */
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
-import { Shield, ChevronLeft } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { LoginForm } from './login-form'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
@@ -36,23 +35,12 @@ export default function AdminLoginPage() {
             <h1 className="text-foreground mb-2 text-xl font-semibold">Administration</h1>
             <div className="text-muted-foreground flex items-center justify-center gap-2">
               <Shield className="h-4 w-4" />
-              <p className="text-sm">Fleet Management System</p>
+              <p className="text-sm">Fleet Office</p>
             </div>
           </div>
 
           {/* Login Form */}
           <LoginForm />
-
-          {/* Back to Home */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/"
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-medium"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span>Back to home</span>
-            </Link>
-          </div>
         </Card>
 
         {/* Footer Note */}

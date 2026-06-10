@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { FormSkeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,6 +26,7 @@ import {
 import { CertificationCreateSchema } from '@/lib/validations/certification-validation'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
+import { PageHeader } from '@/components/layout/page-header'
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
 
 type CertificationFormData = z.infer<typeof CertificationCreateSchema>
@@ -129,30 +131,20 @@ export default function NewCertificationPage() {
   }
 
   if (loadingData) {
-    return (
-      <div className="space-y-6">
-        <Card className="p-12 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--color-info)]" aria-hidden="true" />
-            <p className="text-muted-foreground">Loading form data...</p>
-          </div>
-        </Card>
-      </div>
-    )
+    return <FormSkeleton fields={3} />
   }
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Add New Certification</h2>
-          <p className="text-muted-foreground mt-1">Record a new pilot certification</p>
-        </div>
-        <Link href="/dashboard/certifications">
-          <Button variant="outline">← Back to Certifications</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Add New Certification"
+        description="Record a new pilot certification"
+        breadcrumbs={[
+          { label: 'Certifications', href: '/dashboard/certifications' },
+          { label: 'Add New Certification' },
+        ]}
+      />
 
       {/* Form Card */}
       <Card className="p-6">

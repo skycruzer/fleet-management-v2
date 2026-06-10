@@ -278,7 +278,7 @@ export function FlightRequestReportForm() {
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Flight Date From</FormLabel>
+                    <FormLabel>Request Date From</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -297,7 +297,7 @@ export function FlightRequestReportForm() {
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Flight Date To</FormLabel>
+                    <FormLabel>Request Date To</FormLabel>
                     <FormControl>
                       <Input
                         type="date"

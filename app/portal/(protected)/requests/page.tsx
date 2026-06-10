@@ -5,11 +5,11 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useQueryState, parseAsStringLiteral } from 'nuqs'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { Calendar, Plane, Loader2, Plus } from 'lucide-react'
+import { Calendar, Plane, Loader2, Plus, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHead } from '@/components/ui/page-head'
 import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
@@ -22,55 +22,75 @@ const tabs = [
   { id: 'rdo-sdo', label: 'RDO/SDO Requests', icon: Plane },
 ] as const
 
+const TAB_IDS = ['leave', 'rdo-sdo'] as const
 type TabId = (typeof tabs)[number]['id']
 
-function isValidTab(value: string | null): value is TabId {
-  return value === 'leave' || value === 'rdo-sdo'
+function FetchErrorBand({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div
+      role="alert"
+      className="border-destructive/30 bg-destructive/5 flex flex-col items-center gap-3 rounded-lg border p-8 text-center"
+    >
+      <AlertCircle className="text-destructive h-6 w-6" aria-hidden="true" />
+      <p className="text-foreground text-sm">{message} Check your connection and try again.</p>
+      <Button variant="outline" size="sm" onClick={onRetry}>
+        Retry
+      </Button>
+    </div>
+  )
 }
 
 export default function MyRequestsPage() {
-  const searchParams = useSearchParams()
-  const initialTab = isValidTab(searchParams.get('tab'))
-    ? (searchParams.get('tab')! as TabId)
-    : 'leave'
-  const [activeTab, setActiveTab] = useState<TabId>(initialTab)
+  // Two-way URL sync: ?tab= deep links work and tab switches update the URL
+  const [activeTab, setActiveTab] = useQueryState(
+    'tab',
+    parseAsStringLiteral(TAB_IDS).withDefault('leave')
+  )
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
   const [flightRequests, setFlightRequests] = useState<FlightRequest[]>([])
   const [isLoadingLeave, setIsLoadingLeave] = useState(true)
   const [isLoadingFlight, setIsLoadingFlight] = useState(true)
+  // Distinguish "failed to load" from "no requests" — a pilot on a flaky
+  // connection must never mistake an error for an empty list
+  const [leaveError, setLeaveError] = useState(false)
+  const [flightError, setFlightError] = useState(false)
+
+  const fetchLeaveRequests = useCallback(async () => {
+    setIsLoadingLeave(true)
+    setLeaveError(false)
+    try {
+      const response = await fetch('/api/portal/leave-requests', { credentials: 'include' })
+      if (!response.ok) throw new Error('Request failed')
+      const result = await response.json()
+      if (!result.success) throw new Error('Request failed')
+      setLeaveRequests(result.data || [])
+    } catch {
+      setLeaveError(true)
+    } finally {
+      setIsLoadingLeave(false)
+    }
+  }, [])
+
+  const fetchFlightRequests = useCallback(async () => {
+    setIsLoadingFlight(true)
+    setFlightError(false)
+    try {
+      const response = await fetch('/api/portal/flight-requests', { credentials: 'include' })
+      if (!response.ok) throw new Error('Request failed')
+      const result = await response.json()
+      if (!result.success) throw new Error('Request failed')
+      setFlightRequests(result.data || [])
+    } catch {
+      setFlightError(true)
+    } finally {
+      setIsLoadingFlight(false)
+    }
+  }, [])
 
   useEffect(() => {
-    async function fetchLeaveRequests() {
-      try {
-        const response = await fetch('/api/portal/leave-requests', { credentials: 'include' })
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) setLeaveRequests(result.data || [])
-        }
-      } catch {
-        // Silently handle error - empty list will be shown
-      } finally {
-        setIsLoadingLeave(false)
-      }
-    }
-
-    async function fetchFlightRequests() {
-      try {
-        const response = await fetch('/api/portal/flight-requests', { credentials: 'include' })
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) setFlightRequests(result.data || [])
-        }
-      } catch {
-        // Silently handle error - empty list will be shown
-      } finally {
-        setIsLoadingFlight(false)
-      }
-    }
-
     fetchLeaveRequests()
     fetchFlightRequests()
-  }, [])
+  }, [fetchLeaveRequests, fetchFlightRequests])
 
   const newHref =
     activeTab === 'rdo-sdo' ? '/portal/flight-requests/new' : '/portal/leave-requests/new'
@@ -107,12 +127,12 @@ export default function MyRequestsPage() {
         title="My Requests"
         description="View and manage your leave and RDO/SDO requests."
         action={
-          <Link href={newHref}>
-            <Button size="sm">
+          <Button asChild size="sm">
+            <Link href={newHref}>
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
               {newLabel}
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         }
         tabs={tabNav}
       />
@@ -123,6 +143,11 @@ export default function MyRequestsPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
             </div>
+          ) : leaveError ? (
+            <FetchErrorBand
+              message="Couldn't load your leave requests."
+              onRetry={fetchLeaveRequests}
+            />
           ) : (
             <LeaveRequestsList requests={leaveRequests} />
           ))}
@@ -132,6 +157,11 @@ export default function MyRequestsPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
             </div>
+          ) : flightError ? (
+            <FetchErrorBand
+              message="Couldn't load your RDO/SDO requests."
+              onRetry={fetchFlightRequests}
+            />
           ) : (
             <FlightRequestsList initialRequests={flightRequests} />
           ))}

@@ -62,7 +62,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     }
 
     return NextResponse.json(
-      { success: true, message: 'Flight request cancelled successfully' },
+      { success: true, message: 'RDO/SDO request cancelled successfully' },
       { status: 200 }
     )
   } catch (error) {

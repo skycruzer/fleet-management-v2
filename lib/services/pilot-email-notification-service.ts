@@ -152,7 +152,7 @@ function getLeaveApprovedEmailHTML(pilot: PilotInfo, request: LeaveRequestInfo):
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.
@@ -263,7 +263,7 @@ function getLeaveDeniedemailHTML(
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.
@@ -358,7 +358,7 @@ function getFlightApprovedEmailHTML(pilot: PilotInfo, request: FlightRequestInfo
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.
@@ -491,7 +491,7 @@ function getLeaveBidApprovedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.
@@ -623,7 +623,7 @@ function getLeaveBidSubmittedEmailHTML(
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.
@@ -756,7 +756,7 @@ function getLeaveBidRejectedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
-                Air Niugini - B767 Fleet Management
+                Air Niugini - Fleet Office
               </p>
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This is an automated notification. Please do not reply to this email.

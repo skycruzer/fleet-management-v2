@@ -640,3 +640,47 @@ export async function getIncidentTypes(): Promise<
     return { success: false, error: 'Internal server error' }
   }
 }
+
+/**
+ * Get pilots for selection dropdowns (matter forms), ordered by last name
+ */
+export async function getPilotsForSelection(): Promise<
+  ServiceResponse<
+    Array<{
+      id: string
+      first_name: string
+      last_name: string
+      role: string
+      employee_id: string
+    }>
+  >
+> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('pilots')
+      .select('id, first_name, last_name, role, employee_id')
+      .order('last_name', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching pilots for selection:', error)
+      return { success: false, error: 'Failed to fetch pilots' }
+    }
+
+    // Coerce nullable columns so form components receive plain strings
+    return {
+      success: true,
+      data: (data || []).map((pilot) => ({
+        id: pilot.id,
+        first_name: pilot.first_name || '',
+        last_name: pilot.last_name || '',
+        role: pilot.role || '',
+        employee_id: pilot.employee_id || '',
+      })),
+    }
+  } catch (error) {
+    console.error('Error in getPilotsForSelection:', error)
+    return { success: false, error: 'Internal server error' }
+  }
+}

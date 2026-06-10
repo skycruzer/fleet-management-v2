@@ -10,10 +10,10 @@ import { ArrowLeft } from 'lucide-react'
 import { SettingsClient } from './settings-client'
 import { Breadcrumb } from '@/components/navigation/breadcrumb'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { createClient } from '@/lib/supabase/server'
+import { getUserById } from '@/lib/services/user-service'
 
 export const metadata = {
-  title: 'Settings - Fleet Management V2',
+  title: 'Settings',
   description: 'Manage your preferences and settings',
 }
 
@@ -24,13 +24,8 @@ export default async function SettingsPage() {
     redirect('/auth/login')
   }
 
-  // Fetch user data from an_users table using userId from auth
-  const supabase = await createClient()
-  const { data: anUser } = await supabase
-    .from('an_users')
-    .select('*')
-    .eq('id', auth.userId!)
-    .single()
+  // Fetch user data via service layer using userId from auth
+  const anUser = await getUserById(auth.userId!).catch(() => null)
 
   // Build initial user data to pass to client component
   const initialUserData = anUser

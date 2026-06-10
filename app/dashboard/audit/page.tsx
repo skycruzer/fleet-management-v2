@@ -10,6 +10,10 @@ import {
 } from '@/lib/services/audit-service'
 import AuditLogTable from '@/components/audit/audit-log-table'
 import AuditLogFilters from '@/components/audit/audit-log-filters'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/layout/page-header'
+import { FileText, Users, Table2, Calendar, Download } from 'lucide-react'
 // Force dynamic rendering to prevent static generation at build time
 /**
  * Audit Log Viewer Page (Admin)
@@ -21,7 +25,7 @@ import AuditLogFilters from '@/components/audit/audit-log-filters'
  */
 
 interface AuditPageProps {
-  searchParams: {
+  searchParams: Promise<{
     userEmail?: string
     tableName?: string
     action?: string
@@ -33,10 +37,13 @@ interface AuditPageProps {
     pageSize?: string
     sortBy?: string
     sortOrder?: string
-  }
+  }>
 }
 
-export default async function AuditPage({ searchParams }: AuditPageProps) {
+export default async function AuditPage(props: AuditPageProps) {
+  // Next.js 16: searchParams is a Promise and must be awaited
+  const searchParams = await props.searchParams
+
   // Check authentication (supports both Supabase Auth and admin-session cookie)
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
@@ -136,7 +143,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
-          <p className="text-[var(--color-danger-400)]">Failed to load audit data: {fetchError}</p>
+          <p className="text-[var(--color-destructive-muted-foreground)]">
+            Failed to load audit data: {fetchError}
+          </p>
         </div>
       </div>
     )
@@ -145,174 +154,66 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-          Audit Logs
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Complete audit trail of all system changes and activities
-        </p>
-      </div>
+      <PageHeader
+        title="Audit Logs"
+        description="Complete audit trail of all system changes and activities"
+        actions={
+          <Button asChild variant="outline">
+            <a
+              href={`/api/audit/export?${new URLSearchParams(
+                Object.fromEntries(
+                  Object.entries(searchParams).filter(([_, v]) => v != null) as [string, string][]
+                )
+              ).toString()}`}
+            >
+              <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+              Export to CSV
+            </a>
+          </Button>
+        }
+      />
 
-      {/* Statistics Grid */}
-      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Logs */}
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+      {/* Statistics Row */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="bg-card border-border rounded-lg border p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
-              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalLogs}</p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <svg
-                className="h-6 w-6 text-[var(--color-primary-600)]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
+            <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
+            <FileText className="text-muted-foreground h-4 w-4" aria-hidden="true" />
           </div>
+          <p className="text-foreground mt-1 text-2xl font-bold">{stats.totalLogs}</p>
         </div>
-
-        {/* Unique Users */}
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Unique Users</p>
-              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalUsers}</p>
-            </div>
-            <div className="rounded-full bg-[var(--color-success-muted)] p-3">
-              <svg
-                className="h-6 w-6 text-[var(--color-success-600)]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
+            <p className="text-muted-foreground text-sm font-medium">Unique Users</p>
+            <Users className="text-muted-foreground h-4 w-4" aria-hidden="true" />
           </div>
+          <p className="text-foreground mt-1 text-2xl font-bold">{stats.totalUsers}</p>
         </div>
-
-        {/* Tables Monitored */}
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
-              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalTables}</p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <svg
-                className="h-6 w-6 text-[var(--color-info)]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
+            <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
+            <Table2 className="text-muted-foreground h-4 w-4" aria-hidden="true" />
           </div>
+          <p className="text-foreground mt-1 text-2xl font-bold">{stats.totalTables}</p>
         </div>
-
-        {/* Recent Activity */}
-        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Activity (30d)</p>
-              <p className="text-foreground mt-2 text-3xl font-bold">
-                {stats.recentActivity.reduce((sum, day) => sum + day.count, 0)}
-              </p>
-            </div>
-            <div className="rounded-full bg-[var(--color-badge-orange-bg)] p-3">
-              <svg
-                className="h-6 w-6 text-[var(--color-badge-orange)]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
+            <p className="text-muted-foreground text-sm font-medium">Activity (30d)</p>
+            <Calendar className="text-muted-foreground h-4 w-4" aria-hidden="true" />
           </div>
+          <p className="text-foreground mt-1 text-2xl font-bold">
+            {stats.recentActivity.reduce((sum, day) => sum + day.count, 0)}
+          </p>
         </div>
       </div>
 
       {/* Actions Breakdown */}
-      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="bg-card border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm font-medium">Inserts</p>
-          <p className="mt-1 text-2xl font-bold text-[var(--color-success-600)]">
-            {stats.actionBreakdown.INSERT || 0}
-          </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm font-medium">Updates</p>
-          <p className="mt-1 text-2xl font-bold text-[var(--color-primary-600)]">
-            {stats.actionBreakdown.UPDATE || 0}
-          </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm font-medium">Deletes</p>
-          <p className="mt-1 text-2xl font-bold text-[var(--color-danger-600)]">
-            {stats.actionBreakdown.DELETE || 0}
-          </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm font-medium">Restores</p>
-          <p className="mt-1 text-2xl font-bold text-[var(--color-warning-600)]">
-            {stats.actionBreakdown.RESTORE || 0}
-          </p>
-        </div>
-        <div className="bg-card border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm font-medium">Soft Deletes</p>
-          <p className="text-muted-foreground mt-1 text-2xl font-bold">
-            {stats.actionBreakdown.SOFT_DELETE || 0}
-          </p>
-        </div>
-      </div>
-
-      {/* Export Button */}
-      <div className="mb-6 flex justify-end">
-        <a
-          href={`/api/audit/export?${new URLSearchParams(
-            Object.fromEntries(
-              Object.entries(searchParams).filter(([_, v]) => v != null) as [string, string][]
-            )
-          ).toString()}`}
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Export to CSV
-        </a>
+      <div className="flex flex-wrap items-center gap-2">
+        {(['INSERT', 'UPDATE', 'DELETE', 'RESTORE', 'SOFT_DELETE'] as const).map((action) => (
+          <Badge key={action} size="sm" variant="secondary">
+            {action.replace(/_/g, ' ')} {stats.actionBreakdown[action] || 0}
+          </Badge>
+        ))}
       </div>
 
       {/* Filters */}

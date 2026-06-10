@@ -226,7 +226,7 @@ export function RequestExportToolbar({ requests, filterSummary }: RequestExportT
           const pageHeight = doc.internal.pageSize.getHeight()
           doc.setFontSize(8)
           doc.setTextColor(107, 114, 128)
-          doc.text('Air Niugini B767 Operations — Fleet Management System', 14, pageHeight - 10)
+          doc.text('Air Niugini B767 Operations — Fleet Office', 14, pageHeight - 10)
           doc.text(`Page ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' })
         },
       })

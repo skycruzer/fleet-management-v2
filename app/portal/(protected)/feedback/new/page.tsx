@@ -11,8 +11,10 @@
 
 import { useState } from 'react'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { useUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -38,6 +40,29 @@ export default function NewFeedbackPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const { confirm, ConfirmDialog } = useConfirm()
+
+  const hasChanges =
+    formData.category !== '' ||
+    formData.subject.trim() !== '' ||
+    formData.message.trim() !== '' ||
+    formData.is_anonymous
+
+  // Warn about unsaved changes when navigating away
+  useUnsavedChanges({ hasChanges, skipWarning: submitting })
+
+  const handleClearForm = async () => {
+    if (hasChanges) {
+      const confirmed = await confirm({
+        title: 'Clear form?',
+        description: 'Everything you have entered will be discarded.',
+        confirmText: 'Clear Form',
+        variant: 'destructive',
+      })
+      if (!confirmed) return
+    }
+    setFormData({ category: '', subject: '', message: '', is_anonymous: false })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -103,18 +128,16 @@ export default function NewFeedbackPage() {
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-500)]/20">
               <CheckCircle className="h-6 w-6 text-[var(--color-success-500)]" />
             </div>
-            <h3 className="text-lg font-semibold text-[var(--color-success-400)]">
+            <h3 className="text-lg font-semibold text-[var(--color-success-muted-foreground)]">
               Feedback Submitted Successfully!
             </h3>
-            <p className="mt-2 text-sm text-[var(--color-success-400)]/80">
+            <p className="mt-2 text-sm text-[var(--color-success-muted-foreground)]/80">
               Thank you for your feedback. Fleet management will review it shortly.
             </p>
             <div className="mt-4 flex items-center justify-center gap-3">
-              <Link href="/portal/feedback">
-                <Button variant="outline" size="sm">
-                  View My Feedback
-                </Button>
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/portal/feedback">View My Feedback</Link>
+              </Button>
               <Button size="sm" onClick={() => setSubmitSuccess(false)}>
                 Submit Another
               </Button>
@@ -130,8 +153,12 @@ export default function NewFeedbackPage() {
                 <AlertCircle className="h-5 w-5 text-[var(--color-danger-500)]" />
               </div>
               <div>
-                <h3 className="font-semibold text-[var(--color-danger-400)]">Submission Failed</h3>
-                <p className="text-sm text-[var(--color-danger-400)]/80">{submitError}</p>
+                <h3 className="font-semibold text-[var(--color-destructive-muted-foreground)]">
+                  Submission Failed
+                </h3>
+                <p className="text-sm text-[var(--color-destructive-muted-foreground)]/80">
+                  {submitError}
+                </p>
               </div>
             </div>
           </div>
@@ -234,9 +261,7 @@ export default function NewFeedbackPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  setFormData({ category: '', subject: '', message: '', is_anonymous: false })
-                }
+                onClick={handleClearForm}
                 disabled={submitting}
               >
                 Clear Form
@@ -270,6 +295,9 @@ export default function NewFeedbackPage() {
           </ul>
         </Card>
       </main>
+
+      {/* Clear Form confirmation dialog */}
+      <ConfirmDialog />
     </div>
   )
 }

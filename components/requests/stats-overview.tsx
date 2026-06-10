@@ -115,7 +115,7 @@ function buildStatHref(
     pending: `&status=SUBMITTED,IN_REVIEW&stat_filter=pending`,
     critical: `&status=SUBMITTED,IN_REVIEW&is_past_deadline=true&stat_filter=critical`,
     warning: `&status=SUBMITTED,IN_REVIEW&is_late=true&stat_filter=warning`,
-    clean: `&status=SUBMITTED,IN_REVIEW&stat_filter=clean`,
+    clean: `&status=SUBMITTED,IN_REVIEW&is_late=false&is_past_deadline=false&stat_filter=clean`,
   }
 
   return base + filterParams[filter]

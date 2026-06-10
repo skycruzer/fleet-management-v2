@@ -1,3 +1,91 @@
+# Design/UX/UI review remediation plan (2026-06-10) — ALL PHASES COMPLETE 2026-06-11 (uncommitted)
+
+## Follow-up pass (2026-06-11)
+
+- [x] app/pilot/\* legacy page tree deleted + 10 exclusive components/pilot files + 2 dead admin flight-request components (API routes kept — auth-unification scope)
+- [x] Leave-bid "Selected" chip reads real option_statuses (service select + card logic; priority-1 fallback for pre-feature bids)
+- [x] pilot-combobox forwards rest props (FormControl aria-invalid/describedby now reach the trigger)
+- [x] button.tsx variants tokenized (bg-card/border-input/bg-muted/bg-primary; dark: overrides removed)
+- [x] Bonus: duplicate "Back to home" removed from /auth/login
+
+Naming decisions (Maurice): product = "Fleet Office" (+ "B767 Pilot Portal" qualifier); FLIGHT requests = "RDO/SDO Requests" in all UI copy.
+Visual pass: 12 screenshots (light/dark × desktop/mobile × landing, admin login, portal login) in screenshots/design-verify/; authenticated pass skipped (no valid VERIFY_EMAIL creds — old test123 no longer works).
+
+Full findings: tasks/design-ux-review-2026-06-10.md (83 pages reviewed, 5 parallel reviewers).
+
+## Phase 0 — Broken/dangerous (small diffs, immediate)
+
+- [x] DELETE app/login/page.tsx (renders real test credentials on a live route) — redirect /login → /auth/login in next.config.js
+- [x] Fix /auth/forgot-password 404 (login-form.tsx:90) — build the page or remove the link
+- [x] Fix /dashboard/admin/users 404 (users/new redirect + Cancel → /dashboard/admin/portal-users or /dashboard/admin)
+- [x] Fix Next 16 async params bugs: await searchParams in /dashboard/audit, await params in /dashboard/audit/[id]
+- [x] Wire ?tab=attention / ?filter=expiring into certifications page filter (nuqs) — restores all expiring deep links
+- [x] Fix analytics Fleet Readiness invisible text (text-primary-foreground → text-foreground)
+- [x] Add CSRF headers to leave-bid-form.tsx POST/PUT and leave-requests-list.tsx cancel DELETE; replace alert() with toast; fix stale list after cancel (local state, match rdo-sdo pattern)
+- [x] Portal requests page: surface fetch errors with retry (remove silent catch)
+- [x] global-error.tsx: add inline critical styles (renders without root layout CSS)
+- [x] Renewal calendar: reuse main page's RP-aware period query (RP01 omission bug)
+- [x] Task edit: pass users to TaskForm; drop dead pilots/categories queries on tasks/new
+- [x] Fix "Clean" stat card filter (stats-overview.tsx:114) or make it non-clickable
+- [x] Support page: remove/fix /dashboard/docs + /dashboard/tutorials 404 links; retarget /faqs anchors to /help
+- [x] pilot-registrations: call service directly instead of self-HTTP-fetch; show error state instead of false "All caught up"
+
+## Phase 1 — Design foundation (highest leverage, ~4 files fix every page)
+
+- [x] Tokenize components/ui/badge.tsx (100 importers) — replace hardcoded light hexes with tokens + dark coverage
+- [x] Tokenize components/ui/input.tsx (bg-white → tokens; align h-10 vs Button h-9 decision)
+- [x] Wire sonner Toaster theme to next-themes; align richColors with --color-success/destructive
+- [x] globals.css: a { color } → var(--color-info) (fixes dark AA); h1-h6/p hexes → var(--color-foreground); de-collide --z-select vs --z-toast-viewport
+- [x] Rewrite ui/status-badge.tsx with static class map (JIT-unsafe interpolation) + full live vocabulary (DRAFT/SUBMITTED/IN_REVIEW/APPROVED/DENIED/WITHDRAWN + bids/certs), humanized labels
+- [x] Adopt StatusBadge across both portals (116 inline call-sites — batch by feature, build-verify per batch)
+- [x] Contrast sweep: replace text-_-400-on-muted with --color-_-muted-foreground / status tokens (~28 files, mechanical)
+- [x] One cert threshold source: align portal (14/60) + dashboard (14/30/60) to documented FAA rule in lib/utils/certification-status.ts
+
+## Phase 2 — Dead code & legacy surfaces
+
+- [x] Redirect /pilot/_ → /portal/_ equivalents in next.config.js (5 routes); delete tree after verifyPilotSession unification
+- [x] Delete dead pages: faqs, leave/page+client, leave/approve (move actions.ts out first — imported by live leave-approval-client), leave/calendar/page.tsx (keep sibling client — it's live), certifications/expiring
+- [x] Close redirect gaps: /dashboard/leave/new + /dashboard/leave/[id] — RESOLVED by ownership: both are functional, intentionally linked surfaces (quick-entry button, request groups); kept as canonical admin entry/detail forms rather than redirected
+- [x] Resolve /dashboard/planning (orphaned; duplicates analytics 507-line copy + renewal-planning) — delete or make canonical
+- [x] Resolve audit vs audit-logs duplication — one index (linked rows → /dashboard/audit/[id])
+- [x] Delete dead components: empty-state-illustrated (aviation/gradients), premium-pilot-card, certifications-page-client, auth/login/simple.tsx + page.tsx.complex, ui/toaster.tsx, 3 unused portal widgets
+- [x] Replace placeholder emails (support@example.com, privacy@fleetmanagement.com, personal email in portal error.tsx)
+
+## Phase 3 — Pattern standardization
+
+- [x] Shared PageHeader component (h1 text-xl/2xl font-semibold + breadcrumb + actions slot); sweep 5 competing patterns; forms get real h1
+- [x] Loading-state standard: skeleton-mirrors-layout in loading.tsx AND in-page pending; kill spinner cards; fix mismatched skeletons (pilots, certifications, portal dashboard)
+- [x] nuqs adoption: pilots view/filters, reports tab, certifications filters, portal requests tab
+- [x] One pagination component (3 implementations today); shadcn Table everywhere (audit, audit-logs, disciplinary, admin settings)
+- [x] Fix 6 malformed token classes (--color-info)-foreground, info-bg)0 variants
+- [x] Form a11y: replicate certifications/new aria wiring to pilot forms + quick-entry; fix copy drift (6-digit rule)
+- [x] useConfirm gaps: bulk approve/deny, registration Deny, renewal clearExisting, portal notification delete, feedback Clear Form
+- [x] use-unsaved-changes in portal forms (leave/new, flight/new+edit, feedback/new)
+- [x] Icon sweep: emoji + inline SVGs + text arrows → lucide; Link>Button → Button asChild
+- [x] Date formatting: date-utils.formatDate everywhere (kill toLocaleDateString('en-AU'))
+
+## Phase 4 — Pilot portal mobile UX
+
+- [x] Bottom tab bar (Dashboard / Certifications / Requests / More); add Notifications to nav
+- [x] 44px touch targets: nav rows, header icons, tab buttons
+- [x] Replace hand-rolled drawer with Radix Sheet (focus trap, Escape, aria-modal)
+- [x] RDO/SDO + leave-bids tables → stacked cards on mobile (match leave tab pattern)
+- [x] Portal dashboard: one expiry-window vocabulary; cert alerts above roster card; fix dark-mode roster header (text-white → text-primary-foreground); fix sidebar identity (pass pilotRank, name primary)
+- [x] Portal notifications page rebuild: dot-style type indicators (reuse bell pattern), per-item mark-read, pagination, Link navigation
+- [x] /portal/login: consume ?error/?message/?redirect from proxy; honor redirect after login
+
+## Phase 5 — Polish
+
+- [x] Pick ONE product name + version string (currently 6 names, 3 versions; decided with Maurice alongside RDO/SDO naming); sweep all surfaces
+- [x] Copy sweep: humanize raw enums everywhere, "RDO/SDO" vs "Flight Requests" naming decision, kill marketing fluff (landing stats, support page fake statuses), instructions-card diet (quick-entry)
+- [x] Stats-cards-first diet on audit/tasks/disciplinary/leave-bids/check-types; remove fake stats (Active Types, Security Level: High)
+- [x] Fix "Export PDF" mislabels (analytics .txt, leave-bids .html) — real PDFs via pdf-service or honest labels
+- [x] not-found.tsx portal-aware links; offline page pilot-aware destination; reset-password celebration pop → reduced-motion-aware fade
+- [x] Admin mobile nav: derive from sidebar config (missing Leave Bids, Published Rosters); fix invisible Plane icon
+- [x] Service-layer violations in pages (admin/leave-bids ×3, tasks/new, disciplinary ×3, settings-client browser query, portal layout)
+
+---
+
 # Phases 2 & 3 + security fixes (2026-06-10)
 
 - [x] PR #61 — security: admin auth added to tasks/[id] GET, retirement/timeline,

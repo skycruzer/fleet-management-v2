@@ -20,7 +20,7 @@ const pathLabels: Record<string, string> = {
   pilots: 'Pilots',
   certifications: 'Certifications',
   leave: 'Leave Requests',
-  'flight-requests': 'Flight Requests',
+  'flight-requests': 'RDO/SDO Requests',
   'renewal-planning': 'Renewal Planning',
   calendar: 'Calendar',
   analytics: 'Analytics',

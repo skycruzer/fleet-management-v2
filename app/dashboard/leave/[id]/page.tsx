@@ -10,7 +10,8 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { getPilotRequestById, type PilotRequest } from '@/lib/services/unified-request-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/layout/page-header'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ApprovalWorkflowCard } from '@/components/audit/approval-workflow-card'
@@ -38,42 +39,18 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
 
   const leaveRequest = result.data
 
-  // Status badge configuration
-  const statusConfig = {
-    PENDING: {
-      variant: 'secondary' as const,
-      className:
-        'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)] border-[var(--color-warning-500)]/20',
-    },
-    APPROVED: {
-      variant: 'default' as const,
-      className:
-        'bg-[var(--color-success-muted)] text-[var(--color-success-400)] border-[var(--color-success-500)]/20',
-    },
-    DENIED: {
-      variant: 'destructive' as const,
-      className:
-        'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)] border-[var(--color-danger-500)]/20',
-    },
-    CANCELLED: {
-      variant: 'secondary' as const,
-      className: 'bg-muted/60 text-muted-foreground border-border',
-    },
-  }
-
-  const config =
-    statusConfig[leaveRequest.workflow_status as keyof typeof statusConfig] || statusConfig.PENDING
+  const pilotName =
+    leaveRequest.name ||
+    (leaveRequest.pilot ? `${leaveRequest.pilot.first_name} ${leaveRequest.pilot.last_name}` : null)
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-xl font-bold sm:text-2xl">Leave Request Details</h2>
-          <p className="text-muted-foreground mt-1 text-sm">Request ID: {id.slice(0, 8)}...</p>
-        </div>
-        <Badge className={`border ${config.className}`}>{leaveRequest.workflow_status}</Badge>
-      </div>
+      <PageHeader
+        title={pilotName ? `${pilotName} — Leave Request` : 'Leave Request Details'}
+        description={`Request ID: ${id.slice(0, 8)}...`}
+        actions={<StatusBadge status={leaveRequest.workflow_status} />}
+      />
 
       {/* Tabs */}
       <Tabs defaultValue="details" className="space-y-4">

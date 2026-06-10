@@ -78,7 +78,7 @@ export function ReportPreviewDialog({
             {reportData.title}
           </DialogTitle>
           <DialogDescription>
-            Air Niugini Fleet Management &middot; Generated:{' '}
+            Air Niugini Fleet Office &middot; Generated:{' '}
             {new Date(reportData.generatedAt).toLocaleString()}
           </DialogDescription>
         </DialogHeader>

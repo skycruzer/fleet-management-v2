@@ -41,6 +41,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { useConfirm } from '@/components/ui/confirm-dialog'
+import { PageHeader } from '@/components/layout/page-header'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
@@ -159,6 +161,7 @@ export default function GeneratePlanPage() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('configure')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   // Preview query - only runs when on preview step
   const previewQuery = useQuery<PreviewData>({
@@ -245,6 +248,17 @@ export default function GeneratePlanPage() {
   }
 
   const handleGenerate = async () => {
+    if (clearExisting) {
+      const confirmed = await confirm({
+        title: 'Clear existing renewal plans?',
+        description:
+          'All existing renewal plans for the selected scope will be permanently deleted before new plans are generated. This action cannot be undone.',
+        confirmText: 'Clear and Generate',
+        variant: 'destructive',
+      })
+      if (!confirmed) return
+    }
+
     setIsGenerating(true)
 
     try {
@@ -437,7 +451,7 @@ export default function GeneratePlanPage() {
           </div>
           <Separator className="my-4" />
           <div className="rounded-md border border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-3">
-            <p className="text-sm text-[var(--color-warning-400)]">
+            <p className="text-sm text-[var(--color-warning-muted-foreground)]">
               <strong>Note:</strong> Pilot Medical certifications have a 28-day grace period, which
               is too short for advance planning. Medical renewals should be scheduled through urgent
               scheduling.
@@ -471,7 +485,7 @@ export default function GeneratePlanPage() {
             ))}
           </div>
           {selectedCaptainRoles.length === 0 && (
-            <p className="mt-3 text-sm text-[var(--color-danger-400)]">
+            <p className="mt-3 text-sm text-[var(--color-destructive-muted-foreground)]">
               At least one captain role must be selected for pairing to work.
             </p>
           )}
@@ -503,12 +517,12 @@ export default function GeneratePlanPage() {
         {clearExisting && (
           <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-6">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="mt-1 h-6 w-6 text-[var(--color-danger-400)]" />
+              <AlertTriangle className="mt-1 h-6 w-6 text-[var(--color-destructive-muted-foreground)]" />
               <div>
-                <h3 className="font-semibold text-[var(--color-danger-400)]">
+                <h3 className="font-semibold text-[var(--color-destructive-muted-foreground)]">
                   Warning: Destructive Action
                 </h3>
-                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+                <p className="mt-1 text-sm text-[var(--color-destructive-muted-foreground)]">
                   This will permanently delete all existing renewal plans. This action cannot be
                   undone.
                 </p>
@@ -632,7 +646,7 @@ export default function GeneratePlanPage() {
           </Card>
         ) : previewQuery.isError ? (
           <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-6 text-center">
-            <p className="text-[var(--color-danger-400)]">
+            <p className="text-[var(--color-destructive-muted-foreground)]">
               Failed to load preview. Please try again.
             </p>
             <Button
@@ -692,9 +706,9 @@ export default function GeneratePlanPage() {
             className={`flex h-12 w-12 items-center justify-center rounded-full ${generationResult.totalPlans > 0 ? 'bg-[var(--color-success-muted)]' : 'bg-[var(--color-warning-muted)]'}`}
           >
             {generationResult.totalPlans > 0 ? (
-              <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
+              <CheckCircle2 className="h-6 w-6 text-[var(--color-success-muted-foreground)]" />
             ) : (
-              <AlertTriangle className="h-6 w-6 text-[var(--color-warning-400)]" />
+              <AlertTriangle className="h-6 w-6 text-[var(--color-warning-muted-foreground)]" />
             )}
           </div>
           <div>
@@ -712,10 +726,12 @@ export default function GeneratePlanPage() {
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6 text-center">
-            <p className="text-4xl font-bold text-[var(--color-success-400)]">
+            <p className="text-4xl font-bold text-[var(--color-success-muted-foreground)]">
               {generationResult.totalPlans}
             </p>
-            <p className="text-sm text-[var(--color-success-400)]">Total Plans Generated</p>
+            <p className="text-sm text-[var(--color-success-muted-foreground)]">
+              Total Plans Generated
+            </p>
           </Card>
           <Card className="p-6 text-center">
             <p className="text-foreground text-4xl font-bold">
@@ -843,22 +859,21 @@ export default function GeneratePlanPage() {
   return (
     <div className="space-y-6 p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="space-y-4">
+        <Button asChild variant="outline" size="sm">
           <Link href={`/dashboard/renewal-planning?year=${year}`}>
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
           </Link>
-          <div>
-            <h1 className="text-foreground text-3xl font-bold">Generate Renewal Plan</h1>
-            <p className="text-muted-foreground mt-1">
-              Plan renewals for Flight, Simulator, and Ground Courses with Captain/FO pairing
-            </p>
-          </div>
-        </div>
+        </Button>
+        <PageHeader
+          title="Generate Renewal Plan"
+          description="Plan renewals for Flight, Simulator, and Ground Courses with Captain/FO pairing"
+        />
       </div>
+
+      {/* Clear Existing Confirmation Dialog */}
+      <ConfirmDialog />
 
       {/* Step Indicator */}
       <Card className="p-6">

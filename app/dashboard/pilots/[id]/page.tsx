@@ -113,7 +113,7 @@ export default function PilotDetailPage() {
   async function handleDelete() {
     const confirmed = await confirm({
       title: 'Delete Pilot',
-      description: `Are you sure you want to delete ${pilot?.first_name} ${pilot?.last_name}?\n\nThis will permanently remove:\n• All certifications and check records\n• All leave and flight requests\n• Leave bids and renewal plans\n• Feedback and assessment records\n• Disciplinary records\n• Related tasks\n• Pilot portal account\n\nThis action cannot be undone.`,
+      description: `Are you sure you want to delete ${pilot?.first_name} ${pilot?.last_name}?\n\nThis will permanently remove:\n• All certifications and check records\n• All leave and RDO/SDO requests\n• Leave bids and renewal plans\n• Feedback and assessment records\n• Disciplinary records\n• Related tasks\n• Pilot portal account\n\nThis action cannot be undone.`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       variant: 'destructive',

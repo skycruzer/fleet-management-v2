@@ -22,13 +22,13 @@ import { CalendarPageClient } from '@/components/renewal-planning/calendar-page-
 async function getRosterPeriodSummariesForYear(year: number) {
   const supabase = createServiceRoleClient()
 
-  // Get all roster periods that cover the selected year
-  // All 13 periods (RP01-RP13) are now included for planning
+  // Get all roster periods for the selected year
+  // Filter by roster_period name (format: RPxx/YYYY) since RP01/YYYY starts in previous year
+  // Example: RP01/2026 starts 2025-12-06, so date-based filtering would miss it
   const { data: periods, error } = await supabase
     .from('roster_period_capacity')
     .select('roster_period, period_start_date, period_end_date')
-    .gte('period_start_date', `${year}-01-01`)
-    .lte('period_start_date', `${year}-12-31`)
+    .like('roster_period', `%/${year}`) // Match RPxx/YYYY format
     .order('period_start_date')
 
   if (error) {

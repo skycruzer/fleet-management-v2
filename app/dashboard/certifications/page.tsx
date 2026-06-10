@@ -17,6 +17,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useQueryState } from 'nuqs'
 import { formatDate } from '@/lib/utils/date-utils'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -29,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Pagination, usePagination } from '@/components/ui/pagination'
-import { TableSkeleton } from '@/components/ui/skeleton'
+import { Skeleton, TableSkeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -136,7 +137,9 @@ export default function CertificationsPage() {
 
   // UI state
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  // URL-synced so deep links work (?filter=expiring from dashboard widgets,
+  // ?filter=attention from the /certifications/expiring redirect)
+  const [statusFilter, setStatusFilter] = useQueryState('filter', { defaultValue: 'all' })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -232,6 +235,9 @@ export default function CertificationsPage() {
             return cert.status.color === 'yellow'
           case 'expired':
             return cert.status.color === 'red'
+          case 'attention':
+            // Combined view: anything expiring soon or already expired
+            return cert.status.color === 'yellow' || cert.status.color === 'red'
           default:
             return true
         }
@@ -460,7 +466,22 @@ export default function CertificationsPage() {
   }
 
   if (loading) {
-    return <TableSkeleton rows={8} columns={6} />
+    // Include the page-header skeleton so the header doesn't vanish during client fetch
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-28 rounded-md" />
+            <Skeleton className="h-10 w-44 rounded-md" />
+          </div>
+        </div>
+        <TableSkeleton rows={8} columns={6} />
+      </div>
+    )
   }
 
   if (error) {
@@ -535,7 +556,7 @@ export default function CertificationsPage() {
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
-              <CheckCircle className="h-5 w-5 text-[var(--color-success-400)]" />
+              <CheckCircle className="h-5 w-5 text-[var(--color-success-muted-foreground)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.current}</p>
@@ -547,7 +568,7 @@ export default function CertificationsPage() {
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-warning-muted)]">
-              <Clock className="h-5 w-5 text-[var(--color-warning-400)]" />
+              <Clock className="h-5 w-5 text-[var(--color-warning-muted-foreground)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expiring}</p>
@@ -559,7 +580,7 @@ export default function CertificationsPage() {
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-destructive-muted)]">
-              <AlertCircle className="h-5 w-5 text-[var(--color-danger-400)]" />
+              <AlertCircle className="h-5 w-5 text-[var(--color-destructive-muted-foreground)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expired}</p>
@@ -598,6 +619,9 @@ export default function CertificationsPage() {
               <SelectItem value="current">Current ({statusCounts.current})</SelectItem>
               <SelectItem value="expiring">Expiring ({statusCounts.expiring})</SelectItem>
               <SelectItem value="expired">Expired ({statusCounts.expired})</SelectItem>
+              <SelectItem value="attention">
+                Needs Attention ({statusCounts.expiring + statusCounts.expired})
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -700,7 +724,7 @@ export default function CertificationsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(cert)}
-                          className="text-[var(--color-danger-400)] hover:text-[var(--color-danger-300)]"
+                          className="text-[var(--color-destructive-muted-foreground)] hover:text-[var(--color-danger-300)]"
                           aria-label={`Delete certification for ${cert.pilot.first_name} ${cert.pilot.last_name}`}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />

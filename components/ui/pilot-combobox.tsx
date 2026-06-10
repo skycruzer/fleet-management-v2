@@ -36,7 +36,7 @@ export interface PilotOption {
   role?: string
 }
 
-interface PilotComboboxProps {
+interface PilotComboboxProps extends Omit<React.ComponentProps<'button'>, 'value' | 'onChange'> {
   pilots: PilotOption[]
   value?: string
   onValueChange: (value: string) => void
@@ -56,6 +56,9 @@ export function PilotCombobox({
   disabled = false,
   placeholder = 'Select a pilot...',
   className,
+  // Rest props let react-hook-form's FormControl (Radix Slot) deliver
+  // aria-invalid / aria-describedby to the actual trigger button
+  ...props
 }: PilotComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
@@ -114,6 +117,7 @@ export function PilotCombobox({
             !value && 'text-muted-foreground',
             className
           )}
+          {...props}
         >
           {selectedPilot ? formatPilotDisplay(selectedPilot) : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

@@ -9,6 +9,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
+import { ServiceResponse } from '@/lib/types/service-response'
 
 export interface User {
   id: string
@@ -62,6 +63,34 @@ export async function getAllUsers(): Promise<User[]> {
       metadata: { operation: 'fetchAllUsers' },
     })
     throw error
+  }
+}
+
+export type AssignableUser = Pick<User, 'id' | 'email' | 'name'>
+
+/**
+ * Get users for assignment dropdowns (tasks, disciplinary matters).
+ * Minimal fields, ordered by name.
+ */
+export async function getAssignableUsers(): Promise<ServiceResponse<AssignableUser[]>> {
+  const supabase = createAdminClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('an_users')
+      .select('id, email, name')
+      .order('name', { ascending: true })
+
+    if (error) throw error
+
+    return ServiceResponse.success((data || []) as AssignableUser[])
+  } catch (error) {
+    logError(error as Error, {
+      source: 'user-service:getAssignableUsers',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'fetchAssignableUsers' },
+    })
+    return ServiceResponse.error('Failed to fetch assignable users', error)
   }
 }
 

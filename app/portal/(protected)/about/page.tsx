@@ -11,17 +11,15 @@ import { Badge } from '@/components/ui/badge'
 import { PageHead } from '@/components/ui/page-head'
 import { Info, Code, Calendar, Shield } from 'lucide-react'
 
-// Read version from package.json at build time
-import packageJson from '@/package.json'
-
 export const metadata = {
   title: 'About | Pilot Portal',
   description: 'Application information and version details',
 }
 
 export default function AboutPage() {
-  const appVersion = packageJson.version
-  const appName = 'Fleet Management System'
+  // Version sourced from package.json via next.config.js env (inlined at build)
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION
+  const appName = 'Fleet Office'
   const developer = 'Maurice Rondeau'
   const buildYear = new Date().getFullYear()
 
@@ -37,7 +35,7 @@ export default function AboutPage() {
               <h2 className="text-foreground text-2xl font-bold">{appName}</h2>
               <div className="mt-2 flex items-center space-x-2">
                 <Badge variant="secondary">v{appVersion}</Badge>
-                <Badge variant="outline">Pilot Portal</Badge>
+                <Badge variant="outline">B767 Pilot Portal</Badge>
               </div>
             </div>
           </div>

@@ -1,10 +1,11 @@
-import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTasks, getTaskStats } from '@/lib/services/task-service'
 import TaskKanban from '@/components/tasks/task-kanban'
 import TaskList from '@/components/tasks/task-list'
 import Link from 'next/link'
+import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +44,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
-          <p className="text-[var(--color-danger-400)]">
+          <p className="text-[var(--color-destructive-muted-foreground)]">
             Failed to load tasks: {tasksResult.error}
           </p>
         </div>
@@ -55,7 +56,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
-          <p className="text-[var(--color-danger-400)]">
+          <p className="text-[var(--color-destructive-muted-foreground)]">
             Failed to load statistics: {statsResult.error}
           </p>
         </div>
@@ -84,22 +85,21 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             Manage and track tasks across your organization
           </p>
         </div>
-        <Link
-          href="/dashboard/tasks/new"
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
-        >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Task
-        </Link>
+        <Button asChild>
+          <Link href="/dashboard/tasks/new">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New Task
+          </Link>
+        </Button>
       </div>
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
-          <p className="text-muted-foreground text-sm font-medium">Total Tasks</p>
-          <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalTasks}</p>
+          <p className="text-muted-foreground text-sm font-medium">Overdue</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-destructive-muted-foreground)]">
+            {stats.overdueCount}
+          </p>
         </div>
         <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">To Do</p>
@@ -112,9 +112,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
           </p>
         </div>
         <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
-          <p className="text-muted-foreground text-sm font-medium">Overdue</p>
-          <p className="mt-2 text-3xl font-bold text-[var(--color-danger-400)]">
-            {stats.overdueCount}
+          <p className="text-muted-foreground text-sm font-medium">Done</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-success-600)]">
+            {stats.doneCount}
           </p>
         </div>
       </div>
@@ -122,39 +122,27 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       {/* View Toggle */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-2">
-          <Link
-            href="/dashboard/tasks?view=kanban"
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              view === 'kanban'
-                ? 'bg-[var(--color-primary-600)] text-white'
-                : 'text-foreground/80 bg-muted/30 hover:bg-muted/60'
-            }`}
-          >
-            Kanban Board
-          </Link>
-          <Link
-            href="/dashboard/tasks?view=list"
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              view === 'list'
-                ? 'bg-[var(--color-primary-600)] text-white'
-                : 'text-foreground/80 bg-muted/30 hover:bg-muted/60'
-            }`}
-          >
-            List View
-          </Link>
+          <Button asChild variant={view === 'kanban' ? 'secondary' : 'ghost'}>
+            <Link
+              href="/dashboard/tasks?view=kanban"
+              aria-current={view === 'kanban' ? 'page' : undefined}
+            >
+              Kanban Board
+            </Link>
+          </Button>
+          <Button asChild variant={view === 'list' ? 'secondary' : 'ghost'}>
+            <Link
+              href="/dashboard/tasks?view=list"
+              aria-current={view === 'list' ? 'page' : undefined}
+            >
+              List View
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Task Views */}
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary-600)] border-t-transparent" />
-          </div>
-        }
-      >
-        {view === 'kanban' ? <TaskKanban tasks={tasks} /> : <TaskList tasks={tasks} />}
-      </Suspense>
+      {view === 'kanban' ? <TaskKanban tasks={tasks} /> : <TaskList tasks={tasks} />}
     </div>
   )
 }

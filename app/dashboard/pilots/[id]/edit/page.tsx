@@ -29,10 +29,20 @@ import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
 import { formatDateForInput } from '@/lib/utils/form-utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { PageHeader } from '@/components/layout/page-header'
 import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
-import { User, Briefcase, FileText, Award, XCircle, Loader2, ScrollText, Mail } from 'lucide-react'
+import {
+  User,
+  Briefcase,
+  FileText,
+  Award,
+  XCircle,
+  Loader2,
+  ScrollText,
+  Mail,
+  ArrowLeft,
+} from 'lucide-react'
 
 // Use z.input for form types (before transforms/defaults are applied)
 type PilotFormData = z.input<typeof PilotUpdateSchema>
@@ -80,6 +90,7 @@ export default function EditPilotPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [pilot, setPilot] = useState<Pilot | null>(null)
   const [contractTypes, setContractTypes] = useState<ContractType[]>([])
   const [loadingContractTypes, setLoadingContractTypes] = useState(true)
@@ -186,6 +197,12 @@ export default function EditPilotPage() {
     }
   }, [pilotId, reset])
 
+  // Surface validation errors in the summary block when submit fails validation
+  const onValidationError = () => {
+    setSubmitAttempted(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const onSubmit = async (data: PilotFormData) => {
     setIsSubmitting(true)
     setError(null)
@@ -251,9 +268,12 @@ export default function EditPilotPage() {
               <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
               <p className="text-muted-foreground">{error}</p>
             </div>
-            <Link href="/dashboard/pilots">
-              <Button variant="outline">&larr; Back to Pilots</Button>
-            </Link>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/pilots">
+                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+                Back to Pilots
+              </Link>
+            </Button>
           </div>
         </Card>
       </div>
@@ -262,9 +282,11 @@ export default function EditPilotPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <PageBreadcrumbs
-        items={[
+      {/* Page Header */}
+      <PageHeader
+        title="Edit Pilot"
+        description={`Update pilot profile for ${pilot?.first_name} ${pilot?.last_name}`}
+        breadcrumbs={[
           { label: 'Admin Dashboard', href: '/dashboard' },
           { label: 'Pilots', href: '/dashboard/pilots' },
           {
@@ -273,28 +295,34 @@ export default function EditPilotPage() {
           },
           { label: 'Edit' },
         ]}
+        actions={
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/pilots/${pilotId}`}>Cancel</Link>
+          </Button>
+        }
       />
 
-      {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Edit Pilot</h2>
-          <p className="text-muted-foreground mt-1">
-            Update pilot profile for {pilot?.first_name} {pilot?.last_name}
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Link href={`/dashboard/pilots/${pilotId}`}>
-            <Button variant="outline">Cancel</Button>
-          </Link>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="space-y-6">
         {/* Error Message */}
         {error && (
           <div className="border-destructive/20 rounded-lg border bg-[var(--color-destructive-muted)] p-4">
             <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
+          </div>
+        )}
+
+        {/* Show all validation errors summary */}
+        {submitAttempted && Object.keys(errors).length > 0 && (
+          <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-warning-muted)] p-4">
+            <p className="text-sm font-medium text-[var(--color-warning-500)]">
+              Please fix the following errors:
+            </p>
+            <ul className="mt-2 list-inside list-disc text-sm text-[var(--color-warning-500)]">
+              {Object.entries(errors).map(([field, err]) => (
+                <li key={field}>
+                  <strong>{field.replace(/_/g, ' ')}:</strong> {err?.message || `Invalid ${field}`}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -321,14 +349,16 @@ export default function EditPilotPage() {
                   {...register('employee_id', {
                     setValueAs: (v) => (v ? v.trim() : v),
                   })}
+                  aria-invalid={!!errors.employee_id}
+                  aria-describedby={errors.employee_id ? 'employee_id-error' : undefined}
                   className={errors.employee_id ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.employee_id && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="employee_id-error" className="text-sm text-[var(--color-danger-600)]">
                     {errors.employee_id.message}
                   </p>
                 )}
-                <p className="text-muted-foreground text-xs">Must be exactly 6 digits</p>
+                <p className="text-muted-foreground text-xs">Must be 4-6 digits</p>
               </div>
 
               {/* Role */}
@@ -342,6 +372,9 @@ export default function EditPilotPage() {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger
+                        id="role"
+                        aria-invalid={!!errors.role}
+                        aria-describedby={errors.role ? 'role-error' : undefined}
                         className={errors.role ? 'border-[var(--color-danger-500)]' : ''}
                       >
                         <SelectValue placeholder="Select rank..." />
@@ -354,7 +387,9 @@ export default function EditPilotPage() {
                   )}
                 />
                 {errors.role && (
-                  <p className="text-sm text-[var(--color-danger-600)]">{errors.role.message}</p>
+                  <p id="role-error" className="text-sm text-[var(--color-danger-600)]">
+                    {errors.role.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -370,10 +405,12 @@ export default function EditPilotPage() {
                   type="text"
                   placeholder="John"
                   {...register('first_name')}
+                  aria-invalid={!!errors.first_name}
+                  aria-describedby={errors.first_name ? 'first_name-error' : undefined}
                   className={errors.first_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.first_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="first_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {errors.first_name.message}
                   </p>
                 )}
@@ -389,10 +426,12 @@ export default function EditPilotPage() {
                   {...register('middle_name', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
+                  aria-invalid={!!errors.middle_name}
+                  aria-describedby={errors.middle_name ? 'middle_name-error' : undefined}
                   className={errors.middle_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.middle_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="middle_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {errors.middle_name.message}
                   </p>
                 )}
@@ -408,10 +447,12 @@ export default function EditPilotPage() {
                   type="text"
                   placeholder="Doe"
                   {...register('last_name')}
+                  aria-invalid={!!errors.last_name}
+                  aria-describedby={errors.last_name ? 'last_name-error' : undefined}
                   className={errors.last_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.last_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="last_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {errors.last_name.message}
                   </p>
                 )}
@@ -442,7 +483,11 @@ export default function EditPilotPage() {
                     onValueChange={(v) => field.onChange(v && v.trim() !== '' ? v : null)}
                     disabled={loadingContractTypes}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      id="contract_type"
+                      aria-invalid={!!errors.contract_type}
+                      aria-describedby={errors.contract_type ? 'contract_type-error' : undefined}
+                    >
                       <SelectValue
                         placeholder={
                           loadingContractTypes ? 'Loading...' : 'Select contract type...'
@@ -460,7 +505,7 @@ export default function EditPilotPage() {
                 )}
               />
               {errors.contract_type && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="contract_type-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.contract_type.message}
                 </p>
               )}
@@ -475,10 +520,12 @@ export default function EditPilotPage() {
                 {...register('commencement_date', {
                   setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                 })}
+                aria-invalid={!!errors.commencement_date}
+                aria-describedby={errors.commencement_date ? 'commencement_date-error' : undefined}
                 className={errors.commencement_date ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.commencement_date && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="commencement_date-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.commencement_date.message}
                 </p>
               )}
@@ -535,10 +582,12 @@ export default function EditPilotPage() {
                 {...register('date_of_birth', {
                   setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                 })}
+                aria-invalid={!!errors.date_of_birth}
+                aria-describedby={errors.date_of_birth ? 'date_of_birth-error' : undefined}
                 className={errors.date_of_birth ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.date_of_birth && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="date_of_birth-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.date_of_birth.message}
                 </p>
               )}
@@ -555,10 +604,12 @@ export default function EditPilotPage() {
                 {...register('nationality', {
                   setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                 })}
+                aria-invalid={!!errors.nationality}
+                aria-describedby={errors.nationality ? 'nationality-error' : undefined}
                 className={errors.nationality ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.nationality && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="nationality-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.nationality.message}
                 </p>
               )}
@@ -578,10 +629,14 @@ export default function EditPilotPage() {
               {...register('email', {
                 setValueAs: (v) => (v && v.trim() !== '' ? v.trim() : null),
               })}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
               className={errors.email ? 'border-[var(--color-danger-500)]' : ''}
             />
             {errors.email && (
-              <p className="text-sm text-[var(--color-danger-600)]">{errors.email.message}</p>
+              <p id="email-error" className="text-sm text-[var(--color-danger-600)]">
+                {errors.email.message}
+              </p>
             )}
             <p className="text-muted-foreground text-xs">
               Used for certification renewal reminders
@@ -609,10 +664,12 @@ export default function EditPilotPage() {
                 {...register('passport_number', {
                   setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                 })}
+                aria-invalid={!!errors.passport_number}
+                aria-describedby={errors.passport_number ? 'passport_number-error' : undefined}
                 className={errors.passport_number ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.passport_number && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="passport_number-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.passport_number.message}
                 </p>
               )}
@@ -628,10 +685,12 @@ export default function EditPilotPage() {
                 {...register('passport_expiry', {
                   setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                 })}
+                aria-invalid={!!errors.passport_expiry}
+                aria-describedby={errors.passport_expiry ? 'passport_expiry-error' : undefined}
                 className={errors.passport_expiry ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.passport_expiry && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="passport_expiry-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.passport_expiry.message}
                 </p>
               )}
@@ -663,7 +722,11 @@ export default function EditPilotPage() {
                     value={field.value || ''}
                     onValueChange={(v) => field.onChange(v && v.trim() !== '' ? v : null)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      id="licence_type"
+                      aria-invalid={!!errors.licence_type}
+                      aria-describedby={errors.licence_type ? 'licence_type-error' : undefined}
+                    >
                       <SelectValue placeholder="Select licence type..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -674,7 +737,7 @@ export default function EditPilotPage() {
                 )}
               />
               {errors.licence_type && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="licence_type-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.licence_type.message}
                 </p>
               )}
@@ -690,10 +753,12 @@ export default function EditPilotPage() {
                 {...register('licence_number', {
                   setValueAs: (v) => (v && v.trim() !== '' ? v.toUpperCase() : null),
                 })}
+                aria-invalid={!!errors.licence_number}
+                aria-describedby={errors.licence_number ? 'licence_number-error' : undefined}
                 className={errors.licence_number ? 'border-[var(--color-danger-500)]' : ''}
               />
               {errors.licence_number && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="licence_number-error" className="text-sm text-[var(--color-danger-600)]">
                   {errors.licence_number.message}
                 </p>
               )}
@@ -748,7 +813,10 @@ export default function EditPilotPage() {
             </div>
 
             {errors.captain_qualifications && (
-              <p className="mt-2 text-sm text-[var(--color-danger-600)]">
+              <p
+                id="captain_qualifications-error"
+                className="mt-2 text-sm text-[var(--color-danger-600)]"
+              >
                 {errors.captain_qualifications.message}
               </p>
             )}

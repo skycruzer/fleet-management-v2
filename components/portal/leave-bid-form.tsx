@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar, Trash2, CheckCircle } from 'lucide-react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { format } from 'date-fns'
 import { getRosterPeriodFromDate, getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
@@ -180,6 +181,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
         method,
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify({

@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Fleet Management',
-  description: 'Terms of service for the Fleet Management system',
+  title: 'Terms of Service',
+  description: 'Terms of service for Fleet Office',
 }
 
 export default function TermsOfServicePage() {
@@ -35,9 +35,9 @@ export default function TermsOfServicePage() {
         <CardContent className="prose prose-slate dark:prose-invert max-w-none">
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing and using the Fleet Management system, you agree to be bound by these Terms
-            of Service and all applicable laws and regulations. If you do not agree with any of
-            these terms, you are prohibited from using this system.
+            By accessing and using Fleet Office, you agree to be bound by these Terms of Service and
+            all applicable laws and regulations. If you do not agree with any of these terms, you
+            are prohibited from using this system.
           </p>
 
           <h2>2. Authorized Use</h2>
@@ -73,8 +73,8 @@ export default function TermsOfServicePage() {
 
           <h2>6. Intellectual Property</h2>
           <p>
-            The Fleet Management system and its original content, features, and functionality are
-            owned by the organization and are protected by applicable intellectual property laws.
+            Fleet Office and its original content, features, and functionality are owned by the
+            organization and are protected by applicable intellectual property laws.
           </p>
 
           <h2>7. Limitation of Liability</h2>

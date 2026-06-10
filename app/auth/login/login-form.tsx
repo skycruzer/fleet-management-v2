@@ -85,16 +85,6 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Forgot Password */}
-      <div className="text-right">
-        <a
-          href="/auth/forgot-password"
-          className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-        >
-          Forgot password?
-        </a>
-      </div>
-
       {/* Submit Button */}
       <div>
         <Button

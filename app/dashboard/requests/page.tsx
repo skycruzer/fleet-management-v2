@@ -33,7 +33,7 @@ import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { calculateRequestStats } from '@/lib/utils/request-stats-utils'
 
 export const metadata = {
-  title: 'Request Management | Fleet Management',
+  title: 'Request Management',
   description: 'Manage all pilot requests with Table, Cards, and Calendar views',
 }
 
@@ -128,11 +128,13 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
       if (!types.includes(r.request_type)) return false
     }
 
-    // Filter by late flag
+    // Filter by late flag ('true' = only late, 'false' = exclude late)
     if (searchParams.is_late === 'true' && !r.is_late_request) return false
+    if (searchParams.is_late === 'false' && r.is_late_request) return false
 
-    // Filter by past deadline flag
+    // Filter by past deadline flag ('true' = only past deadline, 'false' = exclude)
     if (searchParams.is_past_deadline === 'true' && !r.is_past_deadline) return false
+    if (searchParams.is_past_deadline === 'false' && r.is_past_deadline) return false
 
     return true
   })
@@ -190,7 +192,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         <div>
           <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">Request Management</h1>
           <p className="text-muted-foreground text-sm">
-            Manage leave and flight requests with Table, Cards, or Calendar views
+            Manage leave and RDO/SDO requests with Table, Cards, or Calendar views
           </p>
         </div>
         <div className="flex items-center gap-2">

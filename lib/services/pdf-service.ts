@@ -283,7 +283,7 @@ export async function generateFleetManagementReportData(reportType: string, gene
       getPilotRequirements(),
     ])
 
-    const metadata = generateMetadata(reportType, 'Fleet Management Report', generatedBy)
+    const metadata = generateMetadata(reportType, 'Fleet Office Report', generatedBy)
 
     // Calculate roster analysis
     const totalPilots = pilotsData.length

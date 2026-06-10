@@ -27,12 +27,12 @@ import {
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { EASING, DURATION } from '@/lib/animations/motion-variants'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Button } from '@/components/ui/button'
 
 // ---------------------------------------------------------------------------
 // Shared motion helpers
 // ---------------------------------------------------------------------------
 
-const spring = EASING.spring
 const gentleSpring = EASING.gentleSpring
 
 function useScrollReveal(margin = '-80px') {
@@ -99,7 +99,7 @@ function HeroSection() {
             className="max-w-4xl text-5xl font-bold tracking-[-0.03em] sm:text-6xl lg:text-7xl"
             suppressHydrationWarning
           >
-            Fleet Management
+            Fleet Office
           </motion.h1>
 
           {/* Subtitle — Expo: Slate Gray, large body */}
@@ -113,46 +113,28 @@ function HeroSection() {
 
           {/* CTA Buttons — Expo: black pill primary, white-border secondary */}
           <motion.div variants={item} className="flex flex-col gap-4 pt-4 sm:flex-row">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={spring}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-[9999px] bg-black px-8 text-base font-medium text-white transition-colors hover:bg-[#1c2024] disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-[#e5e5e5]"
+            <Button
+              variant="primary"
+              className="h-12 px-8 text-base"
               disabled={!!loadingPath}
+              loading={loadingPath === '/auth/login'}
+              loadingText="Loading..."
               onClick={() => handleNav('/auth/login')}
             >
-              {loadingPath === '/auth/login' ? (
-                <>
-                  <span className="mr-1 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Loading...
-                </>
-              ) : (
-                <>
-                  Admin Dashboard
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={spring}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-[9999px] border border-[var(--color-input)] bg-white px-8 text-base font-medium text-[#1c2024] transition-colors hover:bg-[#f5f5f5] disabled:opacity-50 dark:border-[#2a2a2a] dark:bg-[#1a1a1a] dark:text-[#e5e5e5] dark:hover:bg-[#222222]"
+              Admin Dashboard
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="default"
+              className="h-12 rounded-full px-8 text-base"
               disabled={!!loadingPath}
+              loading={loadingPath === '/portal/login'}
+              loadingText="Loading..."
               onClick={() => handleNav('/portal/login')}
             >
-              {loadingPath === '/portal/login' ? (
-                <>
-                  <span className="mr-1 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Loading...
-                </>
-              ) : (
-                <>
-                  <Globe className="h-4 w-4" />
-                  Pilot Portal
-                </>
-              )}
-            </motion.button>
+              <Globe className="h-4 w-4" />
+              Pilot Portal
+            </Button>
           </motion.div>
 
           {/* Trust indicators — Expo: muted, compact */}
@@ -175,40 +157,6 @@ function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Stats bar
-// ---------------------------------------------------------------------------
-
-function StatsBar() {
-  const { ref, isInView, shouldAnimate } = useScrollReveal()
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
-      animate={isInView ? { opacity: 1, y: 0 } : undefined}
-      transition={{ duration: DURATION.enter, ease: EASING.easeOut }}
-      className="border-border bg-card border-y"
-    >
-      <div className="divide-border container mx-auto grid grid-cols-2 gap-0 divide-x px-4 md:grid-cols-4">
-        <StatItem number="600+" label="Certifications Tracked" />
-        <StatItem number="30+" label="Active Pilots" />
-        <StatItem number="13" label="Roster Periods / Year" />
-        <StatItem number="99.9%" label="Compliance Rate" />
-      </div>
-    </motion.div>
-  )
-}
-
-function StatItem({ number, label }: { number: string; label: string }) {
-  return (
-    <div className="px-6 py-6 text-center">
-      <p className="text-3xl font-bold tracking-[-0.02em]">{number}</p>
-      <p className="text-muted-foreground mt-1 text-sm">{label}</p>
     </div>
   )
 }
@@ -286,10 +234,10 @@ function FeaturesSection() {
         transition={{ duration: DURATION.enter, ease: EASING.easeOut }}
       >
         <h2 className="mb-4 text-center text-3xl font-bold tracking-[-0.02em] sm:text-4xl">
-          Comprehensive Fleet Management
+          What&apos;s inside
         </h2>
         <p className="text-muted-foreground mx-auto mb-14 max-w-2xl text-center text-lg">
-          Everything you need to manage your aviation operations efficiently
+          The tools used day to day to run B767 fleet operations
         </p>
       </motion.div>
 
@@ -395,7 +343,7 @@ function BenefitsSection() {
       transition={{ duration: DURATION.slow, ease: EASING.easeOut }}
     >
       <h2 className="mb-10 text-center text-3xl font-bold tracking-[-0.02em] sm:text-4xl">
-        Why Choose Our Platform?
+        How it helps
       </h2>
       <motion.div
         className="mx-auto grid max-w-4xl gap-10 md:grid-cols-2"
@@ -465,43 +413,27 @@ function CTASection() {
           Access the admin dashboard to manage your fleet or log in to the pilot portal.
         </p>
         <div className="flex flex-col justify-center gap-4 sm:flex-row">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={spring}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-[9999px] bg-black px-8 text-base font-medium text-white transition-colors hover:bg-[#1c2024] disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-[#e5e5e5]"
+          <Button
+            variant="primary"
+            className="h-12 px-8 text-base"
             disabled={!!loadingPath}
+            loading={loadingPath === '/auth/login'}
+            loadingText="Loading..."
             onClick={() => handleNav('/auth/login')}
           >
-            {loadingPath === '/auth/login' ? (
-              <>
-                <span className="mr-1 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                Loading...
-              </>
-            ) : (
-              <>
-                Admin Dashboard
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={spring}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-[9999px] border border-[var(--color-input)] bg-white px-8 text-base font-medium text-[#1c2024] transition-colors hover:bg-[#f5f5f5] disabled:opacity-50 dark:border-[#2a2a2a] dark:bg-[#1a1a1a] dark:text-[#e5e5e5] dark:hover:bg-[#222222]"
+            Admin Dashboard
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="default"
+            className="h-12 rounded-full px-8 text-base"
             disabled={!!loadingPath}
+            loading={loadingPath === '/portal/login'}
+            loadingText="Loading..."
             onClick={() => handleNav('/portal/login')}
           >
-            {loadingPath === '/portal/login' ? (
-              <>
-                <span className="mr-1 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                Loading...
-              </>
-            ) : (
-              'Pilot Portal'
-            )}
-          </motion.button>
+            Pilot Portal
+          </Button>
         </div>
       </motion.div>
     </div>
@@ -517,9 +449,9 @@ function Footer() {
     <footer className="border-border border-t py-10">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <span className="text-sm font-semibold tracking-[-0.01em]">Fleet Management</span>
+          <span className="text-sm font-semibold tracking-[-0.01em]">Fleet Office</span>
           <p className="text-muted-foreground text-sm">
-            &copy; {new Date().getFullYear()} Fleet Management. All rights reserved.
+            &copy; {new Date().getFullYear()} Fleet Office. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link
@@ -559,7 +491,6 @@ export function AnimatedLandingContent() {
         <ThemeToggle />
       </div>
       <HeroSection />
-      <StatsBar />
       <div className="container mx-auto px-4 py-24">
         <FeaturesSection />
         <BenefitsSection />

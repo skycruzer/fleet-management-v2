@@ -34,7 +34,7 @@ const envSchema = z.object({
     .optional()
     .default('http://localhost:3000'),
 
-  NEXT_PUBLIC_APP_NAME: z.string().optional().default('Fleet Management V2'),
+  NEXT_PUBLIC_APP_NAME: z.string().optional().default('Fleet Office'),
 
   NEXT_PUBLIC_APP_VERSION: z.string().optional().default('0.1.0'),
 

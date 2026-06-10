@@ -1,6 +1,6 @@
 {
-  "name": "Fleet Management V2",
-  "short_name": "Fleet Mgmt",
+  "name": "Fleet Office",
+  "short_name": "Fleet Office",
   "description": "B767 Pilot Management System - Air Niugini",
   "start_url": "/",
   "display": "standalone",

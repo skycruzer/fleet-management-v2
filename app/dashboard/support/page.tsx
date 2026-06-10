@@ -6,12 +6,13 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { FileQuestion, ArrowLeft, BookOpen, Video, CheckCircle2 } from 'lucide-react'
+import { FileQuestion, ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react'
+import { PageHeader } from '@/components/layout/page-header'
 import { SupportContactButtons } from '@/components/support/support-contact-buttons'
 
 export const metadata = {
-  title: 'Support & Help - Fleet Management V2',
-  description: 'Get help and support for the Fleet Management System',
+  title: 'Support & Help',
+  description: 'Get help and support for Fleet Office',
 }
 
 const quickLinks = [
@@ -19,19 +20,13 @@ const quickLinks = [
     icon: BookOpen,
     title: 'Documentation',
     description: 'Browse our comprehensive documentation',
-    href: '/dashboard/docs',
-  },
-  {
-    icon: Video,
-    title: 'Video Tutorials',
-    description: 'Watch step-by-step video guides',
-    href: '/dashboard/tutorials',
+    href: '/docs',
   },
   {
     icon: FileQuestion,
-    title: 'FAQs',
+    title: 'Help Center & FAQs',
     description: 'Find answers to common questions',
-    href: '/dashboard/faqs',
+    href: '/dashboard/help',
   },
 ]
 
@@ -48,31 +43,29 @@ export default function SupportPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">Support & Help</h1>
-          <p className="text-muted-foreground mt-2">
-            Get assistance with the Fleet Management System
-          </p>
-        </div>
-        <Link href="/dashboard">
-          <Button variant="outline" size="lg" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+      <PageHeader
+        title="Support & Help"
+        description="Get assistance with Fleet Office"
+        actions={
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/dashboard">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
           </Button>
-        </Link>
-      </div>
+        }
+      />
 
       {/* Support Status */}
       <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6">
         <div className="flex items-center gap-4">
           <div className="rounded-full bg-[var(--color-success-muted)] p-3">
-            <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
+            <CheckCircle2 className="h-6 w-6 text-[var(--color-success-muted-foreground)]" />
           </div>
           <div>
             <h3 className="text-foreground text-lg font-semibold">Support Available</h3>
             <p className="text-muted-foreground text-sm">
-              Our support team is online and ready to help you
+              Contact options and self-service resources
             </p>
           </div>
         </div>
@@ -114,7 +107,7 @@ export default function SupportPage() {
           {commonIssues.map((issue, index) => (
             <Link
               key={index}
-              href={`/dashboard/faqs#${issue.toLowerCase().replace(/\s+/g, '-')}`}
+              href="/dashboard/help"
               className="group hover:border-primary hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-all"
             >
               <FileQuestion className="text-muted-foreground h-5 w-5 group-hover:text-[var(--color-info)]" />
@@ -129,19 +122,11 @@ export default function SupportPage() {
       {/* System Information */}
       <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">System Information</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Application Version</p>
-            <p className="text-foreground text-lg font-bold">v2.0.0</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Database Status</p>
-            <p className="text-lg font-bold text-[var(--color-success-400)]">Connected</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm font-medium">Support Hours</p>
-            <p className="text-foreground text-lg font-bold">24/7</p>
-          </div>
+        <div>
+          <p className="text-muted-foreground text-sm font-medium">Application Version</p>
+          <p className="text-foreground text-lg font-bold">
+            v{process.env.NEXT_PUBLIC_APP_VERSION}
+          </p>
         </div>
       </Card>
     </div>

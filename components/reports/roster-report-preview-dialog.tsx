@@ -242,7 +242,7 @@ export function RosterReportPreviewDialog({
                 <div className="flex items-center gap-3 rounded-lg border p-3">
                   <CheckCircle2 className="h-8 w-8 text-[var(--color-category-simulator)]" />
                   <div>
-                    <p className="text-muted-foreground text-xs">Flight Requests</p>
+                    <p className="text-muted-foreground text-xs">RDO/SDO Requests</p>
                     <p className="text-xl font-bold">
                       {report.approvedRequests.flightRequests.length}
                     </p>

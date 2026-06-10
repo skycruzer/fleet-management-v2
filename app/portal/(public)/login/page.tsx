@@ -5,19 +5,53 @@
 
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import Image from 'next/image'
-import { IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
+import { IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
-export default function PilotLoginPage() {
+const ERROR_CODE_COPY: Record<string, string> = {
+  not_registered: "This account isn't registered as a pilot. Contact your fleet administrator.",
+  not_approved: "Your registration hasn't been approved yet.",
+}
+
+/**
+ * Open-redirect guard: only allow internal pilot-portal paths.
+ * Rejects absolute URLs (scheme), protocol-relative URLs ('//...'),
+ * and backslash variants — anything that isn't a single-leading-slash
+ * path under /portal.
+ */
+function safePortalRedirect(value: string | null): string | null {
+  if (!value) return null
+  if (!value.startsWith('/portal')) return null
+  if (value.startsWith('//') || value.includes('://') || value.includes('\\')) return null
+  return value
+}
+
+function PilotLoginForm() {
+  const searchParams = useSearchParams()
   const [error, setError] = useState('')
+  const [urlNotice, setUrlNotice] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+
+  useEffect(() => {
+    const errorCode = searchParams.get('error')
+    const message = searchParams.get('message')
+    if (errorCode) {
+      setUrlNotice(ERROR_CODE_COPY[errorCode] || message || 'Unable to sign you in.')
+    } else if (message) {
+      setUrlNotice(message)
+    }
+  }, [searchParams])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -36,7 +70,9 @@ export default function PilotLoginPage() {
       })
       const result = await response.json()
       if (result.success) {
-        window.location.href = result.redirect || '/portal/dashboard'
+        const target =
+          safePortalRedirect(searchParams.get('redirect')) || result.redirect || '/portal/dashboard'
+        window.location.href = target
         return
       } else {
         setError(result.error?.message || result.error || 'Invalid credentials')
@@ -73,6 +109,21 @@ export default function PilotLoginPage() {
         </div>
 
         <div className="bg-card border-border rounded-xl border p-6">
+          {urlNotice && (
+            <Alert variant="warning" className="mb-4">
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertDescription className="pr-6">{urlNotice}</AlertDescription>
+              <button
+                type="button"
+                aria-label="Dismiss"
+                onClick={() => setUrlNotice(null)}
+                className="absolute top-3 right-3 opacity-70 transition-opacity hover:opacity-100"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </Alert>
+          )}
+
           {error && (
             <div
               role="alert"
@@ -141,37 +192,18 @@ export default function PilotLoginPage() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <button
+                <Checkbox
                   id="rememberMe"
-                  type="button"
-                  role="checkbox"
-                  aria-checked={rememberMe}
-                  onClick={() => setRememberMe(!rememberMe)}
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
                   disabled={isLoading}
-                  className={`border-border focus-visible:ring-ring flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${rememberMe ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/40'}`}
-                >
-                  {rememberMe && (
-                    <svg
-                      className="h-3 w-3"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </button>
-                <label
+                />
+                <Label
                   htmlFor="rememberMe"
-                  className="text-muted-foreground cursor-pointer text-sm"
-                  onClick={() => setRememberMe(!rememberMe)}
+                  className="text-muted-foreground cursor-pointer text-sm font-normal"
                 >
                   Remember me for 30 days
-                </label>
+                </Label>
               </div>
               <Link
                 href="/portal/forgot-password"
@@ -199,5 +231,13 @@ export default function PilotLoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function PilotLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <PilotLoginForm />
+    </Suspense>
   )
 }

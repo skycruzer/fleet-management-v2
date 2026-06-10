@@ -17,6 +17,7 @@ import {
   type FlightRequestInput,
 } from '@/lib/validations/flight-request-schema'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,6 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ArrowLeft, Plane, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { format } from 'date-fns'
 import Link from 'next/link'
 import { PageHead } from '@/components/ui/page-head'
 
@@ -75,6 +77,15 @@ export default function EditFlightRequestPage() {
       reason: '',
     },
   })
+
+  const watchStartDate = form.watch('start_date')
+
+  // Today in YYYY-MM-DD (local time) for native date-picker min constraints
+  const today = format(new Date(), 'yyyy-MM-dd')
+
+  // Warn about unsaved changes when navigating away
+  // (form.reset() after fetch keeps the pre-populated state pristine)
+  useFormUnsavedChanges(form, { skipWarning: isLoading || success })
 
   // Fetch request data on mount with proper cleanup
   useEffect(() => {
@@ -216,12 +227,12 @@ export default function EditFlightRequestPage() {
             </Alert>
           </CardContent>
           <CardFooter>
-            <Link href="/portal/flight-requests">
-              <Button variant="outline">
+            <Button asChild variant="outline">
+              <Link href="/portal/flight-requests">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to RDO/SDO Requests
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -322,6 +333,7 @@ export default function EditFlightRequestPage() {
                 <Input
                   id="start_date"
                   type="date"
+                  min={today}
                   {...form.register('start_date')}
                   disabled={isLoading}
                 />
@@ -341,6 +353,7 @@ export default function EditFlightRequestPage() {
                 <Input
                   id="end_date"
                   type="date"
+                  min={watchStartDate || today}
                   {...form.register('end_date')}
                   disabled={isLoading}
                 />

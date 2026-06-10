@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { PageHead } from '@/components/ui/page-head'
 import { CardGridSkeleton } from '@/components/ui/skeleton'
+import { DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
 
 interface Certification {
   id: string
@@ -41,10 +42,13 @@ interface Certification {
 type StatusFilter = 'all' | 'expired' | 'critical' | 'warning' | 'current'
 type ViewMode = 'card' | 'list'
 
-// Certification status thresholds (days until expiry)
+// Certification status thresholds (days until expiry).
+// WARNING_DAYS must match the FAA rule in lib/utils/certification-status.ts
+// (yellow ≤ 30); CRITICAL_DAYS is the service's sub-tier within that window
+// (pilot-portal-service critical = 0-14, caution = 15-30).
 const CERTIFICATION_THRESHOLDS = {
   CRITICAL_DAYS: 14, // Critical warning when <= 14 days remaining
-  WARNING_DAYS: 60, // Warning when <= 60 days remaining
+  WARNING_DAYS: DEFAULT_THRESHOLDS.WARNING_DAYS, // FAA yellow window (30 days)
   VALIDITY_PERIOD: 365, // Assumed certification validity period for progress calculation
 } as const
 

@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { getIncidentTypes } from '@/lib/services/disciplinary-service'
+import { getIncidentTypes, getPilotsForSelection } from '@/lib/services/disciplinary-service'
+import { getAssignableUsers } from '@/lib/services/user-service'
 import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
 // Force dynamic rendering to prevent static generation at build time
 /**
@@ -19,22 +19,14 @@ export default async function NewDisciplinaryMatterPage() {
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
-
-  // Fetch pilots for selection
-  const { data: pilots } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, role, employee_id')
-    .order('last_name', { ascending: true })
-
-  // Fetch users for assignment
-  const { data: users } = await supabase
-    .from('an_users')
-    .select('id, email, name')
-    .order('name', { ascending: true })
-
-  // Fetch incident types
-  const incidentTypesResult = await getIncidentTypes()
+  // Fetch pilots, users, and incident types via service layer
+  const [pilotsResult, usersResult, incidentTypesResult] = await Promise.all([
+    getPilotsForSelection(),
+    getAssignableUsers(),
+    getIncidentTypes(),
+  ])
+  const pilots = pilotsResult.data ?? []
+  const users = usersResult.data ?? []
   const incidentTypes = incidentTypesResult.success ? incidentTypesResult.data : []
 
   return (
@@ -49,11 +41,7 @@ export default async function NewDisciplinaryMatterPage() {
 
       {/* Form */}
       <div className="bg-card border-border mx-auto max-w-4xl rounded-lg border p-6 shadow-sm">
-        <DisciplinaryMatterForm
-          pilots={pilots || []}
-          users={users || []}
-          incidentTypes={incidentTypes}
-        />
+        <DisciplinaryMatterForm pilots={pilots} users={users} incidentTypes={incidentTypes} />
       </div>
     </div>
   )

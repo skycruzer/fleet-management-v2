@@ -1,75 +1,25 @@
 /**
  * Portal Dashboard Loading State
- * Displays skeleton for pilot portal dashboard
+ * Mirrors the inline DashboardSkeleton in app/portal/(protected)/dashboard/page.tsx
+ * (header bar, KPI grid, roster card, cert alerts) so route-level and
+ * Suspense-level loading states match.
  */
-
-import { Card } from '@/components/ui/card'
-import { Skeleton, MetricCardSkeleton } from '@/components/ui/skeleton'
 
 export default function PortalDashboardLoading() {
   return (
-    <div className="bg-background min-h-screen">
-      {/* Header Skeleton */}
-      <header className="bg-card sticky top-0 z-10 border-b">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <Skeleton className="h-10 w-24 rounded-md" />
-          </div>
+    <div className="min-h-screen">
+      <div className="border-border bg-background border-b px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="animate-shimmer bg-muted h-8 w-64 rounded-lg" />
+      </div>
+      <main className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
         </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          {/* Welcome Card Skeleton */}
-          <Card className="bg-primary p-6">
-            <div className="space-y-3">
-              <Skeleton className="bg-muted/20 h-8 w-64" />
-              <Skeleton className="bg-muted/20 h-4 w-48" />
-            </div>
-          </Card>
-
-          {/* Quick Actions Skeleton */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Card className="p-6">
-              <div className="space-y-3">
-                <Skeleton className="h-12 w-12 rounded-lg" />
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </Card>
-            <Card className="p-6">
-              <div className="space-y-3">
-                <Skeleton className="h-12 w-12 rounded-lg" />
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </Card>
-            <Card className="p-6">
-              <div className="space-y-3">
-                <Skeleton className="h-12 w-12 rounded-lg" />
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </Card>
-          </div>
-
-          {/* Stats Grid Skeleton */}
-          <MetricCardSkeleton count={4} />
-
-          {/* Recent Activity Skeleton */}
-          <Card className="p-6">
-            <Skeleton className="mb-4 h-6 w-48" />
-            <div className="space-y-3">
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <Skeleton className="h-16 w-full rounded-lg" />
-            </div>
-          </Card>
-        </div>
+        <div className="animate-shimmer bg-muted h-32 rounded-lg" />
+        <div className="animate-shimmer bg-muted h-40 rounded-lg" />
       </main>
     </div>
   )

@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -33,16 +34,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
-  Ban,
-  FileText,
-  Plus,
-} from 'lucide-react'
+import { Calendar, CheckCircle2, Clock, XCircle, AlertCircle, FileText, Plus } from 'lucide-react'
 import Link from 'next/link'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -60,28 +52,6 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string>('')
-
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<
-      string,
-      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }
-    > = {
-      SUBMITTED: { variant: 'secondary', icon: <Clock className="mr-1 h-3 w-3" /> },
-      IN_REVIEW: { variant: 'default', icon: <FileText className="mr-1 h-3 w-3" /> },
-      APPROVED: { variant: 'default', icon: <CheckCircle2 className="mr-1 h-3 w-3" /> },
-      DENIED: { variant: 'destructive', icon: <XCircle className="mr-1 h-3 w-3" /> },
-      WITHDRAWN: { variant: 'outline', icon: <Ban className="mr-1 h-3 w-3" /> },
-    }
-
-    const config = statusMap[status] || statusMap.SUBMITTED
-
-    return (
-      <Badge variant={config.variant} className="flex w-fit items-center">
-        {config.icon}
-        {status}
-      </Badge>
-    )
-  }
 
   const getRequestTypeBadge = (type: string) => {
     const typeMap: Record<string, 'default' | 'secondary'> = {
@@ -240,62 +210,116 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Dates</TableHead>
-                <TableHead>Days</TableHead>
-                <TableHead>Roster Period</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell>{getRequestTypeBadge(request.request_type)}</TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium">{formatDate(request.start_date)}</div>
-                      {request.end_date && request.end_date !== request.start_date && (
-                        <div className="text-muted-foreground text-sm">
-                          to {formatDate(request.end_date)}
-                        </div>
-                      )}
+        <>
+          {/* Mobile stacked cards (< md) */}
+          <div className="space-y-3 md:hidden">
+            {requests.map((request) => (
+              <Card key={request.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    {getRequestTypeBadge(request.request_type)}
+                    <StatusBadge status={request.workflow_status} size="sm" />
+                  </div>
+                  <dl className="mt-3 space-y-2 text-sm">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-muted-foreground">Dates</dt>
+                      <dd className="text-right font-medium">
+                        {formatDate(request.start_date)}
+                        {request.end_date &&
+                          request.end_date !== request.start_date &&
+                          ` – ${formatDate(request.end_date)}`}
+                      </dd>
                     </div>
-                  </TableCell>
-                  <TableCell>{calculateDaysCount(request)}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">{request.roster_period}</div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
-                  <TableCell>
-                    <div className="text-muted-foreground text-sm">
-                      {formatDate(request.created_at)}
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-muted-foreground">Days</dt>
+                      <dd className="font-medium">{calculateDaysCount(request)}</dd>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {canCancelRequest(request) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedRequest(request)
-                          setShowCancelDialog(true)
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                  </TableCell>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-muted-foreground">Roster Period</dt>
+                      <dd className="font-medium">{request.roster_period}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-muted-foreground">Submitted</dt>
+                      <dd className="text-muted-foreground">{formatDate(request.created_at)}</dd>
+                    </div>
+                  </dl>
+                  {canCancelRequest(request) && (
+                    <Button
+                      variant="outline"
+                      className="mt-4 h-11 w-full"
+                      onClick={() => {
+                        setSelectedRequest(request)
+                        setShowCancelDialog(true)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop table (md+) */}
+          <div className="hidden overflow-x-auto rounded-lg border md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Dates</TableHead>
+                  <TableHead>Days</TableHead>
+                  <TableHead>Roster Period</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {requests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell>{getRequestTypeBadge(request.request_type)}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium">{formatDate(request.start_date)}</div>
+                        {request.end_date && request.end_date !== request.start_date && (
+                          <div className="text-muted-foreground text-sm">
+                            to {formatDate(request.end_date)}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{calculateDaysCount(request)}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">{request.roster_period}</div>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={request.workflow_status} size="sm" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-muted-foreground text-sm">
+                        {formatDate(request.created_at)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {canCancelRequest(request) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRequest(request)
+                            setShowCancelDialog(true)
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       {/* Cancel Confirmation Dialog */}
@@ -304,8 +328,8 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           <DialogHeader>
             <DialogTitle>Cancel {selectedRequest?.request_type} Request</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this request? This action will set the request status
-              to WITHDRAWN and cannot be undone.
+              Are you sure you want to cancel this request? This action will mark the request as
+              Withdrawn and cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -326,7 +350,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status:</span>
-                <span>{getStatusBadge(selectedRequest.workflow_status)}</span>
+                <StatusBadge status={selectedRequest.workflow_status} size="sm" />
               </div>
             </div>
           )}

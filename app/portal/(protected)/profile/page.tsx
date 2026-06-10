@@ -523,7 +523,7 @@ export default async function ProfilePage() {
             {/* Professional Details */}
             <Card className="h-full p-6 transition-all hover:shadow-md">
               <div className="mb-4 flex items-center gap-3 border-b pb-3">
-                <div className="bg-[var(--color-info-bg)]0/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
                   <Award className="h-5 w-5 text-[var(--color-info)]" />
                 </div>
                 <h3 className="text-foreground text-lg font-semibold">Professional Details</h3>
@@ -595,14 +595,12 @@ export default async function ProfilePage() {
                 <p className="text-foreground font-medium">Update Required?</p>
                 <p className="text-muted-foreground mt-1 text-sm">
                   You can update your email and phone number directly from the Contact Information
-                  section above. For other changes, please contact Fleet Management via the Feedback
+                  section above. For other changes, please contact Fleet Office via the Feedback
                   page.
                 </p>
-                <Link href="/portal/feedback">
-                  <Button variant="outline" className="mt-4">
-                    Contact Fleet Management
-                  </Button>
-                </Link>
+                <Button asChild variant="outline" className="mt-4">
+                  <Link href="/portal/feedback">Contact Fleet Office</Link>
+                </Button>
               </div>
             </div>
           </Card>

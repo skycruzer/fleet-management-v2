@@ -144,12 +144,12 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
       {summary.utilizationPercentage > 80 && (
         <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-6">
           <div className="flex items-start space-x-3">
-            <AlertCircle className="mt-1 h-6 w-6 text-[var(--color-danger-400)]" />
+            <AlertCircle className="mt-1 h-6 w-6 text-[var(--color-destructive-muted-foreground)]" />
             <div>
-              <h3 className="font-semibold text-[var(--color-danger-400)]">
+              <h3 className="font-semibold text-[var(--color-destructive-muted-foreground)]">
                 High Capacity Utilization
               </h3>
-              <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+              <p className="mt-1 text-sm text-[var(--color-destructive-muted-foreground)]">
                 This roster period has {Math.round(summary.utilizationPercentage)}% utilization.
                 Consider rescheduling some renewals to other periods to avoid bottlenecks.
               </p>

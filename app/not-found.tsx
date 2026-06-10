@@ -29,6 +29,22 @@ export default function NotFound() {
             Go Home
           </Link>
         </div>
+
+        {/* Portal Links */}
+        <div className="flex items-center justify-center gap-6 text-sm">
+          <Link
+            href="/dashboard"
+            className="text-muted-foreground hover:text-foreground underline-offset-4 transition-colors hover:underline"
+          >
+            Admin dashboard
+          </Link>
+          <Link
+            href="/portal/dashboard"
+            className="text-muted-foreground hover:text-foreground underline-offset-4 transition-colors hover:underline"
+          >
+            Pilot portal
+          </Link>
+        </div>
       </div>
     </div>
   )

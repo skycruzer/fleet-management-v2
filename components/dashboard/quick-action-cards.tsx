@@ -24,7 +24,7 @@ const actions = [
   },
   {
     title: 'Approve Requests',
-    description: 'Review pending leave and flight requests',
+    description: 'Review pending leave and RDO/SDO requests',
     icon: ClipboardCheck,
     href: '/dashboard/requests',
   },

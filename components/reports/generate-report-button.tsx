@@ -94,7 +94,7 @@ export function GenerateReportButton({
       const result = await generateRosterPDF(report, {
         includeDenied: true,
         includeAvailability: true,
-        footerText: 'Fleet Management System - Air Niugini B767 Operations',
+        footerText: 'Fleet Office - Air Niugini B767 Operations',
       })
 
       if (!result.success || !result.pdfBlob) {

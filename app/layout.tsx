@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
-import { Toaster } from 'sonner'
+import { Toaster } from '@/components/ui/sonner'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 
@@ -29,15 +29,15 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Fleet Management V2',
-    template: '%s | Fleet Management V2',
+    default: 'Fleet Office',
+    template: '%s | Fleet Office',
   },
   description:
     'Modern fleet management system for B767 operations with comprehensive pilot certification tracking',
   keywords: ['fleet management', 'aviation', 'pilot tracking', 'certification', 'B767'],
   authors: [{ name: 'Maurice (Skycruzer)' }],
   creator: 'Maurice (Skycruzer)',
-  publisher: 'Fleet Management V2',
+  publisher: 'Fleet Office',
   formatDetection: {
     email: false,
     address: false,
@@ -48,13 +48,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    title: 'Fleet Management V2',
+    title: 'Fleet Office',
     description: 'Modern fleet management system for B767 operations',
-    siteName: 'Fleet Management V2',
+    siteName: 'Fleet Office',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fleet Management V2',
+    title: 'Fleet Office',
     description: 'Modern fleet management system for B767 operations',
     creator: '@skycruzer',
   },
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Fleet Mgmt',
+    title: 'Fleet Office',
   },
 }
 

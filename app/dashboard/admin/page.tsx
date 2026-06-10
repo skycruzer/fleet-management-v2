@@ -451,8 +451,13 @@ function QuickActions() {
       <h2 className="text-foreground mb-6 text-lg font-semibold">Quick Actions</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {QUICK_ACTIONS.map((action) => (
-          <Link key={action.href} href={action.href}>
-            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+          <Button
+            key={action.href}
+            asChild
+            variant="outline"
+            className="h-auto w-full justify-start gap-4 p-6 text-left"
+          >
+            <Link href={action.href}>
               <div className="bg-muted/30 rounded-lg p-3">
                 <action.icon className="h-5 w-5 text-[var(--color-info)]" aria-hidden="true" />
               </div>
@@ -460,8 +465,8 @@ function QuickActions() {
                 <p className="font-semibold">{action.title}</p>
                 <p className="text-muted-foreground text-sm">{action.description}</p>
               </div>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         ))}
       </div>
     </SectionCard>
@@ -485,12 +490,12 @@ export default function AdminPage() {
             System configuration and user management
           </p>
         </div>
-        <Link href="/dashboard/admin/users/new">
-          <Button size="lg" className="gap-2">
+        <Button asChild size="lg" className="gap-2">
+          <Link href="/dashboard/admin/users/new">
             <UserPlus className="h-4 w-4" aria-hidden="true" />
             Add New User
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <Suspense fallback={<StatCardsSkeleton />}>

@@ -1,10 +1,11 @@
 /**
  * Dashboard Loading State
- * Displays a skeleton loader while dashboard content is being fetched
+ * Renders the same DashboardSkeleton used as the page's Suspense fallback
+ * so route-level and component-level loading states match.
  */
 
-import { PageSkeleton } from '@/components/ui/skeleton'
+import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton'
 
 export default function DashboardLoading() {
-  return <PageSkeleton />
+  return <DashboardSkeleton />
 }

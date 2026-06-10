@@ -5,14 +5,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const inputVariants = cva(
-  // Base styles - Expo monochromatic
+  // Base styles - Expo monochromatic, tokenized for dark-mode support
   [
-    'flex w-full rounded-[0.375rem] border border-[#d9d9e0] bg-white px-3 py-2 text-sm text-[#1c2024]',
+    'flex w-full rounded-[0.375rem] border border-input bg-card px-3 py-2 text-sm text-foreground',
     'transition-all duration-200 motion-reduce:transition-none',
-    'file:text-[#1c2024] file:border-0 file:bg-transparent file:text-sm file:font-medium',
-    'placeholder:text-[#60646c]',
+    'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
+    'placeholder:text-muted-foreground',
     'focus:border-[var(--color-ring)] focus:ring-[3px] focus:ring-[var(--color-ring)]/20 focus:outline-none',
-    'disabled:bg-[#f8f8f8] disabled:text-[#a0a0a0] disabled:cursor-not-allowed',
+    'disabled:bg-[var(--color-disabled-bg)] disabled:text-[var(--color-disabled-foreground)] disabled:cursor-not-allowed',
   ],
   {
     variants: {

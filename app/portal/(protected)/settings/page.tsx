@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
           {/* Success Alert */}
           {success && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm text-[var(--color-success-400)]">
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm text-[var(--color-success-muted-foreground)]">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{success}</span>
             </div>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
           {/* Error Alert */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-destructive-muted-foreground)]">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>

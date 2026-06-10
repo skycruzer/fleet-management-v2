@@ -6,6 +6,8 @@ import {
   AlertCircle,
   Loader2,
   Ban,
+  Eye,
+  FileText,
   type LucideIcon,
 } from 'lucide-react'
 import { Badge, type BadgeProps } from '@/components/ui/badge'
@@ -15,7 +17,7 @@ import { cn } from '@/lib/utils'
 // Status Configuration
 // ============================================================================
 
-type StatusColorLevel = 'low' | 'medium' | 'high' | 'info'
+type StatusColorLevel = 'low' | 'medium' | 'high' | 'info' | 'neutral'
 
 interface StatusConfig {
   label: string
@@ -23,62 +25,64 @@ interface StatusConfig {
   colorLevel: StatusColorLevel
 }
 
+/**
+ * Canonical status → presentation map for BOTH portals.
+ *
+ * Color convention (mirrors the unified pilot_requests workflow):
+ *   low (green)    = positive terminal state (approved, resolved)
+ *   medium (amber) = awaiting action (submitted, pending)
+ *   high (red)     = negative terminal state (denied, rejected)
+ *   info (blue)    = active process (in review, processing)
+ *   neutral (gray) = inert state (draft, withdrawn, cancelled, dismissed)
+ */
 const STATUS_MAP: Record<string, StatusConfig> = {
-  APPROVED: {
-    label: 'Approved',
-    icon: CheckCircle,
-    colorLevel: 'low',
-  },
-  RESOLVED: {
-    label: 'Resolved',
-    icon: CheckCircle,
-    colorLevel: 'low',
-  },
-  PENDING: {
-    label: 'Pending',
-    icon: Clock,
-    colorLevel: 'medium',
-  },
-  REJECTED: {
-    label: 'Rejected',
-    icon: XCircle,
-    colorLevel: 'high',
-  },
-  CANCELLED: {
-    label: 'Cancelled',
-    icon: Ban,
-    colorLevel: 'high',
-  },
-  PROCESSING: {
-    label: 'Processing',
-    icon: Loader2,
-    colorLevel: 'info',
-  },
-  REVIEWED: {
-    label: 'Reviewed',
-    icon: AlertCircle,
-    colorLevel: 'info',
-  },
-  DISMISSED: {
-    label: 'Dismissed',
-    icon: XCircle,
-    colorLevel: 'high',
-  },
+  // Unified request workflow (pilot_requests.workflow_status)
+  DRAFT: { label: 'Draft', icon: FileText, colorLevel: 'neutral' },
+  SUBMITTED: { label: 'Submitted', icon: Clock, colorLevel: 'medium' },
+  IN_REVIEW: { label: 'In Review', icon: Eye, colorLevel: 'info' },
+  APPROVED: { label: 'Approved', icon: CheckCircle, colorLevel: 'low' },
+  DENIED: { label: 'Denied', icon: XCircle, colorLevel: 'high' },
+  WITHDRAWN: { label: 'Withdrawn', icon: Ban, colorLevel: 'neutral' },
+
+  // Leave bids / legacy statuses
+  PENDING: { label: 'Pending', icon: Clock, colorLevel: 'medium' },
+  REJECTED: { label: 'Not Approved', icon: XCircle, colorLevel: 'high' },
+  CANCELLED: { label: 'Cancelled', icon: Ban, colorLevel: 'neutral' },
+
+  // Feedback / generic workflow
+  PROCESSING: { label: 'Processing', icon: Loader2, colorLevel: 'info' },
+  REVIEWED: { label: 'Reviewed', icon: AlertCircle, colorLevel: 'info' },
+  RESOLVED: { label: 'Resolved', icon: CheckCircle, colorLevel: 'low' },
+  DISMISSED: { label: 'Dismissed', icon: XCircle, colorLevel: 'neutral' },
 }
 
 /**
- * Maps a color level to the corresponding CSS variable class names.
- * Uses the project's existing `--color-status-*` and `--color-info-*` variables.
+ * Static color-level → class map.
+ *
+ * IMPORTANT: these must remain full literal strings. Building them via
+ * template interpolation breaks Tailwind's static class scanning — the CSS
+ * silently disappears once no other file contains the literal.
  */
-function getColorClasses(colorLevel: StatusColorLevel): string {
-  if (colorLevel === 'info') {
-    return 'border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]'
-  }
-  return [
-    `border-[var(--color-status-${colorLevel}-border)]`,
-    `bg-[var(--color-status-${colorLevel}-bg)]`,
-    `text-[var(--color-status-${colorLevel})]`,
-  ].join(' ')
+const COLOR_CLASSES: Record<StatusColorLevel, string> = {
+  low: 'border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
+  medium:
+    'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
+  high: 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
+  info: 'border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]',
+  neutral: 'border-transparent bg-muted text-muted-foreground',
+}
+
+/**
+ * Humanized label for a raw status string (e.g. 'IN_REVIEW' → 'In Review').
+ * Falls back to title-casing unknown statuses so raw enums never reach the UI.
+ */
+export function getStatusLabel(status: string): string {
+  const config = STATUS_MAP[status.toUpperCase()]
+  if (config) return config.label
+  return status
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 // ============================================================================
@@ -86,7 +90,7 @@ function getColorClasses(colorLevel: StatusColorLevel): string {
 // ============================================================================
 
 export interface StatusBadgeProps extends Omit<BadgeProps, 'variant'> {
-  /** The status string (e.g. 'PENDING', 'APPROVED', 'REJECTED'). Case-insensitive. */
+  /** The status string (e.g. 'SUBMITTED', 'APPROVED', 'DENIED'). Case-insensitive. */
   status: string
   /** Badge size. Defaults to 'default'. */
   size?: 'sm' | 'default'
@@ -99,18 +103,18 @@ export interface StatusBadgeProps extends Omit<BadgeProps, 'variant'> {
 }
 
 /**
- * A standardized status badge component that maps workflow statuses to
- * consistent color variables, icons, and labels.
+ * The canonical status badge for both portals.
  *
- * Supports: PENDING, APPROVED, REJECTED, PROCESSING, RESOLVED, DISMISSED,
- * CANCELLED, and REVIEWED. Unknown statuses render with a neutral outline style.
+ * Maps every workflow status to one humanized label, icon, and token-based
+ * color treatment (dark-mode safe). Unknown statuses render as a neutral
+ * badge with a title-cased label — raw enums never leak to the UI.
  *
  * @example
  * ```tsx
  * <StatusBadge status="APPROVED" />
- * <StatusBadge status="PENDING" size="sm" />
+ * <StatusBadge status="IN_REVIEW" size="sm" />
  * <StatusBadge status="PROCESSING" animate />
- * <StatusBadge status="REJECTED" label="Not Approved" />
+ * <StatusBadge status="DENIED" label="Declined" />
  * ```
  */
 function StatusBadge({
@@ -125,25 +129,27 @@ function StatusBadge({
   const normalizedStatus = status.toUpperCase()
   const config = STATUS_MAP[normalizedStatus]
 
-  // Unknown status: render a neutral outline badge
+  // Unknown status: neutral badge with a humanized label (never raw enums)
   if (!config) {
     return (
       <Badge variant="outline" size={size} className={className} {...props}>
-        {label ?? status}
+        {label ?? getStatusLabel(status)}
       </Badge>
     )
   }
 
   const Icon = config.icon
   const displayLabel = label ?? config.label
-  const colorClasses = getColorClasses(config.colorLevel)
+  const colorClasses = COLOR_CLASSES[config.colorLevel]
   const shouldSpin = animate && normalizedStatus === 'PROCESSING'
 
   const iconSize = size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'
 
   return (
     <Badge variant="outline" size={size} className={cn(colorClasses, className)} {...props}>
-      {!hideIcon && <Icon className={cn('mr-1', iconSize, shouldSpin && 'animate-spin')} />}
+      {!hideIcon && (
+        <Icon className={cn('mr-1', iconSize, shouldSpin && 'animate-spin')} aria-hidden="true" />
+      )}
       {displayLabel}
     </Badge>
   )

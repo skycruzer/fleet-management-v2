@@ -31,7 +31,7 @@ const VARIANT_STYLES: Record<
   warning: {
     border: 'border-[var(--color-warning-500)]/20',
     bg: 'bg-[var(--color-warning-muted)]',
-    text: 'text-[var(--color-warning-400)]',
+    text: 'text-[var(--color-warning-muted-foreground)]',
     Icon: AlertTriangle,
   },
   error: {

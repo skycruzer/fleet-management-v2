@@ -16,7 +16,7 @@ const contactChannels = [
     icon: Mail,
     title: 'Email Support',
     description: 'Send us an email for detailed inquiries',
-    action: 'mailto:mrondeau@airniugini.com.pg',
+    action: 'mailto:support@pxb767office.app',
     actionLabel: 'Send Email',
     color: 'text-[var(--color-info)]',
     bgColor: 'bg-[var(--color-info-bg)]',
@@ -27,7 +27,7 @@ const contactChannels = [
     description: 'Call us during business hours',
     action: 'tel:+1-800-FLEET',
     actionLabel: 'Call Now',
-    color: 'text-[var(--color-success-400)]',
+    color: 'text-[var(--color-success-muted-foreground)]',
     bgColor: 'bg-[var(--color-success-muted)]',
   },
   {

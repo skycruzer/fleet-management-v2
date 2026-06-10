@@ -31,21 +31,7 @@ import { SkipNav } from '@/components/accessibility/skip-nav'
 import { SidebarCollapseProvider } from '@/components/layout/sidebar-collapse-provider'
 import { DashboardContentArea } from '@/components/layout/dashboard-content-area'
 import { PageTransition } from '@/components/ui/page-transition'
-import {
-  LayoutDashboard,
-  Users,
-  FileCheck,
-  ClipboardList,
-  RefreshCw,
-  BarChart3,
-  Shield,
-  CheckSquare,
-  AlertCircle,
-  ScrollText,
-  HelpCircle,
-  MessageSquare,
-  UserCircle,
-} from 'lucide-react'
+import { adminNavItems } from '@/lib/config/admin-nav'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Check authentication - supports both Supabase Auth AND custom admin sessions
@@ -77,79 +63,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     'Admin'
   const userEmail = user?.email || (adminUser as Record<string, string> | null)?.email || ''
 
-  // Navigation links for mobile navigation (includes all items since header is hidden on mobile)
-  const navLinks = [
-    {
-      href: '/dashboard',
-      icon: <LayoutDashboard className="h-4 w-4" aria-hidden="true" />,
-      label: 'Dashboard',
-    },
-    {
-      href: '/dashboard/pilots',
-      icon: <Users className="h-4 w-4" aria-hidden="true" />,
-      label: 'Pilots',
-    },
-    {
-      href: '/dashboard/certifications',
-      icon: <FileCheck className="h-4 w-4" aria-hidden="true" />,
-      label: 'Certifications',
-    },
-    {
-      href: '/dashboard/requests',
-      icon: <ClipboardList className="h-4 w-4" aria-hidden="true" />,
-      label: 'Requests',
-    },
-    {
-      href: '/dashboard/renewal-planning',
-      icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
-      label: 'Renewal Planning',
-    },
-    {
-      href: '/dashboard/analytics',
-      icon: <BarChart3 className="h-4 w-4" aria-hidden="true" />,
-      label: 'Analytics',
-    },
-    {
-      href: '/dashboard/reports',
-      icon: <ScrollText className="h-4 w-4" aria-hidden="true" />,
-      label: 'Reports',
-    },
-    {
-      href: '/dashboard/admin',
-      icon: <Shield className="h-4 w-4" aria-hidden="true" />,
-      label: 'System Admin',
-    },
-    {
-      href: '/dashboard/tasks',
-      icon: <CheckSquare className="h-4 w-4" aria-hidden="true" />,
-      label: 'Tasks',
-    },
-    {
-      href: '/dashboard/disciplinary',
-      icon: <AlertCircle className="h-4 w-4" aria-hidden="true" />,
-      label: 'Disciplinary',
-    },
-    {
-      href: '/dashboard/audit-logs',
-      icon: <ScrollText className="h-4 w-4" aria-hidden="true" />,
-      label: 'Audit Logs',
-    },
-    {
-      href: '/dashboard/feedback',
-      icon: <MessageSquare className="h-4 w-4" aria-hidden="true" />,
-      label: 'Feedback',
-    },
-    {
-      href: '/dashboard/help',
-      icon: <HelpCircle className="h-4 w-4" aria-hidden="true" />,
-      label: 'Help Center',
-    },
-    {
-      href: '/dashboard/settings',
-      icon: <UserCircle className="h-4 w-4" aria-hidden="true" />,
-      label: 'My Settings',
-    },
-  ]
+  // Mobile navigation derives from the shared admin nav config — all sections
+  // flattened in desktop order (header/sidebar are hidden on mobile)
+  const navLinks = adminNavItems.map(({ title, href, icon: Icon }) => ({
+    href,
+    icon: <Icon className="h-4 w-4" aria-hidden="true" />,
+    label: title,
+  }))
 
   return (
     <ErrorBoundary>

@@ -15,6 +15,7 @@ import {
   type PilotLeaveRequestInput,
 } from '@/lib/validations/pilot-leave-schema'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,6 +32,7 @@ import {
 import { FileUpload } from '@/components/ui/file-upload'
 import { PageHead } from '@/components/ui/page-head'
 import { Calendar, AlertCircle } from 'lucide-react'
+import { format } from 'date-fns'
 import Link from 'next/link'
 
 const LEAVE_TYPES = [
@@ -66,6 +68,13 @@ export default function NewLeaveRequestPage() {
   })
 
   const watchRequestType = form.watch('request_type')
+  const watchStartDate = form.watch('start_date')
+
+  // Today in YYYY-MM-DD (local time) for native date-picker min constraints
+  const today = format(new Date(), 'yyyy-MM-dd')
+
+  // Warn about unsaved changes when navigating away
+  useFormUnsavedChanges(form, { skipWarning: isLoading || success })
 
   const checkLateRequest = (startDate: string) => {
     if (!startDate) return
@@ -299,6 +308,7 @@ export default function NewLeaveRequestPage() {
                   <Input
                     id="start_date"
                     type="date"
+                    min={today}
                     {...form.register('start_date')}
                     onChange={(e) => {
                       form.register('start_date').onChange(e)
@@ -318,6 +328,7 @@ export default function NewLeaveRequestPage() {
                   <Input
                     id="end_date"
                     type="date"
+                    min={watchStartDate || today}
                     {...form.register('end_date')}
                     disabled={isLoading}
                   />

@@ -11,7 +11,7 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { HelpPageClient } from './help-page-client'
 
 export const metadata: Metadata = {
-  title: 'Help Center | Fleet Management',
+  title: 'Help Center',
   description: 'Frequently asked questions and documentation',
 }
 

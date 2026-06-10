@@ -141,7 +141,7 @@ export const POST = createAdminRoute(
 
       <hr />
       <p style="font-size: 12px; color: #666;">
-        This is an automated report from Air Niugini - B767 Fleet Management System
+        This is an automated report from Air Niugini - Fleet Office
       </p>
     `
 

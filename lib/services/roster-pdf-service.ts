@@ -392,8 +392,7 @@ export async function generateRosterPDF(
       doc.setPage(i)
       doc.setFontSize(8)
       doc.setTextColor(150, 150, 150)
-      const footerText =
-        options.footerText || 'Fleet Management System - Air Niugini B767 Operations'
+      const footerText = options.footerText || 'Fleet Office - Air Niugini B767 Operations'
       doc.text(footerText, 105, 285, { align: 'center' })
       doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' })
     }

@@ -310,7 +310,7 @@ export function FormWithConnectionHandling() {
         {/* Success message */}
         {submitted && (
           <div className="rounded-lg border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-4">
-            <p className="text-sm font-medium text-[var(--color-success-400)]">
+            <p className="text-sm font-medium text-[var(--color-success-muted-foreground)]">
               Form submitted successfully!
             </p>
           </div>
