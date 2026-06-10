@@ -29,52 +29,50 @@ _Navy migration record archived to `tasks/design-navy-migration-2026-06-11.md`
 - Registrations tab reuses `pilot-registrations/actions.ts` + approval client logic.
 - All UI on canonical components (Card, StatusBadge, Button) — Operations Navy tokens.
 
-## Phase 1 — Hub scaffold (≤8 files)
+## Phase 1 — Hub scaffold — DONE (commit c3ab892)
 
-- [ ] `app/dashboard/approvals/page.tsx` — server component: fetch pending leave,
-      RDO/SDO, bids, registrations counts + lists (existing services)
-- [ ] `components/approvals/approvals-tabs.tsx` — nuqs tab nav with count chips
-- [ ] `components/approvals/approval-queue-list.tsx` — left list (selected state, status
-      chip, age, impact hint)
-- [ ] `app/dashboard/approvals/loading.tsx` + `error.tsx`
-- [ ] Build green
+- [x] page.tsx fetches pending leave/RDO-SDO (getAllPilotRequests status filter), bids
+      (getLeaveBidsForAdmin → PENDING), registrations (getPendingRegistrations)
+- [x] approvals-tabs.tsx (URL-driven, count chips) + approval-queue-list.tsx
+- [x] loading.tsx + error.tsx
+- [x] Build green
 
-## Phase 2 — Decision panel for Leave + RDO/SDO (≤8 files)
+## Phase 2 — Decision panel for Leave + RDO/SDO — DONE (commit c3ab892)
 
-- [ ] `components/approvals/decision-panel.tsx` — detail fields, history line, actions row
-- [ ] `components/approvals/crew-impact-card.tsx` — green/amber/red impact summary
-      ("Approving drops RP6 Captains 11→10 — at minimum")
-- [ ] Server: impact computation for selected request (server component data or a small
-      `/api/approvals/impact` GET via createAdminRoute)
-- [ ] Wire approve/deny/needs-info to existing server actions; optimistic queue advance
-- [ ] `components/approvals/use-review-keyboard.ts` — ↑↓/A/D/N via use-keyboard-shortcuts
-- [ ] Build green + manual flow check
+- [x] decision-panel.tsx (fields + impact card folded in, server component)
+- [x] Crew impact via calculateCrewAvailability (display engine; approve still runs the
+      atomic gate) — worst-day before/after, green/amber/red verdict
+- [x] approve/deny/needs-info server actions (wrap updateRequestStatus + domain
+      invalidation); deny requires comment dialog; auto-advance to next item
+- [x] Keyboard review in decision-actions.tsx (↑↓/A/D/N via use-keyboard-shortcuts)
+- [x] Build green
 
-## Phase 3 — Bids + Registrations tabs (≤8 files)
+## Phase 3 — Bids + Registrations tabs — DONE (commit c3ab892, reduced scope)
 
-- [ ] Bids queue + panel: reuse leave-bid review actions; per-option statuses shown;
-      deadline banner (bid window dates from settings/service)
-- [ ] Registrations queue + panel: reuse registration approve/deny actions
-- [ ] Empty states for all four tabs ("Queue clear — nothing awaiting decision")
-- [ ] Build green
+- [x] Bids + registrations tabs list pending items with link to their full review pages
+      (decision panels for these two deferred to follow-up — see Out of scope)
+- [x] Empty states for all four tabs
+- [x] Build green
 
-## Phase 4 — Navigation rewire (≤8 files)
+## Phase 4 — Navigation rewire — DONE (commit 7e788b4)
 
-- [ ] `lib/config/admin-nav.ts`: primary item **Approvals** (replaces Requests + Leave Bids
-      positions); **Requests → History** demoted to More
-- [ ] `use-sidebar-badges`: Approvals badge = pending leave + RDO/SDO + bids + registrations
-- [ ] Dashboard quick-action "Approve Requests" → `/dashboard/approvals`;
-      pending-approvals widget links there too
-- [ ] Leave-bids + registrations pages get banner linking to the hub (pages stay functional)
-- [ ] Build green
+- [x] admin-nav.ts: Approvals primary (ListChecks icon); Leave Bids removed from primary;
+      Requests demoted to More as the browse/history surface
+- [x] Sidebar badge enrichment retargeted to the Approvals item (existing pendingRequests
+      count; widening to include bids/registrations deferred with the badges API)
+- [x] Dashboard quick action, todays-priorities link, pending-approvals widget → hub
+- [x] Requests page header links to the hub for pending decisions
+- [x] Build green
 
 ## Phase 5 — Verify & document
 
-- [ ] New E2E spec `e2e/approvals.spec.ts`: tab counts, select → panel renders impact,
-      approve advances queue, keyboard nav
-- [ ] `npm run validate` + `npm run build` + targeted `npx playwright test e2e/approvals.spec.ts`
-- [ ] Visual pass (light/dark)
-- [ ] CLAUDE.md: routes table + redirects section updated; memory updated
+- [x] e2e/approvals.spec.ts (read-only: tabs, queue→panel, impact card, keyboard hint,
+      history link, sidebar entry)
+- [x] `npm run validate` green; builds green after every phase
+- [ ] Full `npm test` suite on final tree (running — prior run invalidated: tree changed
+      under the hot-reloading test server, so it was killed and restarted clean)
+- [ ] Visual pass (light/dark) once test server frees port/lock
+- [ ] CLAUDE.md routes table + memory update
 
 ## Out of scope (follow-ups)
 
