@@ -38,3 +38,7 @@ firebase-debug.log
 .playwright-mcp/
 .kombai/
 .serena/
+
+# Claude Code session artifacts
+.claude/worktrees/
+.claude/scheduled_tasks.lock
