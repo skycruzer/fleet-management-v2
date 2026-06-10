@@ -79,6 +79,37 @@ export function PilotDocumentsTab({ pilotId, csrfToken }: PilotDocumentsTabProps
     loadDocuments()
   }, [loadDocuments])
 
+  // A long-lived tab can outlive the csrf_secret cookie (24h) or hold a token
+  // from before a redeploy; on CSRF rejection, fetch a fresh token (which also
+  // re-sets the secret cookie) and retry once instead of failing the action.
+  const fetchWithCsrfRetry = useCallback(
+    async (input: string, init: RequestInit): Promise<Response> => {
+      const send = (token: string | null) =>
+        fetch(input, {
+          ...init,
+          headers: {
+            ...(init.headers as Record<string, string>),
+            ...(token ? { 'x-csrf-token': token } : {}),
+          },
+        })
+
+      let response = await send(csrfToken)
+      if (response.status === 403) {
+        try {
+          const csrfResponse = await fetch('/api/csrf')
+          const csrfJson = await csrfResponse.json()
+          if (csrfJson?.csrfToken) {
+            response = await send(csrfJson.csrfToken)
+          }
+        } catch {
+          // fall through with the original 403 response
+        }
+      }
+      return response
+    },
+    [csrfToken]
+  )
+
   const handleUpload = async () => {
     if (!selectedFile) return
     setIsUploading(true)
@@ -88,9 +119,8 @@ export function PilotDocumentsTab({ pilotId, csrfToken }: PilotDocumentsTabProps
       formData.append('documentType', documentType)
       if (title.trim()) formData.append('title', title.trim())
 
-      const response = await fetch(`/api/pilots/${pilotId}/documents`, {
+      const response = await fetchWithCsrfRetry(`/api/pilots/${pilotId}/documents`, {
         method: 'POST',
-        headers: csrfToken ? { 'x-csrf-token': csrfToken } : undefined,
         body: formData,
       })
       const json = await response.json()
@@ -143,9 +173,8 @@ export function PilotDocumentsTab({ pilotId, csrfToken }: PilotDocumentsTabProps
 
     setDeletingId(doc.id)
     try {
-      const response = await fetch(`/api/pilots/${pilotId}/documents/${doc.id}`, {
+      const response = await fetchWithCsrfRetry(`/api/pilots/${pilotId}/documents/${doc.id}`, {
         method: 'DELETE',
-        headers: csrfToken ? { 'x-csrf-token': csrfToken } : undefined,
       })
       const json = await response.json()
       if (response.ok && json.success) {
