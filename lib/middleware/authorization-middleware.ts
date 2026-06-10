@@ -16,11 +16,14 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
 /**
  * User roles in the system
  */
+// Values MUST stay lowercase: an_users.role stores 'admin'/'manager' and
+// admin-auth-helper's ADMIN_ROLES checks the same casing. Capitalized values
+// here silently 403'd every Supabase-authenticated admin (fixed 2026-06-10).
 export enum UserRole {
-  ADMIN = 'Admin',
-  MANAGER = 'Manager',
-  USER = 'User',
-  PILOT = 'Pilot',
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  USER = 'user',
+  PILOT = 'pilot',
 }
 
 /**
@@ -62,7 +65,8 @@ export async function getUserRole(userId: string): Promise<UserRole | null> {
       return null
     }
 
-    return userData.role as UserRole
+    // Normalize casing so a stray 'Admin' row can never bypass or break checks
+    return userData.role.toLowerCase() as UserRole
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'authorization-middleware/getUserRole',

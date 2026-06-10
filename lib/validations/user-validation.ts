@@ -12,8 +12,10 @@ import { z } from 'zod'
 // ENUMS & CONSTANTS
 // ===================================
 
-export const UserRoleEnum = z.enum(['Admin', 'Manager', 'User'], {
-  message: 'Role must be one of: Admin, Manager, User',
+// Lowercase to match an_users.role storage — capitalized values locked
+// newly created users out of the portal (admin-auth-helper checks lowercase)
+export const UserRoleEnum = z.enum(['admin', 'manager', 'user'], {
+  message: 'Role must be one of: admin, manager, user',
 })
 
 // ===================================

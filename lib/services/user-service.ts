@@ -14,7 +14,7 @@ export interface User {
   id: string
   email: string
   name: string
-  role: 'Admin' | 'Manager' | 'User'
+  role: 'admin' | 'manager' | 'user'
   created_at: string | null
   updated_at: string | null
 }
@@ -22,7 +22,7 @@ export interface User {
 export interface UserFormData {
   email: string
   name: string
-  role: 'Admin' | 'Manager' | 'User'
+  role: 'admin' | 'manager' | 'user'
 }
 
 export interface UserWithStats extends User {
@@ -288,7 +288,7 @@ export async function deleteUser(userId: string): Promise<void> {
 /**
  * Get users by role
  */
-export async function getUsersByRole(role: 'Admin' | 'Manager' | 'User'): Promise<User[]> {
+export async function getUsersByRole(role: 'admin' | 'manager' | 'user'): Promise<User[]> {
   const supabase = createAdminClient()
 
   try {
@@ -328,9 +328,10 @@ export async function getUserStats(): Promise<{
     const stats = (users || []).reduce(
       (acc, user) => {
         acc.total++
-        if (user.role === 'Admin') acc.byRole.Admin++
-        else if (user.role === 'Manager') acc.byRole.Manager++
-        else if (user.role === 'User') acc.byRole.User++
+        const role = user.role?.toLowerCase()
+        if (role === 'admin') acc.byRole.Admin++
+        else if (role === 'manager') acc.byRole.Manager++
+        else if (role === 'user') acc.byRole.User++
         return acc
       },
       {

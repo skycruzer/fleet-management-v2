@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch user role' }, { status: 500 })
     }
 
-    const isAuthorized = userData.role === 'Admin' || userData.role === 'Manager'
+    // an_users.role is lowercase
+    const isAuthorized = ['admin', 'manager'].includes(userData.role?.toLowerCase())
 
     if (!isAuthorized) {
       return NextResponse.json(

@@ -14,6 +14,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
@@ -32,6 +33,7 @@ export const POST = createAdminRoute(
   {
     operation: 'reviewLeaveBidOption',
     endpoint: '/api/admin/leave-bids/review-option',
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
     schema: ReviewOptionSchema,
   },
   async ({ body }) => {
