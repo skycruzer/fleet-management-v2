@@ -31,6 +31,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/requests/[id]
@@ -118,17 +119,12 @@ export const PATCH = createAdminRoute(
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
       }
 
-      // Revalidate relevant paths
-      revalidatePath('/dashboard/requests')
-      revalidatePath(`/dashboard/requests/${id}`)
-      revalidatePath('/dashboard/leave/approve')
-      // Revalidate analytics and dashboard (status changes affect metrics)
-      revalidatePath('/dashboard')
+      // Revalidate relevant paths (admin + portal request surfaces)
+      await invalidateRequestCaches(id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
+      // Analytics page is not covered by the request helper (status changes affect metrics)
       revalidatePath('/dashboard/analytics')
-      revalidatePath('/dashboard/compliance')
-      // Revalidate portal paths
-      revalidatePath('/portal/leave-requests')
-      revalidatePath('/portal/dashboard')
 
       return NextResponse.json({
         success: true,
@@ -167,9 +163,9 @@ export const PATCH = createAdminRoute(
       }
 
       // Revalidate relevant paths
-      revalidatePath('/dashboard/requests')
-      revalidatePath(`/dashboard/requests/${id}`)
-      revalidatePath('/dashboard/leave/approve')
+      await invalidateRequestCaches(id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,
@@ -205,7 +201,9 @@ export const DELETE = createAdminRoute(
     }
 
     // Revalidate relevant paths
-    revalidatePath('/dashboard/requests')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,

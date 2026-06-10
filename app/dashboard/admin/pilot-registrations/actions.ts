@@ -11,6 +11,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   sendRegistrationApprovalEmail,
@@ -71,7 +72,11 @@ export async function approvePilotRegistration(registrationId: string) {
       employeeId: pilotData.employee_id || undefined,
     })
 
-    // Revalidate the page to show updated data
+    // Invalidate pilot caches (dashboard + pilot list + Redis), non-blocking
+    await invalidatePilotCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+    // Registrations page is not covered by the pilot helper — keep explicit
     revalidatePath('/dashboard/admin/pilot-registrations')
 
     return {
@@ -146,7 +151,11 @@ export async function denyPilotRegistration(registrationId: string, denialReason
       denialReason
     )
 
-    // Revalidate the page to show updated data
+    // Invalidate pilot caches (dashboard + pilot list + Redis), non-blocking
+    await invalidatePilotCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+    // Registrations page is not covered by the pilot helper — keep explicit
     revalidatePath('/dashboard/admin/pilot-registrations')
 
     return {

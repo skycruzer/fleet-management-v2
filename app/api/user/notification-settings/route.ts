@@ -10,10 +10,10 @@
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { updateAdminUserNotificationSettings } from '@/lib/services/admin-service'
+import { invalidateSettingsCaches } from '@/lib/services/cache-invalidation-helper'
 
 const NotificationSettingsSchema = z.object({
   email_notifications: z.boolean().optional(),
@@ -41,7 +41,9 @@ export const PATCH = createAdminRoute(
 
     await updateAdminUserNotificationSettings(admin.userId, parsed.data)
 
-    revalidatePath('/dashboard/settings')
+    await invalidateSettingsCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true })
   }

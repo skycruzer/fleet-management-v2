@@ -12,7 +12,6 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { getPilots, createPilot } from '@/lib/services/pilot-service'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
@@ -98,16 +97,10 @@ export const POST = createAdminRoute(
     try {
       const newPilot = await createPilot(validatedData)
 
-      // Revalidate cache for pilot-related pages
-      revalidatePath('/dashboard/pilots')
-      revalidatePath('/dashboard')
-
-      // Invalidate Redis caches - wrapped in try/catch to prevent request failures
-      try {
-        await invalidatePilotCaches()
-      } catch (cacheError) {
-        console.error('Cache invalidation failed (non-blocking):', cacheError)
-      }
+      // Invalidate pilot caches (Next.js paths + Redis) - non-blocking
+      await invalidatePilotCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json(
         {

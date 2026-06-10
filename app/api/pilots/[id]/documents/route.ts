@@ -10,10 +10,10 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
 import { validateFileWithMagicBytes } from '@/lib/services/file-upload-service'
 import { isValidFileSize } from '@/lib/validations/file-upload-schema'
 import {
@@ -119,7 +119,9 @@ export const POST = createAdminRoute(
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
-    revalidatePath(`/dashboard/pilots/${pilotId}`)
+    await invalidatePilotCaches(pilotId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,

@@ -21,6 +21,7 @@ import {
 } from '@/lib/services/feedback-service'
 // Authorization handled by getAuthenticatedAdmin() - admin users can manage all feedback
 import { revalidatePath } from 'next/cache'
+import { invalidateFeedbackCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/feedback/[id]
@@ -85,8 +86,9 @@ export const PUT = createAdminRoute(
       }
 
       // Revalidate cache for all affected paths
-      revalidatePath('/dashboard/feedback')
-      revalidatePath(`/dashboard/feedback/${id}`)
+      await invalidateFeedbackCaches(id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
       revalidatePath('/dashboard')
 
       return NextResponse.json({
@@ -109,8 +111,9 @@ export const PUT = createAdminRoute(
       }
 
       // Revalidate cache for all affected paths
-      revalidatePath('/dashboard/feedback')
-      revalidatePath(`/dashboard/feedback/${id}`)
+      await invalidateFeedbackCaches(id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
       revalidatePath('/dashboard')
 
       return NextResponse.json({

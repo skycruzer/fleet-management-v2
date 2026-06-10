@@ -11,10 +11,10 @@
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { updateAdminUserProfile } from '@/lib/services/admin-service'
+import { invalidateSettingsCaches } from '@/lib/services/cache-invalidation-helper'
 
 const ProfileUpdateSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(120),
@@ -38,7 +38,9 @@ export const PATCH = createAdminRoute(
 
     const data = await updateAdminUserProfile(admin.userId, { name: parsed.data.name })
 
-    revalidatePath('/dashboard/settings')
+    await invalidateSettingsCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true, data })
   }

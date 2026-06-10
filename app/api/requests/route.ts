@@ -23,7 +23,7 @@ import {
 } from '@/lib/services/unified-request-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 import { CreatePilotRequestSchema } from '@/lib/validations/pilot-request-schema'
 
 /**
@@ -185,7 +185,9 @@ export const POST = createAdminRoute(
     }
 
     // Revalidate relevant paths
-    revalidatePath('/dashboard/requests')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json(
       {

@@ -30,6 +30,7 @@ import {
 } from '@/lib/services/leave-bid-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
+import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
 import { createNotification } from '@/lib/services/notification-service'
 import { sendLeaveBidSubmittedEmail } from '@/lib/services/pilot-email-notification-service'
 
@@ -65,7 +66,7 @@ export const POST = createPilotRoute(
     operation: 'submitLeaveBid',
     endpoint: '/api/portal/leave-bids',
     schema: LeaveBidFormSchema,
-    revalidate: ['/portal/leave-bids', '/portal/leave-requests', '/dashboard/leave'],
+    invalidateCache: invalidateLeaveBidCaches,
   },
   async ({ body, pilot }) => {
     const { bid_year, options } = body
@@ -186,7 +187,7 @@ export const PUT = createPilotRoute(
     operation: 'updateLeaveBid',
     endpoint: '/api/portal/leave-bids',
     schema: LeaveBidFormSchema,
-    revalidate: ['/portal/leave-bids', '/portal/leave-requests', '/dashboard/leave'],
+    invalidateCache: invalidateLeaveBidCaches,
   },
   async ({ request, body }) => {
     // Get bid ID from query parameter
@@ -260,7 +261,7 @@ export const DELETE = createPilotRoute(
     operation: 'cancelLeaveBid',
     endpoint: '/api/portal/leave-bids',
     schema: CancelLeaveBidSchema,
-    revalidate: ['/portal/leave-bids', '/portal/dashboard'],
+    invalidateCache: invalidateLeaveBidCaches,
   },
   async ({ body }) => {
     // Cancel leave bid via service layer

@@ -7,7 +7,7 @@
  * Calls service layer directly for better performance and auth handling.
  */
 
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 import { submitPilotLeaveRequest } from '@/lib/services/pilot-leave-service'
 
 export async function submitLeaveRequestAction(formData: FormData) {
@@ -36,9 +36,10 @@ export async function submitLeaveRequestAction(formData: FormData) {
       return { success: false, error: result.error || 'Failed to submit leave request' }
     }
 
-    // Revalidate the portal pages to show updated data
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/portal/dashboard')
+    // Invalidate request caches (admin + portal surfaces), non-blocking
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return { success: true, data: result.data }
   } catch (error) {

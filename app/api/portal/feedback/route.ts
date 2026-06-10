@@ -15,8 +15,8 @@ import { NextResponse } from 'next/server'
 import { submitFeedback, getCurrentPilotFeedback } from '@/lib/services/pilot-feedback-service'
 import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { revalidatePath } from 'next/cache'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
+import { invalidateFeedbackCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * POST /api/portal/feedback
@@ -68,8 +68,9 @@ export const POST = createPilotRoute(
     }
 
     // Revalidate cache for all affected paths
-    revalidatePath('/portal/feedback')
-    revalidatePath('/dashboard/feedback')
+    await invalidateFeedbackCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true, data: result.data })
   }

@@ -17,7 +17,7 @@ import {
   adminDeleteLeaveBid,
   type AdminLeaveBidUpdate,
 } from '@/lib/services/leave-bid-service'
-import { invalidateLeaveCaches } from '@/lib/services/cache-invalidation-helper'
+import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,12 +36,10 @@ export const PATCH = createAdminRoute(
     rateLimit: { limiter: authRateLimit, by: 'user' },
     roles: [UserRole.ADMIN, UserRole.MANAGER],
     schema: UpdateLeaveBidSchema,
-    invalidateCache: invalidateLeaveCaches,
-    revalidate: ({ params }) => [
-      '/dashboard/leave-bids',
-      `/dashboard/leave-bids/${params.id}`,
-      '/portal/leave-bids',
-    ],
+    invalidateCache: invalidateLeaveBidCaches,
+    // helper covers the list pages; only the detail page needs the dynamic path
+    // (the old /dashboard/leave-bids paths pointed at a page that never existed)
+    revalidate: ({ params }) => [`/dashboard/admin/leave-bids/${params.id}`],
   },
   async ({ params, body }) => {
     const updates: AdminLeaveBidUpdate = {
@@ -76,8 +74,7 @@ export const DELETE = createAdminRoute(
     endpoint: '/api/admin/leave-bids/[id]',
     rateLimit: { limiter: authRateLimit, by: 'user' },
     roles: [UserRole.ADMIN],
-    invalidateCache: invalidateLeaveCaches,
-    revalidate: ['/dashboard/leave-bids', '/portal/leave-bids'],
+    invalidateCache: invalidateLeaveBidCaches,
   },
   async ({ params }) => {
     const result = await adminDeleteLeaveBid(params.id)

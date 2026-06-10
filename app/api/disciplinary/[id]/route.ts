@@ -19,7 +19,7 @@ import {
   deleteMatter,
 } from '@/lib/services/disciplinary-service'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
-import { revalidatePath } from 'next/cache'
+import { invalidateDisciplinaryCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/disciplinary/[id]
@@ -141,8 +141,9 @@ export const PATCH = createAdminRoute(
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
-    revalidatePath('/dashboard/disciplinary')
-    revalidatePath(`/dashboard/disciplinary/${id}`)
+    await invalidateDisciplinaryCaches(id).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   }
@@ -190,8 +191,9 @@ export const DELETE = createAdminRoute(
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
-    revalidatePath('/dashboard/disciplinary')
-    revalidatePath(`/dashboard/disciplinary/${id}`)
+    await invalidateDisciplinaryCaches(id).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json(
       { success: true, message: 'Matter closed successfully' },

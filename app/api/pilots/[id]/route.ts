@@ -13,8 +13,8 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { getPilotById, updatePilot, deletePilot } from '@/lib/services/pilot-service'
+import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
 import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
 import { validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { getPilotRequirements } from '@/lib/services/admin-service'
@@ -96,10 +96,10 @@ export const PUT = createAdminRoute(
     // Update pilot using service layer with validated data
     const updatedPilot = await updatePilot(pilotId, validatedData)
 
-    // Revalidate cache for pilot-related pages
-    revalidatePath('/dashboard/pilots')
-    revalidatePath(`/dashboard/pilots/${pilotId}`)
-    revalidatePath('/dashboard')
+    // Invalidate pilot caches (Next.js paths + Redis) - non-blocking
+    await invalidatePilotCaches(pilotId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,
@@ -132,10 +132,10 @@ export const DELETE = createAdminRoute(
     // Delete pilot using service layer (includes cascade deletion)
     await deletePilot(pilotId)
 
-    // Revalidate cache for pilot-related pages
-    revalidatePath('/dashboard/pilots')
-    revalidatePath(`/dashboard/pilots/${pilotId}`)
-    revalidatePath('/dashboard')
+    // Invalidate pilot caches (Next.js paths + Redis) - non-blocking
+    await invalidatePilotCaches(pilotId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,

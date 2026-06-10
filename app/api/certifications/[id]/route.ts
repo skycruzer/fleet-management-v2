@@ -17,6 +17,7 @@ import {
 } from '@/lib/services/certification-service'
 import { CertificationUpdateSchema } from '@/lib/validations/certification-validation'
 import { revalidatePath } from 'next/cache'
+import { invalidateCertificationCaches } from '@/lib/services/cache-invalidation-helper'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   executeAndRespond,
@@ -90,17 +91,14 @@ export const PUT = createAdminRoute(
           throw Object.assign(new Error('Certification not found'), { statusCode: 404 })
         }
 
-        // Revalidate certification pages to clear Next.js cache
-        revalidatePath('/dashboard/certifications')
-        revalidatePath(`/dashboard/certifications/${id}`)
+        // Invalidate certification caches (Next.js paths + Redis) - non-blocking
+        await invalidateCertificationCaches({
+          certificationId: id,
+          pilotId: updatedCertification.pilot_id ?? undefined,
+        }).catch((error) => console.error('Cache invalidation failed (non-blocking):', error))
+
+        // Paths not covered by the helper: edit page + pilots list (certification counts)
         revalidatePath(`/dashboard/certifications/${id}/edit`)
-
-        // CRITICAL: Revalidate pilot detail page (where certifications are edited from)
-        if (updatedCertification.pilot_id) {
-          revalidatePath(`/dashboard/pilots/${updatedCertification.pilot_id}`)
-        }
-
-        // Also revalidate pilots list page to update certification counts
         revalidatePath('/dashboard/pilots')
 
         return updatedCertification
@@ -137,14 +135,14 @@ export const DELETE = createAdminRoute(
       async () => {
         await deleteCertification(id)
 
-        // CRITICAL: Revalidate cache paths after deletion
-        revalidatePath('/dashboard/certifications')
-        revalidatePath(`/dashboard/certifications/${id}`)
-        if (certification.pilot_id) {
-          revalidatePath(`/dashboard/pilots/${certification.pilot_id}`)
-        }
+        // Invalidate certification caches (Next.js paths + Redis) - non-blocking
+        await invalidateCertificationCaches({
+          certificationId: id,
+          pilotId: certification.pilot_id ?? undefined,
+        }).catch((error) => console.error('Cache invalidation failed (non-blocking):', error))
+
+        // Pilots list page is not covered by the helper (certification counts)
         revalidatePath('/dashboard/pilots')
-        revalidatePath('/dashboard')
 
         return { deleted: true }
       },

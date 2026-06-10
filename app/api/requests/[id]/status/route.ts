@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { updateRequestStatus } from '@/lib/services/unified-request-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 export const PATCH = createAdminRoute(
   {
@@ -64,8 +64,9 @@ export const PATCH = createAdminRoute(
       })
 
       // Revalidate affected paths
-      revalidatePath('/dashboard/requests')
-      revalidatePath(`/dashboard/requests/${id}`)
+      await invalidateRequestCaches(id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,

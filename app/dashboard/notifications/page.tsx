@@ -5,8 +5,8 @@
  */
 
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { invalidateNotificationCaches } from '@/lib/services/cache-invalidation-helper'
 import {
   getUserNotifications,
   markAllNotificationsAsRead,
@@ -24,7 +24,9 @@ async function markAllAsReadAction(formData: FormData) {
   }
 
   await markAllNotificationsAsRead(userId)
-  revalidatePath('/dashboard/notifications')
+  await invalidateNotificationCaches().catch((error) =>
+    console.error('Cache invalidation failed (non-blocking):', error)
+  )
   redirect('/dashboard/notifications')
 }
 

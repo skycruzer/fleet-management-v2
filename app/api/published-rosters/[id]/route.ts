@@ -5,7 +5,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
-import { revalidatePath } from 'next/cache'
+import { invalidatePublishedRosterCaches } from '@/lib/services/cache-invalidation-helper'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import {
   deletePublishedRoster,
@@ -54,7 +54,9 @@ export const DELETE = createAdminRoute(
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
       }
 
-      revalidatePath('/dashboard/published-rosters')
+      await invalidatePublishedRosterCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({ success: true })
     } catch (error) {

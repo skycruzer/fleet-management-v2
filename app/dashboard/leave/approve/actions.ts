@@ -10,9 +10,9 @@
  * @updated 2025-12-29 - Added dual auth support
  */
 
-import { revalidatePath } from 'next/cache'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { invalidateLeaveCaches } from '@/lib/services/cache-invalidation-helper'
 
 export async function approveLeaveRequest(requestId: string, comments?: string) {
   try {
@@ -35,10 +35,10 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
       }
     }
 
-    // Revalidate all affected paths
-    revalidatePath('/dashboard/leave/approve')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
+    // Invalidate leave caches (admin + portal surfaces + Redis analytics), non-blocking
+    await invalidateLeaveCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,
@@ -83,10 +83,10 @@ export async function denyLeaveRequest(requestId: string, comments?: string) {
       }
     }
 
-    // Revalidate all affected paths
-    revalidatePath('/dashboard/leave/approve')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
+    // Invalidate leave caches (admin + portal surfaces + Redis analytics), non-blocking
+    await invalidateLeaveCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,

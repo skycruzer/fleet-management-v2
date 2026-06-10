@@ -8,10 +8,10 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
+import { invalidateRenewalPlanningCaches } from '@/lib/services/cache-invalidation-helper'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -146,8 +146,9 @@ export const POST = createAdminRoute(
       totalWithPairingData > 0 ? Math.round((totalPaired / totalWithPairingData) * 100) : 0
 
     // Revalidate dashboard pages so they reflect the newly generated data
-    revalidatePath('/dashboard/renewal-planning')
-    revalidatePath('/dashboard/renewal-planning/calendar')
+    await invalidateRenewalPlanningCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,
