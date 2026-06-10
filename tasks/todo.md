@@ -7,7 +7,7 @@
 - [x] PR #62 — Phase 2: cache-invalidation-helper is single source of truth; 8 new domain
       helpers; 37 files switched to non-blocking helper calls; dead revalidation paths
       dropped (incl. /dashboard/leave-bids\* — bid mutations were revalidating nothing).
-- [ ] PR #63 — Phase 3: certification rule dedup (EXCLUDED_CATEGORIES single export,
+- [x] PR #63 — Phase 3 (merged + deployed): certification rule dedup (EXCLUDED_CATEGORIES single export,
       getCertificationStatusKey, countCertificationsByStatus, checksInWindow closure).
       Full service merges NOT needed per analysis: pilot-leave already delegates to
       unified-request-service; leave-bid vs request semantics differ by design.
