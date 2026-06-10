@@ -4,76 +4,41 @@
  *
  * Developer: Maurice Rondeau
  *
- * CSRF PROTECTION: POST method requires CSRF token validation
- * RATE LIMITING: 20 mutation requests per minute per IP
+ * Security pipeline (CSRF, auth, rate limiting) via createAdminRoute.
+ * Admin/manager access is enforced by getAuthenticatedAdmin inside the factory.
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { NextRequest, NextResponse } from 'next/server'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
   sendLeaveBidRejectedEmail,
 } from '@/lib/services/pilot-email-notification-service'
 
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
+const ReviewBidSchema = z.object({
+  bidId: z.string().min(1, 'Missing required fields: bidId and action'),
+  action: z.enum(['approve', 'reject'], {
+    message: 'Invalid action. Must be "approve" or "reject"',
+  }),
+})
 
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Please log in' },
-        { status: 401 }
-      )
-    }
+export const POST = createAdminRoute(
+  {
+    operation: 'reviewLeaveBid',
+    endpoint: '/api/admin/leave-bids/review',
+    schema: ReviewBidSchema,
+  },
+  async ({ body }) => {
+    const { bidId, action } = body
 
     // Use admin client to bypass RLS for admin operations
     const supabase = createAdminClient()
-
-    // Verify admin/manager role
-    const { data: adminUser } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', auth.userId!)
-      .single()
-
-    if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden - Admin or Manager access required' },
-        { status: 403 }
-      )
-    }
-
-    // Get request body
-    const { bidId, action } = await request.json()
-
-    // Validate request
-    if (!bidId || !action) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields: bidId and action' },
-        { status: 400 }
-      )
-    }
-
-    if (!['approve', 'reject'].includes(action)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid action. Must be "approve" or "reject"' },
-        { status: 400 }
-      )
-    }
 
     // Determine new status
     const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
@@ -173,12 +138,5 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         rosterPeriodCode: updatedBid.roster_period_code,
       },
     })
-  } catch (error: any) {
-    console.error('Error in leave bid review API:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'reviewLeaveBid',
-      endpoint: '/api/admin/leave-bids/review',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

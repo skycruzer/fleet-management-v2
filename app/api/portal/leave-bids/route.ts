@@ -9,17 +9,18 @@
  *
  * Developer: Maurice Rondeau
  *
- * CSRF PROTECTION: POST, PUT methods require CSRF token validation
- * RATE LIMITING: 20 mutation requests per minute per IP
- * AUTH: Explicit pilot authentication check at API layer
+ * Security pipeline (CSRF, auth, rate limiting) via createPilotRoute.
+ * GET is intentionally not rate limited — shared office IPs would pool
+ * into one bucket (see lib/rate-limit.ts prefix note).
  *
- * @version 2.2.0
- * @updated 2026-01 - Added explicit auth guards and standardized responses
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  * @architecture Service Layer Pattern
  * @auth Pilot Portal Authentication (via an_users table)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import {
   submitLeaveBid,
   getCurrentPilotLeaveBids,
@@ -28,13 +29,7 @@ import {
   type LeaveBidInput,
 } from '@/lib/services/leave-bid-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { z } from 'zod'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { revalidatePath } from 'next/cache'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import { createNotification } from '@/lib/services/notification-service'
 import { sendLeaveBidSubmittedEmail } from '@/lib/services/pilot-email-notification-service'
 
@@ -56,47 +51,24 @@ const LeaveBidFormSchema = z.object({
   options: z.array(LeaveBidOptionSchema).min(1, 'At least one leave option is required'),
 })
 
+const CancelLeaveBidSchema = z.object({
+  bidId: z.string().min(1, 'Bid ID is required'),
+})
+
 /**
  * POST - Submit/Update Leave Bid
  *
  * Allows authenticated pilot to submit or update their annual leave bid.
- *
- * @auth Pilot Portal Authentication required (explicit check)
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    const body = await request.json()
-
-    // Validate request data using form schema
-    const validation = LeaveBidFormSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        formatApiError(
-          {
-            message: validation.error.issues[0].message,
-            category: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('leave bid').category,
-            severity: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('leave bid').severity,
-          },
-          400
-        ),
-        { status: 400 }
-      )
-    }
-
-    const { bid_year, options } = validation.data
+export const POST = createPilotRoute(
+  {
+    operation: 'submitLeaveBid',
+    endpoint: '/api/portal/leave-bids',
+    schema: LeaveBidFormSchema,
+    revalidate: ['/portal/leave-bids', '/portal/leave-requests', '/dashboard/leave'],
+  },
+  async ({ body, pilot }) => {
+    const { bid_year, options } = body
 
     // Transform form data to service layer format
     // For now, use the first option's roster period as the main one
@@ -117,6 +89,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     const result = await submitLeaveBid(bidData)
 
     if (!result.success) {
+      const status = result.error?.includes('Unauthorized') ? 401 : 500
       return NextResponse.json(
         formatApiError(
           {
@@ -124,9 +97,9 @@ export const POST = withRateLimit(async (request: NextRequest) => {
             category: ERROR_MESSAGES.LEAVE.CREATE_FAILED.category,
             severity: ERROR_MESSAGES.LEAVE.CREATE_FAILED.severity,
           },
-          result.error?.includes('Unauthorized') ? 401 : 500
+          status
         ),
-        { status: result.error?.includes('Unauthorized') ? 401 : 500 }
+        { status }
       )
     }
 
@@ -161,41 +134,26 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       }
     ).catch((err) => console.error('Failed to send bid submission email:', err))
 
-    // Revalidate cache for all affected paths
-    revalidatePath('/portal/leave-bids')
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/dashboard/leave')
-
     return NextResponse.json({
       success: true,
       data: result.data,
       message: 'Leave bid submitted successfully',
     })
-  } catch (error: any) {
-    console.error('Submit leave bid API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'submitLeaveBid',
-      endpoint: '/api/portal/leave-bids',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * GET - Get Leave Bids
  *
  * Retrieves all leave bids for the authenticated pilot.
- *
- * @auth Pilot Portal Authentication required (explicit check)
  */
-export async function GET(_request: NextRequest) {
-  try {
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
-
+export const GET = createPilotRoute(
+  {
+    operation: 'getLeaveBids',
+    endpoint: '/api/portal/leave-bids',
+    rateLimit: false,
+  },
+  async () => {
     // Get leave bids via service layer
     const result = await getCurrentPilotLeaveBids()
 
@@ -214,41 +172,23 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data || [],
     })
-  } catch (error: unknown) {
-    console.error('Get leave bids API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getLeaveBids',
-      endpoint: '/api/portal/leave-bids',
-    })
-    return NextResponse.json(
-      { success: false, error: sanitized.error, errorId: sanitized.errorId },
-      { status: sanitized.statusCode || 500 }
-    )
   }
-}
+)
 
 /**
  * PUT - Update Leave Bid
  *
  * Allows pilot to update a pending leave bid.
- * Only PENDING bids can be edited.
- *
- * @auth Pilot Portal Authentication required (explicit check)
+ * Only PENDING bids can be edited. Bid ID comes from the `id` query parameter.
  */
-export const PUT = withRateLimit(async (request: NextRequest) => {
-  try {
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
+export const PUT = createPilotRoute(
+  {
+    operation: 'updateLeaveBid',
+    endpoint: '/api/portal/leave-bids',
+    schema: LeaveBidFormSchema,
+    revalidate: ['/portal/leave-bids', '/portal/leave-requests', '/dashboard/leave'],
+  },
+  async ({ request, body }) => {
     // Get bid ID from query parameter
     const { searchParams } = new URL(request.url)
     const bidId = searchParams.get('id')
@@ -267,26 +207,7 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    const body = await request.json()
-
-    // Validate request data using form schema
-    const validation = LeaveBidFormSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        formatApiError(
-          {
-            message: validation.error.issues[0].message,
-            category: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('leave bid').category,
-            severity: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('leave bid').severity,
-          },
-          400
-        ),
-        { status: 400 }
-      )
-    }
-
-    const { bid_year, options } = validation.data
+    const { bid_year, options } = body
 
     // Transform form data to service layer format
     const primaryOption = options[0]
@@ -303,6 +224,11 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
     const result = await updateLeaveBid(bidId, bidData)
 
     if (!result.success) {
+      const status = result.error?.includes('Unauthorized')
+        ? 401
+        : result.error?.includes('pending')
+          ? 400
+          : 500
       return NextResponse.json(
         formatApiError(
           {
@@ -310,74 +236,33 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
             category: ERROR_MESSAGES.LEAVE.UPDATE_FAILED?.category || 'LEAVE_ERROR',
             severity: ERROR_MESSAGES.LEAVE.UPDATE_FAILED?.severity || 'error',
           },
-          result.error?.includes('Unauthorized')
-            ? 401
-            : result.error?.includes('pending')
-              ? 400
-              : 500
+          status
         ),
-        {
-          status: result.error?.includes('Unauthorized')
-            ? 401
-            : result.error?.includes('pending')
-              ? 400
-              : 500,
-        }
+        { status }
       )
     }
-
-    // Revalidate cache for all affected paths
-    revalidatePath('/portal/leave-bids')
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/dashboard/leave')
 
     return NextResponse.json({
       success: true,
       data: result.data,
       message: 'Leave bid updated successfully',
     })
-  } catch (error: any) {
-    console.error('Update leave bid API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateLeaveBid',
-      endpoint: '/api/portal/leave-bids',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * DELETE - Cancel Leave Bid
  *
  * Allows pilot to cancel a pending leave bid.
- *
- * @auth Pilot Portal Authentication required (explicit check)
  */
-export const DELETE = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
-
-    const body = await request.json()
-
-    // Validate bid ID
-    if (!body.bidId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Bid ID is required',
-          errorCode: 'VALIDATION_ERROR',
-        },
-        { status: 400 }
-      )
-    }
-
+export const DELETE = createPilotRoute(
+  {
+    operation: 'cancelLeaveBid',
+    endpoint: '/api/portal/leave-bids',
+    schema: CancelLeaveBidSchema,
+    revalidate: ['/portal/leave-bids', '/portal/dashboard'],
+  },
+  async ({ body }) => {
     // Cancel leave bid via service layer
     const result = await cancelLeaveBid(body.bidId)
 
@@ -392,22 +277,9 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    revalidatePath('/portal/leave-bids')
-    revalidatePath('/portal/dashboard')
-
     return NextResponse.json({
       success: true,
       message: 'Leave bid cancelled successfully',
     })
-  } catch (error: unknown) {
-    console.error('Cancel leave bid API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'cancelLeaveBid',
-      endpoint: '/api/portal/leave-bids',
-    })
-    return NextResponse.json(
-      { success: false, error: sanitized.error, errorId: sanitized.errorId },
-      { status: sanitized.statusCode || 500 }
-    )
   }
-})
+)
