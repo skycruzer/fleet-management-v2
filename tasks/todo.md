@@ -41,49 +41,52 @@ Constraints: no gradients, no glassmorphism, no glow shadows, no aviation decor,
 - [x] Baseline reference set: existing screenshots/design-verify/ (light+dark × desktop+mobile, public pages) — unchanged since remediation pass; authenticated pages blocked on missing VERIFY_EMAIL creds (same as before)
 - [x] `npm run build` green before starting (exit 0, 2026-06-11, branch design/operations-navy)
 
-## Phase 1 — Token layer (`app/globals.css`)
+## Phase 1 — Token layer (`app/globals.css`) — DONE (commit ec8d14d)
 
-Single file; this does ~70% of the migration.
+- [x] Sidebar token group added (sidebar/foreground/muted/active/border/icon/badge — same navy both themes)
+- [x] Canvas `#f4f5f7`, borders `#dfe1e6`, input `#c1c7d0`, ring `#0b5cad`
+- [x] Primary black → blue `#0b5cad` with full 50–900 scale
+- [x] Text `#172b4d` / dim `#5e6c84`; navy-tinted slate scale
+- [x] Status scales: success `#1f7a4d`, warning `#97570b`, danger `#ae2a19` (token names unchanged)
+- [x] Radius compacted (sm 3px / md 4px / lg 6px); pill reserved for avatars/spinners
+- [x] Dark theme: navy-tinted darks (#0e1624 canvas, #16202e cards), blue `#579dff` primary
+- [x] Build green
 
-- [ ] Add sidebar token group: `--color-sidebar`, `--color-sidebar-foreground`, `--color-sidebar-active`, `--color-sidebar-muted`, `--color-sidebar-badge`
-- [ ] Canvas/surfaces: `--color-background` `#f0f0f3` → `#f4f5f7`; borders → `#dfe1e6`
-- [ ] Primary: black → blue system (`--color-primary` `#0b5cad`, rebuild 50–900 scale; foreground white)
-- [ ] Text: `--color-foreground` → `#172b4d`; muted/dim → `#5e6c84`
-- [ ] Status scales: success → `#1f7a4d`/`#e8f5ee`, warning → `#97570b`/`#fdf3e1`, danger → `#ae2a19`/`#fdeeec` (keep existing token names so StatusBadge and all consumers pick them up automatically)
-- [ ] Radius: `--radius-md` → 0.25rem, `--radius-lg` → 0.375rem; stop using `--radius-pill` on buttons/badges (keep token for avatars)
-- [ ] Dark theme block: mirror all of the above (pending open decision)
-- [ ] Build + visual check
+## Phase 2 — Layout chrome — DONE (commit 59c0aee)
 
-## Phase 2 — Layout chrome (batch ≤ 8 files)
+- [x] Admin sidebar on sidebar tokens (navy, active #1a3a63, red count badges, rounded-md active)
+- [x] Header/PageHeader: already correct via tokens (white bg + border)
+- [x] Pilot portal sidebar + mobile sheet: navy treatment; bell gets className passthrough
+- [x] Bottom nav active → primary blue
+- [x] Build green
 
-- [ ] `professional-sidebar-client.tsx`: switch to sidebar tokens (navy bg, active state, red count badges, uppercase section labels)
-- [ ] `professional-header.tsx`: white bg, bottom border, RP chip style (blue tint, 4px radius)
-- [ ] `page-header.tsx`: align title size/weight to mockup
-- [ ] `pilot-portal-sidebar.tsx` + `pilot-bottom-nav.tsx`: same treatment (pending open decision)
-- [ ] Build + visual check
+## Phase 3 — Canonical components — DONE (commit 37b58dc)
 
-## Phase 3 — Canonical components (batch ≤ 8 files)
+- [x] button.tsx: 4px radius, blue primary + darken hover, pill sizes retired
+- [x] badge.tsx 3px radius; status-badge.tsx uppercase bold 11px signature
+- [x] card.tsx: 6px radius, flat default (border only)
+- [x] table.tsx: solid muted header strip, zebra stripes removed; responsive-table radius
+- [x] rank-badge: inherits new geometry/tokens (no file change needed)
+- [x] Build green
 
-- [ ] `components/ui/button.tsx`: 4px radius, primary = accent blue, secondary = white + border
-- [ ] `components/ui/badge.tsx` + `status-badge.tsx`: uppercase bold 11px, 3px radius, tinted backgrounds
-- [ ] `components/ui/card.tsx`: 6px radius, flat (border only, no shadow)
-- [ ] `components/ui/table.tsx` / `data-table.tsx`: uppercase header row with muted bg, row hover tint
-- [ ] `rank-badge.tsx`: align to new badge geometry
-- [ ] Build + Storybook spot-check
+## Phase 4 — Dashboard KPI treatment — DONE (commit a50efe3)
 
-## Phase 4 — Dashboard KPI treatment (batch ≤ 8 files)
-
-- [ ] Stat/metric cards (`components/dashboard/`): 3px color-coded top border, uppercase labels, tabular-nums values
-- [ ] Chart accents (analytics): accent series → `#0b5cad`; status hues from tokens
-- [ ] Build + visual check
+- [x] stats-overview (requests) + pilot-stats-bar: 3px color-coded top border, uppercase labels, tabular-nums
+- [x] analytics-charts: runtime reads chart tokens (swapped in Phase 1); stale fallbacks aligned
+- [x] Build green
 
 ## Phase 5 — Sweep & verify
 
-- [ ] Grep for hardcoded remnants: `#000` primary usage, `bg-black`, `rounded-full` on buttons/badges (avatars exempt)
-- [ ] Visual pass over every dashboard + portal page against Phase 0 reference set
-- [ ] WCAG AA contrast check: new status colors, navy sidebar text
-- [ ] `npm run validate` + `npm run build` + `npm test` (E2E)
-- [ ] Update design memory + CLAUDE.md notes if needed
+- [x] Sweep: hand-rolled pill chips → rounded-sm (tasks, audit, disciplinary); landing CTAs/chip squared + tokenized; bg-black/50 modal scrims kept (legit overlays)
+- [x] WCAG AA: primary 5.9:1, status colors 5.3–6.7:1 on white; sidebar text 8.6:1, sidebar-muted bumped #6b7c95→#8696ad (3.7→5.2:1); dark primary 6.2:1
+- [x] `npm run validate` green
+- [x] Visual pass (public pages, light+dark × desktop+mobile → screenshots/navy-verify/); authenticated pages still blocked on missing VERIFY_EMAIL creds (pre-existing)
+- [ ] Final `npm run build` + `npm test` (E2E)
+- [ ] Update design memory + CLAUDE.md notes
+
+## Follow-up found during verify (NOT this branch — behavior, not styling)
+
+- Hydration mismatch on /auth/login: h1 `tabindex="-1"` differs server vs client (focus-management code; pre-existing, unrelated to re-theme)
 
 ---
 

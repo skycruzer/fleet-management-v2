@@ -201,14 +201,14 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getSeverityBadgeColor(matter.severity)}`}
+                        className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${getSeverityBadgeColor(matter.severity)}`}
                       >
                         {matter.severity}
                       </span>
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(matter.status)}`}
+                        className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(matter.status)}`}
                       >
                         {matter.status.replace(/_/g, ' ')}
                       </span>

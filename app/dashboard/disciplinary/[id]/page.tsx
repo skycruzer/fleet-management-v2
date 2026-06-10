@@ -102,12 +102,12 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       />
       <div className="flex flex-wrap items-center gap-3">
         <span
-          className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
+          className={`inline-flex rounded-sm px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
         >
           {matter.status.replace(/_/g, ' ')}
         </span>
         <span
-          className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
+          className={`inline-flex rounded-sm px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
         >
           {matter.severity}
         </span>

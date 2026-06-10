@@ -118,7 +118,7 @@
   /* === SIDEBAR (Operations Navy — same in light AND dark theme) === */
   --color-sidebar: #0d2240;
   --color-sidebar-foreground: #b3bdcc;
-  --color-sidebar-muted: #6b7c95;
+  --color-sidebar-muted: #8696ad; /* >=4.5:1 on navy for 11px labels */
   --color-sidebar-active: #1a3a63;
   --color-sidebar-active-foreground: #ffffff;
   --color-sidebar-border: #1a3a63;

@@ -91,7 +91,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
                 <td className="text-foreground px-4 py-3">{log.user_email || 'System'}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${actionColors[log.action] || 'text-foreground bg-muted/30'}`}
+                    className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${actionColors[log.action] || 'text-foreground bg-muted/30'}`}
                   >
                     {log.action}
                   </span>

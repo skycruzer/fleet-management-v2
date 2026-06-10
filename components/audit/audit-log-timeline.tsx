@@ -264,7 +264,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
                       <div className="flex-1">
                         <div className="mb-2 flex items-center gap-2">
                           <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getActionBadgeColor(log.action)}`}
+                            className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${getActionBadgeColor(log.action)}`}
                           >
                             {log.action}
                           </span>
