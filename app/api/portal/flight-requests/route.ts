@@ -11,12 +11,17 @@
  * SECURITY: Uses service role client to bypass RLS
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
+ * Security pipeline (CSRF, auth, rate limiting) via createPilotRoute.
+ * GET is intentionally not rate limited — shared office IPs would pool
+ * into one bucket (see lib/rate-limit.ts prefix note).
+ *
  * @version 2.2.0
  * @updated 2025-11-20 - Updated to RDO/SDO only with date ranges
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  * @spec 001-missing-core-features (US3)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   submitPilotFlightRequest,
   getCurrentPilotFlightRequests,
@@ -25,9 +30,7 @@ import {
 } from '@/lib/services/pilot-flight-service'
 import { FlightRequestSchema } from '@/lib/validations/flight-request-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import { statusFromErrorCode } from '@/lib/utils/api-response-helper'
 import { revalidatePath } from 'next/cache'
 
@@ -36,11 +39,12 @@ import { revalidatePath } from 'next/cache'
  *
  * Allows authenticated pilot to submit a new RDO/SDO request.
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const POST = createPilotRoute(
+  {
+    operation: 'submitFlightRequest',
+    endpoint: '/api/portal/flight-requests',
+  },
+  async ({ request }) => {
     const body = await request.json()
 
     // Validate request data
@@ -88,23 +92,21 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'RDO/SDO request submitted successfully',
     })
-  } catch (error: unknown) {
-    console.error('Submit flight request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'submitFlightRequest',
-      endpoint: '/api/portal/flight-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * GET - Get RDO/SDO Requests
  *
  * Retrieves all RDO/SDO requests for the authenticated pilot.
  */
-export async function GET(_request: NextRequest) {
-  try {
+export const GET = createPilotRoute(
+  {
+    operation: 'getFlightRequests',
+    endpoint: '/api/portal/flight-requests',
+    rateLimit: false,
+  },
+  async () => {
     // Get RDO/SDO requests
     const result = await getCurrentPilotFlightRequests()
 
@@ -127,15 +129,8 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error: unknown) {
-    console.error('Get flight requests API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getFlightRequests',
-      endpoint: '/api/portal/flight-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PUT - Update RDO/SDO Request
@@ -143,11 +138,12 @@ export async function GET(_request: NextRequest) {
  * Allows pilot to update their own SUBMITTED RDO/SDO request.
  * Query params: ?id=<request_id>
  */
-export const PUT = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const PUT = createPilotRoute(
+  {
+    operation: 'updateFlightRequest',
+    endpoint: '/api/portal/flight-requests',
+  },
+  async ({ request }) => {
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
@@ -212,15 +208,8 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'RDO/SDO request updated successfully',
     })
-  } catch (error: unknown) {
-    console.error('Update flight request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateFlightRequest',
-      endpoint: '/api/portal/flight-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * DELETE - Cancel RDO/SDO Request
@@ -228,11 +217,12 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
  * Allows pilot to cancel their own pending RDO/SDO request.
  * Query params: ?id=<request_id>
  */
-export const DELETE = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const DELETE = createPilotRoute(
+  {
+    operation: 'cancelFlightRequest',
+    endpoint: '/api/portal/flight-requests',
+  },
+  async ({ request }) => {
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
@@ -293,12 +283,5 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'RDO/SDO request cancelled successfully',
     })
-  } catch (error: unknown) {
-    console.error('Cancel flight request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'cancelFlightRequest',
-      endpoint: '/api/portal/flight-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
