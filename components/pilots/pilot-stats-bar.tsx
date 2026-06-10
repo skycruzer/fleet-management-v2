@@ -25,17 +25,18 @@ interface StatCardProps {
   iconBg: string
   iconColor: string
   total: number
-  accent?: boolean
+  /** 3px color-coded top border (Operations Navy KPI signature). */
+  topBorder: string
 }
 
-function StatCard({ icon: Icon, label, value, iconBg, iconColor, total, accent }: StatCardProps) {
+function StatCard({ icon: Icon, label, value, iconBg, iconColor, total, topBorder }: StatCardProps) {
   const ratio = total > 0 ? (value / total) * 100 : 0
 
   return (
     <div
       className={cn(
-        'bg-card border-border relative overflow-hidden rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md',
-        accent && 'border-[var(--color-info-border)]'
+        'bg-card border-border relative overflow-hidden rounded-lg border border-t-[3px] p-5 transition-shadow hover:shadow-md',
+        topBorder
       )}
     >
       <div className="flex items-center gap-4">
@@ -48,8 +49,10 @@ function StatCard({ icon: Icon, label, value, iconBg, iconColor, total, accent }
           <Icon className={cn('h-6 w-6', iconColor)} aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-foreground text-2xl font-bold tracking-tight">{value}</p>
-          <p className="text-muted-foreground text-sm font-medium">{label}</p>
+          <p className="text-foreground text-2xl font-bold tracking-tight tabular-nums">{value}</p>
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+            {label}
+          </p>
         </div>
       </div>
 
@@ -81,7 +84,7 @@ export function PilotStatsBar({
         iconBg="bg-[var(--color-info-bg)]"
         iconColor="text-primary"
         total={totalPilots}
-        accent
+        topBorder="border-t-primary"
       />
       <StatCard
         icon={Star}
@@ -90,6 +93,7 @@ export function PilotStatsBar({
         iconBg="bg-[var(--color-warning-500)]/10"
         iconColor="text-[var(--color-warning-500)]"
         total={totalPilots}
+        topBorder="border-t-[var(--color-status-medium)]"
       />
       <StatCard
         icon={User}
@@ -98,6 +102,7 @@ export function PilotStatsBar({
         iconBg="bg-[var(--color-status-low)]/10"
         iconColor="text-[var(--color-status-low)]"
         total={totalPilots}
+        topBorder="border-t-[var(--color-status-low)]"
       />
       <StatCard
         icon={CheckCircle}
@@ -106,6 +111,7 @@ export function PilotStatsBar({
         iconBg="bg-[var(--color-status-low)]/10"
         iconColor="text-[var(--color-status-low)]"
         total={totalPilots}
+        topBorder="border-t-[var(--color-status-low)]"
       />
     </div>
   )

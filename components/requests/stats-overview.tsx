@@ -34,22 +34,16 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value, icon, description, variant, href, isActive }: StatCardProps) {
+  // Operations Navy KPI signature: white card, 3px color-coded top border
   const variantStyles = {
-    default: 'bg-background border',
-    critical: 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]',
-    warning: 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]',
-    success: 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]',
+    default: 'border-t-[3px] border-t-primary',
+    critical: 'border-t-[3px] border-t-[var(--color-status-high)]',
+    warning: 'border-t-[3px] border-t-[var(--color-status-medium)]',
+    success: 'border-t-[3px] border-t-[var(--color-status-low)]',
   }
 
   const textStyles = {
     default: 'text-foreground',
-    critical: 'text-[var(--color-status-high)]',
-    warning: 'text-[var(--color-status-medium)]',
-    success: 'text-[var(--color-status-low)]',
-  }
-
-  const labelStyles = {
-    default: 'text-muted-foreground',
     critical: 'text-[var(--color-status-high)]',
     warning: 'text-[var(--color-status-medium)]',
     success: 'text-[var(--color-status-low)]',
@@ -66,12 +60,14 @@ function StatCard({ label, value, icon, description, variant, href, isActive }: 
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className={cn('text-sm font-medium', labelStyles[variant])}>{label}</p>
-            <p className={cn('text-2xl font-bold', textStyles[variant])}>{value}</p>
+            <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+              {label}
+            </p>
+            <p className={cn('text-2xl font-bold tabular-nums', textStyles[variant])}>{value}</p>
           </div>
           <div className={textStyles[variant]}>{icon}</div>
         </div>
-        {description && <p className={cn('mt-1.5 text-xs', labelStyles[variant])}>{description}</p>}
+        {description && <p className="text-muted-foreground mt-1.5 text-xs">{description}</p>}
       </Card>
     </Link>
   )
