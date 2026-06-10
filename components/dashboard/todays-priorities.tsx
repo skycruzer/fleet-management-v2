@@ -57,7 +57,7 @@ export async function TodaysPriorities() {
         icon: <ClipboardList className="text-warning h-4 w-4" aria-hidden="true" />,
         label: `${priorities.pendingRequests.total} pending request${priorities.pendingRequests.total === 1 ? '' : 's'}${parts.length > 0 ? ` (${parts.join(', ')})` : ''}`,
         count: String(priorities.pendingRequests.total),
-        href: '/dashboard/requests?status=SUBMITTED,IN_REVIEW',
+        href: '/dashboard/approvals',
         variant: 'warning',
       })
     }

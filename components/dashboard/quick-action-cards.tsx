@@ -26,7 +26,7 @@ const actions = [
     title: 'Approve Requests',
     description: 'Review pending leave and RDO/SDO requests',
     icon: ClipboardCheck,
-    href: '/dashboard/requests',
+    href: '/dashboard/approvals',
   },
   {
     title: 'Generate Report',

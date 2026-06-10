@@ -46,7 +46,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
   const enrichedItems = useMemo(() => {
     const enrich = (items: AdminNavItem[]): NavItem[] =>
       items.map((item) => {
-        if (item.title === 'Requests' && badges?.pendingRequests) {
+        if (item.title === 'Approvals' && badges?.pendingRequests) {
           return {
             ...item,
             badge: String(badges.pendingRequests),

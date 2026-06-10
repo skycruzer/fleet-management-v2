@@ -192,7 +192,10 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         <div>
           <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">Request Management</h1>
           <p className="text-muted-foreground text-sm">
-            Manage leave and RDO/SDO requests with Table, Cards, or Calendar views
+            Browse and audit all requests — pending decisions live in the{' '}
+            <Link href="/dashboard/approvals" className="text-primary font-medium hover:underline">
+              Approvals queue
+            </Link>
           </p>
         </div>
         <div className="flex items-center gap-2">
