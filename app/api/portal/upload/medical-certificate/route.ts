@@ -12,10 +12,13 @@
  * - Server-side file type validation using magic bytes
  * - Size limit: 10MB
  * - Rate limited: 20 requests/minute
+ *
+ * Security pipeline (CSRF, auth, rate limiting) via createPilotRoute.
+ *
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { NextResponse } from 'next/server'
 import {
   uploadMedicalCertificate,
   validateFileWithMagicBytes,
@@ -23,9 +26,7 @@ import {
 } from '@/lib/services/file-upload-service'
 import { recordUploadedDocument } from '@/lib/services/pilot-document-service'
 import { isValidFileSize } from '@/lib/validations/file-upload-schema'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * POST - Upload Medical Certificate
@@ -33,14 +34,13 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * Accepts multipart/form-data with a single file field named 'file'.
  * Returns signed URL on success.
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Authenticate pilot
-    const pilot = await getCurrentPilot()
-    if (!pilot || !pilot.pilot_id) {
+export const POST = createPilotRoute(
+  {
+    operation: 'uploadMedicalCertificate',
+    endpoint: '/api/portal/upload/medical-certificate',
+  },
+  async ({ request, pilot }) => {
+    if (!pilot.pilot_id) {
       return NextResponse.json(
         {
           success: false,
@@ -154,12 +154,5 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       },
       message: 'Medical certificate uploaded successfully',
     })
-  } catch (error) {
-    console.error('Medical certificate upload error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'uploadMedicalCertificate',
-      endpoint: '/api/portal/upload/medical-certificate',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getAuditLogs, getAuditStats } from '@/lib/services/audit-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 
 /**
@@ -24,112 +24,114 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  * - stats: Return statistics instead of logs (stats=true)
  *
  * @spec 001-missing-core-features (US4, T069)
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
-export async function GET(_request: NextRequest) {
-  try {
-    // Authentication check - admin only
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getAuditLogs',
+    endpoint: '/api/audit',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    try {
+      const searchParams = request.nextUrl.searchParams
 
-    const searchParams = _request.nextUrl.searchParams
+      // Check if stats are requested
+      const includeStats = searchParams.get('stats') === 'true'
 
-    // Check if stats are requested
-    const includeStats = searchParams.get('stats') === 'true'
+      if (includeStats) {
+        // Parse date range for stats
+        const startDateStr = searchParams.get('startDate')
+        const endDateStr = searchParams.get('endDate')
 
-    if (includeStats) {
-      // Parse date range for stats
+        const startDate = startDateStr ? new Date(startDateStr) : undefined
+        const endDate = endDateStr ? new Date(endDateStr) : undefined
+
+        const stats = await getAuditStats(startDate, endDate)
+
+        return NextResponse.json({ success: true, data: stats }, { status: 200 })
+      }
+
+      // Build filters from query params
+      const filters: any = {}
+
+      const userEmail = searchParams.get('userEmail')
+      if (userEmail) {
+        filters.userEmail = userEmail
+      }
+
+      const tableName = searchParams.get('tableName')
+      if (tableName) {
+        filters.tableName = tableName
+      }
+
+      const action = searchParams.get('action')
+      if (action) {
+        filters.action = action
+      }
+
+      const recordId = searchParams.get('recordId')
+      if (recordId) {
+        filters.recordId = recordId
+      }
+
       const startDateStr = searchParams.get('startDate')
+      if (startDateStr) {
+        filters.startDate = new Date(startDateStr)
+      }
+
       const endDateStr = searchParams.get('endDate')
+      if (endDateStr) {
+        filters.endDate = new Date(endDateStr)
+      }
 
-      const startDate = startDateStr ? new Date(startDateStr) : undefined
-      const endDate = endDateStr ? new Date(endDateStr) : undefined
+      const searchQuery = searchParams.get('searchQuery')
+      if (searchQuery) {
+        filters.searchQuery = searchQuery
+      }
 
-      const stats = await getAuditStats(startDate, endDate)
+      const page = parseInt(searchParams.get('page') || '1')
+      if (!isNaN(page) && page > 0) {
+        filters.page = page
+      }
 
-      return NextResponse.json({ success: true, data: stats }, { status: 200 })
-    }
+      const pageSize = parseInt(searchParams.get('pageSize') || '20')
+      if (!isNaN(pageSize) && pageSize > 0 && pageSize <= 100) {
+        filters.pageSize = pageSize
+      }
 
-    // Build filters from query params
-    const filters: any = {}
+      const sortBy = searchParams.get('sortBy')
+      if (sortBy && ['created_at', 'user_email', 'table_name', 'action'].includes(sortBy)) {
+        filters.sortBy = sortBy
+      }
 
-    const userEmail = searchParams.get('userEmail')
-    if (userEmail) {
-      filters.userEmail = userEmail
-    }
+      const sortOrder = searchParams.get('sortOrder')
+      if (sortOrder && ['asc', 'desc'].includes(sortOrder)) {
+        filters.sortOrder = sortOrder
+      }
 
-    const tableName = searchParams.get('tableName')
-    if (tableName) {
-      filters.tableName = tableName
-    }
+      // Fetch audit logs
+      const result = await getAuditLogs(filters)
 
-    const action = searchParams.get('action')
-    if (action) {
-      filters.action = action
-    }
-
-    const recordId = searchParams.get('recordId')
-    if (recordId) {
-      filters.recordId = recordId
-    }
-
-    const startDateStr = searchParams.get('startDate')
-    if (startDateStr) {
-      filters.startDate = new Date(startDateStr)
-    }
-
-    const endDateStr = searchParams.get('endDate')
-    if (endDateStr) {
-      filters.endDate = new Date(endDateStr)
-    }
-
-    const searchQuery = searchParams.get('searchQuery')
-    if (searchQuery) {
-      filters.searchQuery = searchQuery
-    }
-
-    const page = parseInt(searchParams.get('page') || '1')
-    if (!isNaN(page) && page > 0) {
-      filters.page = page
-    }
-
-    const pageSize = parseInt(searchParams.get('pageSize') || '20')
-    if (!isNaN(pageSize) && pageSize > 0 && pageSize <= 100) {
-      filters.pageSize = pageSize
-    }
-
-    const sortBy = searchParams.get('sortBy')
-    if (sortBy && ['created_at', 'user_email', 'table_name', 'action'].includes(sortBy)) {
-      filters.sortBy = sortBy
-    }
-
-    const sortOrder = searchParams.get('sortOrder')
-    if (sortOrder && ['asc', 'desc'].includes(sortOrder)) {
-      filters.sortOrder = sortOrder
-    }
-
-    // Fetch audit logs
-    const result = await getAuditLogs(filters)
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: result.logs,
-        pagination: {
-          page: result.page,
-          pageSize: result.pageSize,
-          totalCount: result.totalCount,
-          totalPages: result.totalPages,
+      return NextResponse.json(
+        {
+          success: true,
+          data: result.logs,
+          pagination: {
+            page: result.page,
+            pageSize: result.pageSize,
+            totalCount: result.totalCount,
+            totalPages: result.totalPages,
+          },
         },
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Audit logs GET error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
+        { status: 200 }
+      )
+    } catch (error) {
+      console.error('Audit logs GET error:', error)
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
+        { status: 500 }
+      )
+    }
   }
-}
+)

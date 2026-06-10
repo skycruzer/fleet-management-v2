@@ -10,11 +10,13 @@
  * @route POST /api/feedback/[id]/comments - Add new comment
  * @route PATCH /api/feedback/[id]/comments - Update comment
  * @route DELETE /api/feedback/[id]/comments - Delete comment
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   createFeedbackComment,
   getFeedbackComments,
@@ -43,177 +45,169 @@ const deleteCommentSchema = z.object({
  *
  * Get all comments for a feedback item
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id: feedbackId } = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getFeedbackComments',
+    endpoint: '/api/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    try {
+      const { id: feedbackId } = params
 
-    // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated || !auth.userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      // Fetch comments
+      const result = await getFeedbackComments(feedbackId)
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('GET feedback comments error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Fetch comments
-    const result = await getFeedbackComments(feedbackId)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('GET feedback comments error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * POST /api/feedback/[id]/comments
  *
  * Create a new comment on feedback (admin)
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'createFeedbackComment',
+    endpoint: '/api/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, params, admin }) => {
+    try {
+      const { id: feedbackId } = params
 
-    const { id: feedbackId } = await params
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = createCommentSchema.safeParse(body)
 
-    // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated || !auth.userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
+
+      // Create comment
+      const result = await createFeedbackComment({
+        feedback_id: feedbackId,
+        user_id: admin.userId,
+        user_type: 'admin',
+        content: validation.data.content,
+        parent_comment_id: validation.data.parent_comment_id || null,
+      })
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('POST feedback comment error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = createCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
-      )
-    }
-
-    // Create comment
-    const result = await createFeedbackComment({
-      feedback_id: feedbackId,
-      user_id: auth.userId,
-      user_type: 'admin',
-      content: validation.data.content,
-      parent_comment_id: validation.data.parent_comment_id || null,
-    })
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('POST feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * PATCH /api/feedback/[id]/comments
  *
  * Update a comment (admin)
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const PATCH = createAdminRoute(
+  {
+    operation: 'updateFeedbackComment',
+    endpoint: '/api/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, admin }) => {
+    try {
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = updateCommentSchema.safeParse(body)
 
-    // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated || !auth.userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
+
+      // Update comment
+      const result = await updateFeedbackComment(validation.data.comment_id, admin.userId, {
+        content: validation.data.content,
+      })
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('PATCH feedback comment error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = updateCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
-      )
-    }
-
-    // Update comment
-    const result = await updateFeedbackComment(validation.data.comment_id, auth.userId, {
-      content: validation.data.content,
-    })
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('PATCH feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * DELETE /api/feedback/[id]/comments
  *
  * Delete a comment (admin)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deleteFeedbackComment',
+    endpoint: '/api/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, admin }) => {
+    try {
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = deleteCommentSchema.safeParse(body)
 
-    // Verify admin authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated || !auth.userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
 
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = deleteCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
+      // Delete comment (admin can delete any comment)
+      const result = await deleteFeedbackComment(
+        validation.data.comment_id,
+        admin.userId,
+        true // isAdmin
       )
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+      })
+    } catch (error) {
+      console.error('DELETE feedback comment error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Delete comment (admin can delete any comment)
-    const result = await deleteFeedbackComment(
-      validation.data.comment_id,
-      auth.userId,
-      true // isAdmin
-    )
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-    })
-  } catch (error) {
-    console.error('DELETE feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)

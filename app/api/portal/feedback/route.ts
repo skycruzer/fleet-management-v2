@@ -5,21 +5,18 @@
  *
  * CSRF PROTECTION: POST method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
- * AUTH: Explicit pilot authentication check at API layer
+ * AUTH: Pilot authentication enforced via createPilotRoute
  *
- * @version 2.2.0
- * @updated 2026-01 - Added explicit auth guards and standardized responses
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { submitFeedback, getCurrentPilotFeedback } from '@/lib/services/pilot-feedback-service'
 import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * POST /api/portal/feedback
@@ -28,20 +25,12 @@ import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
  *
  * @auth Pilot Portal Authentication required (explicit check)
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
+export const POST = createPilotRoute(
+  {
+    operation: 'submitFeedback',
+    endpoint: '/api/portal/feedback',
+  },
+  async ({ request }) => {
     // Read body once and handle potential stream errors
     let body: unknown
     try {
@@ -83,16 +72,8 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     revalidatePath('/dashboard/feedback')
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error: any) {
-    console.error('POST /api/portal/feedback error:', error)
-
-    const sanitized = sanitizeError(error, {
-      operation: 'submitFeedback',
-      endpoint: '/api/portal/feedback',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * GET /api/portal/feedback
@@ -101,33 +82,34 @@ export const POST = withRateLimit(async (request: NextRequest) => {
  *
  * @auth Pilot Portal Authentication required (explicit check)
  */
-export async function GET() {
-  try {
-    // SECURITY: Explicit authentication check at API layer
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return unauthorizedResponse('Pilot authentication required')
-    }
+export const GET = createPilotRoute(
+  {
+    operation: 'getFeedback',
+    endpoint: '/api/portal/feedback',
+    rateLimit: false,
+  },
+  async () => {
+    try {
+      const result = await getCurrentPilotFeedback()
 
-    const result = await getCurrentPilotFeedback()
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: result.error, errorCode: 'FETCH_FAILED' },
+          { status: 400 }
+        )
+      }
 
-    if (!result.success) {
+      return NextResponse.json({ success: true, data: result.data })
+    } catch (error: unknown) {
+      console.error('GET /api/portal/feedback error:', error)
+      const sanitized = sanitizeError(error, {
+        operation: 'getFeedback',
+        endpoint: '/api/portal/feedback',
+      })
       return NextResponse.json(
-        { success: false, error: result.error, errorCode: 'FETCH_FAILED' },
-        { status: 400 }
+        { success: false, error: sanitized.error, errorId: sanitized.errorId },
+        { status: sanitized.statusCode || 500 }
       )
     }
-
-    return NextResponse.json({ success: true, data: result.data })
-  } catch (error: unknown) {
-    console.error('GET /api/portal/feedback error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getFeedback',
-      endpoint: '/api/portal/feedback',
-    })
-    return NextResponse.json(
-      { success: false, error: sanitized.error, errorId: sanitized.errorId },
-      { status: sanitized.statusCode || 500 }
-    )
   }
-}
+)

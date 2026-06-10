@@ -26,11 +26,12 @@
  *    RESEND_API_KEY=re_xxxxxxxxxxxxx
  *    RESEND_FROM_EMAIL="Fleet Management <no-reply@yourdomain.com>"
  *    RESEND_TO_EMAIL="rostering-team@airniugini.com"
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   getRosterPeriodCapacity,
   listRosterPeriodsForYear,
@@ -320,131 +321,129 @@ function generateEmailHTML(data: {
 /**
  * POST handler - Send renewal plan email
  */
-export async function POST(request: NextRequest) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const formData = await request.formData()
-    const yearParam = formData.get('year')?.toString()
-
-    // Validate year parameter
-    if (!yearParam) {
-      return NextResponse.json(
-        { error: 'Year parameter is required', details: 'Please specify a year' },
-        { status: 400 }
-      )
-    }
-
-    const year = parseInt(yearParam, 10)
-    if (isNaN(year) || year < 2020 || year > 2100) {
-      return NextResponse.json(
-        { error: 'Invalid year parameter', details: 'Year must be between 2020 and 2100' },
-        { status: 400 }
-      )
-    }
-
-    // Get roster periods for the year via the service (no direct supabase here).
-    let periods: Awaited<ReturnType<typeof listRosterPeriodsForYear>>
+export const POST = createAdminRoute(
+  {
+    operation: 'sendRenewalPlanEmail',
+    endpoint: '/api/renewal-planning/email',
+    rateLimit: false,
+  },
+  async ({ request }) => {
     try {
-      periods = await listRosterPeriodsForYear(year)
-    } catch (periodsError: any) {
-      console.error('[Email] listRosterPeriodsForYear failed', {
-        year,
-        error: periodsError?.message,
-      })
-      return NextResponse.json({ error: 'Failed to fetch roster periods' }, { status: 500 })
-    }
+      const formData = await request.formData()
+      const yearParam = formData.get('year')?.toString()
 
-    if (!periods || periods.length === 0) {
-      return NextResponse.json(
-        {
-          error: `No roster periods found for year ${year}`,
-          details: 'Generate roster periods first before sending email',
-        },
-        { status: 404 }
+      // Validate year parameter
+      if (!yearParam) {
+        return NextResponse.json(
+          { error: 'Year parameter is required', details: 'Please specify a year' },
+          { status: 400 }
+        )
+      }
+
+      const year = parseInt(yearParam, 10)
+      if (isNaN(year) || year < 2020 || year > 2100) {
+        return NextResponse.json(
+          { error: 'Invalid year parameter', details: 'Year must be between 2020 and 2100' },
+          { status: 400 }
+        )
+      }
+
+      // Get roster periods for the year via the service (no direct supabase here).
+      let periods: Awaited<ReturnType<typeof listRosterPeriodsForYear>>
+      try {
+        periods = await listRosterPeriodsForYear(year)
+      } catch (periodsError: any) {
+        console.error('[Email] listRosterPeriodsForYear failed', {
+          year,
+          error: periodsError?.message,
+        })
+        return NextResponse.json({ error: 'Failed to fetch roster periods' }, { status: 500 })
+      }
+
+      if (!periods || periods.length === 0) {
+        return NextResponse.json(
+          {
+            error: `No roster periods found for year ${year}`,
+            details: 'Generate roster periods first before sending email',
+          },
+          { status: 404 }
+        )
+      }
+
+      // Get capacity summaries
+      const summaries = await Promise.all(
+        periods.map(async (p) => {
+          const summary = await getRosterPeriodCapacity(p.roster_period)
+          return summary
+        })
       )
-    }
 
-    // Get capacity summaries
-    const summaries = await Promise.all(
-      periods.map(async (p) => {
-        const summary = await getRosterPeriodCapacity(p.roster_period)
-        return summary
-      })
-    )
+      const validSummaries = summaries.filter((s) => s !== null)
 
-    const validSummaries = summaries.filter((s) => s !== null)
+      if (validSummaries.length === 0) {
+        return NextResponse.json(
+          { error: 'No capacity data available', details: 'Unable to retrieve capacity summaries' },
+          { status: 500 }
+        )
+      }
 
-    if (validSummaries.length === 0) {
-      return NextResponse.json(
-        { error: 'No capacity data available', details: 'Unable to retrieve capacity summaries' },
-        { status: 500 }
-      )
-    }
-
-    // Refuse to send a partial-data email — rostering team must not be told
-    // "Plan for 2026" with figures derived from a fraction of the year's
-    // periods. Either all 13 load, or we surface a 502 explaining what's
-    // missing so they can retry.
-    if (validSummaries.length < periods.length) {
-      const missingPeriods = periods
-        .map((p, idx) => (summaries[idx] === null ? p.roster_period : null))
-        .filter((code): code is string => code !== null)
-      console.error('[Email] Refusing to send partial renewal plan email', {
-        year,
-        expectedPeriods: periods.length,
-        validSummaries: validSummaries.length,
-        missingPeriods,
-      })
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Renewal plan data incomplete',
-          details: `Capacity data missing for ${missingPeriods.length} of ${periods.length} periods. Email not sent.`,
+      // Refuse to send a partial-data email — rostering team must not be told
+      // "Plan for 2026" with figures derived from a fraction of the year's
+      // periods. Either all 13 load, or we surface a 502 explaining what's
+      // missing so they can retry.
+      if (validSummaries.length < periods.length) {
+        const missingPeriods = periods
+          .map((p, idx) => (summaries[idx] === null ? p.roster_period : null))
+          .filter((code): code is string => code !== null)
+        console.error('[Email] Refusing to send partial renewal plan email', {
+          year,
+          expectedPeriods: periods.length,
+          validSummaries: validSummaries.length,
           missingPeriods,
-        },
-        { status: 502 }
-      )
-    }
+        })
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Renewal plan data incomplete',
+            details: `Capacity data missing for ${missingPeriods.length} of ${periods.length} periods. Email not sent.`,
+            missingPeriods,
+          },
+          { status: 502 }
+        )
+      }
 
-    // Calculate statistics
-    const totalCapacity = validSummaries.reduce((sum, s) => sum + s.totalCapacity, 0)
-    const totalPlanned = validSummaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
-    const overallUtilization = totalCapacity > 0 ? (totalPlanned / totalCapacity) * 100 : 0
-    const highRiskPeriods = validSummaries.filter((s) => s.utilizationPercentage > 80)
+      // Calculate statistics
+      const totalCapacity = validSummaries.reduce((sum, s) => sum + s.totalCapacity, 0)
+      const totalPlanned = validSummaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
+      const overallUtilization = totalCapacity > 0 ? (totalPlanned / totalCapacity) * 100 : 0
+      const highRiskPeriods = validSummaries.filter((s) => s.utilizationPercentage > 80)
 
-    // Validate that we have renewals to report
-    if (totalPlanned === 0) {
-      return NextResponse.json(
-        {
-          error: 'No renewal plans to send',
-          details: `No renewals have been planned for ${year} yet. Generate a renewal plan first.`,
-        },
-        { status: 404 }
-      )
-    }
+      // Validate that we have renewals to report
+      if (totalPlanned === 0) {
+        return NextResponse.json(
+          {
+            error: 'No renewal plans to send',
+            details: `No renewals have been planned for ${year} yet. Generate a renewal plan first.`,
+          },
+          { status: 404 }
+        )
+      }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-    // Generate email content
-    const emailHTML = generateEmailHTML({
-      year,
-      totalRenewals: totalPlanned,
-      totalCapacity,
-      overallUtilization,
-      highRiskPeriods,
-      summaries: validSummaries,
-      appUrl,
-    })
+      // Generate email content
+      const emailHTML = generateEmailHTML({
+        year,
+        totalRenewals: totalPlanned,
+        totalCapacity,
+        overallUtilization,
+        highRiskPeriods,
+        summaries: validSummaries,
+        appUrl,
+      })
 
-    // Plain text version (fallback for email clients that don't support HTML)
-    const emailText = `
+      // Plain text version (fallback for email clients that don't support HTML)
+      const emailText = `
 Certification Renewal Planning Report
 Year: ${year}
 
@@ -477,69 +476,70 @@ Air Niugini - B767 Fleet Management
 Fleet Operations
     `.trim()
 
-    // Send email with retry logic
-    const emailResult = await sendEmailWithRetry({
-      subject: `Certification Renewal Plan - ${year}`,
-      html: emailHTML,
-      text: emailText,
-    })
-
-    // Audit log for email sent
-    await createAuditLog({
-      action: 'INSERT',
-      tableName: 'email_notifications',
-      recordId: emailResult.id || 'unknown',
-      newData: {
-        type: 'renewal_plan',
-        year,
-        recipient: process.env.RESEND_TO_EMAIL,
-        total_renewals: totalPlanned,
-        utilization_percentage: overallUtilization,
-      },
-      description: `Renewal planning email sent for year ${year}`,
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: `Renewal plan email sent successfully for year ${year}`,
-      emailId: emailResult.id,
-      stats: {
-        totalRenewals: totalPlanned,
-        totalCapacity,
-        utilization: Math.round(overallUtilization),
-        highRiskPeriods: highRiskPeriods.length,
-      },
-    })
-  } catch (error: any) {
-    console.error('[Email] Error:', error)
-
-    // Special handling for package not installed: log setup guidance
-    // server-side, but don't ship internal infrastructure setup details
-    // back to clients (admins) — they get a generic 503.
-    if (error.message?.includes('npm install resend')) {
-      console.error('[Email] Resend package missing — server-side setup required', {
-        steps: [
-          '1. Install Resend package: npm install resend',
-          '2. Sign up at https://resend.com and get API key',
-          '3. Verify your domain in Resend dashboard',
-          '4. Add RESEND_API_KEY to .env.local',
-          '5. Add RESEND_FROM_EMAIL to .env.local',
-          '6. Add RESEND_TO_EMAIL to .env.local',
-        ],
+      // Send email with retry logic
+      const emailResult = await sendEmailWithRetry({
+        subject: `Certification Renewal Plan - ${year}`,
+        html: emailHTML,
+        text: emailText,
       })
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Email service not configured. Contact the system administrator.',
-        },
-        { status: 503 }
-      )
-    }
 
-    const sanitized = sanitizeError(error, {
-      operation: 'sendRenewalPlanEmail',
-      endpoint: '/api/renewal-planning/email',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
+      // Audit log for email sent
+      await createAuditLog({
+        action: 'INSERT',
+        tableName: 'email_notifications',
+        recordId: emailResult.id || 'unknown',
+        newData: {
+          type: 'renewal_plan',
+          year,
+          recipient: process.env.RESEND_TO_EMAIL,
+          total_renewals: totalPlanned,
+          utilization_percentage: overallUtilization,
+        },
+        description: `Renewal planning email sent for year ${year}`,
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: `Renewal plan email sent successfully for year ${year}`,
+        emailId: emailResult.id,
+        stats: {
+          totalRenewals: totalPlanned,
+          totalCapacity,
+          utilization: Math.round(overallUtilization),
+          highRiskPeriods: highRiskPeriods.length,
+        },
+      })
+    } catch (error: any) {
+      console.error('[Email] Error:', error)
+
+      // Special handling for package not installed: log setup guidance
+      // server-side, but don't ship internal infrastructure setup details
+      // back to clients (admins) — they get a generic 503.
+      if (error.message?.includes('npm install resend')) {
+        console.error('[Email] Resend package missing — server-side setup required', {
+          steps: [
+            '1. Install Resend package: npm install resend',
+            '2. Sign up at https://resend.com and get API key',
+            '3. Verify your domain in Resend dashboard',
+            '4. Add RESEND_API_KEY to .env.local',
+            '5. Add RESEND_FROM_EMAIL to .env.local',
+            '6. Add RESEND_TO_EMAIL to .env.local',
+          ],
+        })
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Email service not configured. Contact the system administrator.',
+          },
+          { status: 503 }
+        )
+      }
+
+      const sanitized = sanitizeError(error, {
+        operation: 'sendRenewalPlanEmail',
+        endpoint: '/api/renewal-planning/email',
+      })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode })
+    }
   }
-}
+)

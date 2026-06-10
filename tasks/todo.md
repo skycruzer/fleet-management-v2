@@ -1,3 +1,30 @@
+# Phase 1b — Factory migration of all standard routes (2026-06-10, branch refactor/route-factory-phase-1b)
+
+- [x] Wave 1: 36 routes (pilots, certifications, tasks, requests, leave-requests, users,
+      settings, user/\*, check-types, search, sidebar-badges, notifications, 9 portal routes)
+- [x] Wave 2: 44 routes (roster-periods/reports, published-rosters, renewal-planning,
+      analytics, audit, reports, feedback, disciplinary, admin/\*, cache, registration-approval)
+- [x] Wave 3: 12 routes (retirement, activity-codes, contract-types, deadline-alerts,
+      leave-stats, legacy pilot routes, portal flight-requests, medical-certificate upload)
+- [ ] e2e verification (leave-bids baseline + leave-requests + admin-leave-requests)
+- [ ] PR, CI, merge
+
+96 routes total now on the factory. Not migrated by design: auth/login/logout/register/
+password flows, csrf, health, cron (different auth models).
+
+## SECURITY FINDINGS from migration audit (each route left byte-identical; needs own fix)
+
+- [ ] `app/api/tasks/[id]/route.ts` GET — NO auth check at all
+- [ ] `app/api/retirement/timeline/route.ts` GET — NO auth check at all
+- [ ] `app/api/renewal-planning/roster-period/[period]/route.ts` — NO route-level auth
+- [ ] `app/api/dashboard/flight-requests/[id]/route.ts` PATCH — no route-level admin auth
+      (relies on service-layer auth only)
+- [ ] `pilot/leave/[id]` + `pilot/flight-requests/[id]` use a THIRD auth primitive
+      (`verifyPilotSession` — Redis session only, no registration_approved gate); consolidate
+      with getCurrentPilot semantics deliberately, not in a refactor
+
+---
+
 # Role-Casing Fix (2026-06-10, branch fix/require-role-casing)
 
 `an_users.role` stores lowercase ('admin' x3, 'manager' x1) but code compares capitalized.

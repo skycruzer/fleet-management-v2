@@ -11,12 +11,12 @@
  * SECURITY: Uses service role client to bypass RLS
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  * @spec 001-missing-core-features (US2)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   submitPilotLeaveRequest,
   getCurrentPilotLeaveRequests,
@@ -28,9 +28,7 @@ import {
   PilotLeaveCancelSchema,
 } from '@/lib/validations/pilot-leave-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import { statusFromErrorCode } from '@/lib/utils/api-response-helper'
 import { revalidatePath } from 'next/cache'
 
@@ -39,11 +37,12 @@ import { revalidatePath } from 'next/cache'
  *
  * Allows authenticated pilot to submit a new leave request.
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const POST = createPilotRoute(
+  {
+    operation: 'submitLeaveRequest',
+    endpoint: '/api/portal/leave-requests',
+  },
+  async ({ request }) => {
     const body = await request.json()
 
     // Validate request data
@@ -93,23 +92,21 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'Leave request submitted successfully',
     })
-  } catch (error: unknown) {
-    console.error('Submit leave request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'submitLeaveRequest',
-      endpoint: '/api/portal/leave-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * GET - Get Leave Requests
  *
  * Retrieves all leave requests for the authenticated pilot.
  */
-export async function GET(_request: NextRequest) {
-  try {
+export const GET = createPilotRoute(
+  {
+    operation: 'getLeaveRequests',
+    endpoint: '/api/portal/leave-requests',
+    rateLimit: false,
+  },
+  async () => {
     // Get leave requests
     const result = await getCurrentPilotLeaveRequests()
 
@@ -132,15 +129,8 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error: unknown) {
-    console.error('Get leave requests API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getLeaveRequests',
-      endpoint: '/api/portal/leave-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PUT - Update Leave Request
@@ -148,11 +138,12 @@ export async function GET(_request: NextRequest) {
  * Allows pilot to update their own SUBMITTED or IN_REVIEW leave request.
  * Query params: ?id=<request_id>
  */
-export const PUT = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const PUT = createPilotRoute(
+  {
+    operation: 'updateLeaveRequest',
+    endpoint: '/api/portal/leave-requests',
+  },
+  async ({ request }) => {
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
@@ -219,15 +210,8 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'Leave request updated successfully',
     })
-  } catch (error: unknown) {
-    console.error('Update leave request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateLeaveRequest',
-      endpoint: '/api/portal/leave-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)
 
 /**
  * DELETE - Cancel Leave Request
@@ -235,11 +219,12 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
  * Allows pilot to cancel their own pending leave request.
  * Query params: ?id=<request_id>
  */
-export const DELETE = withRateLimit(async (request: NextRequest) => {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const DELETE = createPilotRoute(
+  {
+    operation: 'cancelLeaveRequest',
+    endpoint: '/api/portal/leave-requests',
+  },
+  async ({ request }) => {
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
@@ -303,12 +288,5 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'Leave request cancelled successfully',
     })
-  } catch (error: unknown) {
-    console.error('Cancel leave request API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'cancelLeaveRequest',
-      endpoint: '/api/portal/leave-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

@@ -4,43 +4,35 @@
  *
  * Developer: Maurice Rondeau
  *
- * CSRF PROTECTION: PUT and DELETE methods require CSRF token validation
- * RATE LIMITING: 20 mutation requests per minute per IP
- * AUTHORIZATION: DELETE requires Admin or Manager role
+ * Security pipeline (CSRF, auth, rate limiting, roles) via createAdminRoute.
+ * AUTHORIZATION: PUT and DELETE require Admin or Manager role
  *
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2025-10-20
- * @updated 2026-01 - Added role-based authorization for destructive operations
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getPilotById, updatePilot, deletePilot } from '@/lib/services/pilot-service'
 import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
 import { validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { getPilotRequirements } from '@/lib/services/admin-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { getClientIp } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
-import { unauthorizedResponse, forbiddenResponse } from '@/lib/utils/api-response-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 
 /**
  * GET /api/pilots/[id]
  * Fetch a single pilot by ID with certification status and system settings
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return unauthorizedResponse()
-    }
-
-    // Get pilot ID from params (Next.js 15 requires await)
-    const { id: pilotId } = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getPilotById',
+    endpoint: '/api/pilots/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const pilotId = params.id
 
     if (!pilotId) {
       return NextResponse.json(
@@ -63,67 +55,22 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         pilot_retirement_age: requirements.pilot_retirement_age,
       },
     })
-  } catch (error: any) {
-    console.error('Error fetching pilot:', error)
-    const { id: pilotId } = await params
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotById',
-      resourceId: pilotId,
-      endpoint: '/api/pilots/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PUT /api/pilots/[id]
  * Update a pilot's information
  */
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // Rate Limiting
-    const identifier = getClientIp(request)
-    const { success, limit, reset, remaining } = await mutationRateLimit.limit(identifier)
-    if (!success) {
-      const retryAfter = Math.ceil((reset - Date.now()) / 1000)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Too many requests',
-          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': retryAfter.toString(),
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': reset.toString(),
-          },
-        }
-      )
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return unauthorizedResponse()
-    }
-
-    // SECURITY: Verify user has Admin or Manager role to update pilots
-    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-    if (!roleCheck.authorized) {
-      return forbiddenResponse('Admin or Manager role required to update pilots')
-    }
-
-    // Get pilot ID from params (Next.js 15 requires await)
-    const { id: pilotId } = await params
+export const PUT = createAdminRoute(
+  {
+    operation: 'updatePilot',
+    endpoint: '/api/pilots/[id]',
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+    forbiddenMessage: 'Admin or Manager role required to update pilots',
+  },
+  async ({ request, params }) => {
+    const pilotId = params.id
 
     if (!pilotId) {
       return NextResponse.json(
@@ -159,17 +106,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: updatedPilot,
       message: 'Pilot updated successfully',
     })
-  } catch (error: any) {
-    console.error('Error updating pilot:', error)
-    const { id: pilotId } = await params
-    const sanitized = sanitizeError(error, {
-      operation: 'updatePilot',
-      resourceId: pilotId,
-      endpoint: '/api/pilots/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * DELETE /api/pilots/[id]
@@ -177,54 +115,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  *
  * SECURITY: Requires Admin or Manager role - regular authenticated users cannot delete pilots
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Rate Limiting
-    const identifier = getClientIp(request)
-    const { success, limit, reset, remaining } = await mutationRateLimit.limit(identifier)
-    if (!success) {
-      const retryAfter = Math.ceil((reset - Date.now()) / 1000)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Too many requests',
-          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': retryAfter.toString(),
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': reset.toString(),
-          },
-        }
-      )
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return unauthorizedResponse()
-    }
-
-    // SECURITY: Verify user has Admin or Manager role for destructive operations
-    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-    if (!roleCheck.authorized) {
-      return forbiddenResponse('Admin or Manager role required to delete pilots')
-    }
-
-    // Get pilot ID from params (Next.js 15 requires await)
-    const { id: pilotId } = await params
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deletePilot',
+    endpoint: '/api/pilots/[id]',
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+    forbiddenMessage: 'Admin or Manager role required to delete pilots',
+  },
+  async ({ params }) => {
+    const pilotId = params.id
 
     if (!pilotId) {
       return NextResponse.json({ success: false, error: 'Pilot ID is required' }, { status: 400 })
@@ -242,14 +141,5 @@ export async function DELETE(
       success: true,
       message: 'Pilot deleted successfully',
     })
-  } catch (error: any) {
-    console.error('Error deleting pilot:', error)
-    const { id: pilotId } = await params
-    const sanitized = sanitizeError(error, {
-      operation: 'deletePilot',
-      resourceId: pilotId,
-      endpoint: '/api/pilots/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

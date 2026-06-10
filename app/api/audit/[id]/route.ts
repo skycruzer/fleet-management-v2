@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 /**
  * GET /api/audit/[id]
@@ -11,36 +10,41 @@ import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
  * Returns full details including old/new data for diff view.
  *
  * @spec 001-missing-core-features (US4, T070)
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) return unauthorizedResponse()
+export const GET = createAdminRoute(
+  {
+    operation: 'getAuditLogById',
+    endpoint: '/api/audit/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    try {
+      const auditId = params.id
 
-    const auditId = params.id
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(auditId)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid audit log ID format' },
+          { status: 400 }
+        )
+      }
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(auditId)) {
+      // Fetch audit log
+      const auditLog = await getAuditLogById(auditId)
+
+      if (!auditLog) {
+        return NextResponse.json({ success: false, error: 'Audit log not found' }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: auditLog }, { status: 200 })
+    } catch (error) {
+      console.error('Audit log GET [id] error:', error)
       return NextResponse.json(
-        { success: false, error: 'Invalid audit log ID format' },
-        { status: 400 }
+        { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
+        { status: 500 }
       )
     }
-
-    // Fetch audit log
-    const auditLog = await getAuditLogById(auditId)
-
-    if (!auditLog) {
-      return NextResponse.json({ success: false, error: 'Audit log not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true, data: auditLog }, { status: 200 })
-  } catch (error) {
-    console.error('Audit log GET [id] error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
   }
-}
+)

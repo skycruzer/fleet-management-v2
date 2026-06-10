@@ -6,21 +6,21 @@
  * @query retirementAge - Retirement age (default: 65)
  * @query minimumCaptains - Minimum captains required (default: 10)
  * @query minimumFirstOfficers - Minimum first officers required (default: 10)
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { predictCrewShortages } from '@/lib/services/analytics-service'
-import { NextRequest, NextResponse } from 'next/server'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 
-export async function GET(request: NextRequest) {
-  try {
-    // Authentication check - admin only
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
+export const GET = createAdminRoute(
+  {
+    operation: 'predictCrewShortages',
+    endpoint: '/api/analytics/crew-shortage-predictions',
+    rateLimit: false,
+  },
+  async ({ request }) => {
     const { searchParams } = new URL(request.url)
     const retirementAge = Math.min(
       75,
@@ -42,12 +42,5 @@ export async function GET(request: NextRequest) {
     )
 
     return NextResponse.json(predictions)
-  } catch (error) {
-    console.error('Error fetching crew shortage predictions:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'predictCrewShortages',
-      endpoint: '/api/analytics/crew-shortage-predictions',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

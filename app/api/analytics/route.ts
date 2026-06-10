@@ -8,11 +8,11 @@
  * HTTP CACHING: Private, 1 minute cache (dashboard data)
  * REDIS CACHING: Analytics service uses 10-minute Redis cache (reduces response from 500-800ms to 5ms)
  *
- * @version 2.2.0
- * @updated 2026-01 - Added rate limiting, standardized error responses, HTTP caching, Redis caching
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   getPilotAnalytics,
   getCertificationAnalytics,
@@ -20,10 +20,9 @@ import {
   getFleetAnalytics,
   getRiskAnalytics,
 } from '@/lib/services/analytics-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { authRateLimit } from '@/lib/rate-limit'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 import { getCacheHeadersPreset } from '@/lib/utils/cache-headers'
 
 /**
@@ -33,89 +32,77 @@ import { getCacheHeadersPreset } from '@/lib/utils/cache-headers'
  * NOTE: This is a heavy endpoint that runs up to 5 parallel service calls.
  * Rate limiting is enforced per user.
  */
-export async function GET(_request: NextRequest) {
-  try {
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return unauthorizedResponse()
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getAnalytics',
+    endpoint: '/api/analytics',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request }) => {
+    try {
+      // Get query parameter for specific analytics type
+      const searchParams = request.nextUrl.searchParams
+      const type = searchParams.get('type')
 
-    // Rate limiting per authenticated user
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
+      let analyticsData: any
+
+      switch (type) {
+        case 'pilot':
+          analyticsData = await getPilotAnalytics()
+          break
+        case 'certification':
+          analyticsData = await getCertificationAnalytics()
+          break
+        case 'leave':
+          analyticsData = await getLeaveAnalytics()
+          break
+        case 'fleet':
+          analyticsData = await getFleetAnalytics()
+          break
+        case 'risk':
+          analyticsData = await getRiskAnalytics()
+          break
+        default:
+          // Get all analytics data
+          const [pilot, certification, leave, fleet, risk] = await Promise.all([
+            getPilotAnalytics(),
+            getCertificationAnalytics(),
+            getLeaveAnalytics(),
+            getFleetAnalytics(),
+            getRiskAnalytics(),
+          ])
+          analyticsData = {
+            pilot,
+            certification,
+            leave,
+            fleet,
+            risk,
+          }
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          data: analyticsData,
+        },
+        {
+          headers: getCacheHeadersPreset('DASHBOARD_DATA'),
+        }
+      )
+    } catch (error) {
+      console.error('GET /api/analytics error:', error)
+      const sanitized = sanitizeError(error, {
+        operation: 'getAnalytics',
+        endpoint: '/api/analytics',
+      })
       return NextResponse.json(
         {
           success: false,
-          error: 'Too many requests. Please try again later.',
-          errorCode: 'RATE_LIMIT_EXCEEDED',
+          error: sanitized.error,
+          errorId: sanitized.errorId,
         },
-        { status: 429 }
+        { status: sanitized.statusCode || 500 }
       )
     }
-
-    // Get query parameter for specific analytics type
-    const searchParams = _request.nextUrl.searchParams
-    const type = searchParams.get('type')
-
-    let analyticsData: any
-
-    switch (type) {
-      case 'pilot':
-        analyticsData = await getPilotAnalytics()
-        break
-      case 'certification':
-        analyticsData = await getCertificationAnalytics()
-        break
-      case 'leave':
-        analyticsData = await getLeaveAnalytics()
-        break
-      case 'fleet':
-        analyticsData = await getFleetAnalytics()
-        break
-      case 'risk':
-        analyticsData = await getRiskAnalytics()
-        break
-      default:
-        // Get all analytics data
-        const [pilot, certification, leave, fleet, risk] = await Promise.all([
-          getPilotAnalytics(),
-          getCertificationAnalytics(),
-          getLeaveAnalytics(),
-          getFleetAnalytics(),
-          getRiskAnalytics(),
-        ])
-        analyticsData = {
-          pilot,
-          certification,
-          leave,
-          fleet,
-          risk,
-        }
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: analyticsData,
-      },
-      {
-        headers: getCacheHeadersPreset('DASHBOARD_DATA'),
-      }
-    )
-  } catch (error) {
-    console.error('GET /api/analytics error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getAnalytics',
-      endpoint: '/api/analytics',
-    })
-    return NextResponse.json(
-      {
-        success: false,
-        error: sanitized.error,
-        errorId: sanitized.errorId,
-      },
-      { status: sanitized.statusCode || 500 }
-    )
   }
-}
+)

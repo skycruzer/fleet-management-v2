@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { PilotLeaveRequestSchema } from '@/lib/validations/pilot-leave-schema'
 import {
   submitPilotLeaveRequest,
   getCurrentPilotLeaveRequests,
 } from '@/lib/services/pilot-leave-service'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET /api/pilot/leave
@@ -15,9 +14,15 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * Returns list of leave requests sorted by request_date descending.
  *
  * @spec 001-missing-core-features (US2, T047)
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
-export async function GET(_request: NextRequest) {
-  try {
+export const GET = createPilotRoute(
+  {
+    operation: 'getCurrentPilotLeaveRequests',
+    endpoint: '/api/pilot/leave',
+    rateLimit: false,
+  },
+  async () => {
     const result = await getCurrentPilotLeaveRequests()
 
     if (!result.success) {
@@ -26,15 +31,8 @@ export async function GET(_request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Pilot leave GET error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getCurrentPilotLeaveRequests',
-      endpoint: '/api/pilot/leave',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * POST /api/pilot/leave
@@ -51,27 +49,16 @@ export async function GET(_request: NextRequest) {
  * }
  *
  * @spec 001-missing-core-features (US2, T047)
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
-export async function POST(_request: NextRequest) {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
-
-    // Rate limiting (pilot identity resolved inside service; use IP here)
-    const ip =
-      _request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      _request.headers.get('x-real-ip') ||
-      'anonymous'
-    const { success: rateLimitSuccess } = await mutationRateLimit.limit(ip)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const body = await _request.json()
+export const POST = createPilotRoute(
+  {
+    operation: 'submitPilotLeaveRequest',
+    endpoint: '/api/pilot/leave',
+    rateLimit: { limiter: mutationRateLimit, by: 'ip' },
+  },
+  async ({ request }) => {
+    const body = await request.json()
 
     // Validate input
     const validation = PilotLeaveRequestSchema.safeParse(body)
@@ -95,12 +82,5 @@ export async function POST(_request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })
-  } catch (error) {
-    console.error('Pilot leave POST error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'submitPilotLeaveRequest',
-      endpoint: '/api/pilot/leave',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

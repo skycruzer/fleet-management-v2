@@ -3,83 +3,70 @@
  * Author: Maurice Rondeau
  * Endpoints for fetching and managing user notifications
  *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @version 2.1.0 - SECURITY: Added CSRF protection and rate limiting
  * @updated 2025-11-04 - Critical security hardening
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
 import { authRateLimit } from '@/lib/rate-limit'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getUserNotifications, markNotificationAsRead } from '@/lib/services/notification-service'
 
-export async function GET() {
-  try {
-    // Check authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
+export const GET = createAdminRoute(
+  {
+    operation: 'getNotifications',
+    endpoint: '/api/notifications',
+    rateLimit: false,
+  },
+  async ({ admin }) => {
+    try {
+      // Fetch unread notifications only for header dropdown
+      const result = await getUserNotifications(admin.userId, true)
 
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('Notifications API error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Fetch unread notifications only for header dropdown
-    const result = await getUserNotifications(auth.userId!, true)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('Notifications API error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
-export async function PATCH(request: NextRequest) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const PATCH = createAdminRoute(
+  {
+    operation: 'markNotificationAsRead',
+    endpoint: '/api/notifications',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, admin }) => {
+    try {
+      const body = await request.json()
+      const { notificationId } = body
 
-    // Check authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
+      if (!notificationId) {
+        return NextResponse.json(
+          { success: false, error: 'Notification ID required' },
+          { status: 400 }
+        )
+      }
 
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      const result = await markNotificationAsRead(notificationId, admin.userId)
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      console.error('Mark notification as read error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const body = await request.json()
-    const { notificationId } = body
-
-    if (!notificationId) {
-      return NextResponse.json(
-        { success: false, error: 'Notification ID required' },
-        { status: 400 }
-      )
-    }
-
-    const result = await markNotificationAsRead(notificationId, auth.userId!)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Mark notification as read error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)

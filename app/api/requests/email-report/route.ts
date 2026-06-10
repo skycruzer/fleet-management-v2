@@ -9,12 +9,13 @@
  *
  * @author Maurice Rondeau
  * @date February 2026
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
@@ -102,47 +103,41 @@ function formatStatus(status: string): string {
 // API Handler
 // ============================================================================
 
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
+export const POST = createAdminRoute(
+  {
+    operation: 'sendRequestsEmailReport',
+    endpoint: '/api/requests/email-report',
+  },
+  async ({ request, admin }) => {
+    try {
+      const body = await request.json()
+      const validated = EmailRequestSchema.parse(body)
 
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      logger.info('Processing requests email report', {
+        userId: admin.userId,
+        recipientCount: validated.recipients.length,
+        requestCount: validated.requests.length,
+      })
 
-    const body = await request.json()
-    const validated = EmailRequestSchema.parse(body)
+      // Check Resend config
+      const resendApiKey = process.env.RESEND_API_KEY
+      if (!resendApiKey) {
+        logger.error('Resend API key not configured')
+        return NextResponse.json(
+          { success: false, error: 'Email service not configured. Please contact administrator.' },
+          { status: 500 }
+        )
+      }
 
-    logger.info('Processing requests email report', {
-      userId: auth.userId!,
-      recipientCount: validated.recipients.length,
-      requestCount: validated.requests.length,
-    })
+      const { Resend } = await import('resend')
+      const resend = new Resend(resendApiKey)
 
-    // Check Resend config
-    const resendApiKey = process.env.RESEND_API_KEY
-    if (!resendApiKey) {
-      logger.error('Resend API key not configured')
-      return NextResponse.json(
-        { success: false, error: 'Email service not configured. Please contact administrator.' },
-        { status: 500 }
-      )
-    }
+      const emailSubject = validated.subject || 'Pilot Requests Report'
 
-    const { Resend } = await import('resend')
-    const resend = new Resend(resendApiKey)
-
-    const emailSubject = validated.subject || 'Pilot Requests Report'
-
-    // Build request rows HTML
-    const requestRows = validated.requests
-      .map(
-        (r, i) => `
+      // Build request rows HTML
+      const requestRows = validated.requests
+        .map(
+          (r, i) => `
         <tr style="border-bottom: 1px solid #e5e7eb;">
           <td style="padding: 10px 12px; text-align: center; color: #6b7280; font-size: 13px;">${i + 1}</td>
           <td style="padding: 10px 12px; font-weight: 500;">${r.name}</td>
@@ -159,35 +154,35 @@ export const POST = withRateLimit(async (request: NextRequest) => {
             </span>
           </td>
         </tr>`
+        )
+        .join('')
+
+      // Build summary stats
+      const statusCounts = validated.requests.reduce(
+        (acc, r) => {
+          acc[r.workflow_status] = (acc[r.workflow_status] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
       )
-      .join('')
 
-    // Build summary stats
-    const statusCounts = validated.requests.reduce(
-      (acc, r) => {
-        acc[r.workflow_status] = (acc[r.workflow_status] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>
-    )
+      const summaryItems = Object.entries(statusCounts)
+        .map(
+          ([status, count]) =>
+            `<span style="color: ${getStatusColor(status)}; font-weight: 600;">${count}</span> ${formatStatus(status)}`
+        )
+        .join(' &bull; ')
 
-    const summaryItems = Object.entries(statusCounts)
-      .map(
-        ([status, count]) =>
-          `<span style="color: ${getStatusColor(status)}; font-weight: 600;">${count}</span> ${formatStatus(status)}`
-      )
-      .join(' &bull; ')
+      // Escape message for HTML (convert newlines to <br>)
+      const messageHtml = validated.message
+        ? validated.message
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>')
+        : ''
 
-    // Escape message for HTML (convert newlines to <br>)
-    const messageHtml = validated.message
-      ? validated.message
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/\n/g, '<br>')
-      : ''
-
-    const emailBody = `
+      const emailBody = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -243,47 +238,48 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 </body>
 </html>`
 
-    const emailResult = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
-      to: validated.recipients,
-      ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
-      ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),
-      subject: emailSubject,
-      html: emailBody,
-    })
+      const emailResult = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
+        to: validated.recipients,
+        ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
+        ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),
+        subject: emailSubject,
+        html: emailBody,
+      })
 
-    if (!emailResult.data) {
-      logger.error('Failed to send requests email report', { error: emailResult.error })
+      if (!emailResult.data) {
+        logger.error('Failed to send requests email report', { error: emailResult.error })
+        return NextResponse.json(
+          { success: false, error: 'Failed to send email. Please try again.' },
+          { status: 500 }
+        )
+      }
+
+      logger.info('Requests email report sent successfully', {
+        userId: admin.userId,
+        emailId: emailResult.data.id,
+        recipientCount: validated.recipients.length,
+        requestCount: validated.requests.length,
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: { emailId: emailResult.data.id },
+        message: 'Requests report email sent successfully',
+      })
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          { success: false, error: 'Validation failed', details: error.issues },
+          { status: 400 }
+        )
+      }
+
+      logger.error('Requests email report API error', { error })
       return NextResponse.json(
-        { success: false, error: 'Failed to send email. Please try again.' },
+        { success: false, error: error.message || 'Internal server error' },
         { status: 500 }
       )
     }
-
-    logger.info('Requests email report sent successfully', {
-      userId: auth.userId!,
-      emailId: emailResult.data.id,
-      recipientCount: validated.recipients.length,
-      requestCount: validated.requests.length,
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: { emailId: emailResult.data.id },
-      message: 'Requests report email sent successfully',
-    })
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: 'Validation failed', details: error.issues },
-        { status: 400 }
-      )
-    }
-
-    logger.error('Requests email report API error', { error })
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
   }
-})
+)

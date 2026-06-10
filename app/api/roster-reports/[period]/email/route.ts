@@ -6,13 +6,13 @@
  *
  * @author Maurice Rondeau
  * @date November 11, 2025
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
@@ -59,81 +59,75 @@ type EmailRequest = z.infer<typeof EmailRequestSchema>
  *   }
  * }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ period: string }> }
-) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'sendRosterReportEmail',
+    endpoint: '/api/roster-reports/[period]/email',
+    rateLimit: false,
+  },
+  async ({ request, params, admin }) => {
+    try {
+      // Parse and validate request body
+      const body = await request.json()
+      const validated = EmailRequestSchema.parse(body)
 
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      const { period } = params
 
-    // Parse and validate request body
-    const body = await request.json()
-    const validated = EmailRequestSchema.parse(body)
+      logger.info('Processing roster report email request', {
+        userId: admin.userId,
+        period,
+        reportType: validated.reportType,
+        recipientCount: validated.recipients.length,
+        ccCount: validated.cc?.length ?? 0,
+        bccCount: validated.bcc?.length ?? 0,
+      })
 
-    const { period } = await params
-
-    logger.info('Processing roster report email request', {
-      userId: auth.userId!,
-      period,
-      reportType: validated.reportType,
-      recipientCount: validated.recipients.length,
-      ccCount: validated.cc?.length ?? 0,
-      bccCount: validated.bcc?.length ?? 0,
-    })
-
-    // Step 1: Generate report data
-    const reportResult = await generateRosterPeriodReport(
-      period,
-      validated.reportType,
-      auth.userId!
-    )
-
-    if (!reportResult.success || !reportResult.data) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: reportResult.error || 'Failed to generate roster report',
-        },
-        { status: 500 }
+      // Step 1: Generate report data
+      const reportResult = await generateRosterPeriodReport(
+        period,
+        validated.reportType,
+        admin.userId
       )
-    }
 
-    const report = reportResult.data
+      if (!reportResult.success || !reportResult.data) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: reportResult.error || 'Failed to generate roster report',
+          },
+          { status: 500 }
+        )
+      }
 
-    // Step 2: This endpoint sends an HTML summary only. PDF generation for
-    // roster reports is intentionally client-side (lib/services/roster-pdf-service.ts
-    // gates on `typeof window`), so the email body links back to the dashboard
-    // where the user can download the full PDF.
+      const report = reportResult.data
 
-    // Check if Resend API key is available
-    const resendApiKey = process.env.RESEND_API_KEY
+      // Step 2: This endpoint sends an HTML summary only. PDF generation for
+      // roster reports is intentionally client-side (lib/services/roster-pdf-service.ts
+      // gates on `typeof window`), so the email body links back to the dashboard
+      // where the user can download the full PDF.
 
-    if (!resendApiKey) {
-      logger.error('Resend API key not configured')
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Email service not configured. Please contact administrator.',
-        },
-        { status: 500 }
-      )
-    }
+      // Check if Resend API key is available
+      const resendApiKey = process.env.RESEND_API_KEY
 
-    const { Resend } = await import('resend')
-    const resend = new Resend(resendApiKey)
+      if (!resendApiKey) {
+        logger.error('Resend API key not configured')
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Email service not configured. Please contact administrator.',
+          },
+          { status: 500 }
+        )
+      }
 
-    // Build email content
-    const emailSubject =
-      validated.subject || `Roster Period Report - ${period} (${validated.reportType})`
+      const { Resend } = await import('resend')
+      const resend = new Resend(resendApiKey)
 
-    const emailBody = `
+      // Build email content
+      const emailSubject =
+        validated.subject || `Roster Period Report - ${period} (${validated.reportType})`
+
+      const emailBody = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -238,95 +232,96 @@ export async function POST(
 </html>
     `
 
-    // Send email (with optional CC/BCC)
-    const emailResult = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
-      to: validated.recipients,
-      ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
-      ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),
-      subject: emailSubject,
-      html: emailBody,
-    })
+      // Send email (with optional CC/BCC)
+      const emailResult = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
+        to: validated.recipients,
+        ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
+        ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),
+        subject: emailSubject,
+        html: emailBody,
+      })
 
-    if (!emailResult.data) {
-      logger.error('Failed to send roster report email', { error: emailResult.error })
+      if (!emailResult.data) {
+        logger.error('Failed to send roster report email', { error: emailResult.error })
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to send email. Please try again.',
+          },
+          { status: 500 }
+        )
+      }
+
+      // Save report to database; warn (don't fail the request) if persistence misses
+      const saveResult = await saveRosterReport(report)
+      if (!saveResult.success) {
+        logger.warn('Roster report email sent but persistence failed', {
+          period,
+          reportType: validated.reportType,
+          error: saveResult.error,
+        })
+      }
+
+      // Update roster_reports table with sent_at timestamp
+      // Note: sent_to column exists in DB but not in generated types — regenerate with `npm run db:types`
+      const supabase = createAdminClient()
+      const emailUpdatePayload: Record<string, unknown> = {
+        sent_at: new Date().toISOString(),
+        sent_to: validated.recipients,
+      }
+      const { error: updateError } = await supabase
+        .from('roster_reports')
+        .update(emailUpdatePayload as never)
+        .eq('roster_period_code', period)
+        .eq('report_type', validated.reportType)
+        .order('generated_at', { ascending: false })
+        .limit(1)
+
+      if (updateError) {
+        logger.warn('Failed to update roster report sent timestamp', {
+          period,
+          reportType: validated.reportType,
+          error: updateError.message,
+        })
+      }
+
+      logger.info('Roster report email sent successfully', {
+        userId: admin.userId,
+        period,
+        reportType: validated.reportType,
+        emailId: emailResult.data.id,
+        recipientCount: validated.recipients.length,
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          emailId: emailResult.data.id,
+          report: report,
+        },
+        message: 'Roster report summary email sent successfully',
+      })
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Validation failed',
+            details: error.issues,
+          },
+          { status: 400 }
+        )
+      }
+
+      logger.error('Roster report email API error', { error })
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to send email. Please try again.',
+          error: 'Internal server error',
         },
         { status: 500 }
       )
     }
-
-    // Save report to database; warn (don't fail the request) if persistence misses
-    const saveResult = await saveRosterReport(report)
-    if (!saveResult.success) {
-      logger.warn('Roster report email sent but persistence failed', {
-        period,
-        reportType: validated.reportType,
-        error: saveResult.error,
-      })
-    }
-
-    // Update roster_reports table with sent_at timestamp
-    // Note: sent_to column exists in DB but not in generated types — regenerate with `npm run db:types`
-    const supabase = createAdminClient()
-    const emailUpdatePayload: Record<string, unknown> = {
-      sent_at: new Date().toISOString(),
-      sent_to: validated.recipients,
-    }
-    const { error: updateError } = await supabase
-      .from('roster_reports')
-      .update(emailUpdatePayload as never)
-      .eq('roster_period_code', period)
-      .eq('report_type', validated.reportType)
-      .order('generated_at', { ascending: false })
-      .limit(1)
-
-    if (updateError) {
-      logger.warn('Failed to update roster report sent timestamp', {
-        period,
-        reportType: validated.reportType,
-        error: updateError.message,
-      })
-    }
-
-    logger.info('Roster report email sent successfully', {
-      userId: auth.userId!,
-      period,
-      reportType: validated.reportType,
-      emailId: emailResult.data.id,
-      recipientCount: validated.recipients.length,
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        emailId: emailResult.data.id,
-        report: report,
-      },
-      message: 'Roster report summary email sent successfully',
-    })
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation failed',
-          details: error.issues,
-        },
-        { status: 400 }
-      )
-    }
-
-    logger.error('Roster report email API error', { error })
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Internal server error',
-      },
-      { status: 500 }
-    )
   }
-}
+)

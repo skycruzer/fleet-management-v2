@@ -6,17 +6,18 @@
  *
  * @author Maurice Rondeau
  * @date November 11, 2025
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
   generateRosterPeriodReport,
   saveRosterReport,
   getRosterReportHistory,
 } from '@/lib/services/roster-report-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/services/logging-service'
 
@@ -36,106 +37,96 @@ import { logger } from '@/lib/services/logging-service'
  * GET /api/reports/roster-period/RP01%2F2026?format=json&reportType=PREVIEW
  * GET /api/reports/roster-period/RP01%2F2026?history=true
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
-  try {
-    const resolvedParams = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getRosterPeriodReport',
+    endpoint: '/api/reports/roster-period/[code]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params, admin }) => {
+    try {
+      const rosterPeriodCode = decodeURIComponent(params.code)
+      const searchParams = request.nextUrl.searchParams
+      const showHistory = searchParams.get('history') === 'true'
 
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      logger.info('GET /api/reports/roster-period/[code]', {
+        rosterPeriodCode,
+        showHistory,
+        userId: admin.userId,
+      })
 
-    // Rate limiting (matches the standard report pipeline)
-    const { success: rateLimitOk } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitOk) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
+      // ========================================================================
+      // Return Report History
+      // ========================================================================
 
-    const rosterPeriodCode = decodeURIComponent(resolvedParams.code)
-    const searchParams = request.nextUrl.searchParams
-    const showHistory = searchParams.get('history') === 'true'
+      if (showHistory) {
+        const result = await getRosterReportHistory(rosterPeriodCode)
 
-    logger.info('GET /api/reports/roster-period/[code]', {
-      rosterPeriodCode,
-      showHistory,
-      userId: auth.userId!,
-    })
+        if (!result.success) {
+          return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+        }
 
-    // ========================================================================
-    // Return Report History
-    // ========================================================================
+        return NextResponse.json({
+          success: true,
+          data: result.data,
+          count: result.data?.length || 0,
+        })
+      }
 
-    if (showHistory) {
-      const result = await getRosterReportHistory(rosterPeriodCode)
+      // ========================================================================
+      // Generate New Report
+      // ========================================================================
 
-      if (!result.success) {
-        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      const format = searchParams.get('format') || 'json'
+      const rawReportType = searchParams.get('reportType') ?? 'PREVIEW'
+      if (rawReportType !== 'PREVIEW' && rawReportType !== 'FINAL') {
+        return NextResponse.json(
+          { success: false, error: 'Invalid reportType. Use PREVIEW or FINAL.' },
+          { status: 400 }
+        )
+      }
+      const reportType: 'PREVIEW' | 'FINAL' = rawReportType
+
+      // PDF format is intentionally unsupported on this route — generation is
+      // client-driven via lib/services/roster-pdf-service.ts. Fail loudly so
+      // callers don't silently consume JSON when expecting a PDF binary.
+      if (format === 'pdf') {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              'PDF format not implemented for this endpoint. Generate the PDF client-side from the JSON response.',
+          },
+          { status: 501 }
+        )
+      }
+
+      if (format !== 'json') {
+        return NextResponse.json(
+          { success: false, error: 'Invalid format. Use json.' },
+          { status: 400 }
+        )
+      }
+
+      const result = await generateRosterPeriodReport(rosterPeriodCode, reportType, admin.userId)
+
+      if (!result.success || !result.data) {
+        return NextResponse.json(
+          { success: false, error: result.error || 'Failed to generate report' },
+          { status: 500 }
+        )
       }
 
       return NextResponse.json({
         success: true,
         data: result.data,
-        count: result.data?.length || 0,
       })
+    } catch (error: any) {
+      logger.error('Error in GET /api/reports/roster-period/[code]', { error })
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // ========================================================================
-    // Generate New Report
-    // ========================================================================
-
-    const format = searchParams.get('format') || 'json'
-    const rawReportType = searchParams.get('reportType') ?? 'PREVIEW'
-    if (rawReportType !== 'PREVIEW' && rawReportType !== 'FINAL') {
-      return NextResponse.json(
-        { success: false, error: 'Invalid reportType. Use PREVIEW or FINAL.' },
-        { status: 400 }
-      )
-    }
-    const reportType: 'PREVIEW' | 'FINAL' = rawReportType
-
-    // PDF format is intentionally unsupported on this route — generation is
-    // client-driven via lib/services/roster-pdf-service.ts. Fail loudly so
-    // callers don't silently consume JSON when expecting a PDF binary.
-    if (format === 'pdf') {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            'PDF format not implemented for this endpoint. Generate the PDF client-side from the JSON response.',
-        },
-        { status: 501 }
-      )
-    }
-
-    if (format !== 'json') {
-      return NextResponse.json(
-        { success: false, error: 'Invalid format. Use json.' },
-        { status: 400 }
-      )
-    }
-
-    const result = await generateRosterPeriodReport(rosterPeriodCode, reportType, auth.userId!)
-
-    if (!result.success || !result.data) {
-      return NextResponse.json(
-        { success: false, error: result.error || 'Failed to generate report' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error: any) {
-    logger.error('Error in GET /api/reports/roster-period/[code]', { error })
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 // ============================================================================
 // POST /api/reports/roster-period/[code]
@@ -154,96 +145,79 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * POST /api/reports/roster-period/RP01%2F2026
  * Body: { "reportType": "FINAL", "pdfUrl": "https://..." }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'saveRosterPeriodReport',
+    endpoint: '/api/reports/roster-period/[code]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params, admin }) => {
+    try {
+      const rosterPeriodCode = decodeURIComponent(params.code)
+      const RosterReportBodySchema = z.object({
+        reportType: z.enum(['PREVIEW', 'FINAL']).optional(),
+        pdfUrl: z.string().optional(),
+      })
 
-    const resolvedParams = await params
+      const body = await request.json()
+      const parsed = RosterReportBodySchema.safeParse(body)
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: 'Validation failed', details: parsed.error.issues },
+          { status: 400 }
+        )
+      }
+      const { reportType = 'PREVIEW', pdfUrl } = parsed.data
 
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      logger.info('POST /api/reports/roster-period/[code]', {
+        rosterPeriodCode,
+        reportType,
+        userId: admin.userId,
+      })
 
-    // Rate limiting (matches the standard report pipeline) — also bounds the
-    // saveRosterReport write that follows.
-    const { success: rateLimitOk } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitOk) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
+      // Generate report
+      const reportResult = await generateRosterPeriodReport(
+        rosterPeriodCode,
+        reportType,
+        admin.userId
       )
-    }
 
-    const rosterPeriodCode = decodeURIComponent(resolvedParams.code)
-    const RosterReportBodySchema = z.object({
-      reportType: z.enum(['PREVIEW', 'FINAL']).optional(),
-      pdfUrl: z.string().optional(),
-    })
+      if (!reportResult.success || !reportResult.data) {
+        return NextResponse.json(
+          { success: false, error: reportResult.error || 'Failed to generate report' },
+          { status: 500 }
+        )
+      }
 
-    const body = await request.json()
-    const parsed = RosterReportBodySchema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: parsed.error.issues },
-        { status: 400 }
-      )
-    }
-    const { reportType = 'PREVIEW', pdfUrl } = parsed.data
+      // Save report to database
+      const saveResult = await saveRosterReport(reportResult.data, pdfUrl)
 
-    logger.info('POST /api/reports/roster-period/[code]', {
-      rosterPeriodCode,
-      reportType,
-      userId: auth.userId!,
-    })
+      if (!saveResult.success) {
+        return NextResponse.json(
+          { success: false, error: saveResult.error || 'Failed to save report' },
+          { status: 500 }
+        )
+      }
 
-    // Generate report
-    const reportResult = await generateRosterPeriodReport(
-      rosterPeriodCode,
-      reportType,
-      auth.userId!
-    )
-
-    if (!reportResult.success || !reportResult.data) {
-      return NextResponse.json(
-        { success: false, error: reportResult.error || 'Failed to generate report' },
-        { status: 500 }
-      )
-    }
-
-    // Save report to database
-    const saveResult = await saveRosterReport(reportResult.data, pdfUrl)
-
-    if (!saveResult.success) {
-      return NextResponse.json(
-        { success: false, error: saveResult.error || 'Failed to save report' },
-        { status: 500 }
-      )
-    }
-
-    logger.info('Roster report saved successfully', {
-      rosterPeriodCode,
-      reportId: saveResult.data,
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: {
+      logger.info('Roster report saved successfully', {
+        rosterPeriodCode,
         reportId: saveResult.data,
-        report: reportResult.data,
-      },
-      message: 'Roster report saved successfully',
-    })
-  } catch (error: any) {
-    logger.error('Error in POST /api/reports/roster-period/[code]', { error })
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          reportId: saveResult.data,
+          report: reportResult.data,
+        },
+        message: 'Roster report saved successfully',
+      })
+    } catch (error: any) {
+      logger.error('Error in POST /api/reports/roster-period/[code]', { error })
+      return NextResponse.json(
+        { success: false, error: error.message || 'Internal server error' },
+        { status: 500 }
+      )
+    }
   }
-}
+)

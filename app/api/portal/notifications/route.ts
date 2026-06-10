@@ -8,24 +8,23 @@
  * DELETE /api/portal/notifications - Delete notification
  *
  * @spec Pilot Portal Notifications
- * @version 2.0.0 - Connected to notification service
+ * @version 3.0.0 - Connected to notification service
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { NextResponse } from 'next/server'
 import {
   getUserNotifications,
   markNotificationAsRead,
   deleteNotification,
 } from '@/lib/services/notification-service'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import {
   ERROR_MESSAGES,
   formatApiError,
   ErrorCategory,
   ErrorSeverity,
 } from '@/lib/utils/error-messages'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET - Get Pilot Notifications
@@ -33,17 +32,13 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * Returns all notifications for the authenticated pilot,
  * with optional filter for unread only.
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Get current authenticated pilot
-    const pilot = await getCurrentPilot()
-
-    if (!pilot) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const GET = createPilotRoute(
+  {
+    operation: 'getPilotNotifications',
+    endpoint: '/api/portal/notifications',
+    rateLimit: false,
+  },
+  async ({ request, pilot }) => {
     // Get query parameters
     const { searchParams } = new URL(request.url)
     const unreadOnly = searchParams.get('unread') === 'true'
@@ -80,15 +75,8 @@ export async function GET(request: NextRequest) {
       success: true,
       data: portalNotifications,
     })
-  } catch (error: any) {
-    console.error('Notifications API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotNotifications',
-      endpoint: '/api/portal/notifications',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PATCH - Mark Notification as Read
@@ -96,21 +84,13 @@ export async function GET(request: NextRequest) {
  * Marks a specific notification as read.
  * Body: { notificationId: string }
  */
-export async function PATCH(request: NextRequest) {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Get current authenticated pilot
-    const pilot = await getCurrentPilot()
-
-    if (!pilot) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const PATCH = createPilotRoute(
+  {
+    operation: 'markNotificationAsRead',
+    endpoint: '/api/portal/notifications',
+    rateLimit: false,
+  },
+  async ({ request, pilot }) => {
     // Parse request body
     const body = await request.json()
     const { notificationId } = body
@@ -150,15 +130,8 @@ export async function PATCH(request: NextRequest) {
       success: true,
       message: 'Notification marked as read',
     })
-  } catch (error: any) {
-    console.error('Mark notification as read API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'markNotificationAsRead',
-      endpoint: '/api/portal/notifications',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * DELETE - Delete Notification
@@ -166,21 +139,13 @@ export async function PATCH(request: NextRequest) {
  * Deletes a specific notification.
  * Body: { notificationId: string }
  */
-export async function DELETE(request: NextRequest) {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Get current authenticated pilot
-    const pilot = await getCurrentPilot()
-
-    if (!pilot) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const DELETE = createPilotRoute(
+  {
+    operation: 'deleteNotification',
+    endpoint: '/api/portal/notifications',
+    rateLimit: false,
+  },
+  async ({ request, pilot }) => {
     // Parse request body
     const body = await request.json()
     const { notificationId } = body
@@ -220,12 +185,5 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Notification deleted',
     })
-  } catch (error: any) {
-    console.error('Delete notification API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'deleteNotification',
-      endpoint: '/api/portal/notifications',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

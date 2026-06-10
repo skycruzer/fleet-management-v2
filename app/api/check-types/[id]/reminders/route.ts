@@ -6,15 +6,16 @@
  *
  * Updates reminder settings (reminder_days, email_notifications_enabled)
  * for a specific check type.
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { unauthorizedResponse, validationErrorResponse } from '@/lib/utils/api-response-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const VALID_REMINDER_DAYS = [90, 60, 30, 14, 7] as const
@@ -31,87 +32,82 @@ const ReminderSettingsSchema = z.object({
   email_notifications_enabled: z.boolean(),
 })
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    // Verify authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return unauthorizedResponse()
-    }
-
-    const { id: checkTypeId } = await params
-
-    if (!checkTypeId) {
-      return NextResponse.json(
-        { success: false, error: 'Check type ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Parse and validate request body
-    let validatedData
+export const PUT = createAdminRoute(
+  {
+    operation: 'updateCheckTypeReminders',
+    endpoint: '/api/check-types/[id]/reminders',
+    rateLimit: false,
+  },
+  async ({ request, params }) => {
     try {
-      const body = await request.json()
-      validatedData = ReminderSettingsSchema.parse(body)
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return validationErrorResponse('Invalid reminder settings', [
-          { field: 'body', message: error.message },
-        ])
+      const checkTypeId = params.id
+
+      if (!checkTypeId) {
+        return NextResponse.json(
+          { success: false, error: 'Check type ID is required' },
+          { status: 400 }
+        )
       }
-      throw error
-    }
 
-    // Update check type using admin client
-    // Note: reminder_days and email_notifications_enabled columns exist in DB
-    // but are not yet in generated types — regenerate with `npm run db:types`
-    const supabase = createAdminClient()
-    const updatePayload: Record<string, unknown> = {
-      reminder_days: validatedData.reminder_days,
-      email_notifications_enabled: validatedData.email_notifications_enabled,
-    }
-    const { data, error } = await supabase
-      .from('check_types')
-      .update(updatePayload as never)
-      .eq('id', checkTypeId)
-      .select()
-      .single()
+      // Parse and validate request body
+      let validatedData
+      try {
+        const body = await request.json()
+        validatedData = ReminderSettingsSchema.parse(body)
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return validationErrorResponse('Invalid reminder settings', [
+            { field: 'body', message: error.message },
+          ])
+        }
+        throw error
+      }
 
-    if (error) {
+      // Update check type using admin client
+      // Note: reminder_days and email_notifications_enabled columns exist in DB
+      // but are not yet in generated types — regenerate with `npm run db:types`
+      const supabase = createAdminClient()
+      const updatePayload: Record<string, unknown> = {
+        reminder_days: validatedData.reminder_days,
+        email_notifications_enabled: validatedData.email_notifications_enabled,
+      }
+      const { data, error } = await supabase
+        .from('check_types')
+        .update(updatePayload as never)
+        .eq('id', checkTypeId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating check type reminders:', error)
+        return NextResponse.json(
+          { success: false, error: `Failed to update reminder settings: ${error.message}` },
+          { status: 500 }
+        )
+      }
+
+      if (!data) {
+        return NextResponse.json({ success: false, error: 'Check type not found' }, { status: 404 })
+      }
+
+      // Revalidate admin pages
+      revalidatePath('/dashboard/admin/check-types')
+      revalidatePath('/dashboard/admin')
+
+      return NextResponse.json({
+        success: true,
+        data,
+        message: 'Reminder settings updated successfully',
+      })
+    } catch (error) {
       console.error('Error updating check type reminders:', error)
-      return NextResponse.json(
-        { success: false, error: `Failed to update reminder settings: ${error.message}` },
-        { status: 500 }
-      )
+      const checkTypeId = params.id
+      const sanitized = sanitizeError(error, {
+        operation: 'updateCheckTypeReminders',
+        resourceId: checkTypeId,
+        endpoint: '/api/check-types/[id]/reminders',
+      })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode })
     }
-
-    if (!data) {
-      return NextResponse.json({ success: false, error: 'Check type not found' }, { status: 404 })
-    }
-
-    // Revalidate admin pages
-    revalidatePath('/dashboard/admin/check-types')
-    revalidatePath('/dashboard/admin')
-
-    return NextResponse.json({
-      success: true,
-      data,
-      message: 'Reminder settings updated successfully',
-    })
-  } catch (error) {
-    console.error('Error updating check type reminders:', error)
-    const { id: checkTypeId } = await params
-    const sanitized = sanitizeError(error, {
-      operation: 'updateCheckTypeReminders',
-      resourceId: checkTypeId,
-      endpoint: '/api/check-types/[id]/reminders',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

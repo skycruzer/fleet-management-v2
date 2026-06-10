@@ -9,34 +9,30 @@
  * CSRF PROTECTION: POST method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  * @spec 001-missing-core-features (US8)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   getPendingRegistrations,
   reviewPilotRegistration,
 } from '@/lib/services/pilot-portal-service'
 import { RegistrationApprovalSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET - Get pending registrations (admin only)
  */
-export async function GET(_request: NextRequest) {
-  try {
-    // Check authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.FORBIDDEN, 403), { status: 403 })
-    }
-
+export const GET = createAdminRoute(
+  {
+    operation: 'getPendingRegistrations',
+    endpoint: '/api/portal/registration-approval',
+    rateLimit: false,
+  },
+  async () => {
     // Get pending registrations
     const result = await getPendingRegistrations()
 
@@ -58,33 +54,18 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error: any) {
-    console.error('Get pending registrations API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getPendingRegistrations',
-      endpoint: '/api/portal/registration-approval',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * POST - Approve or deny registration (admin only)
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    // Check authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.FORBIDDEN, 403), { status: 403 })
-    }
-
+export const POST = createAdminRoute(
+  {
+    operation: 'reviewRegistration',
+    endpoint: '/api/portal/registration-approval',
+  },
+  async ({ request, admin }) => {
     // Parse and validate request body
     const body = await request.json()
     const { registrationId, ...approvalData } = body
@@ -116,7 +97,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     }
 
     // Review registration
-    const result = await reviewPilotRegistration(registrationId, validation.data, auth.userId!)
+    const result = await reviewPilotRegistration(registrationId, validation.data, admin.userId)
 
     if (!result.success) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.PORTAL.APPROVAL_FAILED, 500), {
@@ -138,12 +119,5 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message,
     })
-  } catch (error: any) {
-    console.error('Review registration API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'reviewRegistration',
-      endpoint: '/api/portal/registration-approval',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

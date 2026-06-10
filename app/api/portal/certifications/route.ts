@@ -1,27 +1,21 @@
 import { NextResponse } from 'next/server'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotCertifications } from '@/lib/services/pilot-certification-service'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET /api/portal/certifications
  * Fetch all certifications for the authenticated pilot
  * Refactored to use pilot-certification-service
+ *
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
-export async function GET() {
-  try {
-    // Get current pilot
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unauthorized - pilot not found',
-        },
-        { status: 401 }
-      )
-    }
-
+export const GET = createPilotRoute(
+  {
+    operation: 'getPilotCertifications',
+    endpoint: '/api/portal/certifications',
+    rateLimit: false,
+  },
+  async ({ pilot }) => {
     // If pilot doesn't have a linked pilots table record, return empty certifications
     if (!pilot.pilot_id) {
       return NextResponse.json({
@@ -38,12 +32,5 @@ export async function GET() {
       success: true,
       data: certifications,
     })
-  } catch (error: any) {
-    console.error('Certifications API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotCertifications',
-      endpoint: '/api/portal/certifications',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

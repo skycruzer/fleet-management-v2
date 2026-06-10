@@ -5,11 +5,13 @@
  * POST /api/disciplinary - Create new disciplinary matter
  *
  * @spec 001-missing-core-features (US6, T093)
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
 import { CreateDisciplinarySchema } from '@/lib/validations/disciplinary-schema'
@@ -36,105 +38,110 @@ import { CreateDisciplinarySchema } from '@/lib/validations/disciplinary-schema'
  * - sortOrder: Sort order (asc, desc)
  * - stats: Return statistics instead of list (default: false)
  */
-export async function GET(_request: NextRequest) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getDisciplinaryMatters',
+    endpoint: '/api/disciplinary',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    try {
+      const searchParams = request.nextUrl.searchParams
 
-    const searchParams = _request.nextUrl.searchParams
+      // Check if requesting stats
+      const requestStats = searchParams.get('stats') === 'true'
 
-    // Check if requesting stats
-    const requestStats = searchParams.get('stats') === 'true'
+      if (requestStats) {
+        const startDateStr = searchParams.get('startDate')
+        const endDateStr = searchParams.get('endDate')
+        const pilotId = searchParams.get('pilotId')
 
-    if (requestStats) {
-      const startDateStr = searchParams.get('startDate')
-      const endDateStr = searchParams.get('endDate')
-      const pilotId = searchParams.get('pilotId')
+        const statsFilters = {
+          startDate: startDateStr ? new Date(startDateStr) : undefined,
+          endDate: endDateStr ? new Date(endDateStr) : undefined,
+          pilotId: pilotId || undefined,
+        }
 
-      const statsFilters = {
-        startDate: startDateStr ? new Date(startDateStr) : undefined,
-        endDate: endDateStr ? new Date(endDateStr) : undefined,
-        pilotId: pilotId || undefined,
+        const result = await getMatterStats(statsFilters)
+
+        if (!result.success) {
+          return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, data: result.data }, { status: 200 })
       }
 
-      const result = await getMatterStats(statsFilters)
+      // Build filters from query params
+      const pilotId = searchParams.get('pilotId')
+      const status = searchParams.get('status')
+      const severity = searchParams.get('severity')
+      const incidentTypeId = searchParams.get('incidentTypeId')
+      const assignedTo = searchParams.get('assignedTo')
+      const reportedBy = searchParams.get('reportedBy')
+      const startDateStr = searchParams.get('startDate')
+      const endDateStr = searchParams.get('endDate')
+      const searchQuery = searchParams.get('searchQuery')
+      const includeResolved = searchParams.get('includeResolved') === 'true'
+      const pageStr = searchParams.get('page')
+      const pageSizeStr = searchParams.get('pageSize')
+      const sortBy = searchParams.get('sortBy') as
+        | 'incident_date'
+        | 'created_at'
+        | 'updated_at'
+        | 'severity'
+        | null
+      const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' | null
+
+      const page = Math.max(1, pageStr ? parseInt(pageStr, 10) || 1 : 1)
+      const pageSize = Math.min(
+        100,
+        Math.max(1, pageSizeStr ? parseInt(pageSizeStr, 10) || 20 : 20)
+      )
+
+      const filters = {
+        pilotId: pilotId || undefined,
+        status: status || undefined,
+        severity: severity || undefined,
+        incidentTypeId: incidentTypeId || undefined,
+        assignedTo: assignedTo || undefined,
+        reportedBy: reportedBy || undefined,
+        startDate: startDateStr ? new Date(startDateStr) : undefined,
+        endDate: endDateStr ? new Date(endDateStr) : undefined,
+        searchQuery: searchQuery || undefined,
+        includeResolved,
+        page,
+        pageSize,
+        sortBy: sortBy || undefined,
+        sortOrder: sortOrder || undefined,
+      }
+
+      const result = await getMatters(filters)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
-      return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-    }
+      const totalPages = Math.ceil(result.data!.totalCount / pageSize)
 
-    // Build filters from query params
-    const pilotId = searchParams.get('pilotId')
-    const status = searchParams.get('status')
-    const severity = searchParams.get('severity')
-    const incidentTypeId = searchParams.get('incidentTypeId')
-    const assignedTo = searchParams.get('assignedTo')
-    const reportedBy = searchParams.get('reportedBy')
-    const startDateStr = searchParams.get('startDate')
-    const endDateStr = searchParams.get('endDate')
-    const searchQuery = searchParams.get('searchQuery')
-    const includeResolved = searchParams.get('includeResolved') === 'true'
-    const pageStr = searchParams.get('page')
-    const pageSizeStr = searchParams.get('pageSize')
-    const sortBy = searchParams.get('sortBy') as
-      | 'incident_date'
-      | 'created_at'
-      | 'updated_at'
-      | 'severity'
-      | null
-    const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' | null
-
-    const page = Math.max(1, pageStr ? parseInt(pageStr, 10) || 1 : 1)
-    const pageSize = Math.min(100, Math.max(1, pageSizeStr ? parseInt(pageSizeStr, 10) || 20 : 20))
-
-    const filters = {
-      pilotId: pilotId || undefined,
-      status: status || undefined,
-      severity: severity || undefined,
-      incidentTypeId: incidentTypeId || undefined,
-      assignedTo: assignedTo || undefined,
-      reportedBy: reportedBy || undefined,
-      startDate: startDateStr ? new Date(startDateStr) : undefined,
-      endDate: endDateStr ? new Date(endDateStr) : undefined,
-      searchQuery: searchQuery || undefined,
-      includeResolved,
-      page,
-      pageSize,
-      sortBy: sortBy || undefined,
-      sortOrder: sortOrder || undefined,
-    }
-
-    const result = await getMatters(filters)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    const totalPages = Math.ceil(result.data!.totalCount / pageSize)
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: result.data!.matters,
-        pagination: {
-          page,
-          pageSize,
-          totalCount: result.data!.totalCount,
-          totalPages,
+      return NextResponse.json(
+        {
+          success: true,
+          data: result.data!.matters,
+          pagination: {
+            page,
+            pageSize,
+            totalCount: result.data!.totalCount,
+            totalPages,
+          },
         },
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Error in GET /api/disciplinary:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+        { status: 200 }
+      )
+    } catch (error) {
+      console.error('Error in GET /api/disciplinary:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    }
   }
-}
+)
 
 /**
  * POST /api/disciplinary
@@ -163,54 +170,43 @@ export async function GET(_request: NextRequest) {
  * - notification_date?: string
  * - due_date?: string
  */
-export async function POST(_request: NextRequest) {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'createDisciplinaryMatter',
+    endpoint: '/api/disciplinary',
+    rateLimit: { limiter: mutationRateLimit, by: 'user' },
+  },
+  async ({ request, admin }) => {
+    try {
+      // Parse and validate request body with Zod
+      const body = await request.json()
+      const validation = CreateDisciplinarySchema.safeParse(body)
 
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      if (!validation.success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Validation failed',
+            details: validation.error.flatten().fieldErrors,
+          },
+          { status: 400 }
+        )
+      }
+
+      // Create matter with validated data
+      const result = await createMatter({
+        ...validation.data,
+        reported_by: admin.userId, // Auto-set reported_by to current user
+      })
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, data: result.data }, { status: 201 })
+    } catch (error) {
+      console.error('Error in POST /api/disciplinary:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Rate limiting
-    const { success: rateLimitSuccess } = await mutationRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Parse and validate request body with Zod
-    const body = await _request.json()
-    const validation = CreateDisciplinarySchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation failed',
-          details: validation.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      )
-    }
-
-    // Create matter with validated data
-    const result = await createMatter({
-      ...validation.data,
-      reported_by: auth.userId!, // Auto-set reported_by to current user
-    })
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true, data: result.data }, { status: 201 })
-  } catch (error) {
-    console.error('Error in POST /api/disciplinary:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)

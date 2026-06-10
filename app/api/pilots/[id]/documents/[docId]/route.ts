@@ -2,33 +2,33 @@
  * Pilot Document API Route (admin-side, single document)
  * GET:    Return a short-lived signed URL for viewing/downloading
  * DELETE: Remove the document (storage + metadata) — admin/manager only
+ *
+ * Security pipeline (CSRF → admin auth → rate limit → role check) via createAdminRoute.
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
-import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   getPilotDocumentSignedUrl,
   deletePilotDocument,
 } from '@/lib/services/pilot-document-service'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 export const dynamic = 'force-dynamic'
 
-interface RouteContext {
-  params: Promise<{ id: string; docId: string }>
-}
-
-export async function GET(_request: NextRequest, context: RouteContext) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) return unauthorizedResponse()
-
-    const { id: pilotId, docId } = await context.params
+export const GET = createAdminRoute(
+  {
+    operation: 'getPilotDocumentSignedUrl',
+    endpoint: '/api/pilots/[id]/documents/[docId]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const pilotId = params.id
+    const docId = params.docId
 
     const result = await getPilotDocumentSignedUrl(docId)
     if (!result.success || !result.data) {
@@ -45,40 +45,19 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       success: true,
       data: { url: result.data.url, document: result.data.document },
     })
-  } catch (error) {
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotDocumentSignedUrl',
-      endpoint: '/api/pilots/[id]/documents/[docId]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
-export async function DELETE(request: NextRequest, context: RouteContext) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) return unauthorizedResponse()
-
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-    if (!roleCheck.authorized) {
-      return NextResponse.json(
-        { success: false, error: roleCheck.error || 'Insufficient permissions' },
-        { status: roleCheck.statusCode || 403 }
-      )
-    }
-
-    const { id: pilotId, docId } = await context.params
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deletePilotDocument',
+    endpoint: '/api/pilots/[id]/documents/[docId]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+  },
+  async ({ params }) => {
+    const pilotId = params.id
+    const docId = params.docId
 
     // Verify the document belongs to the pilot in the URL before deleting
     const lookup = await getPilotDocumentSignedUrl(docId)
@@ -95,11 +74,5 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     revalidatePath(`/dashboard/pilots/${pilotId}`)
 
     return NextResponse.json({ success: true, message: 'Document deleted' })
-  } catch (error) {
-    const sanitized = sanitizeError(error, {
-      operation: 'deletePilotDocument',
-      endpoint: '/api/pilots/[id]/documents/[docId]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

@@ -6,13 +6,14 @@
  *
  * Author: Maurice Rondeau
  * Date: November 13, 2025
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { NextResponse } from 'next/server'
 import { getAllDeadlineAlerts } from '@/lib/services/roster-deadline-alert-service'
 import { logger } from '@/lib/services/logging-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -22,31 +23,35 @@ export const revalidate = 0
  *
  * Returns deadline alerts for upcoming roster periods
  */
-export async function GET() {
-  const auth = await getAuthenticatedAdmin()
-  if (!auth.authenticated) return unauthorizedResponse()
+export const GET = createAdminRoute(
+  {
+    operation: 'getDeadlineAlerts',
+    endpoint: '/api/deadline-alerts',
+    rateLimit: false,
+  },
+  async () => {
+    try {
+      const alerts = await getAllDeadlineAlerts()
 
-  try {
-    const alerts = await getAllDeadlineAlerts()
+      return NextResponse.json({
+        success: true,
+        data: alerts,
+        timestamp: new Date().toISOString(),
+      })
+    } catch (error) {
+      logger.error('Failed to fetch deadline alerts', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      })
 
-    return NextResponse.json({
-      success: true,
-      data: alerts,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    logger.error('Failed to fetch deadline alerts', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    })
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch deadline alerts',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch deadline alerts',
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
+        { status: 500 }
+      )
+    }
   }
-}
+)

@@ -11,12 +11,13 @@
  * @route POST /api/portal/feedback/[id]/comments - Add new comment
  * @route PATCH /api/portal/feedback/[id]/comments - Update comment
  * @route DELETE /api/portal/feedback/[id]/comments - Delete comment
+ *
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import {
   createFeedbackComment,
   getFeedbackComments,
@@ -72,205 +73,201 @@ const deleteCommentSchema = z.object({
  *
  * Get all comments for a feedback item
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id: feedbackId } = await params
+export const GET = createPilotRoute(
+  {
+    operation: 'getFeedbackComments',
+    endpoint: '/api/portal/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ params, pilot }) => {
+    try {
+      const feedbackId = params.id
 
-    // Verify pilot portal authentication
-    const pilot = await getCurrentPilot()
+      if (!pilot.pilot_id) {
+        return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+      }
 
-    if (!pilot) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    if (!pilot.pilot_id) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
-    }
+      // Verify pilot owns this feedback
+      const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
+      if (ownership.status === 'error') {
+        return NextResponse.json(
+          { success: false, error: 'Internal server error' },
+          { status: 500 }
+        )
+      }
+      if (ownership.status !== 'owner') {
+        return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+      }
 
-    // Verify pilot owns this feedback
-    const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
-    if (ownership.status === 'error') {
+      // Fetch comments
+      const result = await getFeedbackComments(feedbackId)
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('GET portal feedback comments error:', error)
       return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-    if (ownership.status !== 'owner') {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Fetch comments
-    const result = await getFeedbackComments(feedbackId)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('GET portal feedback comments error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * POST /api/portal/feedback/[id]/comments
  *
  * Create a new comment on feedback (pilot)
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const POST = createPilotRoute(
+  {
+    operation: 'createFeedbackComment',
+    endpoint: '/api/portal/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, params, pilot }) => {
+    try {
+      const feedbackId = params.id
 
-    const { id: feedbackId } = await params
+      if (!pilot.pilot_id) {
+        return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+      }
 
-    // Verify pilot portal authentication
-    const pilot = await getCurrentPilot()
+      // Verify pilot owns this feedback
+      const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
+      if (ownership.status === 'error') {
+        return NextResponse.json(
+          { success: false, error: 'Internal server error' },
+          { status: 500 }
+        )
+      }
+      if (ownership.status !== 'owner') {
+        return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+      }
 
-    if (!pilot) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    if (!pilot.pilot_id) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
-    }
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = createCommentSchema.safeParse(body)
 
-    // Verify pilot owns this feedback
-    const ownership = await verifyFeedbackOwnership(feedbackId, pilot.pilot_id)
-    if (ownership.status === 'error') {
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
+
+      // Create comment - use pilot.id as user_id
+      const result = await createFeedbackComment({
+        feedback_id: feedbackId,
+        user_id: pilot.id,
+        user_type: 'pilot',
+        content: validation.data.content,
+        parent_comment_id: validation.data.parent_comment_id || null,
+      })
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('POST portal feedback comment error:', error)
       return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-    if (ownership.status !== 'owner') {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = createCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
-      )
-    }
-
-    // Create comment - use pilot.id as user_id
-    const result = await createFeedbackComment({
-      feedback_id: feedbackId,
-      user_id: pilot.id,
-      user_type: 'pilot',
-      content: validation.data.content,
-      parent_comment_id: validation.data.parent_comment_id || null,
-    })
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('POST portal feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * PATCH /api/portal/feedback/[id]/comments
  *
  * Update a comment (pilot can only update own comments)
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const PATCH = createPilotRoute(
+  {
+    operation: 'updateFeedbackComment',
+    endpoint: '/api/portal/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, pilot }) => {
+    try {
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = updateCommentSchema.safeParse(body)
 
-    // Verify pilot portal authentication
-    const pilot = await getCurrentPilot()
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
 
-    if (!pilot) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      // Update comment (pilot can only update their own)
+      const result = await updateFeedbackComment(validation.data.comment_id, pilot.id, {
+        content: validation.data.content,
+      })
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+      })
+    } catch (error) {
+      console.error('PATCH portal feedback comment error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = updateCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
-      )
-    }
-
-    // Update comment (pilot can only update their own)
-    const result = await updateFeedbackComment(validation.data.comment_id, pilot.id, {
-      content: validation.data.content,
-    })
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    console.error('PATCH portal feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)
 
 /**
  * DELETE /api/portal/feedback/[id]/comments
  *
  * Delete a comment (pilot can only delete own comments)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const DELETE = createPilotRoute(
+  {
+    operation: 'deleteFeedbackComment',
+    endpoint: '/api/portal/feedback/[id]/comments',
+    rateLimit: false,
+  },
+  async ({ request, pilot }) => {
+    try {
+      // Parse and validate request body
+      const body = await request.json()
+      const validation = deleteCommentSchema.safeParse(body)
 
-    // Verify pilot portal authentication
-    const pilot = await getCurrentPilot()
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: validation.error.issues[0].message },
+          { status: 400 }
+        )
+      }
 
-    if (!pilot) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Parse and validate request body
-    const body = await request.json()
-    const validation = deleteCommentSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
-        { status: 400 }
+      // Delete comment (pilot can only delete their own comments - isAdmin = false)
+      const result = await deleteFeedbackComment(
+        validation.data.comment_id,
+        pilot.id,
+        false // isAdmin = false, pilots can only delete their own comments
       )
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 })
+      }
+
+      return NextResponse.json({
+        success: true,
+      })
+    } catch (error) {
+      console.error('DELETE portal feedback comment error:', error)
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
     }
-
-    // Delete comment (pilot can only delete their own comments - isAdmin = false)
-    const result = await deleteFeedbackComment(
-      validation.data.comment_id,
-      pilot.id,
-      false // isAdmin = false, pilots can only delete their own comments
-    )
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-    })
-  } catch (error) {
-    console.error('DELETE portal feedback comment error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
-}
+)

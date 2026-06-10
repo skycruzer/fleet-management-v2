@@ -4,15 +4,15 @@
  * PATCH /api/user/notification-settings — Update the authenticated admin
  * user's notification preferences. Replaces a direct an_users write that the
  * settings dialog used to perform from the client.
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { updateAdminUserNotificationSettings } from '@/lib/services/admin-service'
 
 const NotificationSettingsSchema = z.object({
@@ -23,24 +23,13 @@ const NotificationSettingsSchema = z.object({
   leave_request_updates: z.boolean().optional(),
 })
 
-export async function PATCH(request: NextRequest) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
+export const PATCH = createAdminRoute(
+  {
+    operation: 'updateNotificationSettings',
+    endpoint: '/api/user/notification-settings',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, admin }) => {
     const body = await request.json().catch(() => null)
     const parsed = NotificationSettingsSchema.safeParse(body)
     if (!parsed.success) {
@@ -50,16 +39,10 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    await updateAdminUserNotificationSettings(auth.userId!, parsed.data)
+    await updateAdminUserNotificationSettings(admin.userId, parsed.data)
 
     revalidatePath('/dashboard/settings')
 
     return NextResponse.json({ success: true })
-  } catch (error: unknown) {
-    const sanitized = sanitizeError(error, {
-      operation: 'updateNotificationSettings',
-      endpoint: '/api/user/notification-settings',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

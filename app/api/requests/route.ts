@@ -8,21 +8,21 @@
  * GET /api/requests - List all requests with filters
  * POST /api/requests - Create new request
  *
- * @version 1.0.0
+ * Security pipeline (CSRF, auth, rate limiting) via createAdminRoute.
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   getAllPilotRequests,
   createPilotRequest,
   PilotRequestFilters,
   CreatePilotRequestInput,
 } from '@/lib/services/unified-request-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { authRateLimit, getClientIp } from '@/lib/rate-limit'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { authRateLimit } from '@/lib/rate-limit'
 import { revalidatePath } from 'next/cache'
 import { CreatePilotRequestSchema } from '@/lib/validations/pilot-request-schema'
 
@@ -39,27 +39,13 @@ import { CreatePilotRequestSchema } from '@/lib/validations/pilot-request-schema
  * - is_late: Filter late requests (true/false)
  * - is_past_deadline: Filter past-deadline requests (true/false)
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const GET = createAdminRoute(
+  {
+    operation: 'getAllPilotRequests',
+    endpoint: '/api/requests',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+  },
+  async ({ request }) => {
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams
     const filters: PilotRequestFilters = {}
@@ -129,15 +115,8 @@ export async function GET(request: NextRequest) {
       count: result.data?.length || 0,
       filters,
     })
-  } catch (error) {
-    console.error('GET /api/requests error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getAllPilotRequests',
-      endpoint: '/api/requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * POST /api/requests
@@ -162,31 +141,13 @@ export async function GET(request: NextRequest) {
  *   source_attachment_url?: string
  * }
  */
-export async function POST(request: NextRequest) {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
+export const POST = createAdminRoute(
+  {
+    operation: 'createPilotRequest',
+    endpoint: '/api/requests',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+  },
+  async ({ request, admin }) => {
     // Parse and validate request body with Zod
     const body = await request.json()
     const validation = CreatePilotRequestSchema.safeParse(body)
@@ -205,7 +166,7 @@ export async function POST(request: NextRequest) {
     // Build input from validated data
     const input: CreatePilotRequestInput = {
       ...validation.data,
-      submitted_by_admin_id: validation.data.submitted_by_admin_id || auth.userId!,
+      submitted_by_admin_id: validation.data.submitted_by_admin_id || admin.userId,
     }
 
     // Create request
@@ -238,12 +199,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error) {
-    console.error('POST /api/requests error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'createPilotRequest',
-      endpoint: '/api/requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

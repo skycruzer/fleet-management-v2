@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET /api/dashboard/flight-requests
@@ -14,16 +13,19 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * - start_date_to: YYYY-MM-DD
  * - stats: Include statistics (stats=true)
  *
+ * Security pipeline (auth) via createAdminRoute.
+ *
  * @spec 001-missing-core-features (US3, T058)
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
-export async function GET(_request: NextRequest) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const searchParams = _request.nextUrl.searchParams
+export const GET = createAdminRoute(
+  {
+    operation: 'getAllFlightRequests',
+    endpoint: '/api/dashboard/flight-requests',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    const searchParams = request.nextUrl.searchParams
     const includeStats = searchParams.get('stats') === 'true'
 
     // Get statistics if requested
@@ -79,12 +81,5 @@ export async function GET(_request: NextRequest) {
       { success: true, data: result.data, count: result.data?.length || 0 },
       { status: 200 }
     )
-  } catch (error) {
-    console.error('Admin flight-requests GET error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getAllFlightRequests',
-      endpoint: '/api/dashboard/flight-requests',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
