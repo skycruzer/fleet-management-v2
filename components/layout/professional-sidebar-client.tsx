@@ -14,26 +14,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
-import {
-  LayoutDashboard,
-  Users,
-  FileCheck,
-  LogOut,
-  ChevronDown,
-  BarChart3,
-  AlertCircle,
-  CheckSquare,
-  Shield,
-  ScrollText,
-  RefreshCw,
-  ClipboardList,
-  CalendarHeart,
-  FileSearch,
-  MessageSquare,
-  PanelLeftClose,
-  PanelLeft,
-  CalendarDays,
-} from 'lucide-react'
+import { LogOut, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -41,36 +22,12 @@ import { SidebarShell } from '@/components/layout/sidebar-shell'
 import { useSidebarBadges } from '@/lib/hooks/use-sidebar-badges'
 import { useConfirm } from '@/components/ui/confirm-dialog'
 import { useSidebarCollapse } from '@/lib/hooks/use-sidebar-collapse'
+import { primaryAdminNavItems, moreAdminNavItems, type AdminNavItem } from '@/lib/config/admin-nav'
 
-interface NavItem {
-  title: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
+interface NavItem extends AdminNavItem {
   badge?: string
   badgeVariant?: 'default' | 'warning' | 'danger'
 }
-
-// Primary nav items — always visible, no section headers
-const primaryNavItems: NavItem[] = [
-  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { title: 'Pilots', href: '/dashboard/pilots', icon: Users },
-  { title: 'Certifications', href: '/dashboard/certifications', icon: FileCheck },
-  { title: 'Requests', href: '/dashboard/requests', icon: ClipboardList },
-  { title: 'Leave Bids', href: '/dashboard/admin/leave-bids', icon: CalendarHeart },
-  { title: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-]
-
-// Secondary nav items — under "More" expander
-const moreNavItems: NavItem[] = [
-  { title: 'Published Rosters', href: '/dashboard/published-rosters', icon: CalendarDays },
-  { title: 'Renewal Planning', href: '/dashboard/renewal-planning', icon: RefreshCw },
-  { title: 'Reports', href: '/dashboard/reports', icon: ScrollText },
-  { title: 'Tasks', href: '/dashboard/tasks', icon: CheckSquare },
-  { title: 'System Admin', href: '/dashboard/admin', icon: Shield },
-  { title: 'Disciplinary', href: '/dashboard/disciplinary', icon: AlertCircle },
-  { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: FileSearch },
-  { title: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
-]
 
 interface ProfessionalSidebarClientProps {
   appTitle: string
@@ -87,7 +44,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
   // Enrich nav items with dynamic badge data
   const enrichedItems = useMemo(() => {
-    const enrich = (items: NavItem[]): NavItem[] =>
+    const enrich = (items: AdminNavItem[]): NavItem[] =>
       items.map((item) => {
         if (item.title === 'Requests' && badges?.pendingRequests) {
           return {
@@ -109,7 +66,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         }
         return item
       })
-    return { primary: enrich(primaryNavItems), more: enrich(moreNavItems) }
+    return { primary: enrich(primaryAdminNavItems), more: enrich(moreAdminNavItems) }
   }, [badges])
 
   // "More" section collapse state (persisted in localStorage)
@@ -129,7 +86,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
   // Auto-expand "More" if user navigates to a secondary page
   useEffect(() => {
-    const isOnMorePage = moreNavItems.some((item) => isActive(item.href))
+    const isOnMorePage = moreAdminNavItems.some((item) => isActive(item.href))
     if (isOnMorePage) {
       setMoreExpanded(true)
     }
@@ -302,7 +259,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             <button
               onClick={handleLogout}
               className={cn(
-                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]',
+                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-destructive-muted-foreground)]',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Logout' : undefined}

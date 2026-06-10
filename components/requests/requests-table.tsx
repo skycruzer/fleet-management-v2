@@ -58,6 +58,7 @@ import {
   ClipboardList,
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { formatDate } from '@/lib/utils/date-utils'
 
@@ -306,24 +307,6 @@ export function RequestsTable({
   // ============================================================================
   // Helper Functions
   // ============================================================================
-
-  const getStatusBadge = (status: PilotRequest['workflow_status']) => {
-    const variants: Record<PilotRequest['workflow_status'], { variant: any; label: string }> = {
-      DRAFT: { variant: 'secondary', label: 'Draft' },
-      SUBMITTED: { variant: 'default', label: 'Submitted' },
-      IN_REVIEW: { variant: 'secondary', label: 'In Review' },
-      APPROVED: { variant: 'default', label: 'Approved' },
-      DENIED: { variant: 'destructive', label: 'Denied' },
-      WITHDRAWN: { variant: 'outline', label: 'Withdrawn' },
-    }
-
-    const { variant, label } = variants[status]
-    return (
-      <Badge variant={variant} className="font-medium">
-        {label}
-      </Badge>
-    )
-  }
 
   const getCategoryBadge = (category: PilotRequest['request_category']) => {
     const colors: Record<PilotRequest['request_category'], string> = {
@@ -583,7 +566,9 @@ export function RequestsTable({
                       <span className="text-xs">{request.submission_channel}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
+                  <TableCell>
+                    <StatusBadge status={request.workflow_status} size="sm" hideIcon />
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {request.is_late_request && (
@@ -788,7 +773,7 @@ export function RequestsTable({
                             <div className="space-y-2 text-sm">
                               <div>
                                 <span className="text-muted-foreground font-medium">Status:</span>{' '}
-                                {getStatusBadge(request.workflow_status)}
+                                <StatusBadge status={request.workflow_status} />
                               </div>
                               <div>
                                 <span className="text-muted-foreground font-medium">

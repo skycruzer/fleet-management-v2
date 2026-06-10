@@ -3,23 +3,16 @@
  * Read-only view of a leave bid submission
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, User, Briefcase } from 'lucide-react'
-import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import type {
-  AdminLeaveBid,
-  EnrichedLeaveBidOption,
-  LeaveBidOption,
-  PreferredDateEntry,
-  RawAdminLeaveBid,
-} from '@/lib/types/admin-leave-bid'
+import { getLeaveBidByIdForAdmin } from '@/lib/services/leave-bid-service'
+import type { AdminLeaveBid } from '@/lib/types/admin-leave-bid'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -34,87 +27,19 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     redirect('/auth/login')
   }
 
-  const supabase = createAdminClient()
-
-  // Fetch leave bid with all related data
-  const { data: rawBid, error } = await supabase
-    .from('leave_bids')
-    .select(
-      `
-      id,
-      roster_period_code,
-      status,
-      created_at,
-      updated_at,
-      reviewed_at,
-      review_comments,
-      notes,
-      reason,
-      pilot_id,
-      preferred_dates,
-      pilots (
-        id,
-        first_name,
-        last_name,
-        middle_name,
-        employee_id,
-        role,
-        seniority_number,
-        email
-      ),
-      leave_bid_options (
-        id,
-        priority,
-        start_date,
-        end_date
-      )
-    `
-    )
-    .eq('id', id)
-    .single()
-
-  if (error || !rawBid) {
+  // Fetch leave bid (related data joined, options normalized) via service layer
+  const result = await getLeaveBidByIdForAdmin(id)
+  if (!result.success || !result.data) {
     notFound()
   }
 
-  const typedRawBid = rawBid as unknown as RawAdminLeaveBid
-
-  // Normalize options: portal submissions store dates in preferred_dates JSON
-  let options: LeaveBidOption[] = typedRawBid.leave_bid_options ?? []
-  if (options.length === 0 && typedRawBid.preferred_dates) {
-    try {
-      const parsed =
-        typeof typedRawBid.preferred_dates === 'string'
-          ? JSON.parse(typedRawBid.preferred_dates)
-          : typedRawBid.preferred_dates
-      if (Array.isArray(parsed)) {
-        options = (parsed as PreferredDateEntry[]).map((item, index) => ({
-          id: `${typedRawBid.id}-opt-${index}`,
-          priority: item.priority ?? index + 1,
-          start_date: item.start_date,
-          end_date: item.end_date,
-        }))
-      }
-    } catch {
-      // Invalid JSON — leave options empty
-    }
-  }
-
-  // Enrich each option with roster period codes
-  const enrichedOptions: EnrichedLeaveBidOption[] = options.map((opt) => ({
-    ...opt,
-    roster_periods: getAffectedRosterPeriods(new Date(opt.start_date), new Date(opt.end_date)).map(
-      (rp) => rp.code
-    ),
-  }))
-
-  const bid: AdminLeaveBid = { ...typedRawBid, leave_bid_options: enrichedOptions }
+  const bid: AdminLeaveBid = result.data
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
       case 'PENDING':
         return (
-          <Badge className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]">
+          <Badge className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]">
             <Clock className="mr-1 h-3 w-3" />
             Pending Review
           </Badge>
@@ -128,14 +53,14 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
         )
       case 'APPROVED':
         return (
-          <Badge className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] text-[var(--color-success-400)]">
+          <Badge className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]">
             <CheckCircle className="mr-1 h-3 w-3" />
             Approved
           </Badge>
         )
       case 'REJECTED':
         return (
-          <Badge className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]">
+          <Badge className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]">
             <XCircle className="mr-1 h-3 w-3" />
             Rejected
           </Badge>

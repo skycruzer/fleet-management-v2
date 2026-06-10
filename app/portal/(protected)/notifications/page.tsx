@@ -10,11 +10,14 @@
  */
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { PageHead } from '@/components/ui/page-head'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -28,6 +31,32 @@ interface Notification {
   created_at: string
 }
 
+const PAGE_SIZE = 20
+
+/** Mirrors the dot color mapping in components/portal/notification-bell.tsx */
+function getNotificationDotColor(type: string) {
+  const colors: Record<string, string> = {
+    leave_approved: 'bg-[var(--color-status-low)]',
+    leave_denied: 'bg-[var(--color-status-high)]',
+    flight_approved: 'bg-[var(--color-info)]',
+    flight_denied: 'bg-[var(--color-status-medium)]',
+    certification_expiring: 'bg-[var(--color-status-medium)]',
+    certification_expired: 'bg-[var(--color-status-high)]',
+    task_assigned: 'bg-[var(--color-info)]',
+    registration_approved: 'bg-[var(--color-status-low)]',
+    registration_denied: 'bg-[var(--color-status-high)]',
+    system_alert: 'bg-[var(--color-info)]',
+    general: 'bg-muted-foreground',
+  }
+  return colors[type] || 'bg-muted-foreground'
+}
+
+/** 'leave_approved' → 'Leave approved' */
+function humanizeType(type: string) {
+  const label = type.replace(/_/g, ' ')
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -35,6 +64,8 @@ export default function NotificationsPage() {
   const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -112,6 +143,14 @@ export default function NotificationsPage() {
   }
 
   const deleteNotification = async (notificationId: string) => {
+    const confirmed = await confirm({
+      title: 'Delete Notification',
+      description: 'This notification will be permanently deleted. This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
+
     setDeletingId(notificationId)
 
     try {
@@ -135,35 +174,29 @@ export default function NotificationsPage() {
     }
   }
 
-  const getNotificationBadgeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      leave_approved: 'bg-[var(--color-success-500)]',
-      leave_denied: 'bg-[var(--color-danger-500)]',
-      flight_approved: 'bg-[var(--color-primary-500)]',
-      flight_denied: 'bg-[var(--color-badge-orange)]',
-      certification_expiring: 'bg-[var(--color-warning-500)]',
-      certification_expired: 'bg-[var(--color-danger-600)]',
-      task_assigned: 'bg-[var(--color-info-bg)]0',
-      registration_approved: 'bg-[var(--color-success-600)]',
-      registration_denied: 'bg-[var(--color-danger-600)]',
-      system_alert: 'bg-muted-foreground',
-      general: 'bg-muted-foreground',
-    }
-    return colors[type] || 'bg-muted-foreground'
-  }
-
   const unreadCount = notifications.filter((n) => !n.read).length
+  const visibleNotifications = notifications.slice(0, visibleCount)
+  const remainingCount = notifications.length - visibleCount
 
   if (isLoading) {
     return (
       <div>
         <PageHead title="Notifications" description="Loading…" />
-        <main className="px-4 py-6 sm:px-6 lg:px-8">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground">Loading notifications…</p>
-            </CardContent>
-          </Card>
+        <main className="space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3">
+                  <Skeleton className="mt-1.5 h-2 w-2 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-5 w-64 max-w-full" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </main>
       </div>
     )
@@ -187,6 +220,8 @@ export default function NotificationsPage() {
         }
       />
 
+      <ConfirmDialog />
+
       <main className="space-y-4 px-4 py-6 sm:px-6 lg:px-8">
         {error && (
           <Alert variant="destructive">
@@ -202,37 +237,41 @@ export default function NotificationsPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification) => (
+            {visibleNotifications.map((notification) => (
               <Card
                 key={notification.id}
                 className={
-                  notification.read
-                    ? 'opacity-70'
-                    : 'border-l-4 border-l-[var(--color-primary-500)]'
+                  notification.read ? undefined : 'border-l-4 border-l-[var(--color-primary-500)]'
                 }
               >
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       <div className="mb-2 flex items-center gap-2">
-                        <Badge className={getNotificationBadgeColor(notification.type)}>
-                          {notification.type.replace(/_/g, ' ')}
-                        </Badge>
+                        <span
+                          className={`h-2 w-2 shrink-0 rounded-full ${getNotificationDotColor(notification.type)}`}
+                          aria-hidden="true"
+                        />
+                        <span className="text-muted-foreground text-xs font-medium">
+                          {humanizeType(notification.type)}
+                        </span>
                         {!notification.read && (
                           <Badge variant="outline" className="bg-[var(--color-info-bg)]">
                             New
                           </Badge>
                         )}
                       </div>
-                      <CardTitle className="text-xl">{notification.title}</CardTitle>
-                      <CardDescription className="mt-1">
+                      <CardTitle className="text-foreground text-base">
+                        {notification.title}
+                      </CardTitle>
+                      <CardDescription className="text-muted-foreground mt-1">
                         {formatDistanceToNow(new Date(notification.created_at), {
                           addSuffix: true,
                         })}
                       </CardDescription>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex shrink-0 gap-2">
                       {!notification.read && (
                         <Button
                           variant="ghost"
@@ -259,17 +298,31 @@ export default function NotificationsPage() {
                   <p className="text-muted-foreground">{notification.message}</p>
 
                   {notification.link && (
-                    <Button
-                      variant="link"
-                      className="mt-4 p-0"
-                      onClick={() => (window.location.href = notification.link!)}
-                    >
-                      View Details →
+                    <Button asChild variant="link" className="mt-4 h-auto p-0">
+                      <Link
+                        href={notification.link}
+                        onClick={() => {
+                          if (!notification.read) {
+                            // Fire-and-forget: mark read, then let Link navigate
+                            markAsRead(notification.id)
+                          }
+                        }}
+                      >
+                        View Details →
+                      </Link>
                     </Button>
                   )}
                 </CardContent>
               </Card>
             ))}
+
+            {remainingCount > 0 && (
+              <div className="flex justify-center pt-2">
+                <Button variant="outline" onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}>
+                  Load more ({remainingCount} remaining)
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>

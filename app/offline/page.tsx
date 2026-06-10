@@ -30,7 +30,7 @@ export default function Offline() {
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-4">
-      <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
+      <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-[var(--shadow-card)]">
         {/* Header */}
         <div className="bg-[var(--color-primary-500)] p-8">
           <div className="mb-4 flex items-center justify-center">
@@ -49,14 +49,13 @@ export default function Offline() {
           {/* Connection Status */}
           <div className="rounded-r border-l-4 border-[var(--color-warning-400)] bg-[var(--color-warning-muted)] p-5">
             <div className="flex items-start">
-              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-[var(--color-warning-400)]" />
+              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-[var(--color-warning-muted-foreground)]" />
               <div className="flex-1">
-                <h3 className="mb-1 text-sm font-semibold text-[var(--color-warning-400)]">
+                <h3 className="mb-1 text-sm font-semibold text-[var(--color-warning-muted-foreground)]">
                   Connection Status
                 </h3>
-                <p className="text-sm text-[var(--color-warning-400)]">
-                  The Fleet Management System requires an active internet connection to function
-                  properly.
+                <p className="text-sm text-[var(--color-warning-muted-foreground)]">
+                  Fleet Office requires an active internet connection to function properly.
                 </p>
               </div>
             </div>
@@ -70,54 +69,28 @@ export default function Offline() {
             </h3>
             <ul className="text-foreground/80 space-y-3 text-sm">
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   1
                 </span>
-                <div>
-                  <p className="text-foreground mb-1 font-semibold">
-                    Check your Wi-Fi or network connection
-                  </p>
-                  <p className="text-muted-foreground">
-                    Make sure you&apos;re connected to a network and the signal is strong
-                  </p>
-                </div>
+                <p className="text-foreground pt-1 font-medium">
+                  Check your Wi-Fi or mobile data connection
+                </p>
               </li>
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   2
                 </span>
-                <div>
-                  <p className="text-foreground mb-1 font-semibold">Check your router and modem</p>
-                  <p className="text-muted-foreground">
-                    Restart your router if necessary and wait for it to reconnect
-                  </p>
-                </div>
+                <p className="text-foreground pt-1 font-medium">
+                  Restart your router or switch networks
+                </p>
               </li>
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   3
                 </span>
-                <div>
-                  <p className="text-foreground mb-1 font-semibold">
-                    Try another website or application
-                  </p>
-                  <p className="text-muted-foreground">
-                    Verify if the issue is system-wide or specific to this application
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
-                  4
-                </span>
-                <div>
-                  <p className="text-foreground mb-1 font-semibold">
-                    Contact your network administrator
-                  </p>
-                  <p className="text-muted-foreground">
-                    If you&apos;re on a corporate network, IT may need to assist
-                  </p>
-                </div>
+                <p className="text-foreground pt-1 font-medium">
+                  Try another website to confirm whether the whole connection is down
+                </p>
               </li>
             </ul>
           </div>
@@ -155,11 +128,18 @@ export default function Offline() {
               Try Again
             </button>
             <button
+              onClick={() => (window.location.href = '/portal/dashboard')}
+              className="bg-card hover:bg-muted text-foreground flex flex-1 items-center justify-center gap-2 rounded-lg border border-[var(--color-border)] px-6 py-3.5 font-semibold shadow-[var(--shadow-card)] transition-all duration-200"
+            >
+              <Home className="h-5 w-5" />
+              Pilot Portal
+            </button>
+            <button
               onClick={() => (window.location.href = '/dashboard')}
               className="bg-card hover:bg-muted text-foreground flex flex-1 items-center justify-center gap-2 rounded-lg border border-[var(--color-border)] px-6 py-3.5 font-semibold shadow-[var(--shadow-card)] transition-all duration-200"
             >
               <Home className="h-5 w-5" />
-              Go to Dashboard
+              Admin Dashboard
             </button>
           </div>
 
@@ -175,7 +155,7 @@ export default function Offline() {
             <p className="text-muted-foreground text-center text-xs">
               Still having connection issues?{' '}
               <a
-                href="mailto:support@example.com"
+                href="mailto:support@pxb767office.app"
                 className="font-semibold text-[var(--color-primary-500)] hover:underline"
               >
                 Contact IT Support
@@ -186,12 +166,9 @@ export default function Offline() {
 
         {/* Footer */}
         <div className="border-border bg-card border-t px-8 py-4">
-          <div className="flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
-            <p className="text-muted-foreground">
-              Fleet Management V2 - B767 Pilot Management System
-            </p>
-            <p className="font-bold text-[var(--color-primary-500)]">Powered by Serwist PWA</p>
-          </div>
+          <p className="text-muted-foreground text-center text-xs">
+            Fleet Office - B767 Pilot Management System
+          </p>
         </div>
       </div>
     </div>

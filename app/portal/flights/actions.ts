@@ -41,7 +41,7 @@ export async function submitFlightRequestAction(formData: FormData) {
     const result = await response.json()
 
     if (!response.ok || !result.success) {
-      return { success: false, error: result.error || 'Failed to submit flight request' }
+      return { success: false, error: result.error || 'Failed to submit RDO/SDO request' }
     }
 
     // Invalidate request caches (admin + portal surfaces), non-blocking

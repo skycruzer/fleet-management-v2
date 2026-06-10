@@ -10,10 +10,12 @@
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, User, Clock, AlertTriangle, Paperclip } from 'lucide-react'
+import { Calendar, User, Clock, AlertTriangle, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge, getStatusLabel } from '@/components/ui/status-badge'
+import { PageHeader } from '@/components/layout/page-header'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { redirect } from 'next/navigation'
@@ -119,59 +121,62 @@ export default async function RequestDetailPage({ params }: PageProps) {
     })
   }
 
-  const getStatusBadgeClass = (status: string) => {
-    const classes: Record<string, string> = {
-      DRAFT: 'bg-muted/60 text-muted-foreground',
-      SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
-      IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
-      APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
-      DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
-      WITHDRAWN: 'bg-muted/60 text-muted-foreground',
-    }
-    return classes[status] || 'bg-muted/60 text-muted-foreground'
-  }
-
   const getCategoryBadgeClass = (category: string) => {
     const classes: Record<string, string> = {
       LEAVE: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
       FLIGHT: 'bg-[var(--color-badge-purple-bg)] text-[var(--color-badge-purple)]',
-      LEAVE_BID: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
+      LEAVE_BID: 'bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]',
     }
     return classes[category] || 'bg-muted/60 text-muted-foreground'
   }
 
+  // Human-readable labels for raw DB enum values (fall back to title-casing)
+  const CATEGORY_LABELS: Record<string, string> = {
+    LEAVE: 'Leave',
+    FLIGHT: 'RDO/SDO',
+    LEAVE_BID: 'Leave Bid',
+  }
+  const REQUEST_TYPE_LABELS: Record<string, string> = {
+    RDO: 'RDO',
+    SDO: 'SDO',
+    FLIGHT_REQUEST: 'RDO/SDO Request',
+    LSL: 'Long Service Leave',
+    LWOP: 'Leave Without Pay',
+  }
+  const formatCategory = (category: string | null) =>
+    category ? (CATEGORY_LABELS[category] ?? getStatusLabel(category)) : 'N/A'
+  const formatRequestType = (type: string | null) =>
+    type ? (REQUEST_TYPE_LABELS[type] ?? getStatusLabel(type)) : 'N/A'
+  const formatChannel = (channel: string | null) => (channel ? getStatusLabel(channel) : 'N/A')
+
+  const pilotName = request.pilot ? `${request.pilot.first_name} ${request.pilot.last_name}` : null
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/requests">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Requests
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold">Request Details</h1>
-            <p className="text-muted-foreground">Request ID: {request.id.substring(0, 8)}...</p>
-          </div>
-        </div>
-
-        <RequestDetailActions request={request} />
-      </div>
+      <PageHeader
+        title={
+          pilotName
+            ? `${pilotName} — ${formatRequestType(request.request_type)}`
+            : 'Request Details'
+        }
+        breadcrumbs={[
+          { label: 'Requests', href: '/dashboard/requests' },
+          { label: 'Request Details' },
+        ]}
+        actions={<RequestDetailActions request={request} />}
+      />
 
       {/* Status and Category Badges */}
-      <div className="flex gap-3">
-        <Badge className={getStatusBadgeClass(request.workflow_status || 'SUBMITTED')}>
-          {request.workflow_status || 'SUBMITTED'}
-        </Badge>
+      <div className="flex flex-wrap items-center gap-3">
+        <StatusBadge status={request.workflow_status || 'SUBMITTED'} />
         <Badge className={getCategoryBadgeClass(request.request_category)}>
-          {request.request_category}
+          {formatCategory(request.request_category)}
         </Badge>
         {request.is_late_request && (
           <Badge
             variant="outline"
-            className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]"
+            className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]"
           >
             <Clock className="mr-1 h-3 w-3" />
             Late Request
@@ -180,12 +185,15 @@ export default async function RequestDetailPage({ params }: PageProps) {
         {request.is_past_deadline && (
           <Badge
             variant="outline"
-            className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]"
+            className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]"
           >
             <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
         )}
+        <span className="text-muted-foreground font-mono text-xs">
+          Request ID: {request.id.substring(0, 8)}...
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -200,15 +208,17 @@ export default async function RequestDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Request Type</p>
-                  <p className="text-lg font-semibold">{request.request_type}</p>
+                  <p className="text-lg font-semibold">{formatRequestType(request.request_type)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Category</p>
-                  <p className="text-lg font-semibold">{request.request_category}</p>
+                  <p className="text-lg font-semibold">
+                    {formatCategory(request.request_category)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Submission Channel</p>
-                  <p className="text-lg">{request.submission_channel}</p>
+                  <p className="text-lg">{formatChannel(request.submission_channel)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Submission Date</p>
@@ -405,7 +415,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_late_request && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]"
+                      className="w-full justify-start border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]"
                     >
                       <Clock className="mr-1 h-3 w-3" />
                       Late Request (&lt;21 days notice)
@@ -414,7 +424,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_past_deadline && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]"
+                      className="w-full justify-start border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]"
                     >
                       <AlertTriangle className="mr-1 h-3 w-3" />
                       Past Deadline (After 22-day cutoff)

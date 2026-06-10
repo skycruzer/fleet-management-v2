@@ -132,10 +132,50 @@ const nextConfig = {
   // Redirects — old URLs → consolidated pages
   async redirects() {
     return [
+      // Legacy test login page removed — canonical admin login is /auth/login
+      {
+        source: '/login',
+        destination: '/auth/login',
+        permanent: true,
+      },
+      // Legacy /pilot/* portal (Supabase-Auth based) superseded by /portal/*
+      // (Redis sessions). Tree deletion deferred until verifyPilotSession
+      // unification; these redirects make it unreachable in the meantime.
+      {
+        source: '/pilot/login',
+        destination: '/portal/login',
+        permanent: true,
+      },
+      {
+        source: '/pilot/register',
+        destination: '/portal/register',
+        permanent: true,
+      },
+      {
+        source: '/pilot/dashboard',
+        destination: '/portal/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/pilot/leave',
+        destination: '/portal/requests?tab=leave',
+        permanent: true,
+      },
+      {
+        source: '/pilot/flight-requests',
+        destination: '/portal/requests?tab=rdo-sdo',
+        permanent: true,
+      },
+      // Audit viewer consolidation — /dashboard/audit is the canonical page
+      {
+        source: '/dashboard/audit-logs',
+        destination: '/dashboard/audit',
+        permanent: true,
+      },
       // Certifications: Expiring Certs merged into Certifications (Attention Required tab)
       {
         source: '/dashboard/certifications/expiring',
-        destination: '/dashboard/certifications?tab=attention',
+        destination: '/dashboard/certifications?filter=attention',
         permanent: true,
       },
       // Requests: Leave pages merged into Requests
@@ -167,8 +207,8 @@ const nextConfig = {
 
   // Environment variables exposed to the client
   env: {
-    NEXT_PUBLIC_APP_NAME: 'Fleet Management V2',
-    NEXT_PUBLIC_APP_VERSION: '0.1.0',
+    NEXT_PUBLIC_APP_NAME: 'Fleet Office',
+    NEXT_PUBLIC_APP_VERSION: require('./package.json').version,
   },
 
   // Turbopack disabled for production due to path alias resolution issues

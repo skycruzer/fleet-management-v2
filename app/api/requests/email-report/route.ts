@@ -232,7 +232,7 @@ export const POST = createAdminRoute(
   </div>
 
   <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 40px; padding: 20px; border-top: 1px solid #e5e7eb;">
-    <p>Fleet Management System — Air Niugini B767 Operations</p>
+    <p>Fleet Office — Air Niugini B767 Operations</p>
     <p>Generated on ${new Date().toLocaleString('en-AU')}</p>
   </div>
 </body>

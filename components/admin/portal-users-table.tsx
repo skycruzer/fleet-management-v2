@@ -89,20 +89,20 @@ type SortOrder = 'asc' | 'desc'
 function getStatusBadge(approved: boolean | null) {
   if (approved === true) {
     return (
-      <Badge className="bg-[var(--color-success-muted)] text-[var(--color-success-400)]">
+      <Badge className="bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]">
         Approved
       </Badge>
     )
   }
   if (approved === false) {
     return (
-      <Badge className="bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]">
+      <Badge className="bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]">
         Denied
       </Badge>
     )
   }
   return (
-    <Badge className="bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]">
+    <Badge className="bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]">
       Pending
     </Badge>
   )

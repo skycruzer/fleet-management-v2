@@ -312,7 +312,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
               <div className="border-border border-t p-1" role="menu" aria-label="Account actions">
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-destructive-muted)]"
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[var(--color-destructive-muted-foreground)] transition-colors hover:bg-[var(--color-destructive-muted)]"
                   role="menuitem"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />

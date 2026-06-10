@@ -251,7 +251,7 @@ export default function ResetPasswordPage() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Password strength:</span>
                       <span
-                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-400)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-400)]' : 'text-[var(--color-danger-400)]'}`}
+                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-muted-foreground)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-muted-foreground)]' : 'text-[var(--color-destructive-muted-foreground)]'}`}
                       >
                         {passwordStrength.label}
                       </span>
@@ -266,7 +266,7 @@ export default function ResetPasswordPage() {
                 )}
 
                 {form.formState.errors.password && (
-                  <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+                  <p className="mt-1 text-sm text-[var(--color-destructive-muted-foreground)]">
                     {form.formState.errors.password.message}
                   </p>
                 )}
@@ -275,21 +275,39 @@ export default function ResetPasswordPage() {
                 <div className="text-muted-foreground mt-2 space-y-1 text-xs">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
-                    <li className={password.length >= 8 ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        password.length >= 8 ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • At least 8 characters
                     </li>
-                    <li className={/[A-Z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[A-Z]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One uppercase letter
                     </li>
-                    <li className={/[a-z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[a-z]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One lowercase letter
                     </li>
-                    <li className={/[0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[0-9]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One number
                     </li>
                     <li
                       className={
-                        /[^A-Za-z0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''
+                        /[^A-Za-z0-9]/.test(password)
+                          ? 'text-[var(--color-success-muted-foreground)]'
+                          : ''
                       }
                     >
                       • One special character
@@ -329,7 +347,7 @@ export default function ResetPasswordPage() {
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+                  <p className="mt-1 text-sm text-[var(--color-destructive-muted-foreground)]">
                     {form.formState.errors.confirmPassword.message}
                   </p>
                 )}

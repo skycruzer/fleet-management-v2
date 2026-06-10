@@ -16,22 +16,11 @@ import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { TaskFormSchema, type TaskFormData } from '@/lib/validations/task-schema'
 import type { TaskWithRelations } from '@/lib/services/task-service'
-import type { Database } from '@/types/supabase'
-
 type User = { id: string; email: string; name: string | null }
-type Pilot = {
-  id: string
-  first_name: string
-  last_name: string
-  role: 'Captain' | 'First Officer'
-}
-type Category = Database['public']['Tables']['task_categories']['Row']
 
 interface TaskFormProps {
   task?: TaskWithRelations
   users?: User[]
-  pilots?: Pilot[]
-  categories?: Category[]
   onSuccess?: () => void
   onCancel?: () => void
 }

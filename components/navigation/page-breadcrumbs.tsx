@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Home } from 'lucide-react'
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string
   href?: string
 }
@@ -54,7 +54,7 @@ function pathToLabel(segment: string): string {
     settings: 'Settings',
     'check-types': 'Check Types',
     users: 'Users',
-    flights: 'Flight Requests',
+    flights: 'RDO/SDO Requests',
     feedback: 'Feedback',
     history: 'History',
     requests: 'My Requests',

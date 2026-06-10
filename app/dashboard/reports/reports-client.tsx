@@ -8,7 +8,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useQueryState } from 'nuqs'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LeaveReportForm } from '@/components/reports/leave-report-form'
@@ -20,7 +20,8 @@ import { ForecastReportForm } from '@/components/reports/forecast-report-form'
 import { Calendar, Plane, Award, ClipboardList, Users, TrendingUp } from 'lucide-react'
 
 export function ReportsClient() {
-  const [activeTab, setActiveTab] = useState<string>('leave')
+  // URL-synced so deep links and back/forward navigation restore the active tab
+  const [activeTab, setActiveTab] = useQueryState('tab', { defaultValue: 'leave' })
 
   return (
     <div className="space-y-6">
@@ -29,12 +30,12 @@ export function ReportsClient() {
           Reports
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Generate, preview, and export reports for leave requests, flight requests, leave bids,
+          Generate, preview, and export reports for leave requests, RDO/SDO requests, leave bids,
           certifications, pilot information, and workforce forecasts
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="space-y-6">
         <TabsList className="flex h-auto w-full flex-wrap gap-1 sm:flex-nowrap sm:overflow-x-auto">
           <TabsTrigger value="leave" className="flex items-center gap-2 whitespace-nowrap">
             <Calendar className="h-4 w-4" />
@@ -45,7 +46,7 @@ export function ReportsClient() {
             className="flex items-center gap-2 whitespace-nowrap"
           >
             <Plane className="h-4 w-4" />
-            Flight Requests
+            RDO/SDO Requests
           </TabsTrigger>
           <TabsTrigger value="leave-bids" className="flex items-center gap-2 whitespace-nowrap">
             <ClipboardList className="h-4 w-4" />
@@ -88,10 +89,10 @@ export function ReportsClient() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plane className="h-5 w-5" />
-                Flight Requests Report
+                RDO/SDO Requests Report
               </CardTitle>
               <CardDescription>
-                Generate comprehensive reports on flight requests with filtering by date range,
+                Generate comprehensive reports on RDO/SDO requests with filtering by date range,
                 status, and destination
               </CardDescription>
             </CardHeader>

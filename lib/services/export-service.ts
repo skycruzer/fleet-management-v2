@@ -172,7 +172,7 @@ export async function generateAnalyticsPDF(
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(100)
-  doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
+  doc.text('Air Niugini — Fleet Office', 34, 21, { align: 'left' })
   doc.setTextColor(0)
 
   if (includeTimestamp) {

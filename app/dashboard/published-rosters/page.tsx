@@ -11,7 +11,7 @@ import { getCurrentRosterPeriodObject } from '@/lib/utils/roster-utils'
 import { PublishedRostersClient } from './published-rosters-client'
 
 export const metadata: Metadata = {
-  title: 'Published Rosters | Fleet Management',
+  title: 'Published Rosters',
   description: 'View and manage published crew rosters',
 }
 

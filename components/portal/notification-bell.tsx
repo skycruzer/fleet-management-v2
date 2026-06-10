@@ -103,8 +103,13 @@ export function NotificationBell() {
       }}
     >
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="relative h-11 w-11"
+          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+        >
+          <Bell className="h-5 w-5" aria-hidden="true" />
           {!isLoading && unreadCount > 0 && (
             <Badge
               variant="destructive"
@@ -113,9 +118,6 @@ export function NotificationBell() {
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
-          <span className="sr-only">
-            {unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}
-          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="end">

@@ -414,7 +414,7 @@ async function sendLockoutNotification(email: string, lockedUntil: Date): Promis
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: email,
-      subject: '🔒 Account Temporarily Locked - Fleet Management',
+      subject: '🔒 Account Temporarily Locked - Fleet Office',
       html: `
         <h2>Account Temporarily Locked</h2>
         <p>Your account has been temporarily locked due to multiple failed login attempts.</p>
@@ -445,7 +445,7 @@ async function sendUnlockNotification(email: string): Promise<void> {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: email,
-      subject: '✅ Account Unlocked - Fleet Management',
+      subject: '✅ Account Unlocked - Fleet Office',
       html: `
         <h2>Account Unlocked</h2>
         <p>Your account has been unlocked by a system administrator.</p>

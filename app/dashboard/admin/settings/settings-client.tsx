@@ -13,6 +13,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Anchor, ClipboardList, TreePalm, Wrench } from 'lucide-react'
 import type { SystemSetting } from '@/lib/services/admin-service'
 import { toast } from 'sonner'
 
@@ -93,55 +102,17 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   // Helper function to check if setting is protected
   const isProtected = (setting: SystemSetting) => setting.is_system === true
 
-  // Filter settings by category
-  const uncategorizedSettings = localSettings.filter((s) => {
-    const cat = s.category
-    return (
-      !cat || (cat !== 'fleet' && cat !== 'certification' && cat !== 'leave' && cat !== 'system')
-    )
-  })
-
   return (
     <>
-      {/* Uncategorized Settings - Show all as individual cards */}
-      {uncategorizedSettings.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-foreground text-xl font-semibold">General Settings</h3>
-          {uncategorizedSettings.map((setting) => (
-            <Card key={setting.id} className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-foreground text-lg font-semibold">{setting.key}</h3>
-                  {setting.description && (
-                    <p className="text-muted-foreground mt-1 text-sm">{setting.description}</p>
-                  )}
-                  <div className="mt-3">
-                    <pre className="border-border bg-muted/50 text-card-foreground overflow-x-auto rounded border p-3 text-sm">
-                      {JSON.stringify(setting.value, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="ml-4"
-                  onClick={() => handleEdit(setting)}
-                  disabled={isProtected(setting)}
-                >
-                  {isProtected(setting) ? 'Locked' : 'Edit'}
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-
       {/* Settings Categories */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Fleet Configuration */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">⚓ Fleet Configuration</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <Anchor className="h-5 w-5" aria-hidden="true" />
+              Fleet Configuration
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -184,7 +155,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* Certification Configuration */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">📋 Certification Settings</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <ClipboardList className="h-5 w-5" aria-hidden="true" />
+              Certification Settings
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -227,7 +201,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* Leave Management Settings */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">🏖️ Leave Management</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <TreePalm className="h-5 w-5" aria-hidden="true" />
+              Leave Management
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -270,7 +247,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         {/* System Settings */}
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-foreground text-lg font-semibold">🔧 System Settings</h3>
+            <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
+              <Wrench className="h-5 w-5" aria-hidden="true" />
+              System Settings
+            </h3>
           </div>
           <div className="space-y-3">
             {localSettings
@@ -319,75 +299,63 @@ export function SettingsClient({ settings }: SettingsClientProps) {
       {/* All Settings Table */}
       <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">All Settings</h3>
-        <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Key
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Description
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Value
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Status
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-border divide-y">
-              {localSettings.map((setting) => (
-                <tr key={setting.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
-                    {setting.key}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm">
-                    {setting.description || 'No description'}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm">
-                    <pre className="max-w-xs overflow-hidden text-xs text-ellipsis whitespace-nowrap">
-                      {JSON.stringify(setting.value)}
-                    </pre>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          setting.is_active !== false
-                            ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
-                            : 'bg-muted text-foreground'
-                        }`}
-                      >
-                        {setting.is_active !== false ? 'ACTIVE' : 'INACTIVE'}
-                      </span>
-                      {setting.is_system && (
-                        <span className="inline-flex items-center rounded-full bg-[var(--color-destructive-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-danger-500)]">
-                          PROTECTED
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isProtected(setting)}
-                      className="hover:bg-primary hover:text-[var(--color-info)]-foreground"
-                      onClick={() => handleEdit(setting)}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Key</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {localSettings.map((setting) => (
+              <TableRow key={setting.id}>
+                <TableCell className="text-foreground font-medium whitespace-nowrap">
+                  {setting.key}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {setting.description || 'No description'}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  <pre className="max-w-xs overflow-hidden text-xs text-ellipsis whitespace-nowrap">
+                    {JSON.stringify(setting.value)}
+                  </pre>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        setting.is_active !== false
+                          ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
+                          : 'bg-muted text-foreground'
+                      }`}
                     >
-                      {isProtected(setting) ? 'View' : 'Edit'}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      {setting.is_active !== false ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
+                    {setting.is_system && (
+                      <span className="inline-flex items-center rounded-full bg-[var(--color-destructive-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-danger-500)]">
+                        PROTECTED
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isProtected(setting)}
+                    className="hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => handleEdit(setting)}
+                  >
+                    {isProtected(setting) ? 'View' : 'Edit'}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
         {localSettings.length === 0 && (
           <p className="text-muted-foreground py-8 text-center">No settings configured</p>
         )}

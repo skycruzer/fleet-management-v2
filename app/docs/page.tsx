@@ -9,8 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Book, FileText, Users, Shield, BarChart3, Settings, ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Documentation | Fleet Management V2',
-  description: 'System documentation and user guides for Fleet Management V2',
+  title: 'Documentation',
+  description: 'System documentation and user guides for Fleet Office',
 }
 
 export default function DocsPage() {
@@ -27,7 +27,7 @@ export default function DocsPage() {
           </Button>
           <h1 className="text-4xl font-bold">Documentation</h1>
           <p className="text-muted-foreground mt-2 text-lg">
-            Comprehensive guides and documentation for Fleet Management V2
+            Comprehensive guides and documentation for Fleet Office
           </p>
         </div>
 
@@ -38,7 +38,7 @@ export default function DocsPage() {
               <Book className="mr-2 h-6 w-6 text-[var(--color-primary-600)]" />
               Quick Start Guide
             </CardTitle>
-            <CardDescription>Get started with Fleet Management V2 in minutes</CardDescription>
+            <CardDescription>Get started with Fleet Office in minutes</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -48,7 +48,7 @@ export default function DocsPage() {
                   <li>Sign in with your admin credentials</li>
                   <li>Access the admin dashboard</li>
                   <li>Add pilots and manage certifications</li>
-                  <li>Review leave requests and flight requests</li>
+                  <li>Review leave and RDO/SDO requests</li>
                   <li>Monitor compliance and analytics</li>
                 </ol>
               </div>
@@ -59,7 +59,7 @@ export default function DocsPage() {
                   <li>Wait for admin approval</li>
                   <li>Sign in to your pilot portal</li>
                   <li>View certifications and submit requests</li>
-                  <li>Track leave and flight request status</li>
+                  <li>Track leave and RDO/SDO request status</li>
                 </ol>
               </div>
             </div>

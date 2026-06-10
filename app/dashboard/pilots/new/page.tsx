@@ -28,8 +28,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
-import Link from 'next/link'
+import { PageHeader } from '@/components/layout/page-header'
 import { User, Briefcase, FileText, Award, Loader2, Mail } from 'lucide-react'
 
 // Use z.input for form types (before transforms/defaults are applied)
@@ -168,25 +167,16 @@ export default function NewPilotPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <PageBreadcrumbs
-        items={[
+      {/* Page Header */}
+      <PageHeader
+        title="Add New Pilot"
+        description="Create a new pilot profile"
+        breadcrumbs={[
           { label: 'Admin Dashboard', href: '/dashboard' },
           { label: 'Pilots', href: '/dashboard/pilots' },
           { label: 'Add New Pilot' },
         ]}
       />
-
-      {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Add New Pilot</h2>
-          <p className="text-muted-foreground mt-1">Create a new pilot profile</p>
-        </div>
-        <Link href="/dashboard/pilots">
-          <Button variant="outline">&larr; Back to Pilots</Button>
-        </Link>
-      </div>
 
       <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="space-y-6">
         {/* Error Messages */}
@@ -235,10 +225,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., 100001"
                   {...register('employee_id')}
+                  aria-invalid={!!formState.errors.employee_id}
+                  aria-describedby={formState.errors.employee_id ? 'employee_id-error' : undefined}
                   className={formState.errors.employee_id ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.employee_id && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="employee_id-error" className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.employee_id.message}
                   </p>
                 )}
@@ -256,6 +248,9 @@ export default function NewPilotPage() {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger
+                        id="role"
+                        aria-invalid={!!formState.errors.role}
+                        aria-describedby={formState.errors.role ? 'role-error' : undefined}
                         className={formState.errors.role ? 'border-[var(--color-danger-500)]' : ''}
                       >
                         <SelectValue placeholder="Select rank..." />
@@ -268,7 +263,7 @@ export default function NewPilotPage() {
                   )}
                 />
                 {formState.errors.role && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="role-error" className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.role.message}
                   </p>
                 )}
@@ -286,10 +281,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="John"
                   {...register('first_name')}
+                  aria-invalid={!!formState.errors.first_name}
+                  aria-describedby={formState.errors.first_name ? 'first_name-error' : undefined}
                   className={formState.errors.first_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.first_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="first_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.first_name.message}
                   </p>
                 )}
@@ -303,10 +300,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="Michael (optional)"
                   {...register('middle_name')}
+                  aria-invalid={!!formState.errors.middle_name}
+                  aria-describedby={formState.errors.middle_name ? 'middle_name-error' : undefined}
                   className={formState.errors.middle_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.middle_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="middle_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.middle_name.message}
                   </p>
                 )}
@@ -322,10 +321,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="Doe"
                   {...register('last_name')}
+                  aria-invalid={!!formState.errors.last_name}
+                  aria-describedby={formState.errors.last_name ? 'last_name-error' : undefined}
                   className={formState.errors.last_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.last_name && (
-                  <p className="text-sm text-[var(--color-danger-600)]">
+                  <p id="last_name-error" className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.last_name.message}
                   </p>
                 )}
@@ -356,7 +357,13 @@ export default function NewPilotPage() {
                     onValueChange={field.onChange}
                     disabled={loadingContractTypes}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      id="contract_type"
+                      aria-invalid={!!formState.errors.contract_type}
+                      aria-describedby={
+                        formState.errors.contract_type ? 'contract_type-error' : undefined
+                      }
+                    >
                       <SelectValue
                         placeholder={
                           loadingContractTypes ? 'Loading...' : 'Select contract type...'
@@ -374,7 +381,7 @@ export default function NewPilotPage() {
                 )}
               />
               {formState.errors.contract_type && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="contract_type-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.contract_type.message}
                 </p>
               )}
@@ -387,12 +394,16 @@ export default function NewPilotPage() {
                 id="commencement_date"
                 type="date"
                 {...register('commencement_date')}
+                aria-invalid={!!formState.errors.commencement_date}
+                aria-describedby={
+                  formState.errors.commencement_date ? 'commencement_date-error' : undefined
+                }
                 className={
                   formState.errors.commencement_date ? 'border-[var(--color-danger-500)]' : ''
                 }
               />
               {formState.errors.commencement_date && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="commencement_date-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.commencement_date.message}
                 </p>
               )}
@@ -447,10 +458,14 @@ export default function NewPilotPage() {
                 id="date_of_birth"
                 type="date"
                 {...register('date_of_birth')}
+                aria-invalid={!!formState.errors.date_of_birth}
+                aria-describedby={
+                  formState.errors.date_of_birth ? 'date_of_birth-error' : undefined
+                }
                 className={formState.errors.date_of_birth ? 'border-[var(--color-danger-500)]' : ''}
               />
               {formState.errors.date_of_birth && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="date_of_birth-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.date_of_birth.message}
                 </p>
               )}
@@ -465,10 +480,12 @@ export default function NewPilotPage() {
                 type="text"
                 placeholder="e.g., Papua New Guinean"
                 {...register('nationality')}
+                aria-invalid={!!formState.errors.nationality}
+                aria-describedby={formState.errors.nationality ? 'nationality-error' : undefined}
                 className={formState.errors.nationality ? 'border-[var(--color-danger-500)]' : ''}
               />
               {formState.errors.nationality && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="nationality-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.nationality.message}
                 </p>
               )}
@@ -486,10 +503,12 @@ export default function NewPilotPage() {
               type="email"
               placeholder="pilot@example.com (optional)"
               {...register('email')}
+              aria-invalid={!!formState.errors.email}
+              aria-describedby={formState.errors.email ? 'email-error' : undefined}
               className={formState.errors.email ? 'border-[var(--color-danger-500)]' : ''}
             />
             {formState.errors.email && (
-              <p className="text-sm text-[var(--color-danger-600)]">
+              <p id="email-error" className="text-sm text-[var(--color-danger-600)]">
                 {formState.errors.email.message}
               </p>
             )}
@@ -517,12 +536,16 @@ export default function NewPilotPage() {
                 type="text"
                 placeholder="e.g., P1234567"
                 {...register('passport_number')}
+                aria-invalid={!!formState.errors.passport_number}
+                aria-describedby={
+                  formState.errors.passport_number ? 'passport_number-error' : undefined
+                }
                 className={
                   formState.errors.passport_number ? 'border-[var(--color-danger-500)]' : ''
                 }
               />
               {formState.errors.passport_number && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="passport_number-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.passport_number.message}
                 </p>
               )}
@@ -536,12 +559,16 @@ export default function NewPilotPage() {
                 id="passport_expiry"
                 type="date"
                 {...register('passport_expiry')}
+                aria-invalid={!!formState.errors.passport_expiry}
+                aria-describedby={
+                  formState.errors.passport_expiry ? 'passport_expiry-error' : undefined
+                }
                 className={
                   formState.errors.passport_expiry ? 'border-[var(--color-danger-500)]' : ''
                 }
               />
               {formState.errors.passport_expiry && (
-                <p className="text-sm text-[var(--color-danger-600)]">
+                <p id="passport_expiry-error" className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.passport_expiry.message}
                 </p>
               )}
@@ -596,7 +623,10 @@ export default function NewPilotPage() {
             </div>
 
             {formState.errors.captain_qualifications && (
-              <p className="mt-2 text-sm text-[var(--color-danger-600)]">
+              <p
+                id="captain_qualifications-error"
+                className="mt-2 text-sm text-[var(--color-danger-600)]"
+              >
                 {formState.errors.captain_qualifications.message}
               </p>
             )}

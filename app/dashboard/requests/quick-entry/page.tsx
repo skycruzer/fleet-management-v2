@@ -9,18 +9,15 @@
  */
 
 import { redirect } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 
 import { createClient } from '@/lib/supabase/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { QuickEntryForm } from '@/components/requests/quick-entry-form'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { PageHeader } from '@/components/layout/page-header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export const metadata = {
-  title: 'Quick Entry Form | Fleet Management',
+  title: 'Quick Entry Form',
   description: 'Manually enter pilot requests from email, phone, or Oracle',
 }
 
@@ -77,64 +74,27 @@ export default async function QuickEntryPage() {
   return (
     <div className="max-w-4xl space-y-6">
       {/* Header */}
-      <div className="mb-6">
-        <Link href="/dashboard/requests">
-          <Button variant="ghost" size="sm" className="mb-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Requests
-          </Button>
-        </Link>
+      <PageHeader
+        title="Quick Entry Form"
+        description="Manually enter pilot requests received via email, phone, or Oracle system"
+        breadcrumbs={[{ label: 'Requests', href: '/dashboard/requests' }, { label: 'Quick Entry' }]}
+      />
 
-        <h1 className="text-3xl font-bold tracking-tight">Quick Entry Form</h1>
-        <p className="text-muted-foreground mt-2">
-          Manually enter pilot requests received via email, phone, or Oracle system
-        </p>
-      </div>
-
-      {/* Instructions Card */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Instructions</CardTitle>
-          <CardDescription>
-            How to use the quick entry form for manual request submission
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="mb-2 font-semibold">When to Use This Form</h4>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Pilot submits request via email</li>
-              <li>Phone call request from pilot</li>
-              <li>Request imported from Oracle system</li>
-              <li>Backfilling historical requests</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-2 font-semibold">Required Information</h4>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Pilot name (select from dropdown)</li>
-              <li>Request category and type</li>
-              <li>Start date (and end date for leave requests)</li>
-              <li>Submission channel (EMAIL, PHONE, or ORACLE)</li>
-              <li>Optional: Reason, source reference, and admin notes</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-2 font-semibold">Important Notes</h4>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>
-                Requests are automatically flagged as &quot;late&quot; if submitted with less than
-                21 days advance notice
-              </li>
-              <li>The form will check for conflicting requests and display warnings</li>
-              <li>Roster periods are calculated automatically from the start date</li>
-              <li>All requests default to PENDING status for manager review</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+      {/* How quick entry works — collapsed by default */}
+      <details className="border-border bg-card rounded-lg border px-4 py-3">
+        <summary className="text-foreground cursor-pointer text-sm font-medium select-none">
+          How quick entry works
+        </summary>
+        <ul className="text-muted-foreground mt-3 list-inside list-disc space-y-1 text-sm">
+          <li>Use this form for requests received by email, phone, or Oracle</li>
+          <li>Select the pilot, category, type, dates, and submission channel</li>
+          <li>Requests with less than 21 days notice are flagged as late</li>
+          <li>Conflicting requests are checked and shown as warnings</li>
+          <li>
+            Roster periods are calculated from the start date; all requests are created as Submitted
+          </li>
+        </ul>
+      </details>
 
       {/* Quick Entry Form */}
       <QuickEntryForm pilots={pilots} />

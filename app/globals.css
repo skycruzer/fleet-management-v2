@@ -164,7 +164,8 @@
   --z-tooltip: 80;
   --z-toast: 90;
   --z-toast-viewport: 100;
-  --z-select: 100;
+  /* Select sits above toasts: an open dropdown is active user input */
+  --z-select: 110;
 
   /* === TRANSITIONS === */
   --transition-fast: 150ms;
@@ -243,9 +244,13 @@
 
   /* === INFO/LINK ACCENT (Expo Link Cobalt) === */
   --color-info: #0d74ce;
+  --color-info-hover: #0a5ea8;
   --color-info-bg: rgba(13, 116, 206, 0.08);
   --color-info-border: rgba(13, 116, 206, 0.2);
   --color-info-foreground: #0d74ce;
+
+  /* === HEADINGS (pure black per Expo philosophy; near-white in dark) === */
+  --color-heading: #000000;
 
   /* === CHART COLORS === */
   --color-chart-1: #1c2024;
@@ -450,9 +455,12 @@
 
   /* Info — brighter for dark bg */
   --color-info: #47a3f3;
+  --color-info-hover: #6db5f5;
   --color-info-bg: rgba(71, 163, 243, 0.1);
   --color-info-border: rgba(71, 163, 243, 0.25);
   --color-info-foreground: #60a5fa;
+
+  --color-heading: #fafafa;
 
   /* Chart colors — brighter for dark bg */
   --color-chart-1: #e5e5e5;
@@ -519,16 +527,7 @@
       -apple-system,
       system-ui,
       sans-serif;
-    color: #000000;
-  }
-
-  .dark h1,
-  .dark h2,
-  .dark h3,
-  .dark h4,
-  .dark h5,
-  .dark h6 {
-    color: #fafafa;
+    color: var(--color-heading);
   }
 
   h1 {
@@ -559,19 +558,15 @@
 
   p {
     line-height: 1.4;
-    color: #1c2024;
-  }
-
-  .dark p {
-    color: #d4d4d4;
+    color: var(--color-foreground);
   }
 
   a {
-    color: #0d74ce;
+    color: var(--color-info);
   }
 
   a:hover {
-    color: #0a5ea8;
+    color: var(--color-info-hover);
   }
 }
 

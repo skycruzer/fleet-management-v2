@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
+import { PageHeader } from '@/components/layout/page-header'
 import { FormSkeleton } from '@/components/ui/skeleton'
 
 interface Pilot {
@@ -149,18 +150,19 @@ export default function EditCertificationPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Edit Certification</h2>
-          <p className="text-muted-foreground mt-1">
-            Update certification expiry date for {certification.pilot?.first_name}{' '}
-            {certification.pilot?.last_name}
-          </p>
-        </div>
-        <Link href="/dashboard/certifications">
-          <Button variant="outline">Cancel</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Edit Certification"
+        description={`Update certification expiry date for ${certification.pilot?.first_name ?? ''} ${certification.pilot?.last_name ?? ''}`.trim()}
+        breadcrumbs={[
+          { label: 'Certifications', href: '/dashboard/certifications' },
+          { label: 'Edit Certification' },
+        ]}
+        actions={
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/certifications">Cancel</Link>
+          </Button>
+        }
+      />
 
       {/* Edit Form */}
       <Card className="p-6">

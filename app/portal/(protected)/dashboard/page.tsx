@@ -111,7 +111,8 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
 
   const hasExpired = (stats?.expired_certifications || 0) > 0
   const hasCritical = (stats?.critical_certifications || 0) > 0
-  const hasUpcoming = (stats?.upcoming_checks || 0) > 0
+  // Caution tier (15-30 days) — disjoint from critical, so cards never double-list
+  const hasUpcoming = (stats?.caution_certifications || 0) > 0
   const hasAnyCertAttention = hasExpired || hasCritical || hasUpcoming
 
   return (
@@ -164,11 +165,6 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
           </section>
         )}
 
-        {/* Roster period */}
-        <section>
-          <RosterPeriodCard />
-        </section>
-
         {/* Certification attention — consolidated from prior duplicate sections */}
         {stats && hasAnyCertAttention && (
           <section className="space-y-3">
@@ -202,13 +198,18 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
             {hasUpcoming && (
               <CertExpiryCard
                 variant="warning"
-                title="Upcoming — within 60 days"
-                description={`${stats.upcoming_checks} certification${stats.upcoming_checks !== 1 ? 's' : ''} — plan renewals.`}
-                checks={stats.upcoming_checks_details ?? []}
+                title="Upcoming — 15 to 30 days"
+                description={`${stats.caution_certifications} certification${stats.caution_certifications !== 1 ? 's' : ''} — plan renewals.`}
+                checks={stats.caution_certifications_details ?? []}
               />
             )}
           </section>
         )}
+
+        {/* Roster period */}
+        <section>
+          <RosterPeriodCard />
+        </section>
 
         {/* Leave bid status */}
         <section>
@@ -293,9 +294,9 @@ export default async function PilotDashboardPage() {
               </a>
             </p>
           </div>
-          <Link href="/portal">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
+          <Button asChild variant="outline">
+            <Link href="/portal">Back to Home</Link>
+          </Button>
         </Card>
       </div>
     )

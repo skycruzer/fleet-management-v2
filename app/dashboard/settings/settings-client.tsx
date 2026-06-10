@@ -5,15 +5,13 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { createClient } from '../../../lib/supabase/client'
-import { User, CheckCircle2, Shield, Building2, Calendar } from 'lucide-react'
 import { SettingsQuickActions } from '@/components/settings/settings-quick-actions'
 import { SettingsDangerZone } from '@/components/settings/settings-danger-zone'
-import { formatDistanceToNow } from 'date-fns'
 
 interface UserData {
   id: string
@@ -30,45 +28,27 @@ interface SettingsClientProps {
 
 export function SettingsClient({ initialUserData }: SettingsClientProps) {
   const [userData, setUserData] = useState<UserData>(initialUserData)
-  const [loading, setLoading] = useState(false)
-  const supabase = createClient()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
-  const fetchUserData = async () => {
-    setLoading(true)
-    try {
-      // Try to refresh from an_users table
-      const { data: anUser, error } = await supabase
-        .from('an_users')
-        .select('*')
-        .eq('id', userData.id)
-        .single()
+  // Server is the source of truth: page.tsx fetches via the service layer and
+  // passes the result down — sync local state whenever the server re-renders
+  useEffect(() => {
+    setUserData(initialUserData)
+  }, [initialUserData])
 
-      if (!error && anUser) {
-        setUserData({
-          id: anUser.id,
-          email: anUser.email,
-          name: anUser.name || 'User',
-          role: anUser.role || 'admin',
-          created_at: anUser.created_at || new Date().toISOString(),
-          last_sign_in_at: anUser.updated_at || undefined, // Use updated_at as last activity indicator
-        })
-      }
-    } catch (error) {
-      console.error('Error refreshing user data:', error)
-    } finally {
-      setLoading(false)
-    }
+  // Refresh user data after a successful quick action by re-running the page
+  // server component (service-layer fetch) instead of querying the DB directly
+  const fetchUserData = () => {
+    startTransition(() => {
+      router.refresh()
+    })
   }
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="space-y-8">
         <Skeleton className="h-12 w-3/4" />
-        <div className="grid gap-6 sm:grid-cols-3">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-        </div>
         <Skeleton className="h-96" />
       </div>
     )
@@ -76,49 +56,6 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
 
   return (
     <div className="space-y-8">
-      {/* Quick Stats */}
-      <div className="grid gap-6 sm:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Account Status</p>
-              <p className="text-foreground text-2xl font-bold">Active</p>
-            </div>
-            <div className="bg-success/10 rounded-full p-3">
-              <CheckCircle2 className="text-success h-6 w-6" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Last Login</p>
-              <p className="text-foreground text-2xl font-bold">
-                {userData.last_sign_in_at
-                  ? formatDistanceToNow(new Date(userData.last_sign_in_at), { addSuffix: true })
-                  : 'Never'}
-              </p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <User className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">Security Level</p>
-              <p className="text-foreground text-2xl font-bold">High</p>
-            </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <Shield className="h-6 w-6 text-[var(--color-info)]" />
-            </div>
-          </div>
-        </Card>
-      </div>
-
       {/* Available Settings */}
       <Card className="p-6">
         <h2 className="text-foreground mb-2 text-xl font-semibold">Available Settings</h2>
@@ -169,44 +106,6 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
                     day: '2-digit',
                   })}
                 </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Application Information */}
-      <Card className="p-6">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-lg bg-[var(--color-info-bg)] p-2">
-            <Building2 className="h-5 w-5 text-[var(--color-info)]" />
-          </div>
-          <div>
-            <h2 className="text-foreground text-xl font-semibold">Application Information</h2>
-            <p className="text-muted-foreground text-sm">Platform version and build details</p>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <tbody className="divide-y">
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground py-4 text-sm font-medium">Application</td>
-                <td className="text-foreground py-4 text-sm font-medium">
-                  Fleet Management System
-                </td>
-              </tr>
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground py-4 text-sm font-medium">System Version</td>
-                <td className="py-4">
-                  <Badge variant="outline">v2.5.0</Badge>
-                </td>
-              </tr>
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground flex items-center gap-2 py-4 text-sm font-medium">
-                  <Calendar className="h-4 w-4" />
-                  Last Updated
-                </td>
-                <td className="text-foreground py-4 text-sm">2025</td>
               </tr>
             </tbody>
           </table>

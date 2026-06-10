@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { getTaskCategories } from '@/lib/services/task-service'
+import { getAssignableUsers } from '@/lib/services/user-service'
 import TaskForm from '@/components/tasks/task-form'
 
 export const dynamic = 'force-dynamic'
@@ -21,23 +20,9 @@ export default async function NewTaskPage() {
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
-
-  // Fetch users for assignment
-  const { data: users } = await supabase
-    .from('an_users')
-    .select('id, email, name')
-    .order('name', { ascending: true })
-
-  // Fetch pilots for task relations
-  const { data: pilots } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, role')
-    .order('last_name', { ascending: true })
-
-  // Fetch categories
-  const categoriesResult = await getTaskCategories()
-  const categories = categoriesResult.success ? categoriesResult.data : []
+  // Fetch users for assignment via service layer
+  const usersResult = await getAssignableUsers()
+  const users = usersResult.data ?? []
 
   return (
     <div className="space-y-6">
@@ -51,7 +36,7 @@ export default async function NewTaskPage() {
 
       {/* Task Form */}
       <div className="bg-card border-border mx-auto max-w-3xl rounded-lg border p-6 shadow-sm">
-        <TaskForm users={users || []} pilots={pilots || []} categories={categories} />
+        <TaskForm users={users} />
       </div>
     </div>
   )

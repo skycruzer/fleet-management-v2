@@ -41,6 +41,7 @@ import type { ReportType, PaginationMeta } from '@/types/reports'
 import { STATUS_COLORS } from '@/lib/constants/status-colors'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import { formatAustralianDate } from '@/lib/utils/date-format'
+import { formatDate } from '@/lib/utils/date-utils'
 
 interface PaginatedReportTableProps {
   data: any[]
@@ -521,9 +522,7 @@ export function PaginatedReportTable({
           header: 'DOB',
           cell: ({ getValue }) => {
             const v = getValue() as string
-            return (
-              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
-            )
+            return <div className="text-xs">{v ? formatDate(v) : '-'}</div>
           },
         },
         {
@@ -536,9 +535,7 @@ export function PaginatedReportTable({
           header: 'Comm. Date',
           cell: ({ getValue }) => {
             const v = getValue() as string
-            return (
-              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
-            )
+            return <div className="text-xs">{v ? formatDate(v) : '-'}</div>
           },
         },
         {
@@ -554,9 +551,7 @@ export function PaginatedReportTable({
           header: 'Retire Date',
           cell: ({ getValue }) => {
             const v = getValue() as string
-            return (
-              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
-            )
+            return <div className="text-xs">{v ? formatDate(v) : '-'}</div>
           },
         },
         {
@@ -579,9 +574,7 @@ export function PaginatedReportTable({
           header: 'Pass. Exp',
           cell: ({ getValue }) => {
             const v = getValue() as string
-            return (
-              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
-            )
+            return <div className="text-xs">{v ? formatDate(v) : '-'}</div>
           },
         },
         {

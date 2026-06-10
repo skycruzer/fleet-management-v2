@@ -25,7 +25,6 @@ export function CheckTypesTable({ checkTypes }: CheckTypesTableProps) {
           <TableHead>Code</TableHead>
           <TableHead>Description</TableHead>
           <TableHead>Category</TableHead>
-          <TableHead>Status</TableHead>
           <TableHead>Updated</TableHead>
         </TableRow>
       </TableHeader>
@@ -38,11 +37,6 @@ export function CheckTypesTable({ checkTypes }: CheckTypesTableProps) {
             <TableCell className="text-foreground">{checkType.check_description}</TableCell>
             <TableCell className="text-muted-foreground whitespace-nowrap">
               {checkType.category || 'N/A'}
-            </TableCell>
-            <TableCell className="whitespace-nowrap">
-              <span className="inline-flex items-center rounded-full bg-[var(--color-success-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-success-400)]">
-                ACTIVE
-              </span>
             </TableCell>
             <TableCell className="text-muted-foreground whitespace-nowrap">
               {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}

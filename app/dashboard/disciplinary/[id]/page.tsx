@@ -1,10 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
+import {
+  getMatterWithTimeline,
+  getIncidentTypes,
+  getPilotsForSelection,
+} from '@/lib/services/disciplinary-service'
+import { getAssignableUsers } from '@/lib/services/user-service'
 import { formatDate } from '@/lib/utils/date-utils'
 import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
-import Link from 'next/link'
+import { PageHeader } from '@/components/layout/page-header'
 // Force dynamic rendering to prevent static generation at build time
 /**
  * Disciplinary Matter Detail/Edit Page (Admin)
@@ -27,8 +31,6 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
-
   // Await params in Next.js 16
   const { id } = await params
 
@@ -47,30 +49,24 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
 
   const matter = matterResult.data
 
-  // Fetch pilots for form
-  const { data: pilots } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, role, employee_id')
-    .order('last_name', { ascending: true })
-
-  // Fetch users for form
-  const { data: users } = await supabase
-    .from('an_users')
-    .select('id, email, name')
-    .order('name', { ascending: true })
-
-  // Fetch incident types
-  const incidentTypesResult = await getIncidentTypes()
+  // Fetch pilots, users, and incident types for the form via service layer
+  const [pilotsResult, usersResult, incidentTypesResult] = await Promise.all([
+    getPilotsForSelection(),
+    getAssignableUsers(),
+    getIncidentTypes(),
+  ])
+  const pilots = pilotsResult.data ?? []
+  const users = usersResult.data ?? []
   const incidentTypes = incidentTypesResult.success ? incidentTypesResult.data : []
 
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
+        return 'bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]'
       case 'SERIOUS':
         return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
       case 'MODERATE':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]'
       case 'MINOR':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
@@ -82,13 +78,13 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
     switch (status) {
       case 'RESOLVED':
       case 'CLOSED':
-        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
+        return 'bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]'
       case 'UNDER_INVESTIGATION':
-        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-muted-foreground)]'
       case 'ACTION_TAKEN':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'APPEALED':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
         return 'bg-muted/30 text-foreground'
     }
@@ -96,46 +92,30 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link
-          href="/dashboard/disciplinary"
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Disciplinary Matters
-        </Link>
-      </div>
-
       {/* Page Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-foreground text-3xl font-bold">{matter.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
-            >
-              {matter.status.replace(/_/g, ' ')}
-            </span>
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
-            >
-              {matter.severity}
-            </span>
-            {matter.incident_date && (
-              <span className="text-muted-foreground text-sm">
-                Incident: {formatDate(matter.incident_date)}
-              </span>
-            )}
-          </div>
-        </div>
+      <PageHeader
+        title={matter.title}
+        breadcrumbs={[
+          { label: 'Disciplinary Matters', href: '/dashboard/disciplinary' },
+          { label: 'Matter Details' },
+        ]}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
+        >
+          {matter.status.replace(/_/g, ' ')}
+        </span>
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
+        >
+          {matter.severity}
+        </span>
+        {matter.incident_date && (
+          <span className="text-muted-foreground text-sm">
+            Incident: {formatDate(matter.incident_date)}
+          </span>
+        )}
       </div>
 
       {/* Matter Metadata */}
@@ -216,8 +196,8 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         <h2 className="text-foreground mb-6 text-lg font-semibold">Edit Matter</h2>
         <DisciplinaryMatterForm
           matter={matter}
-          pilots={pilots || []}
-          users={users || []}
+          pilots={pilots}
+          users={users}
           incidentTypes={incidentTypes}
         />
       </div>

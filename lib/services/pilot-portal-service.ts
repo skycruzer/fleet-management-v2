@@ -746,6 +746,7 @@ export async function getPilotLeaveBids(
         id,
         roster_period_code,
         status,
+        option_statuses,
         created_at,
         updated_at,
         leave_bid_options (
@@ -832,6 +833,58 @@ export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
     return {
       success: false,
       error: ERROR_MESSAGES.PILOT.FETCH_FAILED.message,
+    }
+  }
+}
+
+/**
+ * Pilot user fields needed by the portal protected layout
+ */
+export interface PilotUserLayoutInfo {
+  first_name: string | null
+  last_name: string | null
+  rank: string | null
+  employee_id: string | null
+  must_change_password: boolean | null
+}
+
+/**
+ * Get pilot user details for the portal protected layout
+ *
+ * Caller is responsible for validating the pilot session first; the userId
+ * must come from a validated session (see session-service).
+ *
+ * @param userId - pilot_users.id from the validated session
+ * @returns Service response with layout-relevant pilot user fields
+ */
+export async function getPilotUserForLayout(
+  userId: string
+): Promise<ServiceResponse<PilotUserLayoutInfo>> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('pilot_users')
+      .select('first_name, last_name, rank, employee_id, must_change_password')
+      .eq('id', userId)
+      .single()
+
+    if (error || !data) {
+      return {
+        success: false,
+        error: 'Pilot user not found',
+      }
+    }
+
+    return {
+      success: true,
+      data: data as PilotUserLayoutInfo,
+    }
+  } catch (error) {
+    console.error('Get pilot user for layout error:', error)
+    return {
+      success: false,
+      error: 'Failed to fetch pilot user',
     }
   }
 }

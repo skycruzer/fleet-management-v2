@@ -8,10 +8,13 @@
  */
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/layout/page-header'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { AlertCircle } from 'lucide-react'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { getPendingRegistrations } from '@/lib/services/pilot-portal-service'
 import { RegistrationApprovalClient } from './registration-approval-client'
-import { cookies } from 'next/headers'
 
 interface PendingRegistration {
   id: string
@@ -24,47 +27,30 @@ interface PendingRegistration {
   registration_approved: boolean | null
 }
 
-async function getPendingRegistrations(): Promise<PendingRegistration[]> {
-  try {
-    // Use API route with proper admin authentication
-    const cookieStore = await cookies()
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-    const response = await fetch(`${baseUrl}/api/portal/registration-approval`, {
-      headers: {
-        Cookie: cookieStore.toString(),
-      },
-      cache: 'no-store',
-    })
-
-    if (!response.ok) {
-      return []
-    }
-
-    const result = await response.json()
-    return (result.success ? result.data || [] : []) as PendingRegistration[]
-  } catch {
-    return []
-  }
-}
-
 export default async function PilotRegistrationsPage() {
-  const pendingRegistrations = await getPendingRegistrations()
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
+    redirect('/auth/login')
+  }
+
+  // Call the service directly — a load failure must render as an error,
+  // never as an empty "all caught up" list
+  const result = await getPendingRegistrations()
+  const loadFailed = !result.success
+  const pendingRegistrations = (result.success ? result.data || [] : []) as PendingRegistration[]
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Pilot Registration Approval</h2>
-          <p className="text-muted-foreground mt-1">
-            Review and approve pilot portal registration requests
-          </p>
-        </div>
-        <Link href="/dashboard/admin">
-          <Button variant="outline">← Back to Admin</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Pilot Registration Approval"
+        description="Review and approve pilot portal registration requests"
+        breadcrumbs={[
+          { label: 'Admin', href: '/dashboard/admin' },
+          { label: 'Pilot Registrations' },
+        ]}
+      />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -113,7 +99,18 @@ export default async function PilotRegistrationsPage() {
       </div>
 
       {/* Client Component for Interactive Table */}
-      <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
+      {loadFailed ? (
+        <Card className="border-destructive/30 bg-destructive/5" role="alert">
+          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+            <AlertCircle className="text-destructive h-6 w-6" aria-hidden="true" />
+            <p className="text-foreground text-sm">
+              Couldn&apos;t load pending registrations. Reload the page to try again.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
+      )}
     </div>
   )
 }

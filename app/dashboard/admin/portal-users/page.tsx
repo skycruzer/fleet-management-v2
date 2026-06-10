@@ -7,10 +7,8 @@
  */
 
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Breadcrumb } from '@/components/navigation/breadcrumb'
+import { PageHeader } from '@/components/layout/page-header'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getPortalUsersSummary } from '@/lib/services/portal-admin-service'
 import { Users, UserCheck, Clock, UserX } from 'lucide-react'
@@ -26,20 +24,12 @@ export default async function PortalUsersPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb />
-
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">Portal Users</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage pilot portal accounts and view activity metrics
-          </p>
-        </div>
-        <Link href="/dashboard/admin">
-          <Button variant="outline">← Back to Admin</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Portal Users"
+        description="Manage pilot portal accounts and view activity metrics"
+        breadcrumbs={[{ label: 'Admin', href: '/dashboard/admin' }, { label: 'Portal Users' }]}
+      />
 
       {/* Summary Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

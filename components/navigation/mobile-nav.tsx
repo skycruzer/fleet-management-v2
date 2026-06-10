@@ -35,10 +35,10 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
       <header className="border-border bg-card sticky top-0 z-40 border-b lg:hidden">
         <div className="flex h-12 items-center justify-between px-3">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
-              <Plane className="h-3.5 w-3.5 text-white" />
+            <div className="bg-primary flex h-7 w-7 items-center justify-center rounded-md">
+              <Plane className="text-primary-foreground h-3.5 w-3.5" />
             </div>
-            <span className="text-foreground text-[13px] font-semibold">Fleet Management</span>
+            <span className="text-foreground text-[13px] font-semibold">Fleet Office</span>
           </Link>
 
           <SheetTrigger asChild>
@@ -57,10 +57,10 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
       {/* Sheet Drawer - slides in from left */}
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="border-border/40 flex h-12 flex-row items-center gap-2 border-b px-4 py-0">
-          <div className="bg-accent flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
-            <Plane className="h-3.5 w-3.5 text-white" />
+          <div className="bg-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
+            <Plane className="text-primary-foreground h-3.5 w-3.5" />
           </div>
-          <SheetTitle className="text-[13px] font-semibold">Fleet Management</SheetTitle>
+          <SheetTitle className="text-[13px] font-semibold">Fleet Office</SheetTitle>
         </SheetHeader>
 
         {/* Navigation - Touch-optimized */}

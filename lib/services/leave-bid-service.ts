@@ -26,6 +26,14 @@ import { notifyAllAdmins } from '@/lib/services/notification-service'
 import { sendAdminRequestNotificationEmail } from '@/lib/services/pilot-email-service'
 import { ServiceResponse } from '@/lib/types/service-response'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import type {
+  AdminLeaveBid,
+  EnrichedLeaveBidOption,
+  LeaveBidOption,
+  PreferredDateEntry,
+  RawAdminLeaveBid,
+} from '@/lib/types/admin-leave-bid'
 
 export interface LeaveBid {
   id: string
@@ -658,6 +666,171 @@ export async function getAdminLeaveBids(
       severity: ErrorSeverity.MEDIUM,
     })
     return { success: false, error: 'Failed to fetch leave bids' }
+  }
+}
+
+/**
+ * Full SELECT used by the admin leave-bid pages (list, view, edit).
+ * Superset of fields so one normalization path serves all three pages.
+ */
+const ADMIN_LEAVE_BID_DETAIL_SELECT = `
+  id,
+  roster_period_code,
+  status,
+  created_at,
+  updated_at,
+  reviewed_at,
+  review_comments,
+  notes,
+  reason,
+  pilot_id,
+  preferred_dates,
+  option_statuses,
+  pilots (
+    id,
+    first_name,
+    last_name,
+    middle_name,
+    employee_id,
+    role,
+    seniority_number,
+    email
+  ),
+  leave_bid_options (
+    id,
+    priority,
+    start_date,
+    end_date
+  )
+`
+
+/** Raw row shape for the detail select (adds option_statuses to the shared type). */
+type RawAdminLeaveBidDetail = RawAdminLeaveBid & {
+  option_statuses?: Record<string, string> | null
+}
+
+/** Normalized bid consumed by the admin leave-bid pages. */
+export interface NormalizedAdminLeaveBid extends AdminLeaveBid {
+  option_statuses?: Record<string, string> | null
+  bid_year: number
+}
+
+/**
+ * Normalize a raw admin leave bid row:
+ * - Options come from the `leave_bid_options` table, or are parsed from the
+ *   `preferred_dates` JSON column (portal submission format) when empty.
+ * - Each option is enriched with affected roster period codes.
+ * - `bid_year` is derived from the first option's start date.
+ */
+function normalizeAdminLeaveBid(rawBid: RawAdminLeaveBidDetail): NormalizedAdminLeaveBid {
+  // Normalize options: portal submissions store dates in preferred_dates JSON
+  let options: LeaveBidOption[] = rawBid.leave_bid_options ?? []
+  if (options.length === 0 && rawBid.preferred_dates) {
+    try {
+      const parsed =
+        typeof rawBid.preferred_dates === 'string'
+          ? JSON.parse(rawBid.preferred_dates)
+          : rawBid.preferred_dates
+      if (Array.isArray(parsed)) {
+        options = (parsed as PreferredDateEntry[]).map((item, index) => ({
+          id: `${rawBid.id}-opt-${index}`,
+          priority: item.priority ?? index + 1,
+          start_date: item.start_date,
+          end_date: item.end_date,
+        }))
+      }
+    } catch {
+      // Invalid JSON — leave options empty
+    }
+  }
+
+  // Enrich each option with roster period codes
+  const enrichedOptions: EnrichedLeaveBidOption[] = options.map((opt) => ({
+    ...opt,
+    roster_periods: getAffectedRosterPeriods(new Date(opt.start_date), new Date(opt.end_date)).map(
+      (rp) => rp.code
+    ),
+  }))
+
+  // Extract year from first option start_date
+  let bidYear = new Date().getFullYear() + 1
+  if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
+    bidYear = new Date(enrichedOptions[0].start_date).getFullYear()
+  }
+
+  return { ...rawBid, leave_bid_options: enrichedOptions, bid_year: bidYear }
+}
+
+/**
+ * Admin Listing of Leave Bids (normalized)
+ *
+ * Returns all leave bids with pilot + options joined, ordered PENDING first
+ * then newest, with options normalized from either source (table or
+ * preferred_dates JSON) and enriched with roster periods + bid_year.
+ * Caller is responsible for verifying the admin is authenticated.
+ */
+export async function getLeaveBidsForAdmin(): Promise<ServiceResponse<NormalizedAdminLeaveBid[]>> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('leave_bids')
+      .select(ADMIN_LEAVE_BID_DETAIL_SELECT)
+      .order('status', { ascending: true }) // PENDING first
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'leave-bid-service/getLeaveBidsForAdmin',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return { success: false, error: 'Failed to fetch leave bids' }
+    }
+
+    const bids = ((data || []) as unknown as RawAdminLeaveBidDetail[]).map(normalizeAdminLeaveBid)
+    return { success: true, data: bids }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/getLeaveBidsForAdmin',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: 'Failed to fetch leave bids' }
+  }
+}
+
+/**
+ * Admin Leave Bid by ID (normalized)
+ *
+ * Returns a single leave bid with pilot + options joined and normalized
+ * (same shape as getLeaveBidsForAdmin). Caller is responsible for verifying
+ * the admin is authenticated.
+ */
+export async function getLeaveBidByIdForAdmin(
+  bidId: string
+): Promise<ServiceResponse<NormalizedAdminLeaveBid>> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('leave_bids')
+      .select(ADMIN_LEAVE_BID_DETAIL_SELECT)
+      .eq('id', bidId)
+      .single()
+
+    if (error || !data) {
+      return ServiceResponse.notFound('Leave bid not found')
+    }
+
+    return {
+      success: true,
+      data: normalizeAdminLeaveBid(data as unknown as RawAdminLeaveBidDetail),
+    }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/getLeaveBidByIdForAdmin',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: 'Failed to fetch leave bid' }
   }
 }
 

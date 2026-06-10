@@ -69,7 +69,7 @@ async function sendEmailWithRetry(emailData: any, attempt = 1): Promise<any> {
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Fleet Management <onboarding@resend.dev>'
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Fleet Office <onboarding@resend.dev>'
     const toEmail = process.env.RESEND_TO_EMAIL || 'rostering-team@example.com'
 
     const result = await resend.emails.send({
@@ -306,10 +306,10 @@ function generateEmailHTML(data: {
         </div>
 
         <div class="footer">
-          <p><strong>Air Niugini - B767 Fleet Management</strong></p>
+          <p><strong>Air Niugini - Fleet Office</strong></p>
           <p>Fleet Operations</p>
           <p style="margin-top: 10px;">
-            This is an automated email. For questions, please contact the Fleet Management team.
+            This is an automated email. For questions, please contact the Fleet Office team.
           </p>
         </div>
       </div>
@@ -472,7 +472,7 @@ ${validSummaries
 View full details: ${appUrl}/dashboard/renewal-planning/calendar?year=${year}
 
 ---
-Air Niugini - B767 Fleet Management
+Air Niugini - Fleet Office
 Fleet Operations
     `.trim()
 

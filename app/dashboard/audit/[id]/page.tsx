@@ -4,6 +4,9 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import AuditLogDetail from '@/components/audit/audit-log-detail'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/layout/page-header'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 // Force dynamic rendering to prevent static generation at build time
 /**
  * Audit Log Detail Page (Admin)
@@ -15,12 +18,15 @@ import Link from 'next/link'
  */
 
 interface AuditDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default async function AuditDetailPage({ params }: AuditDetailPageProps) {
+export default async function AuditDetailPage(props: AuditDetailPageProps) {
+  // Next.js 16: params is a Promise and must be awaited
+  const params = await props.params
+
   // Check authentication (supports both Supabase Auth and admin-session cookie)
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
@@ -42,33 +48,19 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link
-          href="/dashboard/audit"
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Audit Logs
-        </Link>
-      </div>
-
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-          Audit Log Detail
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Complete details of audit record #{params.id.slice(0, 8)}
-        </p>
-      </div>
+      <PageHeader
+        title="Audit Log Detail"
+        description={`Complete details of audit record #${params.id.slice(0, 8)}`}
+        actions={
+          <Button asChild variant="outline">
+            <Link href="/dashboard/audit">
+              <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              Back to Audit Logs
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Audit Log Metadata */}
       <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
@@ -84,11 +76,11 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
               <span
                 className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
                   auditLog.action === 'INSERT'
-                    ? 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
+                    ? 'bg-[var(--color-success-muted)] text-[var(--color-success-muted-foreground)]'
                     : auditLog.action === 'UPDATE'
                       ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       : auditLog.action === 'DELETE'
-                        ? 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
+                        ? 'bg-[var(--color-destructive-muted)] text-[var(--color-destructive-muted-foreground)]'
                         : 'text-foreground bg-muted/30'
                 }`}
               >
@@ -162,39 +154,16 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       </div>
 
       {/* Navigation Actions */}
-      <div className="mt-8 flex justify-between">
-        <Link
-          href="/dashboard/audit"
-          className="text-foreground/80 border-border hover:bg-muted/30 inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Audit Logs
-        </Link>
-
-        {auditLog.record_id && (
-          <Link
-            href={`/dashboard/audit?recordId=${auditLog.record_id}`}
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
-          >
-            View All Changes to This Record
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </Link>
-        )}
-      </div>
+      {auditLog.record_id && (
+        <div className="mt-8 flex justify-end">
+          <Button asChild>
+            <Link href={`/dashboard/audit?recordId=${auditLog.record_id}`}>
+              View All Changes to This Record
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

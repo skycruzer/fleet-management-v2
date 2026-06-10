@@ -248,7 +248,7 @@ export function GlobalSearch() {
               <ScrollText className="mr-2 h-4 w-4" />
               <span>Disciplinary</span>
             </CommandItem>
-            <CommandItem onSelect={() => navigateTo('/dashboard/audit-logs')}>
+            <CommandItem onSelect={() => navigateTo('/dashboard/audit')}>
               <BookOpen className="mr-2 h-4 w-4" />
               <span>Audit Logs</span>
             </CommandItem>

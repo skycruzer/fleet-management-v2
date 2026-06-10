@@ -15,7 +15,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
+import { PageHeader } from '@/components/layout/page-header'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 
 type UserFormData = z.infer<typeof UserCreateSchema>
 
@@ -53,8 +55,8 @@ export default function NewUserPage() {
         throw new Error(result.error || 'Failed to create user')
       }
 
-      // Success - redirect to users list
-      router.push('/dashboard/admin/users')
+      // Success - redirect to admin overview (no standalone users list route exists)
+      router.push('/dashboard/admin')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create user')
@@ -65,15 +67,11 @@ export default function NewUserPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Add New User</h2>
-          <p className="text-muted-foreground mt-1">Create a new system user account</p>
-        </div>
-        <Link href="/dashboard/admin">
-          <Button variant="outline">← Back to Admin</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Add New User"
+        description="Create a new system user account"
+        breadcrumbs={[{ label: 'Admin', href: '/dashboard/admin' }, { label: 'Add User' }]}
+      />
 
       {/* Form Card */}
       <Card className="p-6">
@@ -185,11 +183,9 @@ export default function NewUserPage() {
 
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-4 border-t pt-6">
-            <Link href="/dashboard/admin/users">
-              <Button type="button" variant="outline" disabled={isSubmitting}>
-                Cancel
-              </Button>
-            </Link>
+            <Button type="button" variant="outline" disabled={isSubmitting} asChild>
+              <Link href="/dashboard/admin">Cancel</Link>
+            </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -197,7 +193,7 @@ export default function NewUserPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
-                  <span className="animate-spin">⏳</span>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   <span>Creating...</span>
                 </span>
               ) : (

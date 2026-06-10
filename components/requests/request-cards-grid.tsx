@@ -35,6 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { CheckCircle, AlertTriangle, Loader2, ArrowUpDown, CheckCheck, XCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -86,6 +87,7 @@ export function RequestCardsGrid({
   const [sortBy, setSortBy] = useState<SortOption>('date-desc')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isPending, startTransition] = useTransition()
+  const { confirm, ConfirmDialog: BulkConfirmDialog } = useConfirm()
 
   // Edit/Delete state
   const [editingRequest, setEditingRequest] = useState<EditableRequest | null>(null)
@@ -140,6 +142,14 @@ export function RequestCardsGrid({
   // Bulk action handlers
   const handleBulkApprove = useCallback(async () => {
     const ids = Array.from(selectedIds)
+    const confirmed = await confirm({
+      title: `Approve ${ids.length} request${ids.length > 1 ? 's' : ''}?`,
+      description: `Approve ${ids.length} selected request${ids.length > 1 ? 's' : ''}? This takes effect immediately.`,
+      confirmText: `Approve All (${ids.length})`,
+      variant: 'default',
+    })
+    if (!confirmed) return
+
     let successCount = 0
     let errorCount = 0
 
@@ -162,10 +172,18 @@ export function RequestCardsGrid({
 
       clearSelection()
     })
-  }, [selectedIds, onApprove, clearSelection])
+  }, [selectedIds, onApprove, clearSelection, confirm])
 
   const handleBulkDeny = useCallback(async () => {
     const ids = Array.from(selectedIds)
+    const confirmed = await confirm({
+      title: `Deny ${ids.length} request${ids.length > 1 ? 's' : ''}?`,
+      description: `Deny ${ids.length} selected request${ids.length > 1 ? 's' : ''}? This takes effect immediately and notifies the affected pilots.`,
+      confirmText: `Deny All (${ids.length})`,
+      variant: 'destructive',
+    })
+    if (!confirmed) return
+
     let successCount = 0
     let errorCount = 0
 
@@ -188,7 +206,7 @@ export function RequestCardsGrid({
 
       clearSelection()
     })
-  }, [selectedIds, onDeny, clearSelection])
+  }, [selectedIds, onDeny, clearSelection, confirm])
 
   // Edit handler - convert PilotRequest to EditableRequest format
   const handleEdit = useCallback(
@@ -474,6 +492,9 @@ export function RequestCardsGrid({
           request={editingRequest}
         />
       )}
+
+      {/* Bulk Approve/Deny Confirmation Dialog */}
+      <BulkConfirmDialog />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog

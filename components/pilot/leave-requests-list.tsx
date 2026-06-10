@@ -11,9 +11,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'sonner'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { formatDate } from '@/lib/utils/date-utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Calendar, CheckCircle2, Clock, FileText, Plus, XCircle } from 'lucide-react'
 import {
   AlertDialog,
@@ -31,8 +34,11 @@ interface LeaveRequestsListProps {
   requests: LeaveRequest[]
 }
 
-export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) {
+export default function LeaveRequestsList({ requests: initialRequests }: LeaveRequestsListProps) {
   const router = useRouter()
+  // Local state so a successful cancel updates the list immediately —
+  // the list comes from parent client state, so router.refresh() alone can't update it
+  const [requests, setRequests] = useState<LeaveRequest[]>(initialRequests)
   const [cancelingId, setCancelingId] = useState<string | null>(null)
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null)
 
@@ -42,19 +48,27 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
     try {
       const response = await fetch(`/api/portal/leave-requests?id=${requestId}`, {
         method: 'DELETE',
+        headers: {
+          ...csrfHeaders(),
+        },
+        credentials: 'include',
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        alert(result.error || 'Failed to cancel leave request')
+        toast.error(result.error || 'Failed to cancel leave request')
         return
       }
 
-      // Refresh to show updated list
+      // Reflect the withdrawal immediately, then refresh server components
+      setRequests((prev) =>
+        prev.map((req) => (req.id === requestId ? { ...req, workflow_status: 'WITHDRAWN' } : req))
+      )
+      toast.success('Leave request cancelled')
       router.refresh()
     } catch (error) {
-      alert('An unexpected error occurred')
+      toast.error('An unexpected error occurred')
     } finally {
       setCancelingId(null)
     }
@@ -127,12 +141,12 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
           <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
           <p>No leave requests found</p>
           <p className="mt-2 text-sm">Submit your first request to get started.</p>
-          <Link href="/portal/leave-requests/new" className="mt-4 inline-block">
-            <Button>
+          <Button asChild className="mt-4">
+            <Link href="/portal/leave-requests/new">
               <Plus className="mr-2 h-4 w-4" />
               Submit Leave Request
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -241,27 +255,5 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
-}
-
-// Status Badge Component
-function StatusBadge({
-  status,
-}: {
-  status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
-}) {
-  const badgeStyles: Record<string, string> = {
-    DRAFT: 'bg-muted text-muted-foreground',
-    SUBMITTED: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
-    IN_REVIEW: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
-    APPROVED: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
-    DENIED: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
-    WITHDRAWN: 'bg-muted text-muted-foreground',
-  }
-
-  return (
-    <span className={`rounded-full px-3 py-1 text-xs font-medium ${badgeStyles[status]}`}>
-      {status}
-    </span>
   )
 }

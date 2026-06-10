@@ -212,7 +212,7 @@ export const POST = createAdminRoute(
     <h3>Approved Requests Breakdown</h3>
     <ul>
       <li>Leave Requests: ${report.approvedRequests.leaveRequests.length}</li>
-      <li>Flight Requests: ${report.approvedRequests.flightRequests.length}</li>
+      <li>RDO/SDO Requests: ${report.approvedRequests.flightRequests.length}</li>
       <li>Leave Bids: ${report.approvedRequests.leaveBids.length}</li>
     </ul>
 
@@ -225,7 +225,7 @@ export const POST = createAdminRoute(
   </div>
 
   <div class="footer">
-    <p>Fleet Management System - Air Niugini B767 Operations</p>
+    <p>Fleet Office - Air Niugini B767 Operations</p>
     <p>Generated on ${new Date(report.metadata.generatedAt).toLocaleString('en-AU')}</p>
   </div>
 </body>

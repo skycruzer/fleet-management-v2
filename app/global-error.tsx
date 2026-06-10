@@ -2,13 +2,101 @@
  * Global Error Handler
  * Root error boundary for the entire application
  * @author Maurice Rondeau
+ *
+ * IMPORTANT: global-error replaces the root layout entirely, so globals.css
+ * is NOT loaded here. All styling must be inline — Tailwind classes resolve
+ * to nothing on this screen. Values mirror the light-theme design tokens.
  */
 
 'use client'
 
-import { useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useEffect, type CSSProperties } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+
+const styles: Record<string, CSSProperties> = {
+  body: {
+    margin: 0,
+    backgroundColor: '#f0f0f3',
+    color: '#1c2024',
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  },
+  wrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 16px',
+  },
+  card: {
+    maxWidth: '32rem',
+    textAlign: 'center',
+  },
+  iconCircle: {
+    display: 'inline-flex',
+    padding: '24px',
+    borderRadius: '9999px',
+    backgroundColor: 'rgba(220, 38, 38, 0.08)',
+    marginBottom: '24px',
+  },
+  title: {
+    fontSize: '2.25rem',
+    fontWeight: 700,
+    color: '#000000',
+    margin: '0 0 16px',
+  },
+  message: {
+    fontSize: '1.125rem',
+    color: '#60646c',
+    margin: '0 0 8px',
+    lineHeight: 1.6,
+  },
+  digest: {
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    fontSize: '0.875rem',
+    color: '#60646c',
+    margin: '8px 0 0',
+  },
+  actions: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: '12px',
+    marginTop: '32px',
+  },
+  primaryButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '10px 20px',
+    borderRadius: '9999px',
+    border: '1px solid #000000',
+    backgroundColor: '#000000',
+    color: '#ffffff',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    cursor: 'pointer',
+  },
+  outlineButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '10px 20px',
+    borderRadius: '9999px',
+    border: '1px solid #d9d9e0',
+    backgroundColor: '#ffffff',
+    color: '#1c2024',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    cursor: 'pointer',
+  },
+  support: {
+    fontSize: '0.875rem',
+    color: '#60646c',
+    marginTop: '24px',
+  },
+}
 
 export default function GlobalError({
   error,
@@ -26,50 +114,46 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body>
-        <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
-          <div className="max-w-lg space-y-6 text-center">
+      <body style={styles.body}>
+        <div style={styles.wrapper}>
+          <div style={styles.card}>
             {/* Error Icon */}
-            <div className="flex justify-center">
-              <div className="bg-destructive/20 rounded-full p-6">
-                <AlertTriangle className="text-destructive h-16 w-16" />
-              </div>
+            <div style={styles.iconCircle}>
+              <AlertTriangle size={64} color="#dc2626" aria-hidden="true" />
             </div>
 
             {/* Error Title */}
-            <h1 className="text-foreground text-4xl font-bold">Application Error</h1>
+            <h1 style={styles.title}>Application Error</h1>
 
             {/* Error Message */}
-            <p className="text-muted-foreground text-lg">
+            <p style={styles.message}>
               {process.env.NODE_ENV === 'development'
                 ? error.message || 'An unexpected error occurred'
-                : 'An unexpected error occurred. Please try again or contact support if the problem persists.'}
+                : 'An unexpected error occurred. Please try again or contact your fleet administrator if the problem persists.'}
             </p>
 
             {/* Error ID (Production) */}
-            {error.digest && (
-              <p className="text-muted-foreground font-mono text-sm">Error ID: {error.digest}</p>
-            )}
+            {error.digest && <p style={styles.digest}>Error ID: {error.digest}</p>}
 
             {/* Action Buttons */}
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button onClick={() => reset()} className="w-full sm:w-auto">
-                <RefreshCw className="mr-2 h-4 w-4" />
+            <div style={styles.actions}>
+              <button type="button" onClick={() => reset()} style={styles.primaryButton}>
+                <RefreshCw size={16} aria-hidden="true" />
                 Try Again
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto"
+              </button>
+              <button
+                type="button"
+                style={styles.outlineButton}
                 onClick={() => (window.location.href = '/')}
               >
-                <Home className="mr-2 h-4 w-4" />
+                <Home size={16} aria-hidden="true" />
                 Go Home
-              </Button>
+              </button>
             </div>
 
             {/* Support Information */}
-            <p className="text-muted-foreground mt-6 text-sm">
-              If this problem persists, please contact support
+            <p style={styles.support}>
+              If this problem persists, please contact your fleet administrator
             </p>
           </div>
         </div>

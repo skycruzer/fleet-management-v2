@@ -116,7 +116,7 @@ const REQUEST_TYPE_OPTIONS = {
   FLIGHT: [
     { value: 'RDO', label: 'Rostered Day Off' },
     { value: 'SDO', label: 'Substitute Day Off' },
-    { value: 'FLIGHT_REQUEST', label: 'Flight Request' },
+    { value: 'FLIGHT_REQUEST', label: 'RDO/SDO Request' },
     { value: 'SCHEDULE_CHANGE', label: 'Schedule Change' },
   ],
   LEAVE_BID: [{ value: 'ANNUAL', label: 'Annual Leave Bid' }],

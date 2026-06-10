@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import Link from 'next/link'
 import {
   Lock,
@@ -44,6 +45,7 @@ export function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
+  const { shouldAnimate } = useAnimationSettings()
 
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
@@ -174,9 +176,9 @@ export function ResetPasswordContent() {
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+              initial={shouldAnimate ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               className="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
             >
               <Shield className="h-8 w-8 text-white" />
@@ -202,12 +204,14 @@ export function ResetPasswordContent() {
           {!isValidating && !tokenValid && (
             <div className="space-y-6">
               <div className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-destructive-muted-foreground)]" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--color-danger-400)]">
+                  <p className="text-sm font-medium text-[var(--color-destructive-muted-foreground)]">
                     Invalid Reset Link
                   </p>
-                  <p className="mt-1 text-sm text-[var(--color-danger-400)]/80">{error}</p>
+                  <p className="mt-1 text-sm text-[var(--color-destructive-muted-foreground)]/80">
+                    {error}
+                  </p>
                 </div>
               </div>
 
@@ -229,12 +233,12 @@ export function ResetPasswordContent() {
             >
               <div className="flex flex-col items-center text-center">
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                  initial={shouldAnimate ? { opacity: 0 } : false}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
                   className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success-muted)]"
                 >
-                  <CheckCircle2 className="h-8 w-8 text-[var(--color-success-400)]" />
+                  <CheckCircle2 className="h-8 w-8 text-[var(--color-success-muted-foreground)]" />
                 </motion.div>
 
                 <p className="text-foreground text-lg font-semibold">
@@ -257,8 +261,10 @@ export function ResetPasswordContent() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4"
                 >
-                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
-                  <p className="flex-1 text-sm text-[var(--color-danger-400)]">{error}</p>
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-destructive-muted-foreground)]" />
+                  <p className="flex-1 text-sm text-[var(--color-destructive-muted-foreground)]">
+                    {error}
+                  </p>
                 </motion.div>
               )}
 
@@ -298,7 +304,7 @@ export function ResetPasswordContent() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Password strength:</span>
                       <span
-                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-400)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-400)]' : 'text-[var(--color-danger-400)]'}`}
+                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-muted-foreground)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-muted-foreground)]' : 'text-[var(--color-destructive-muted-foreground)]'}`}
                       >
                         {passwordStrength.label}
                       </span>
@@ -313,7 +319,7 @@ export function ResetPasswordContent() {
                 )}
 
                 {form.formState.errors.password && (
-                  <p className="text-sm text-[var(--color-danger-400)]">
+                  <p className="text-sm text-[var(--color-destructive-muted-foreground)]">
                     {form.formState.errors.password.message}
                   </p>
                 )}
@@ -322,21 +328,39 @@ export function ResetPasswordContent() {
                 <div className="text-muted-foreground space-y-1 text-xs">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
-                    <li className={password.length >= 8 ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        password.length >= 8 ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • At least 8 characters
                     </li>
-                    <li className={/[A-Z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[A-Z]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One uppercase letter
                     </li>
-                    <li className={/[a-z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[a-z]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One lowercase letter
                     </li>
-                    <li className={/[0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
+                    <li
+                      className={
+                        /[0-9]/.test(password) ? 'text-[var(--color-success-muted-foreground)]' : ''
+                      }
+                    >
                       • One number
                     </li>
                     <li
                       className={
-                        /[^A-Za-z0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''
+                        /[^A-Za-z0-9]/.test(password)
+                          ? 'text-[var(--color-success-muted-foreground)]'
+                          : ''
                       }
                     >
                       • One special character
@@ -379,7 +403,7 @@ export function ResetPasswordContent() {
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-[var(--color-danger-400)]">
+                  <p className="text-sm text-[var(--color-destructive-muted-foreground)]">
                     {form.formState.errors.confirmPassword.message}
                   </p>
                 )}
@@ -389,7 +413,7 @@ export function ResetPasswordContent() {
               <Button
                 type="submit"
                 disabled={isLoading || !password || !confirmPassword}
-                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative h-12 w-full overflow-hidden shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
+                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative h-12 w-full overflow-hidden shadow-sm transition-all hover:shadow-md disabled:opacity-50"
               >
                 {isLoading ? (
                   <>

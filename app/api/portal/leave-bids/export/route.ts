@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
     ${logoBase64 ? `<img src="${logoBase64}" alt="Air Niugini" />` : ''}
     <div class="header-text">
       <h1>Leave Bid Summary</h1>
-      <p>Air Niugini - B767 Fleet Management</p>
+      <p>Air Niugini - Fleet Office</p>
     </div>
   </div>
 
@@ -348,7 +348,7 @@ export async function GET(request: NextRequest) {
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()}</p>
-    <p><strong>Air Niugini</strong> - B767 Fleet Management System</p>
+    <p><strong>Air Niugini</strong> - Fleet Office</p>
   </div>
 </body>
 </html>

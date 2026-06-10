@@ -7,7 +7,7 @@ import { ErrorBoundary } from '@/components/error-boundary'
  */
 
 export const metadata: Metadata = {
-  title: 'Pilot Portal | Fleet Management',
+  title: 'B767 Pilot Portal',
   description: 'Self-service portal for pilots',
 }
 

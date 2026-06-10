@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
@@ -224,17 +225,7 @@ export function LeaveRequestGroup({
                               </div>
                             </td>
                             <td className="px-4 py-4 whitespace-nowrap">
-                              <span
-                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                  req.workflow_status === 'SUBMITTED'
-                                    ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-                                    : req.workflow_status === 'APPROVED'
-                                      ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
-                                      : 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
-                                }`}
-                              >
-                                {req.workflow_status}
-                              </span>
+                              <StatusBadge status={req.workflow_status} size="sm" hideIcon />
                             </td>
                             {onReview && (
                               <td className="px-4 py-4 text-right whitespace-nowrap">

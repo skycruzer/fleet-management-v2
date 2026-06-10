@@ -8,7 +8,8 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
+import { useQueryState, parseAsString, parseAsStringLiteral } from 'nuqs'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,7 +22,9 @@ import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { staggerContainer } from '@/lib/animations/motion-variants'
 import { Grid3x3, Table, LayoutGrid } from 'lucide-react'
 
-type ViewMode = 'cards' | 'table' | 'grouped'
+const VIEW_MODES = ['cards', 'table', 'grouped'] as const
+const RANK_FILTERS = ['all', 'Captain', 'First Officer'] as const
+const STATUS_FILTERS = ['all', 'active', 'inactive'] as const
 
 interface PilotsViewToggleProps {
   allPilots: any[]
@@ -29,13 +32,33 @@ interface PilotsViewToggleProps {
 }
 
 export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('cards')
-  const [filters, setFilters] = useState<PilotFilters>({
-    search: '',
-    rank: 'all',
-    status: 'all',
-    contractType: '',
-  })
+  // URL-synced state so back/forward navigation and deep links work
+  const [viewMode, setViewMode] = useQueryState(
+    'view',
+    parseAsStringLiteral(VIEW_MODES).withDefault('cards')
+  )
+  const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''))
+  const [rank, setRank] = useQueryState(
+    'rank',
+    parseAsStringLiteral(RANK_FILTERS).withDefault('all')
+  )
+  const [status, setStatus] = useQueryState(
+    'status',
+    parseAsStringLiteral(STATUS_FILTERS).withDefault('all')
+  )
+  const [contractType, setContractType] = useQueryState('contract', parseAsString.withDefault(''))
+
+  const filters = useMemo<PilotFilters>(
+    () => ({ search, rank, status, contractType }),
+    [search, rank, status, contractType]
+  )
+
+  const handleFiltersChange = (next: PilotFilters) => {
+    setSearch(next.search)
+    setRank(next.rank)
+    setStatus(next.status)
+    setContractType(next.contractType)
+  }
   const { shouldAnimate } = useAnimationSettings()
 
   // Apply filters to all pilots
@@ -101,21 +124,20 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
       {/* Filter Bar */}
       <PilotFilterBar
         filters={filters}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         contractTypes={contractTypes}
         resultCount={filteredPilots.length}
         totalCount={allPilots.length}
       />
 
-      {/* View Toggle */}
+      {/* View Toggle — aria-pressed toggle buttons (same pattern as ViewModeToggle) */}
       <div
-        role="tablist"
+        role="group"
         aria-label="Pilots view mode"
         className="border-input bg-background flex items-center rounded-lg border p-1"
       >
         <Button
-          role="tab"
-          aria-selected={viewMode === 'cards'}
+          aria-pressed={viewMode === 'cards'}
           variant={viewMode === 'cards' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode('cards')}
@@ -126,8 +148,7 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
           <span className="hidden sm:inline">Cards</span>
         </Button>
         <Button
-          role="tab"
-          aria-selected={viewMode === 'table'}
+          aria-pressed={viewMode === 'table'}
           variant={viewMode === 'table' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode('table')}
@@ -138,8 +159,7 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
           <span className="hidden sm:inline">Table</span>
         </Button>
         <Button
-          role="tab"
-          aria-selected={viewMode === 'grouped'}
+          aria-pressed={viewMode === 'grouped'}
           variant={viewMode === 'grouped' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode('grouped')}
@@ -152,7 +172,7 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
       </div>
 
       {/* View Content */}
-      <div role="tabpanel" aria-label={`${viewMode} view`}>
+      <div>
         {viewMode === 'cards' ? (
           filteredPilots.length === 0 ? (
             <Card className="p-12 text-center">

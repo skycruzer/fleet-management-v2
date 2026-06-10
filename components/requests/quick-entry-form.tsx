@@ -306,7 +306,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         console.error('❌ Flight type is missing')
         toast({
           title: 'Validation Error',
-          description: 'Please select a flight request type.',
+          description: 'Please select an RDO/SDO request type.',
           variant: 'destructive',
         })
         return
@@ -421,7 +421,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
               <FormField
                 control={form.control}
                 name="pilot_id"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>Pilot *</FormLabel>
                     <FormControl>
@@ -430,6 +430,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         value={field.value}
                         onValueChange={field.onChange}
                         placeholder="Select a pilot..."
+                        aria-invalid={!!fieldState.error}
+                        className={cn(fieldState.error && 'border-destructive')}
                       />
                     </FormControl>
                     <FormMessage />
@@ -504,7 +506,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                       <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select flight request type..." />
+                            <SelectValue placeholder="Select RDO/SDO request type..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>

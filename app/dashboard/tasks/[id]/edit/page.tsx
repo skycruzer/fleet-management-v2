@@ -7,6 +7,7 @@
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskById } from '@/lib/services/task-service'
+import { getAssignableUsers } from '@/lib/services/user-service'
 import TaskForm from '@/components/tasks/task-form'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,10 @@ export default async function TaskEditPage({ params }: TaskEditPageProps) {
 
   const task = taskResult.data
 
+  // Fetch users for the assignee select (same source as the create page)
+  const usersResult = await getAssignableUsers()
+  const users = usersResult.data ?? []
+
   return (
     <div className="space-y-6">
       <div>
@@ -42,7 +47,7 @@ export default async function TaskEditPage({ params }: TaskEditPageProps) {
 
       <div className="bg-card overflow-hidden rounded-lg shadow">
         <div className="p-6">
-          <TaskForm task={task} />
+          <TaskForm task={task} users={users} />
         </div>
       </div>
     </div>

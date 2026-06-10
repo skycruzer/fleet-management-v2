@@ -12,6 +12,8 @@ import { useAnalytics, type AnalyticsData } from '@/lib/react-query/hooks/use-an
 import dynamic from 'next/dynamic'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Skeleton, ChartSkeleton } from '@/components/ui/skeleton'
+import { formatMonthYear } from '@/lib/utils/date-utils'
 import {
   Loader2,
   BarChart3,
@@ -20,7 +22,6 @@ import {
   AlertTriangle,
   Calendar,
   CheckCircle,
-  Palmtree,
   Info,
   Download,
   FileText,
@@ -94,7 +95,8 @@ function AnalyticsPageContent() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'txt' : 'csv'}`
+      // API returns text/csv for 'csv' and a real jsPDF document for 'pdf'
+      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format}`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -120,17 +122,32 @@ function AnalyticsPageContent() {
   // Render analytics content
   const renderAnalyticsContent = () => {
     if (loading) {
+      // Skeleton mirroring the rendered layout: refresh action, KPI cards, chart grids
       return (
         <div className="space-y-4">
-          <Card className="p-8 text-center">
-            <div className="flex items-center justify-center space-x-2">
-              <Loader2
-                className="h-6 w-6 animate-spin text-[var(--color-info)]"
-                aria-hidden="true"
-              />
-              <p className="text-muted-foreground text-sm">Loading analytics...</p>
-            </div>
-          </Card>
+          <div className="flex justify-end">
+            <Skeleton className="h-10 w-40 rounded-md" />
+          </div>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="space-y-3 p-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-3 w-40" />
+              </Card>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ChartSkeleton height={320} />
+            <ChartSkeleton height={320} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ChartSkeleton height={280} />
+            <ChartSkeleton height={280} />
+          </div>
         </div>
       )
     }
@@ -156,14 +173,8 @@ function AnalyticsPageContent() {
 
     return (
       <div className="space-y-4">
-        {/* Analytics Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-foreground text-lg font-semibold">Fleet Analytics Dashboard</h2>
-            <p className="text-muted-foreground mt-0.5 text-sm">
-              Comprehensive analytics and key performance indicators
-            </p>
-          </div>
+        {/* Refresh Action */}
+        <div className="flex justify-end">
           <Button
             onClick={handleRefresh}
             disabled={refreshing}
@@ -255,7 +266,7 @@ function AnalyticsPageContent() {
           <Card className="border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-between">
               <Target className="h-8 w-8 text-[var(--color-info)]" aria-hidden="true" />
-              <span className="text-primary-foreground text-2xl font-bold">
+              <span className="text-foreground text-2xl font-bold">
                 {analytics.fleet.readiness}%
               </span>
             </div>
@@ -327,10 +338,7 @@ function AnalyticsPageContent() {
                               {pilot.rank} {pilot.name}
                             </span>
                             <span className="text-xs text-[var(--color-warning-500)]/80">
-                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
-                                month: 'short',
-                                year: 'numeric',
-                              })}
+                              {formatMonthYear(pilot.retirementDate)}
                             </span>
                           </div>
                         ))}
@@ -361,10 +369,7 @@ function AnalyticsPageContent() {
                               {pilot.rank} {pilot.name}
                             </span>
                             <span className="text-xs text-[var(--color-badge-orange)]/80">
-                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
-                                month: 'short',
-                                year: 'numeric',
-                              })}
+                              {formatMonthYear(pilot.retirementDate)}
                             </span>
                           </div>
                         ))}
@@ -626,7 +631,7 @@ function AnalyticsPageContent() {
                 ) : (
                   <FileText className="h-4 w-4" aria-hidden="true" />
                 )}
-                Export Report
+                Export PDF
               </Button>
             </div>
           </div>

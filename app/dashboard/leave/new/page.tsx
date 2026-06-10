@@ -24,6 +24,7 @@ import {
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { PageHeader } from '@/components/layout/page-header'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -183,15 +184,14 @@ export default function NewLeaveRequestPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-2xl font-bold">Submit Leave Request</h2>
-          <p className="text-muted-foreground mt-1">Request time off from your duty roster</p>
-        </div>
-        <Link href="/dashboard/requests?tab=leave">
-          <Button variant="outline">← Back to Leave Requests</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Submit Leave Request"
+        description="Request time off from your duty roster"
+        breadcrumbs={[
+          { label: 'Leave Requests', href: '/dashboard/requests?tab=leave' },
+          { label: 'Submit Leave Request' },
+        ]}
+      />
 
       {/* Form Card */}
       <Card className="p-6">

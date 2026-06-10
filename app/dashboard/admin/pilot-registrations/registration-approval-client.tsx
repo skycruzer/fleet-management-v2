@@ -22,6 +22,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useConfirm } from '@/components/ui/confirm-dialog'
+import { CheckCircle2 } from 'lucide-react'
 
 interface PendingRegistration {
   id: string
@@ -44,6 +46,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   // Sync state with props when initialRegistrations changes
   useEffect(() => {
@@ -51,6 +54,20 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
   }, [initialRegistrations])
 
   const handleApproval = async (registrationId: string, approved: boolean) => {
+    if (!approved) {
+      const registration = registrations.find((reg) => reg.id === registrationId)
+      const pilotName = registration
+        ? `${registration.first_name} ${registration.last_name}`
+        : 'this pilot'
+      const confirmed = await confirm({
+        title: 'Deny Registration',
+        description: `Permanently deny the portal registration for ${pilotName}? This action cannot be undone.`,
+        confirmText: 'Deny Registration',
+        variant: 'destructive',
+      })
+      if (!confirmed) return
+    }
+
     setIsProcessing(registrationId)
     setError(null)
     setSuccess(null)
@@ -105,7 +122,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4 text-6xl">✅</div>
+            <CheckCircle2 className="text-success mb-4 h-12 w-12" aria-hidden="true" />
             <p className="text-foreground text-lg font-medium">All caught up!</p>
             <p className="text-muted-foreground mt-2 text-sm">
               There are no pending pilot registrations to review.
@@ -118,6 +135,9 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Deny Confirmation Dialog */}
+      <ConfirmDialog />
+
       {/* Success/Error Messages */}
       {success && (
         <Alert className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)]">
@@ -183,7 +203,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                         <Button
                           size="sm"
                           variant="default"
-                          className="bg-[var(--color-success-600)] text-white hover:bg-[var(--color-success-700)]"
+                          className="bg-success text-success-foreground hover:bg-success/90"
                           onClick={() => handleApproval(registration.id, true)}
                           disabled={isProcessing === registration.id}
                         >

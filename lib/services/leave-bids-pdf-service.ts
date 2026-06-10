@@ -310,7 +310,7 @@ export async function generateLeaveBidsPDF(
     doc.setFontSize(8)
     doc.setTextColor(128, 128, 128)
     doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' })
-    doc.text('Air Niugini - B767 Fleet Management', 14, pageHeight - 10)
+    doc.text('Air Niugini - Fleet Office', 14, pageHeight - 10)
   }
 
   // Convert to Buffer

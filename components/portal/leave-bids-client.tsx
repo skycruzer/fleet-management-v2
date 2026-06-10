@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/utils/date-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -119,27 +120,6 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
     router.refresh()
   }
 
-  const getStatusBadge = (status: string | null) => {
-    const statusMap: Record<
-      string,
-      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }
-    > = {
-      PENDING: { variant: 'secondary', icon: <Clock className="mr-1 h-3 w-3" /> },
-      PROCESSING: { variant: 'default', icon: <Clock className="mr-1 h-3 w-3" /> },
-      APPROVED: { variant: 'default', icon: <CheckCircle2 className="mr-1 h-3 w-3" /> },
-      REJECTED: { variant: 'destructive', icon: <XCircle className="mr-1 h-3 w-3" /> },
-    }
-
-    const config = statusMap[status || 'PENDING'] || statusMap.PENDING
-
-    return (
-      <Badge variant={config.variant} className="flex w-fit items-center">
-        {config.icon}
-        {status || 'PENDING'}
-      </Badge>
-    )
-  }
-
   const handleCancelBid = async () => {
     if (!selectedBid) return
 
@@ -180,16 +160,16 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
     }
   }
 
-  const handleExportPDF = async (bid: LeaveBid) => {
+  const handleDownloadSummary = async (bid: LeaveBid) => {
     try {
       const response = await fetch(`/api/portal/leave-bids/export?bidId=${bid.id}`)
 
       if (!response.ok) {
-        setError('Failed to generate PDF')
+        setError('Failed to generate summary')
         return
       }
 
-      // Download PDF
+      // Download HTML summary
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -200,9 +180,95 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch {
-      setError('Failed to download PDF')
+      setError('Failed to download summary')
     }
   }
+
+  // Shared option rendering for both the desktop table cell and mobile card
+  const renderBidOptions = (bid: EnrichedLeaveBid) => (
+    <div className="space-y-1.5">
+      {(bid.enriched_options || [])
+        .sort((a, b) => (a.priority || 0) - (b.priority || 0))
+        .map((opt, idx) => {
+          const start = opt.start_date
+            ? new Date(opt.start_date).toLocaleDateString('en-AU', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })
+            : '?'
+          const end = opt.end_date
+            ? new Date(opt.end_date).toLocaleDateString('en-AU', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })
+            : '?'
+          const days =
+            opt.start_date && opt.end_date
+              ? Math.ceil(
+                  (new Date(opt.end_date).getTime() - new Date(opt.start_date).getTime()) /
+                    (1000 * 60 * 60 * 24)
+                ) + 1
+              : 0
+          const ordinal =
+            opt.priority === 1
+              ? '1st'
+              : opt.priority === 2
+                ? '2nd'
+                : opt.priority === 3
+                  ? '3rd'
+                  : `${opt.priority}th`
+          const optStatus = bid.option_statuses?.[String(idx)]
+          return (
+            <div key={idx} className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="outline" className="shrink-0 text-[10px]">
+                {ordinal}
+              </Badge>
+              <span className="text-xs">
+                {start} – {end}
+                <span className="text-muted-foreground ml-1">({days}d)</span>
+              </span>
+              {opt.roster_periods && opt.roster_periods.length > 0 && (
+                <>
+                  <span className="text-muted-foreground text-[10px]">→</span>
+                  {opt.roster_periods.map((rp) => (
+                    <Badge
+                      key={rp}
+                      variant="outline"
+                      className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-1.5 py-0 text-[10px] text-[var(--color-info)]"
+                    >
+                      {rp}
+                    </Badge>
+                  ))}
+                </>
+              )}
+              {optStatus === 'APPROVED' && (
+                <Badge
+                  variant="outline"
+                  className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[10px] text-[var(--color-status-low)]"
+                >
+                  <CheckCircle2 className="mr-0.5 h-2.5 w-2.5" />
+                  Approved
+                </Badge>
+              )}
+              {optStatus === 'REJECTED' && (
+                <Badge
+                  variant="outline"
+                  className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[10px] text-[var(--color-status-high)]"
+                >
+                  <XCircle className="mr-0.5 h-2.5 w-2.5" />
+                  Rejected
+                </Badge>
+              )}
+            </div>
+          )
+        })}
+      {(!bid.enriched_options || bid.enriched_options.length === 0) && (
+        <span className="text-muted-foreground text-xs">No preferences</span>
+      )}
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -293,144 +359,127 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Roster Period</TableHead>
-                  <TableHead>Preferences, Date Ranges & Roster Periods</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile stacked cards (< md) */}
+              <div className="space-y-3 md:hidden">
                 {bids.map((bid) => (
-                  <TableRow key={bid.id}>
-                    <TableCell className="font-medium">{bid.roster_period_code}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1.5">
-                        {(bid.enriched_options || [])
-                          .sort((a, b) => (a.priority || 0) - (b.priority || 0))
-                          .map((opt, idx) => {
-                            const start = opt.start_date
-                              ? new Date(opt.start_date).toLocaleDateString('en-AU', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })
-                              : '?'
-                            const end = opt.end_date
-                              ? new Date(opt.end_date).toLocaleDateString('en-AU', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })
-                              : '?'
-                            const days =
-                              opt.start_date && opt.end_date
-                                ? Math.ceil(
-                                    (new Date(opt.end_date).getTime() -
-                                      new Date(opt.start_date).getTime()) /
-                                      (1000 * 60 * 60 * 24)
-                                  ) + 1
-                                : 0
-                            const ordinal =
-                              opt.priority === 1
-                                ? '1st'
-                                : opt.priority === 2
-                                  ? '2nd'
-                                  : opt.priority === 3
-                                    ? '3rd'
-                                    : `${opt.priority}th`
-                            const optStatus = bid.option_statuses?.[String(idx)]
-                            return (
-                              <div key={idx} className="flex flex-wrap items-center gap-1.5">
-                                <Badge variant="outline" className="shrink-0 text-[10px]">
-                                  {ordinal}
-                                </Badge>
-                                <span className="text-xs">
-                                  {start} – {end}
-                                  <span className="text-muted-foreground ml-1">({days}d)</span>
-                                </span>
-                                {opt.roster_periods && opt.roster_periods.length > 0 && (
-                                  <>
-                                    <span className="text-muted-foreground text-[10px]">→</span>
-                                    {opt.roster_periods.map((rp) => (
-                                      <Badge
-                                        key={rp}
-                                        variant="outline"
-                                        className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-1.5 py-0 text-[10px] text-[var(--color-info)]"
-                                      >
-                                        {rp}
-                                      </Badge>
-                                    ))}
-                                  </>
-                                )}
-                                {optStatus === 'APPROVED' && (
-                                  <Badge
-                                    variant="outline"
-                                    className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[10px] text-[var(--color-status-low)]"
-                                  >
-                                    <CheckCircle2 className="mr-0.5 h-2.5 w-2.5" />
-                                    Approved
-                                  </Badge>
-                                )}
-                                {optStatus === 'REJECTED' && (
-                                  <Badge
-                                    variant="outline"
-                                    className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[10px] text-[var(--color-status-high)]"
-                                  >
-                                    <XCircle className="mr-0.5 h-2.5 w-2.5" />
-                                    Rejected
-                                  </Badge>
-                                )}
-                              </div>
-                            )
-                          })}
-                        {(!bid.enriched_options || bid.enriched_options.length === 0) && (
-                          <span className="text-muted-foreground text-xs">No preferences</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                    <TableCell>{bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleExportPDF(bid)}>
-                          <Download className="mr-1 h-3 w-3" />
-                          PDF
-                        </Button>
-                        {bid.status === 'PENDING' && (
-                          <>
+                  <div key={bid.id} className="rounded-lg border p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium">{bid.roster_period_code}</span>
+                      <StatusBadge status={bid.status || 'PENDING'} size="sm" />
+                    </div>
+                    <div className="mt-3">{renderBidOptions(bid)}</div>
+                    <div className="mt-3 flex items-baseline justify-between gap-4 text-sm">
+                      <span className="text-muted-foreground">Submitted</span>
+                      <span className="font-medium">
+                        {bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <Button
+                        variant="outline"
+                        className="h-11 w-full"
+                        onClick={() => handleDownloadSummary(bid)}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Summary
+                      </Button>
+                      {bid.status === 'PENDING' && (
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="outline"
+                            className="h-11 w-full"
+                            onClick={() => {
+                              setSelectedBid(bid)
+                              setShowEditDialog(true)
+                            }}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            className="h-11 w-full"
+                            onClick={() => {
+                              setSelectedBid(bid)
+                              setShowCancelDialog(true)
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table (md+) */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Roster Period</TableHead>
+                      <TableHead>Preferences, Date Ranges & Roster Periods</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bids.map((bid) => (
+                      <TableRow key={bid.id}>
+                        <TableCell className="font-medium">{bid.roster_period_code}</TableCell>
+                        <TableCell>{renderBidOptions(bid)}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={bid.status || 'PENDING'} size="sm" />
+                        </TableCell>
+                        <TableCell>
+                          {bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => {
-                                setSelectedBid(bid)
-                                setShowEditDialog(true)
-                              }}
+                              onClick={() => handleDownloadSummary(bid)}
                             >
-                              <Pencil className="mr-1 h-3 w-3" />
-                              Edit
+                              <Download className="mr-1 h-3 w-3" />
+                              Summary
                             </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedBid(bid)
-                                setShowCancelDialog(true)
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                            {bid.status === 'PENDING' && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedBid(bid)
+                                    setShowEditDialog(true)
+                                  }}
+                                >
+                                  <Pencil className="mr-1 h-3 w-3" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedBid(bid)
+                                    setShowCancelDialog(true)
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

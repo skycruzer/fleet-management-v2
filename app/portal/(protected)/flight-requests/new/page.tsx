@@ -18,6 +18,7 @@ import {
   type FlightRequestInput,
 } from '@/lib/validations/flight-request-schema'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plane, AlertCircle, CheckCircle } from 'lucide-react'
+import { format } from 'date-fns'
 import Link from 'next/link'
 import { PageHead } from '@/components/ui/page-head'
 
@@ -72,6 +74,14 @@ export default function NewFlightRequestPage() {
       reason: '',
     },
   })
+
+  const watchStartDate = form.watch('start_date')
+
+  // Today in YYYY-MM-DD (local time) for native date-picker min constraints
+  const today = format(new Date(), 'yyyy-MM-dd')
+
+  // Warn about unsaved changes when navigating away
+  useFormUnsavedChanges(form, { skipWarning: isLoading || success })
 
   const onSubmit = async (data: FlightRequestInput) => {
     setIsLoading(true)
@@ -212,6 +222,7 @@ export default function NewFlightRequestPage() {
                 <Input
                   id="start_date"
                   type="date"
+                  min={today}
                   {...form.register('start_date')}
                   disabled={isLoading}
                 />
@@ -231,6 +242,7 @@ export default function NewFlightRequestPage() {
                 <Input
                   id="end_date"
                   type="date"
+                  min={watchStartDate || today}
                   {...form.register('end_date')}
                   disabled={isLoading}
                 />

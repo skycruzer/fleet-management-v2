@@ -5,6 +5,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CalendarDays, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/layout/page-header'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/confirm-dialog'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -188,10 +189,10 @@ export function PublishedRostersClient({
     <TooltipProvider>
       <div className="space-y-6">
         {/* Page Header */}
-        <div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">Published Rosters</h1>
-          <p className="text-muted-foreground">View and manage B767 published crew rosters</p>
-        </div>
+        <PageHeader
+          title="Published Rosters"
+          description="View and manage B767 published crew rosters"
+        />
 
         {/* Period Navigator */}
         <RosterPeriodNavigator

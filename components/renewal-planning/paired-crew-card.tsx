@@ -73,7 +73,7 @@ export function PairedCrewCard({
         <div className="space-y-2">
           {/* Captain */}
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-warning-muted)] text-xs font-bold text-[var(--color-warning-400)]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-warning-muted)] text-xs font-bold text-[var(--color-warning-muted-foreground)]">
               CPT
             </div>
             <div className="flex-1">

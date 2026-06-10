@@ -62,13 +62,13 @@ export function RosterPeriodCard() {
 
   return (
     <Card className="bg-card overflow-hidden border-2 border-[var(--color-info-border)]">
-      {/* Header */}
+      {/* Header — primary-foreground so dark mode (white primary) stays legible */}
       <div className="bg-primary px-6 py-4">
         <div className="flex items-center gap-3">
-          <CalendarDays className="h-6 w-6 text-white" />
+          <CalendarDays className="text-primary-foreground h-6 w-6" />
           <div>
-            <h3 className="text-lg font-bold text-white">Roster Period</h3>
-            <p className="text-xs text-white/70">28-day operational cycle</p>
+            <h3 className="text-primary-foreground text-lg font-bold">Roster Period</h3>
+            <p className="text-primary-foreground/70 text-xs">28-day operational cycle</p>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@ export function RosterPeriodCard() {
 
         {/* Next Period */}
         <div className="rounded-lg border-2 border-dashed border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-5">
-          <Badge className="mb-3 bg-[var(--color-info)] text-white hover:bg-[var(--color-info)]">
+          <Badge variant="info" className="mb-3">
             NEXT UP
           </Badge>
           <h4 className="text-foreground mb-2 text-3xl font-black">{nextPeriod.code}</h4>

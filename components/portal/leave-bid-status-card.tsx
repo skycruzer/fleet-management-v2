@@ -8,8 +8,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calendar, CheckCircle, Clock, XCircle, AlertTriangle } from 'lucide-react'
+import { Calendar, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface LeaveBidOption {
@@ -23,6 +24,8 @@ interface LeaveBid {
   id: string
   roster_period_code: string
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | null
+  /** Per-option review results, keyed by priority-sorted option index ("0", "1", ...) */
+  option_statuses?: Record<string, string> | null
   created_at: string | null
   updated_at: string | null
   leave_bid_options: LeaveBidOption[]
@@ -61,51 +64,10 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
 
   const getStatusBadge = (status: string | null) => {
     if (!status) return null
-
-    switch (status) {
-      case 'PENDING':
-        return (
-          <Badge
-            variant="outline"
-            className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
-          >
-            <Clock className="mr-1 h-3 w-3" />
-            Pending Review
-          </Badge>
-        )
-      case 'PROCESSING':
-        return (
-          <Badge
-            variant="outline"
-            className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]"
-          >
-            <Clock className="mr-1 h-3 w-3" />
-            Processing
-          </Badge>
-        )
-      case 'APPROVED':
-        return (
-          <Badge
-            variant="outline"
-            className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]"
-          >
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Approved
-          </Badge>
-        )
-      case 'REJECTED':
-        return (
-          <Badge
-            variant="outline"
-            className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]"
-          >
-            <XCircle className="mr-1 h-3 w-3" />
-            Not Approved
-          </Badge>
-        )
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
+    // Keep the friendlier "Pending Review" wording; all other labels come from StatusBadge
+    return (
+      <StatusBadge status={status} label={status === 'PENDING' ? 'Pending Review' : undefined} />
+    )
   }
 
   const getPriorityLabel = (priority: number): string => {
@@ -180,7 +142,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                 <div className="space-y-3">
                   {bid.leave_bid_options
                     .sort((a, b) => a.priority - b.priority)
-                    .map((option) => (
+                    .map((option, optionIndex) => (
                       <div
                         key={option.id}
                         className="border-border bg-muted flex items-center justify-between rounded-md border p-3"
@@ -208,10 +170,15 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                           </div>
                         </div>
 
-                        {/* Status Indicator for Approved Bids */}
-                        {bid.status === 'APPROVED' && option.priority === 1 && (
-                          <Badge className="bg-[var(--color-status-low)]">Selected</Badge>
-                        )}
+                        {/* Status Indicator for Approved Bids — real per-option
+                            result when available; first preference as fallback for
+                            bids reviewed before per-option statuses existed */}
+                        {bid.status === 'APPROVED' &&
+                          (bid.option_statuses && Object.keys(bid.option_statuses).length > 0
+                            ? bid.option_statuses[String(optionIndex)] === 'APPROVED'
+                            : option.priority === 1) && (
+                            <Badge className="bg-[var(--color-status-low)]">Selected</Badge>
+                          )}
                       </div>
                     ))}
                 </div>
