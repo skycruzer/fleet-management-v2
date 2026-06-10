@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Fleet Office — Design Direction Options</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+    background: #f0f0f3; color: #1c2024; padding: 48px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 { font-size: 24px; letter-spacing: -0.02em; margin-bottom: 6px; }
+  p.lead { color: #60646c; margin-bottom: 32px; max-width: 640px; font-size: 14.5px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; max-width: 1400px; }
+  a.card {
+    display: block; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+    padding: 20px 22px; text-decoration: none; color: inherit;
+  }
+  a.card:hover { border-color: #999; }
+  .swatches { display: flex; gap: 6px; margin-bottom: 14px; }
+  .sw { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); }
+  h2 { font-size: 15.5px; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .ref { font-size: 12px; color: #60646c; font-weight: 500; margin-bottom: 8px; }
+  .desc { font-size: 13.5px; color: #555860; }
+</style>
+</head>
+<body>
+  <h1>Fleet Office — design direction options</h1>
+  <p class="lead">Same dashboard, same data, five design languages. Open each full-screen and judge how the daily compliance workflow would feel in it.</p>
+  <div class="grid">
+    <a class="card" href="option-1-linear-dark.html">
+      <div class="swatches"><span class="sw" style="background:#0e0f11"></span><span class="sw" style="background:#16171a"></span><span class="sw" style="background:#5e6ad2"></span><span class="sw" style="background:#e8e9eb"></span></div>
+      <h2>1 · Linear Dark</h2>
+      <div class="ref">Reference: Linear</div>
+      <div class="desc">Dark-first, compact density, muted indigo accent, quiet status pills. Feels like a focused ops tool; best for long screen sessions.</div>
+    </a>
+    <a class="card" href="option-2-enterprise-blue.html">
+      <div class="swatches"><span class="sw" style="background:#f6f8fa"></span><span class="sw" style="background:#ffffff"></span><span class="sw" style="background:#2563eb"></span><span class="sw" style="background:#1a1f36"></span></div>
+      <h2>2 · Enterprise Blue</h2>
+      <div class="ref">Reference: Stripe Dashboard</div>
+      <div class="desc">Light, classic SaaS. Blue accent for primary actions, soft card shadows, generous radius. The safest, most familiar choice for mixed audiences.</div>
+    </a>
+    <a class="card" href="option-3-geist-console.html">
+      <div class="swatches"><span class="sw" style="background:#fafafa"></span><span class="sw" style="background:#ffffff"></span><span class="sw" style="background:#000000"></span><span class="sw" style="background:#666666"></span></div>
+      <h2>3 · Geist Console</h2>
+      <div class="ref">Reference: Vercel</div>
+      <div class="desc">Sharp corners, mono numerals and dates, bordered KPI strip, outlined status chips. Closest evolution of your current Expo monochrome system.</div>
+    </a>
+    <a class="card" href="option-4-warm-professional.html">
+      <div class="swatches"><span class="sw" style="background:#f7f6f3"></span><span class="sw" style="background:#fffefb"></span><span class="sw" style="background:#37352f"></span><span class="sw" style="background:#0f766e"></span></div>
+      <h2>4 · Warm Professional</h2>
+      <div class="ref">Reference: Mercury / Notion</div>
+      <div class="desc">Warm ivory canvas, borderless sidebar, larger page titles, dot-status badges. Calm and approachable; lowest visual fatigue.</div>
+    </a>
+    <a class="card" href="option-5-ops-navy.html">
+      <div class="swatches"><span class="sw" style="background:#0d2240"></span><span class="sw" style="background:#f4f5f7"></span><span class="sw" style="background:#0b5cad"></span><span class="sw" style="background:#c9372c"></span></div>
+      <h2>5 · Operations Navy</h2>
+      <div class="ref">Reference: Atlassian / enterprise ops</div>
+      <div class="desc">Navy sidebar, color-coded KPI top borders, uppercase status labels, link-styled names. Most "serious enterprise system" of the five.</div>
+    </a>
+  </div>
+</body>
+</html>
