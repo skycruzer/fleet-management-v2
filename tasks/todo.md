@@ -1,3 +1,21 @@
+# Phases 2 & 3 + security fixes (2026-06-10)
+
+- [x] PR #61 — security: admin auth added to tasks/[id] GET, retirement/timeline,
+      renewal-planning/roster-period/[period], dashboard/flight-requests/[id] PATCH;
+      leave-bid review staleness fixed. verifyPilotSession consolidation deferred to
+      auth-unification (changes authenticated-user set).
+- [x] PR #62 — Phase 2: cache-invalidation-helper is single source of truth; 8 new domain
+      helpers; 37 files switched to non-blocking helper calls; dead revalidation paths
+      dropped (incl. /dashboard/leave-bids\* — bid mutations were revalidating nothing).
+- [ ] PR #63 — Phase 3: certification rule dedup (EXCLUDED_CATEGORIES single export,
+      getCertificationStatusKey, countCertificationsByStatus, checksInWindow closure).
+      Full service merges NOT needed per analysis: pilot-leave already delegates to
+      unified-request-service; leave-bid vs request semantics differ by design.
+- [ ] USER ACTION (from Security P0 list): SUPABASE_SERVICE_ROLE_KEY rotation still
+      pending (Supabase dashboard → rotate JWT secret → update Vercel env vars + redeploy)
+
+---
+
 # Phase 1b — Factory migration of all standard routes (2026-06-10, branch refactor/route-factory-phase-1b)
 
 - [x] Wave 1: 36 routes (pilots, certifications, tasks, requests, leave-requests, users,
