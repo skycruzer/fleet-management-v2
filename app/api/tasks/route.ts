@@ -15,6 +15,7 @@ import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { revalidatePath } from 'next/cache'
+import { invalidateTaskCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/tasks
@@ -196,7 +197,9 @@ export const POST = createAdminRoute(
       }
 
       // Revalidate cache for all affected paths
-      revalidatePath('/dashboard/tasks')
+      await invalidateTaskCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
       revalidatePath('/dashboard')
 
       return NextResponse.json({ success: true, data: result.data }, { status: 201 })

@@ -8,9 +8,9 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { updateSystemSetting } from '@/lib/services/admin-service'
+import { invalidateSettingsCaches } from '@/lib/services/cache-invalidation-helper'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -37,8 +37,9 @@ export const PUT = createAdminRoute(
       const updated = await updateSystemSetting(id, { value, description })
 
       // Revalidate all pages that use settings (especially app_title)
-      revalidatePath('/dashboard', 'layout')
-      revalidatePath('/dashboard/admin/settings', 'page')
+      await invalidateSettingsCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,

@@ -30,7 +30,7 @@ import {
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import { statusFromErrorCode } from '@/lib/utils/api-response-helper'
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * POST - Submit Leave Request
@@ -81,11 +81,9 @@ export const POST = createPilotRoute(
     }
 
     // Revalidate cache for all affected paths
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave-requests')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,
@@ -199,11 +197,9 @@ export const PUT = createPilotRoute(
     }
 
     // Revalidate cache for all affected paths
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave-requests')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,
@@ -278,11 +274,9 @@ export const DELETE = createPilotRoute(
     }
 
     // Revalidate cache for all affected paths
-    revalidatePath('/portal/leave-requests')
-    revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave-requests')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({
       success: true,

@@ -16,7 +16,7 @@ import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 interface BulkActionRequest {
   request_ids: string[]
@@ -106,7 +106,9 @@ export const POST = createAdminRoute(
       })
 
       // Revalidate paths
-      revalidatePath('/dashboard/requests')
+      await invalidateRequestCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,

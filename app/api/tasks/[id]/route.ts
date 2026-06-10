@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { invalidateTaskCaches } from '@/lib/services/cache-invalidation-helper'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
@@ -122,9 +122,9 @@ export const PATCH = createAdminRoute(
     }
 
     // Revalidate all affected paths to clear Next.js cache
-    revalidatePath('/dashboard/tasks')
-    revalidatePath(`/dashboard/tasks/${taskId}`)
-    revalidatePath(`/dashboard/tasks/${taskId}/edit`)
+    await invalidateTaskCaches(taskId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   }
@@ -182,7 +182,9 @@ export const DELETE = createAdminRoute(
     }
 
     // Revalidate tasks list after deletion
-    revalidatePath('/dashboard/tasks')
+    await invalidateTaskCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json(
       { success: true, message: 'Task deleted successfully' },

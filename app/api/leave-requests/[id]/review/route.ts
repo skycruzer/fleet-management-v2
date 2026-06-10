@@ -21,7 +21,7 @@ import { createNotification } from '@/lib/services/notification-service'
 import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 // Request schema validation
 const ReviewSchema = z.object({
@@ -95,10 +95,9 @@ export const PUT = createAdminRoute(
     }
 
     // Revalidate cache for all affected paths
-    revalidatePath('/dashboard/leave')
-    revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard')
-    revalidatePath('/portal/leave-requests')
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json(
       {

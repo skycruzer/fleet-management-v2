@@ -97,11 +97,22 @@ export async function invalidateAfterMutation(
 }
 
 /**
- * Invalidate request-related caches
+ * Invalidate request-related caches (unified leave + flight requests).
+ * Covers both admin and portal surfaces; pass requestId for the detail page.
  */
-export async function invalidateRequestCaches(): Promise<void> {
+export async function invalidateRequestCaches(requestId?: string): Promise<void> {
+  const paths = [
+    '/dashboard',
+    '/dashboard/requests',
+    '/portal/dashboard',
+    '/portal/leave-requests',
+    '/portal/flight-requests',
+  ]
+  if (requestId) {
+    paths.push(`/dashboard/requests/${requestId}`)
+  }
   await invalidateAfterMutation({
-    paths: ['/dashboard/requests', '/dashboard/leave/approve', '/dashboard/leave/calendar'],
+    paths,
     tags: ['requests', 'leave-requests', 'pilot-requests'],
   })
 }
@@ -111,7 +122,7 @@ export async function invalidateRequestCaches(): Promise<void> {
  * Includes Redis analytics cache invalidation
  */
 export async function invalidatePilotCaches(pilotId?: string): Promise<void> {
-  const paths = ['/dashboard/pilots']
+  const paths = ['/dashboard', '/dashboard/pilots']
   if (pilotId) {
     paths.push(`/dashboard/pilots/${pilotId}`)
   }
@@ -133,10 +144,21 @@ export async function invalidatePilotCaches(pilotId?: string): Promise<void> {
  * Invalidate certification-related caches
  * Includes Redis analytics cache invalidation
  */
-export async function invalidateCertificationCaches(): Promise<void> {
+export async function invalidateCertificationCaches(options?: {
+  certificationId?: string
+  pilotId?: string
+}): Promise<void> {
+  const paths = ['/dashboard', '/dashboard/certifications']
+  if (options?.certificationId) {
+    paths.push(`/dashboard/certifications/${options.certificationId}`)
+  }
+  if (options?.pilotId) {
+    paths.push(`/dashboard/pilots/${options.pilotId}`)
+  }
+
   // Invalidate Next.js caches
   await invalidateAfterMutation({
-    paths: ['/dashboard/certifications'],
+    paths,
     tags: ['certifications', 'pilot-checks'],
   })
 
@@ -152,14 +174,11 @@ export async function invalidateCertificationCaches(): Promise<void> {
  * Includes Redis analytics cache invalidation
  */
 export async function invalidateLeaveCaches(): Promise<void> {
-  // Invalidate Next.js caches
+  // Invalidate Next.js caches. The old /dashboard/leave* paths are gone —
+  // they 308-redirect to /dashboard/requests (next.config.js), so
+  // revalidating them was a no-op.
   await invalidateAfterMutation({
-    paths: [
-      '/dashboard/requests',
-      '/dashboard/leave',
-      '/dashboard/leave/approve',
-      '/dashboard/leave/calendar',
-    ],
+    paths: ['/dashboard', '/dashboard/requests', '/portal/dashboard', '/portal/leave-requests'],
     tags: ['requests', 'leave-requests', 'pilot-requests'],
   })
 
@@ -176,4 +195,100 @@ export async function invalidateLeaveCaches(): Promise<void> {
  */
 export async function invalidateAllAnalyticsCaches(): Promise<void> {
   await invalidateAnalyticsCaches()
+}
+
+/**
+ * Invalidate task-related caches
+ */
+export async function invalidateTaskCaches(taskId?: string): Promise<void> {
+  const paths = ['/dashboard/tasks']
+  if (taskId) {
+    paths.push(`/dashboard/tasks/${taskId}`, `/dashboard/tasks/${taskId}/edit`)
+  }
+  await invalidateAfterMutation({ paths, tags: ['tasks'] })
+}
+
+/**
+ * Invalidate feedback-related caches (admin + portal surfaces)
+ */
+export async function invalidateFeedbackCaches(feedbackId?: string): Promise<void> {
+  const paths = ['/dashboard/feedback', '/portal/feedback']
+  if (feedbackId) {
+    paths.push(`/dashboard/feedback/${feedbackId}`)
+  }
+  await invalidateAfterMutation({ paths, tags: ['feedback'] })
+}
+
+/**
+ * Invalidate disciplinary-matter caches
+ */
+export async function invalidateDisciplinaryCaches(matterId?: string): Promise<void> {
+  const paths = ['/dashboard/disciplinary']
+  if (matterId) {
+    paths.push(`/dashboard/disciplinary/${matterId}`)
+  }
+  await invalidateAfterMutation({ paths, tags: ['disciplinary'] })
+}
+
+/**
+ * Invalidate settings caches. Settings (e.g. app title, retirement age) feed
+ * the dashboard layout, so '/dashboard' is invalidated layout-scoped to bust
+ * every nested dashboard page, not just the index.
+ */
+export async function invalidateSettingsCaches(): Promise<void> {
+  try {
+    revalidatePath('/dashboard', 'layout')
+  } catch {
+    // Path might not exist, continue
+  }
+  await invalidateAfterMutation({
+    paths: ['/dashboard/settings', '/dashboard/admin/settings'],
+    tags: ['settings'],
+  })
+}
+
+/**
+ * Invalidate published-roster caches (admin + portal surfaces)
+ */
+export async function invalidatePublishedRosterCaches(): Promise<void> {
+  await invalidateAfterMutation({
+    paths: ['/dashboard/published-rosters', '/portal/dashboard'],
+    tags: ['published-rosters'],
+  })
+}
+
+/**
+ * Invalidate renewal-planning caches
+ */
+export async function invalidateRenewalPlanningCaches(): Promise<void> {
+  await invalidateAfterMutation({
+    paths: ['/dashboard/renewal-planning', '/dashboard/renewal-planning/calendar'],
+    tags: ['renewal-planning'],
+  })
+}
+
+/**
+ * Invalidate leave-bid caches (admin + portal surfaces).
+ * Distinct from invalidateLeaveCaches: bids are the annual bidding system.
+ */
+export async function invalidateLeaveBidCaches(): Promise<void> {
+  await invalidateAfterMutation({
+    paths: [
+      '/dashboard/admin/leave-bids',
+      '/portal/leave-bids',
+      '/portal/dashboard',
+      '/portal/leave-requests',
+    ],
+    tags: ['leave-bids'],
+  })
+}
+
+/**
+ * Invalidate notification caches (bell dropdown + notifications pages)
+ */
+export async function invalidateNotificationCaches(): Promise<void> {
+  await invalidateAfterMutation({
+    paths: ['/dashboard/notifications', '/portal/notifications'],
+    tags: ['notifications'],
+  })
 }

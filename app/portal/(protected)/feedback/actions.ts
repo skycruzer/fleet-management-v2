@@ -8,6 +8,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
+import { invalidateFeedbackCaches } from '@/lib/services/cache-invalidation-helper'
 import { submitFeedback } from '@/lib/services/pilot-feedback-service'
 import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
 
@@ -44,8 +45,11 @@ export async function submitFeedbackAction(formData: FormData) {
       }
     }
 
-    // Revalidate portal pages to show new feedback
-    revalidatePath('/portal/feedback')
+    // Invalidate feedback caches (admin + portal surfaces), non-blocking
+    await invalidateFeedbackCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+    // Portal dashboard is not covered by the feedback helper — keep explicit
     revalidatePath('/portal/dashboard')
 
     return {

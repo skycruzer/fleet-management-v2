@@ -6,7 +6,7 @@
  * Server actions for pilot flight request submission.
  */
 
-import { revalidatePath } from 'next/cache'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 export async function submitFlightRequestAction(formData: FormData) {
   try {
@@ -44,9 +44,10 @@ export async function submitFlightRequestAction(formData: FormData) {
       return { success: false, error: result.error || 'Failed to submit flight request' }
     }
 
-    // Revalidate the portal pages to show updated data
-    revalidatePath('/portal/flight-requests')
-    revalidatePath('/portal/dashboard')
+    // Invalidate request caches (admin + portal surfaces), non-blocking
+    await invalidateRequestCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return { success: true, data: result.data }
   } catch (error) {

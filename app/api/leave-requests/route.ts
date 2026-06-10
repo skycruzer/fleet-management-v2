@@ -14,12 +14,12 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import {
   getAllLeaveRequests,
   createLeaveRequestServer,
   checkLeaveConflicts,
 } from '@/lib/services/unified-request-service'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -118,9 +118,9 @@ export const POST = createAdminRoute(
       }
 
       // Revalidate cache for leave request pages
-      revalidatePath('/dashboard/leave-requests')
-      revalidatePath('/dashboard/requests')
-      revalidatePath('/dashboard')
+      await invalidateRequestCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json(
         {

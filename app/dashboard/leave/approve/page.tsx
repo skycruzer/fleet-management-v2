@@ -8,10 +8,10 @@
 
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { invalidateLeaveCaches } from '@/lib/services/cache-invalidation-helper'
 import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -269,8 +269,9 @@ export default async function LeaveApprovalPage() {
                     throw new Error(error.message)
                   }
 
-                  revalidatePath('/dashboard/leave/approve')
-                  revalidatePath('/dashboard/requests')
+                  await invalidateLeaveCaches().catch((error) =>
+                    console.error('Cache invalidation failed (non-blocking):', error)
+                  )
                 }}
                 onDeny={async (id) => {
                   'use server'
@@ -296,8 +297,9 @@ export default async function LeaveApprovalPage() {
                     throw new Error(error.message)
                   }
 
-                  revalidatePath('/dashboard/leave/approve')
-                  revalidatePath('/dashboard/requests')
+                  await invalidateLeaveCaches().catch((error) =>
+                    console.error('Cache invalidation failed (non-blocking):', error)
+                  )
                 }}
               />
             ))}

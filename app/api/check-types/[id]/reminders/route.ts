@@ -15,6 +15,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { invalidateCertificationCaches } from '@/lib/services/cache-invalidation-helper'
 import { validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -90,7 +91,11 @@ export const PUT = createAdminRoute(
         return NextResponse.json({ success: false, error: 'Check type not found' }, { status: 404 })
       }
 
-      // Revalidate admin pages
+      // Reminder settings affect certification display — invalidate cert caches (non-blocking)
+      await invalidateCertificationCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
+      // Admin pages not covered by the certification helper
       revalidatePath('/dashboard/admin/check-types')
       revalidatePath('/dashboard/admin')
 

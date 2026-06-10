@@ -9,10 +9,10 @@
  */
 
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
 import {
   getPilotDocumentSignedUrl,
   deletePilotDocument,
@@ -71,7 +71,9 @@ export const DELETE = createAdminRoute(
       return NextResponse.json({ success: false, error: result.error }, { status })
     }
 
-    revalidatePath(`/dashboard/pilots/${pilotId}`)
+    await invalidatePilotCaches(pilotId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true, message: 'Document deleted' })
   }
