@@ -49,7 +49,7 @@ export function PilotBottomNav() {
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 transition-colors motion-reduce:transition-none',
-                active ? 'text-foreground' : 'text-muted-foreground'
+                active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />

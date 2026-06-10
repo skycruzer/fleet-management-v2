@@ -160,7 +160,7 @@ export function PilotPortalSidebar({
       header={
         <>
           {/* Logo Header */}
-          <div className="border-border bg-card flex h-12 items-center gap-2 border-b px-4">
+          <div className="flex h-12 items-center gap-2 border-b border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] px-4">
             <Image
               src="/images/air-niugini-logo.jpg"
               alt="Air Niugini"
@@ -169,27 +169,35 @@ export function PilotPortalSidebar({
               className="h-7 w-7 flex-shrink-0 rounded-md object-contain"
             />
             <div className="min-w-0 flex-1">
-              <h1 className="text-foreground truncate text-sm font-semibold">B767 Pilot Portal</h1>
-              <p className="text-muted-foreground truncate text-[10px]">Air Niugini Ltd</p>
+              <h1 className="truncate text-sm font-semibold text-white">B767 Pilot Portal</h1>
+              <p className="truncate text-[10px] text-[var(--color-sidebar-muted)]">
+                Air Niugini Ltd
+              </p>
             </div>
-            {showNotificationBell && <NotificationBell />}
+            {showNotificationBell && (
+              <NotificationBell className="text-[var(--color-sidebar-foreground)] hover:bg-white/10 hover:text-white" />
+            )}
           </div>
 
           {/* Pilot Info */}
           {(pilotName || pilotRank) && (
-            <div className="border-border bg-card border-b p-4">
+            <div className="border-b border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] p-4">
               <div className="flex items-center gap-3">
-                <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                  <UserCircle className="h-7 w-7 text-[var(--color-info)]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-sidebar-active)]">
+                  <UserCircle className="h-7 w-7 text-white" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-foreground font-semibold">{pilotName || 'Welcome'}</p>
-                  {pilotRank && <p className="text-muted-foreground text-sm">{pilotRank}</p>}
+                  <p className="font-semibold text-white">{pilotName || 'Welcome'}</p>
+                  {pilotRank && (
+                    <p className="text-sm text-[var(--color-sidebar-foreground)]">{pilotRank}</p>
+                  )}
                   {employeeId && (
-                    <p className="text-muted-foreground mt-1 text-xs">ID: {employeeId}</p>
+                    <p className="mt-1 text-xs text-[var(--color-sidebar-muted)]">
+                      ID: {employeeId}
+                    </p>
                   )}
                   {mounted && email && (
-                    <p className="text-muted-foreground truncate text-xs">{email}</p>
+                    <p className="truncate text-xs text-[var(--color-sidebar-muted)]">{email}</p>
                   )}
                 </div>
               </div>
@@ -198,10 +206,10 @@ export function PilotPortalSidebar({
         </>
       }
       footer={
-        <div className="border-border bg-card border-t p-4">
+        <div className="border-t border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] p-4">
           <button
             onClick={handleLogout}
-            className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive/50 flex min-h-[44px] w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-md border border-[rgba(201,55,44,0.5)] px-4 py-3 text-sm font-medium text-[#ffb3ac] transition-colors hover:border-[rgba(201,55,44,0.8)] hover:bg-[rgba(201,55,44,0.2)]"
           >
             <LogOut className="h-5 w-5" />
             <span>Sign Out</span>
@@ -220,30 +228,32 @@ export function PilotPortalSidebar({
           >
             <div
               className={cn(
-                'group relative flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
+                'group relative flex min-h-[44px] items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors',
                 isActive('/portal/dashboard')
-                  ? 'bg-muted text-foreground'
-                  : 'text-foreground hover:bg-muted'
+                  ? 'bg-[var(--color-sidebar-active)] text-white'
+                  : 'text-[var(--color-sidebar-foreground)] hover:bg-white/5 hover:text-white'
               )}
             >
               <LayoutDashboard
                 className={cn(
                   'h-5 w-5 transition-colors',
                   isActive('/portal/dashboard')
-                    ? 'text-foreground'
-                    : 'text-muted-foreground group-hover:text-foreground'
+                    ? 'text-white'
+                    : 'text-[var(--color-sidebar-muted)] group-hover:text-white'
                 )}
               />
 
               <div className="flex-1">
                 <div className="font-semibold">Dashboard</div>
-                <div className="text-muted-foreground text-sm">Home &amp; overview</div>
+                <div className="text-sm text-[var(--color-sidebar-muted)]">
+                  Home &amp; overview
+                </div>
               </div>
             </div>
           </Link>
 
           {/* Divider */}
-          <div className="border-border my-3 border-t"></div>
+          <div className="my-3 border-t border-[var(--color-sidebar-border)]"></div>
 
           {/* Navigation Items */}
           {navigationItems.map((item) => {
@@ -259,16 +269,18 @@ export function PilotPortalSidebar({
               >
                 <div
                   className={cn(
-                    'group relative flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    active ? 'bg-muted text-foreground' : 'text-foreground hover:bg-muted'
+                    'group relative flex min-h-[44px] items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-[var(--color-sidebar-active)] text-white'
+                      : 'text-[var(--color-sidebar-foreground)] hover:bg-white/5 hover:text-white'
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-5 w-5 transition-colors',
                       active
-                        ? 'text-foreground'
-                        : 'text-muted-foreground group-hover:text-foreground'
+                        ? 'text-white'
+                        : 'text-[var(--color-sidebar-muted)] group-hover:text-white'
                     )}
                   />
 
@@ -318,7 +330,7 @@ export function PilotPortalSidebar({
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent
           side="left"
-          className="bg-background w-60 p-0 lg:hidden"
+          className="w-60 border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] p-0 lg:hidden"
           aria-describedby={undefined}
         >
           <SheetTitle className="sr-only">Pilot portal navigation</SheetTitle>
@@ -328,7 +340,7 @@ export function PilotPortalSidebar({
 
       {/* Desktop Sidebar — static, no entrance animation */}
       <aside
-        className="border-border bg-background fixed top-0 left-0 z-[var(--z-sidebar)] hidden h-screen w-60 border-r lg:block"
+        className="fixed top-0 left-0 z-[var(--z-sidebar)] hidden h-screen w-60 border-r border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] lg:block"
         role="navigation"
         aria-label="Pilot portal navigation"
       >

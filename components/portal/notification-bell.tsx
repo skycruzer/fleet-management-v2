@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { formatDistanceToNow } from 'date-fns'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
+import { cn } from '@/lib/utils'
 
 interface Notification {
   id: string
@@ -29,7 +30,7 @@ interface Notification {
   created_at: string
 }
 
-export function NotificationBell() {
+export function NotificationBell({ className }: { className?: string }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
@@ -106,7 +107,7 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="icon-lg"
-          className="relative h-11 w-11"
+          className={cn('relative h-11 w-11', className)}
           aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
