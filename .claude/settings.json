@@ -1,24 +1,11 @@
 {
   "permissions": {
-    "allow": ["Bash", "Edit"]
+    "allow": [
+      "Bash",
+      "Edit"
+    ]
   },
   "enableAllProjectMcpServers": true,
-  "extraKnownMarketplaces": {
-    "dotai": {
-      "source": {
-        "source": "github",
-        "repo": "udecode/dotai"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "ctx@dotai": true,
-    "dotai@dotai": true,
-    "fb@dotai": true,
-    "notification@dotai": true,
-    "media@dotai": true,
-    "codex@dotai": true
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -31,5 +18,6 @@
         ]
       }
     ]
-  }
+  },
+  "extraKnownMarketplaces": {}
 }
