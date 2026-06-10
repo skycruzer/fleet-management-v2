@@ -1,22 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/tasks/[id]
  *
  * Fetch a single task by ID with full relations.
  *
+ * @updated 2026-06-10 - SECURITY: added admin authentication (was unauthenticated)
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id: taskId } = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getTaskById',
+    endpoint: '/api/tasks/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const taskId = params.id
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -35,15 +40,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Task GET [id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getTaskById',
-      taskId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PATCH /api/tasks/[id]

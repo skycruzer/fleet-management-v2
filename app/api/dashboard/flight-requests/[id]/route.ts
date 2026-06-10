@@ -7,20 +7,15 @@
  * CSRF PROTECTION: PATCH method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 2.2.0
- * @updated 2026-06-10 - GET migrated to createAdminRoute factory (PATCH kept as-is:
- *          it has no route-level admin auth check and relies on service-layer auth
- *          inside reviewFlightRequest, so the factory would change its auth behavior)
+ * @version 3.0.0
+ * @updated 2026-06-10 - SECURITY: PATCH migrated to createAdminRoute, adding the
+ *          route-level admin auth gate it was missing (previously service-layer only)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getFlightRequestById, reviewFlightRequest } from '@/lib/services/flight-request-service'
 import { FlightRequestReviewSchema } from '@/lib/validations/flight-request-schema'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { getClientIp } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/dashboard/flight-requests/[id]
@@ -78,30 +73,13 @@ export const GET = createAdminRoute(
  *
  * @spec 001-missing-core-features (US3, T059)
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // Rate Limiting
-    const identifier = getClientIp(request)
-    const { success, limit, reset } = await mutationRateLimit.limit(identifier)
-    if (!success) {
-      const retryAfter = Math.ceil((reset - Date.now()) / 1000)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Too many requests',
-          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-        },
-        { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
-      )
-    }
-
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
-
-    const { id: requestId } = await params
+export const PATCH = createAdminRoute(
+  {
+    operation: 'reviewFlightRequest',
+    endpoint: '/api/dashboard/flight-requests/[id]',
+  },
+  async ({ request, params }) => {
+    const requestId = params.id
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -141,12 +119,5 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Admin flight-requests PATCH [id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'reviewFlightRequest',
-      requestId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

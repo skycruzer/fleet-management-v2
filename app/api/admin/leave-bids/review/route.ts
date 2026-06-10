@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
+import { invalidateLeaveCaches } from '@/lib/services/cache-invalidation-helper'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
@@ -35,6 +36,8 @@ export const POST = createAdminRoute(
     endpoint: '/api/admin/leave-bids/review',
     roles: [UserRole.ADMIN, UserRole.MANAGER],
     schema: ReviewBidSchema,
+    invalidateCache: invalidateLeaveCaches,
+    revalidate: ['/dashboard/admin/leave-bids', '/portal/leave-bids'],
   },
   async ({ body }) => {
     const { bidId, action } = body
