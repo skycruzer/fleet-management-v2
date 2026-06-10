@@ -6,14 +6,19 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getPilotRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ pilotId: string }> }
 ) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) return unauthorizedResponse()
+
     const { pilotId } = await params
 
     const renewals = await getPilotRenewalPlan(pilotId)

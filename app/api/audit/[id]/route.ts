@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 /**
  * GET /api/audit/[id]
@@ -12,6 +14,9 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  */
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) return unauthorizedResponse()
+
     const auditId = params.id
 
     // Validate UUID format

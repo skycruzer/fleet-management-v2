@@ -5,11 +5,16 @@
  * @route GET /api/retirement/impact
  */
 
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getCrewImpactAnalysis } from '@/lib/services/retirement-forecast-service'
+import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) return unauthorizedResponse()
+
     const { searchParams } = new URL(request.url)
     const retirementAge = parseInt(searchParams.get('retirementAge') || '65')
 
