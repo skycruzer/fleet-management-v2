@@ -7,14 +7,16 @@
  * CSRF PROTECTION: PATCH method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 2.2.0
+ * @updated 2026-06-10 - GET migrated to createAdminRoute factory (PATCH kept as-is:
+ *          it has no route-level admin auth check and relies on service-layer auth
+ *          inside reviewFlightRequest, so the factory would change its auth behavior)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getFlightRequestById, reviewFlightRequest } from '@/lib/services/flight-request-service'
 import { FlightRequestReviewSchema } from '@/lib/validations/flight-request-schema'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
@@ -27,15 +29,14 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  *
  * @spec 001-missing-core-features (US3, T059)
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // Authentication check - admin only
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { id: requestId } = await params
+export const GET = createAdminRoute(
+  {
+    operation: 'getFlightRequestById',
+    endpoint: '/api/dashboard/flight-requests/[id]',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const { id: requestId } = params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -60,15 +61,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Admin flight-requests GET [id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getFlightRequestById',
-      requestId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PATCH /api/dashboard/flight-requests/[id]

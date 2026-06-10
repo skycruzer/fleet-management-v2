@@ -3,10 +3,12 @@
  * Handles listing all check types for certification forms
  *
  * Updated: 2025-10-22 - Refactored to use service layer pattern
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { NextResponse } from 'next/server'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getCheckTypes } from '@/lib/services/check-types-service'
 
 /**
@@ -18,47 +20,47 @@ import { getCheckTypes } from '@/lib/services/check-types-service'
  *
  * Uses service layer for database operations (check-types-service.ts)
  */
-export async function GET(_request: NextRequest) {
-  try {
-    // Check authentication (supports both Supabase Auth and admin-session cookie)
-    const auth = await getAuthenticatedAdmin()
+export const GET = createAdminRoute(
+  {
+    operation: 'getCheckTypes',
+    endpoint: '/api/check-types',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    try {
+      // Fetch check types using service layer
+      const checkTypes = await getCheckTypes()
 
-    if (!auth.authenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+      // Check if categories should be included
+      const includeCategories = request.nextUrl.searchParams.get('includeCategories') === 'true'
 
-    // Fetch check types using service layer
-    const checkTypes = await getCheckTypes()
+      // Extract distinct categories if requested
+      let categories: string[] = []
+      if (includeCategories) {
+        const categorySet = new Set<string>()
+        checkTypes?.forEach((ct) => {
+          if (ct.category) {
+            categorySet.add(ct.category)
+          }
+        })
+        categories = Array.from(categorySet).sort()
+      }
 
-    // Check if categories should be included
-    const includeCategories = _request.nextUrl.searchParams.get('includeCategories') === 'true'
-
-    // Extract distinct categories if requested
-    let categories: string[] = []
-    if (includeCategories) {
-      const categorySet = new Set<string>()
-      checkTypes?.forEach((ct) => {
-        if (ct.category) {
-          categorySet.add(ct.category)
-        }
+      return NextResponse.json({
+        success: true,
+        data: checkTypes,
+        count: checkTypes?.length || 0,
+        ...(includeCategories && { categories }),
       })
-      categories = Array.from(categorySet).sort()
+    } catch (error) {
+      console.error('GET /api/check-types error:', error)
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to fetch check types',
+        },
+        { status: 500 }
+      )
     }
-
-    return NextResponse.json({
-      success: true,
-      data: checkTypes,
-      count: checkTypes?.length || 0,
-      ...(includeCategories && { categories }),
-    })
-  } catch (error) {
-    console.error('GET /api/check-types error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch check types',
-      },
-      { status: 500 }
-    )
   }
-}
+)

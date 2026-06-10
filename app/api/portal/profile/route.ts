@@ -1,36 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server'
+/**
+ * Pilot Portal Profile API Route
+ *
+ * GET /api/portal/profile - Fetch pilot personal information
+ * PUT /api/portal/profile - Update pilot contact information
+ *
+ * Security pipeline (CSRF, auth, rate limiting) via createPilotRoute.
+ * GET is intentionally not rate limited — shared office IPs would pool
+ * into one bucket (see lib/rate-limit.ts prefix note).
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createPilotRoute factory
+ */
+
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotRequirements } from '@/lib/services/admin-service'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { createPilotRoute } from '@/lib/middleware/create-api-route'
 
 /**
  * GET /api/portal/profile
  * Fetch pilot personal information for the authenticated pilot
  */
-export async function GET() {
-  try {
+export const GET = createPilotRoute(
+  {
+    operation: 'getPilotProfile',
+    endpoint: '/api/portal/profile',
+    rateLimit: false,
+  },
+  async ({ pilot }) => {
     const supabase = createAdminClient()
-
-    // Get current pilot
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      console.error('Profile auth failed:', {
-        timestamp: new Date().toISOString(),
-        message:
-          'getCurrentPilot() returned null - check pilot-session cookie and session validity',
-      })
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unauthorized - pilot not found',
-        },
-        { status: 401 }
-      )
-    }
 
     // Get requirements first
     const requirements = await getPilotRequirements()
@@ -103,35 +102,20 @@ export async function GET() {
         },
       })
     }
-  } catch (error: any) {
-    console.error('Profile API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotProfile',
-      endpoint: '/api/portal/profile',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PUT /api/portal/profile
  * Update pilot contact information (email & phone number)
  */
-export const PUT = withRateLimit(async (request: NextRequest) => {
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
+export const PUT = createPilotRoute(
+  {
+    operation: 'updatePilotProfile',
+    endpoint: '/api/portal/profile',
+  },
+  async ({ request, pilot }) => {
     const supabase = createAdminClient()
-
-    const pilot = await getCurrentPilot()
-    if (!pilot) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - pilot not found' },
-        { status: 401 }
-      )
-    }
 
     const body = await request.json()
     const { email, phone_number } = body
@@ -182,12 +166,5 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
     revalidatePath('/portal/dashboard')
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error('Profile update API error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updatePilotProfile',
-      endpoint: '/api/portal/profile',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

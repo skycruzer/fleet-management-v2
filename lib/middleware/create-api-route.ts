@@ -48,7 +48,11 @@ import { requireRole, type UserRole } from '@/lib/middleware/authorization-middl
 import { readRateLimit, mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
-import { unauthorizedResponse, validationErrorResponse } from '@/lib/utils/api-response-helper'
+import {
+  unauthorizedResponse,
+  validationErrorResponse,
+  forbiddenResponse,
+} from '@/lib/utils/api-response-helper'
 
 /**
  * Minimal structural interface satisfied by both real Upstash limiters and
@@ -90,6 +94,8 @@ interface CommonRouteOptions<TBody> {
 export interface AdminRouteOptions<TBody> extends CommonRouteOptions<TBody> {
   /** Roles enforced via requireRole(); omit when getAuthenticatedAdmin() suffices */
   roles?: UserRole[]
+  /** Custom 403 message replacing requireRole's default error (always status 403) */
+  forbiddenMessage?: string
 }
 
 export type PilotRouteOptions<TBody> = CommonRouteOptions<TBody>
@@ -281,6 +287,9 @@ export function createAdminRoute<TBody = undefined>(
       if (options.roles?.length) {
         const roleCheck = await requireRole(request, options.roles)
         if (!roleCheck.authorized) {
+          if (options.forbiddenMessage) {
+            return forbiddenResponse(options.forbiddenMessage)
+          }
           return NextResponse.json(
             { success: false, error: roleCheck.error || 'Insufficient permissions' },
             { status: roleCheck.statusCode || 403 }

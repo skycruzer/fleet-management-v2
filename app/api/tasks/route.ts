@@ -3,20 +3,17 @@
  *
  * Developer: Maurice Rondeau
  *
- * CSRF PROTECTION: POST method requires CSRF token validation
- * RATE LIMITING: 20 mutation requests per minute per IP
+ * Security pipeline (CSRF, auth, rate limiting) via createAdminRoute.
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 3.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getTasks, createTask, getTaskStats } from '@/lib/services/task-service'
 import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -40,103 +37,105 @@ import { revalidatePath } from 'next/cache'
  *
  * @spec 001-missing-core-features (US5, T080)
  */
-export async function GET(_request: NextRequest) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getTasks',
+    endpoint: '/api/tasks',
+    rateLimit: false,
+  },
+  async ({ request }) => {
+    try {
+      const searchParams = request.nextUrl.searchParams
 
-    const searchParams = _request.nextUrl.searchParams
+      // Check if stats are requested
+      const includeStats = searchParams.get('stats') === 'true'
 
-    // Check if stats are requested
-    const includeStats = searchParams.get('stats') === 'true'
+      if (includeStats) {
+        const filters: any = {}
 
-    if (includeStats) {
+        if (searchParams.get('assignedTo')) {
+          filters.assignedTo = searchParams.get('assignedTo')
+        }
+        if (searchParams.get('createdBy')) {
+          filters.createdBy = searchParams.get('createdBy')
+        }
+        if (searchParams.get('categoryId')) {
+          filters.categoryId = searchParams.get('categoryId')
+        }
+
+        const statsResult = await getTaskStats(filters)
+
+        if (!statsResult.success) {
+          return NextResponse.json({ success: false, error: statsResult.error }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, data: statsResult.data }, { status: 200 })
+      }
+
+      // Build filters from query params
       const filters: any = {}
+
+      if (searchParams.get('status')) {
+        filters.status = searchParams.get('status')
+      }
+
+      if (searchParams.get('priority')) {
+        filters.priority = searchParams.get('priority')
+      }
 
       if (searchParams.get('assignedTo')) {
         filters.assignedTo = searchParams.get('assignedTo')
       }
+
       if (searchParams.get('createdBy')) {
         filters.createdBy = searchParams.get('createdBy')
       }
+
       if (searchParams.get('categoryId')) {
         filters.categoryId = searchParams.get('categoryId')
       }
 
-      const statsResult = await getTaskStats(filters)
-
-      if (!statsResult.success) {
-        return NextResponse.json({ success: false, error: statsResult.error }, { status: 500 })
+      if (searchParams.get('relatedPilotId')) {
+        filters.relatedPilotId = searchParams.get('relatedPilotId')
       }
 
-      return NextResponse.json({ success: true, data: statsResult.data }, { status: 200 })
+      if (searchParams.get('relatedMatterId')) {
+        filters.relatedMatterId = searchParams.get('relatedMatterId')
+      }
+
+      if (searchParams.get('dueDateFrom')) {
+        filters.dueDateFrom = new Date(searchParams.get('dueDateFrom')!)
+      }
+
+      if (searchParams.get('dueDateTo')) {
+        filters.dueDateTo = new Date(searchParams.get('dueDateTo')!)
+      }
+
+      if (searchParams.get('searchQuery')) {
+        filters.searchQuery = searchParams.get('searchQuery')
+      }
+
+      if (searchParams.get('includeCompleted') === 'false') {
+        filters.includeCompleted = false
+      }
+
+      // Fetch tasks
+      const result = await getTasks(filters)
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, data: result.data }, { status: 200 })
+    } catch (error) {
+      console.error('Tasks GET error:', error)
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
+        { status: 500 }
+      )
     }
-
-    // Build filters from query params
-    const filters: any = {}
-
-    if (searchParams.get('status')) {
-      filters.status = searchParams.get('status')
-    }
-
-    if (searchParams.get('priority')) {
-      filters.priority = searchParams.get('priority')
-    }
-
-    if (searchParams.get('assignedTo')) {
-      filters.assignedTo = searchParams.get('assignedTo')
-    }
-
-    if (searchParams.get('createdBy')) {
-      filters.createdBy = searchParams.get('createdBy')
-    }
-
-    if (searchParams.get('categoryId')) {
-      filters.categoryId = searchParams.get('categoryId')
-    }
-
-    if (searchParams.get('relatedPilotId')) {
-      filters.relatedPilotId = searchParams.get('relatedPilotId')
-    }
-
-    if (searchParams.get('relatedMatterId')) {
-      filters.relatedMatterId = searchParams.get('relatedMatterId')
-    }
-
-    if (searchParams.get('dueDateFrom')) {
-      filters.dueDateFrom = new Date(searchParams.get('dueDateFrom')!)
-    }
-
-    if (searchParams.get('dueDateTo')) {
-      filters.dueDateTo = new Date(searchParams.get('dueDateTo')!)
-    }
-
-    if (searchParams.get('searchQuery')) {
-      filters.searchQuery = searchParams.get('searchQuery')
-    }
-
-    if (searchParams.get('includeCompleted') === 'false') {
-      filters.includeCompleted = false
-    }
-
-    // Fetch tasks
-    const result = await getTasks(filters)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Tasks GET error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
   }
-}
+)
 
 /**
  * POST /api/tasks
@@ -160,59 +159,53 @@ export async function GET(_request: NextRequest) {
  *
  * @spec 001-missing-core-features (US5, T080)
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // Authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+export const POST = createAdminRoute(
+  {
+    operation: 'createTask',
+    endpoint: '/api/tasks',
+  },
+  async ({ request, admin }) => {
+    try {
+      const body = await request.json()
 
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
+      // Validate input
+      const validation = TaskInputSchema.safeParse(body)
 
-    const body = await request.json()
+      if (!validation.success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Invalid input. Please check your request.',
+            details: validation.error.flatten().fieldErrors,
+          },
+          { status: 400 }
+        )
+      }
 
-    // Validate input
-    const validation = TaskInputSchema.safeParse(body)
+      // Create task (convert null to undefined for Supabase compatibility)
+      const taskData = {
+        ...validation.data,
+        assigned_to: validation.data.assigned_to ?? undefined,
+        due_date: validation.data.due_date ?? undefined,
+        created_by: admin.userId,
+      }
+      const result = await createTask(taskData)
 
-    if (!validation.success) {
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      // Revalidate cache for all affected paths
+      revalidatePath('/dashboard/tasks')
+      revalidatePath('/dashboard')
+
+      return NextResponse.json({ success: true, data: result.data }, { status: 201 })
+    } catch (error) {
+      console.error('Task POST error:', error)
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid input. Please check your request.',
-          details: validation.error.flatten().fieldErrors,
-        },
-        { status: 400 }
+        { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
+        { status: 500 }
       )
     }
-
-    // Create task (convert null to undefined for Supabase compatibility)
-    const taskData = {
-      ...validation.data,
-      assigned_to: validation.data.assigned_to ?? undefined,
-      due_date: validation.data.due_date ?? undefined,
-      created_by: auth.userId!,
-    }
-    const result = await createTask(taskData)
-
-    if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
-    }
-
-    // Revalidate cache for all affected paths
-    revalidatePath('/dashboard/tasks')
-    revalidatePath('/dashboard')
-
-    return NextResponse.json({ success: true, data: result.data }, { status: 201 })
-  } catch (error) {
-    console.error('Task POST error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
   }
-})
+)

@@ -8,47 +8,51 @@
  * rendering empty backlog.
  *
  * Author: Maurice Rondeau
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { NextResponse } from 'next/server'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getSidebarBadgeCounts } from '@/lib/services/sidebar-badges-service'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
-export async function GET() {
-  const auth = await getAuthenticatedAdmin()
-  if (!auth.authenticated) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-  }
-
-  try {
-    const result = await getSidebarBadgeCounts()
-    const counts = {
-      pendingRequests: result.pendingRequests,
-      expiredCertifications: result.expiredCertifications,
-      expiringCertifications: result.expiringCertifications,
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: counts,
-        ...(result.degraded ? { degraded: true, failures: result.failures } : {}),
-      },
-      {
-        headers: {
-          'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
-        },
+export const GET = createAdminRoute(
+  {
+    operation: 'getSidebarBadgeCounts',
+    endpoint: '/api/sidebar-badges',
+    rateLimit: false,
+  },
+  async () => {
+    try {
+      const result = await getSidebarBadgeCounts()
+      const counts = {
+        pendingRequests: result.pendingRequests,
+        expiredCertifications: result.expiredCertifications,
+        expiringCertifications: result.expiringCertifications,
       }
-    )
-  } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'sidebar-badges:GET',
-      severity: ErrorSeverity.MEDIUM,
-    })
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch badge counts' },
-      { status: 500 }
-    )
+
+      return NextResponse.json(
+        {
+          success: true,
+          data: counts,
+          ...(result.degraded ? { degraded: true, failures: result.failures } : {}),
+        },
+        {
+          headers: {
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+          },
+        }
+      )
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'sidebar-badges:GET',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch badge counts' },
+        { status: 500 }
+      )
+    }
   }
-}
+)

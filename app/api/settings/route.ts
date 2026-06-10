@@ -6,41 +6,44 @@
  *
  * HTTP CACHING: Public, 2 hour cache (settings rarely change)
  *
- * @version 2.1.0
+ * @version 2.2.0
  * @updated 2026-01 - Added HTTP Cache-Control headers
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { NextResponse } from 'next/server'
 import { getSystemSettings } from '@/lib/services/admin-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getCacheHeadersPreset } from '@/lib/utils/cache-headers'
 
-export async function GET() {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+export const GET = createAdminRoute(
+  {
+    operation: 'getSystemSettings',
+    endpoint: '/api/settings',
+    rateLimit: false,
+  },
+  async () => {
+    try {
+      const settings = await getSystemSettings()
+
+      return NextResponse.json(
+        {
+          success: true,
+          data: settings,
+        },
+        {
+          headers: getCacheHeadersPreset('REFERENCE_DATA'),
+        }
+      )
+    } catch (error) {
+      console.error('Error fetching settings:', error)
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to fetch settings',
+        },
+        { status: 500 }
+      )
     }
-
-    const settings = await getSystemSettings()
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: settings,
-      },
-      {
-        headers: getCacheHeadersPreset('REFERENCE_DATA'),
-      }
-    )
-  } catch (error) {
-    console.error('Error fetching settings:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch settings',
-      },
-      { status: 500 }
-    )
   }
-}
+)

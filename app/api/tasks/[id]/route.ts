@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
@@ -68,35 +67,19 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  * - tags: Updated tags array
  * - checklist_items: Updated checklist items
  *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @version 3.0.0
  * @updated 2025-11-04 - Critical security hardening
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function PATCH(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const { id: taskId } = await params
+export const PATCH = createAdminRoute(
+  {
+    operation: 'updateTask',
+    endpoint: '/api/tasks/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params }) => {
+    const taskId = params.id
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -105,7 +88,7 @@ export async function PATCH(
     }
 
     // AUTHORIZATION: Verify user owns this task or is Admin/Manager
-    const authResult = await verifyRequestAuthorization(_request, ResourceType.TASK, taskId)
+    const authResult = await verifyRequestAuthorization(request, ResourceType.TASK, taskId)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -114,7 +97,7 @@ export async function PATCH(
       )
     }
 
-    const body = await _request.json()
+    const body = await request.json()
 
     // Validate input
     const validation = TaskUpdateSchema.safeParse(body)
@@ -146,15 +129,8 @@ export async function PATCH(
     revalidatePath(`/dashboard/tasks/${taskId}/edit`)
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
-  } catch (error) {
-    console.error('Task PATCH error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateTask',
-      taskId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * DELETE /api/tasks/[id]
@@ -164,35 +140,19 @@ export async function PATCH(
  * Query parameters:
  * - deleteSubtasks: Set to 'true' to delete subtasks as well (default: false)
  *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @version 3.0.0
  * @updated 2025-11-04 - Critical security hardening
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // SECURITY: Validate CSRF token
-    const csrfError = await validateCsrf(_request)
-    if (csrfError) return csrfError
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const { id: taskId } = await params
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deleteTask',
+    endpoint: '/api/tasks/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+  },
+  async ({ request, params }) => {
+    const taskId = params.id
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -201,7 +161,7 @@ export async function DELETE(
     }
 
     // AUTHORIZATION: Verify user owns this task or is Admin/Manager
-    const authResult = await verifyRequestAuthorization(_request, ResourceType.TASK, taskId)
+    const authResult = await verifyRequestAuthorization(request, ResourceType.TASK, taskId)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -211,7 +171,7 @@ export async function DELETE(
     }
 
     // Check if deleteSubtasks flag is set
-    const deleteSubtasks = _request.nextUrl.searchParams.get('deleteSubtasks') === 'true'
+    const deleteSubtasks = request.nextUrl.searchParams.get('deleteSubtasks') === 'true'
 
     // Delete task
     const result = await deleteTask(taskId, deleteSubtasks)
@@ -230,12 +190,5 @@ export async function DELETE(
       { success: true, message: 'Task deleted successfully' },
       { status: 200 }
     )
-  } catch (error) {
-    console.error('Task DELETE error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'deleteTask',
-      taskId: (await params).id,
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

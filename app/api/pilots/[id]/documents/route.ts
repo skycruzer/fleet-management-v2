@@ -3,17 +3,17 @@
  * GET:  List documents attached to a pilot
  * POST: Upload a document (multipart/form-data) — admin/manager only
  *
- * Security pipeline: CSRF → admin auth → rate limit → role check → service.
+ * Security pipeline (CSRF → admin auth → rate limit → role check) via createAdminRoute.
  * Files are validated server-side via magic bytes (PDF, DOC, DOCX, JPG, PNG; 10MB).
+ *
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
-import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { validateFileWithMagicBytes } from '@/lib/services/file-upload-service'
 import { isValidFileSize } from '@/lib/validations/file-upload-schema'
 import {
@@ -22,20 +22,17 @@ import {
   PILOT_DOCUMENT_TYPES,
   type PilotDocumentType,
 } from '@/lib/services/pilot-document-service'
-import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 export const dynamic = 'force-dynamic'
 
-interface RouteContext {
-  params: Promise<{ id: string }>
-}
-
-export async function GET(_request: NextRequest, context: RouteContext) {
-  try {
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) return unauthorizedResponse()
-
-    const { id: pilotId } = await context.params
+export const GET = createAdminRoute(
+  {
+    operation: 'listPilotDocuments',
+    endpoint: '/api/pilots/[id]/documents',
+    rateLimit: false,
+  },
+  async ({ params }) => {
+    const pilotId = params.id
 
     const result = await listPilotDocuments(pilotId)
     if (!result.success) {
@@ -43,40 +40,18 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     }
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error) {
-    const sanitized = sanitizeError(error, {
-      operation: 'listPilotDocuments',
-      endpoint: '/api/pilots/[id]/documents',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
-export async function POST(request: NextRequest, context: RouteContext) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) return unauthorizedResponse()
-
-    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
-    if (!rateLimitSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-    if (!roleCheck.authorized) {
-      return NextResponse.json(
-        { success: false, error: roleCheck.error || 'Insufficient permissions' },
-        { status: roleCheck.statusCode || 403 }
-      )
-    }
-
-    const { id: pilotId } = await context.params
+export const POST = createAdminRoute(
+  {
+    operation: 'uploadPilotDocument',
+    endpoint: '/api/pilots/[id]/documents',
+    rateLimit: { limiter: authRateLimit, by: 'user' },
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+  },
+  async ({ request, params, admin }) => {
+    const pilotId = params.id
 
     let formData: FormData
     try {
@@ -136,8 +111,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       mimeType: magicValidation.detectedType || file.type,
       documentType,
       title,
-      uploadedBy: auth.userId ?? undefined,
-      uploadedByName: auth.email ?? undefined,
+      uploadedBy: admin.userId,
+      uploadedByName: admin.email ?? undefined,
     })
 
     if (!result.success) {
@@ -151,11 +126,5 @@ export async function POST(request: NextRequest, context: RouteContext) {
       data: result.data,
       message: 'Document uploaded successfully',
     })
-  } catch (error) {
-    const sanitized = sanitizeError(error, {
-      operation: 'uploadPilotDocument',
-      endpoint: '/api/pilots/[id]/documents',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)

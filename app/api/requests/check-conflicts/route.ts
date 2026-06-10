@@ -4,14 +4,16 @@
  * POST /api/requests/check-conflicts
  * - Real-time conflict detection for pilot requests
  *
+ * Security pipeline (CSRF, auth) via createAdminRoute.
+ *
  * @author Maurice Rondeau
  * @date November 11, 2025
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 
@@ -38,60 +40,58 @@ type ConflictCheckRequest = z.infer<typeof ConflictCheckSchema>
 // API Handler
 // ============================================================================
 
-export async function POST(request: NextRequest) {
-  try {
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
+export const POST = createAdminRoute(
+  {
+    operation: 'checkConflicts',
+    endpoint: '/api/requests/check-conflicts',
+    rateLimit: false,
+  },
+  async ({ request, admin }) => {
+    try {
+      const body = await request.json()
+      const validated = ConflictCheckSchema.parse(body)
 
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-    }
+      logger.info('Checking conflicts for request', {
+        userId: admin.userId,
+        pilotId: validated.pilotId,
+        startDate: validated.startDate,
+      })
 
-    const body = await request.json()
-    const validated = ConflictCheckSchema.parse(body)
+      const requestInput: RequestInput = {
+        pilotId: validated.pilotId,
+        rank: validated.rank,
+        startDate: validated.startDate,
+        endDate: validated.endDate || null,
+        requestCategory: validated.requestCategory,
+        requestId: validated.requestId,
+      }
 
-    logger.info('Checking conflicts for request', {
-      userId: auth.userId!,
-      pilotId: validated.pilotId,
-      startDate: validated.startDate,
-    })
+      const result = await detectConflicts(requestInput)
 
-    const requestInput: RequestInput = {
-      pilotId: validated.pilotId,
-      rank: validated.rank,
-      startDate: validated.startDate,
-      endDate: validated.endDate || null,
-      requestCategory: validated.requestCategory,
-      requestId: validated.requestId,
-    }
+      return NextResponse.json({
+        success: true,
+        data: result,
+      })
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Validation failed',
+            details: error.issues,
+          },
+          { status: 400 }
+        )
+      }
 
-    const result = await detectConflicts(requestInput)
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-    })
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
+      logger.error('Conflict check API error', { error })
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation failed',
-          details: error.issues,
+          error: error.message || 'Internal server error',
         },
-        { status: 400 }
+        { status: 500 }
       )
     }
-
-    logger.error('Conflict check API error', { error })
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Internal server error',
-      },
-      { status: 500 }
-    )
   }
-}
+)

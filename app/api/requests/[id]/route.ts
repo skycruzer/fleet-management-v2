@@ -9,10 +9,13 @@
  * PATCH /api/requests/[id] - Update request status
  * DELETE /api/requests/[id] - Delete request
  *
- * @version 1.0.0
+ * Security pipeline (CSRF, auth, rate limiting, roles) via createAdminRoute.
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import {
   getPilotRequestById,
   updateRequestStatus,
@@ -24,40 +27,23 @@ import {
   RequestUpdateSchema,
   RequestStatusUpdateSchema,
 } from '@/lib/validations/request-update-schema'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { authRateLimit, getClientIp } from '@/lib/rate-limit'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { revalidatePath } from 'next/cache'
 
 /**
  * GET /api/requests/[id]
  * Get single pilot request by ID
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-
-  try {
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
+export const GET = createAdminRoute(
+  {
+    operation: 'getPilotRequestById',
+    endpoint: '/api/requests/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+  },
+  async ({ params }) => {
+    const { id } = params
 
     // Get request
     const result = await getPilotRequestById(id)
@@ -70,15 +56,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       success: true,
       data: result.data,
     })
-  } catch (error) {
-    console.error('GET /api/requests/[id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getPilotRequestById',
-      endpoint: '/api/requests/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * PATCH /api/requests/[id]
@@ -102,32 +81,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *   source_attachment_url?: string
  * }
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
+export const PATCH = createAdminRoute(
+  {
+    operation: 'updateRequest',
+    endpoint: '/api/requests/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+  },
+  async ({ request, params, admin }) => {
+    const { id } = params
 
     // Parse request body
     const body = await request.json()
@@ -151,7 +112,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { status, comments } = validationResult.data
 
       // Update request status
-      const result = await updateRequestStatus(id, status as WorkflowStatus, auth.userId!, comments)
+      const result = await updateRequestStatus(id, status as WorkflowStatus, admin.userId, comments)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
@@ -216,58 +177,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         message: 'Request updated successfully',
       })
     }
-  } catch (error) {
-    console.error('PATCH /api/requests/[id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'updateRequest',
-      endpoint: '/api/requests/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
 
 /**
  * DELETE /api/requests/[id]
  * Delete a pilot request
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params
-
-  try {
-    // CSRF validation
-    const csrfError = await validateCsrf(request)
-    if (csrfError) return csrfError
-
-    // Rate limiting
-    const identifier = getClientIp(request)
-    const { success } = await authRateLimit.limit(identifier)
-
-    if (!success) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
-        status: 401,
-      })
-    }
-
-    // Role-based authorization for destructive operation
-    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-    if (!roleCheck.authorized) {
-      return NextResponse.json(
-        { success: false, error: roleCheck.error || 'Insufficient permissions' },
-        { status: roleCheck.statusCode || 403 }
-      )
-    }
+export const DELETE = createAdminRoute(
+  {
+    operation: 'deleteRequest',
+    endpoint: '/api/requests/[id]',
+    rateLimit: { limiter: authRateLimit, by: 'ip' },
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+  },
+  async ({ params }) => {
+    const { id } = params
 
     // Delete request using service layer
     const result = await deletePilotRequest(id)
@@ -286,12 +211,5 @@ export async function DELETE(
       success: true,
       message: 'Request deleted successfully',
     })
-  } catch (error) {
-    console.error('DELETE /api/requests/[id] error:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'deleteRequest',
-      endpoint: '/api/requests/[id]',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+)
