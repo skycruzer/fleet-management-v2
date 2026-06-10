@@ -1575,6 +1575,170 @@ export type Database = {
           },
         ]
       }
+      pilot_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          pilot_id: string
+          request_id: string | null
+          storage_bucket: string
+          title: string | null
+          updated_at: string
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_type?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          pilot_id: string
+          request_id?: string | null
+          storage_bucket?: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          pilot_id?: string
+          request_id?: string | null
+          storage_bucket?: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'captain_qualifications_summary'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_checks_overview'
+            referencedColumns: ['pilot_id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_qualification_summary'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_report_summary'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_requirements_compliance'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_summary_optimized'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_user_mappings'
+            referencedColumns: ['pilot_id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_warning_history'
+            referencedColumns: ['pilot_id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilots'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilots_with_contract_details'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'active_flight_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'active_leave_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'active_rdo_sdo_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_requests_stale_data'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_documents_uploaded_by_fkey'
+            columns: ['uploaded_by']
+            isOneToOne: false
+            referencedRelation: 'an_users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       pilot_ebt_assessments: {
         Row: {
           aircraft_type: string | null

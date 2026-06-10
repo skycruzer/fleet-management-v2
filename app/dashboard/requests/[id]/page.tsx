@@ -10,7 +10,7 @@
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, User, Clock, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Clock, AlertTriangle, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -19,6 +19,13 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { redirect } from 'next/navigation'
 import { RequestDetailActions } from '@/components/requests/request-detail-actions'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import { listRequestDocuments } from '@/lib/services/pilot-document-service'
+import {
+  getSignedUrlForBucket,
+  extractPathFromSignedUrl,
+  MEDICAL_CERTIFICATES_BUCKET,
+} from '@/lib/services/file-upload-service'
+import { formatFileSize } from '@/lib/validations/file-upload-schema'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -57,6 +64,38 @@ export default async function RequestDetailPage({ params }: PageProps) {
 
   if (error || !request) {
     notFound()
+  }
+
+  // Attachments: pilot_documents rows linked to this request, with fresh
+  // signed URLs (stored URLs expire — always re-sign from the path).
+  const documentsResult = await listRequestDocuments(request.id)
+  const requestDocuments = documentsResult.success ? (documentsResult.data ?? []) : []
+  const attachments = (
+    await Promise.all(
+      requestDocuments.map(async (doc) => ({
+        id: doc.id,
+        name: doc.title || doc.file_name,
+        size: doc.file_size,
+        url: await getSignedUrlForBucket(doc.storage_bucket, doc.file_path),
+      }))
+    )
+  ).filter((a) => a.url)
+
+  // Legacy single-attachment fallback (pre-pilot_documents requests stored a
+  // signed URL in source_attachment_url; re-sign its extracted path)
+  if (attachments.length === 0 && request.source_attachment_url) {
+    const legacyPath = extractPathFromSignedUrl(request.source_attachment_url)
+    if (legacyPath) {
+      const url = await getSignedUrlForBucket(MEDICAL_CERTIFICATES_BUCKET, legacyPath)
+      if (url) {
+        attachments.push({
+          id: 'legacy',
+          name: legacyPath.split('/').pop() || 'Medical certificate',
+          size: 0,
+          url,
+        })
+      }
+    }
   }
 
   // Format functions
@@ -247,6 +286,42 @@ export default async function RequestDetailPage({ params }: PageProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{request.reason}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Attachments (sick-leave medical certificates, supporting documents) */}
+          {attachments.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Paperclip className="h-5 w-5" />
+                  Attachments
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {attachments.map((attachment) => (
+                    <li key={attachment.id} className="flex items-center gap-2 text-sm">
+                      <a
+                        href={attachment.url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary font-medium hover:underline"
+                      >
+                        {attachment.name}
+                      </a>
+                      {attachment.size > 0 && (
+                        <span className="text-muted-foreground text-xs">
+                          ({formatFileSize(attachment.size)})
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-muted-foreground mt-3 text-xs">
+                  Links expire after 1 hour — refresh the page for new links.
+                </p>
               </CardContent>
             </Card>
           )}

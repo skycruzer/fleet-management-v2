@@ -15,7 +15,8 @@ import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { PilotOverviewTab } from './pilot-overview-tab'
 import { PilotCertificationsTab } from './pilot-certifications-tab'
-import { User, FileCheck } from 'lucide-react'
+import { PilotDocumentsTab } from './pilot-documents-tab'
+import { User, FileCheck, FolderOpen } from 'lucide-react'
 
 // Pilot interface - aligned with Supabase pilots table schema
 export interface Pilot {
@@ -100,7 +101,7 @@ export function PilotDetailTabs({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="mb-6 grid w-full grid-cols-2 lg:w-[400px]">
+      <TabsList className="mb-6 grid w-full grid-cols-3 lg:w-[540px]">
         <TabsTrigger value="overview" aria-label="Overview" className="flex items-center gap-2">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Overview</span>
@@ -117,6 +118,10 @@ export function PilotDetailTabs({
               {pilot.certificationStatus.expiring + pilot.certificationStatus.expired}
             </span>
           )}
+        </TabsTrigger>
+        <TabsTrigger value="documents" aria-label="Documents" className="flex items-center gap-2">
+          <FolderOpen className="h-4 w-4" />
+          <span className="hidden sm:inline">Documents</span>
         </TabsTrigger>
       </TabsList>
 
@@ -136,6 +141,10 @@ export function PilotDetailTabs({
           onCertificationSaved={handleCertificationSaved}
           onCertificationsLoaded={handleCertificationsLoaded}
         />
+      </TabsContent>
+
+      <TabsContent value="documents">
+        <PilotDocumentsTab pilotId={pilot.id} csrfToken={csrfToken} />
       </TabsContent>
     </Tabs>
   )
