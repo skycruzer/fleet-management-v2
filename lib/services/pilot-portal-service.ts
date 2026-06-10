@@ -10,6 +10,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { EXCLUDED_CATEGORIES } from '@/lib/utils/certification-status'
 import { Database } from '@/types/supabase'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
@@ -493,7 +494,6 @@ export async function reviewPilotRegistration(
  * Travel Visa: removed as a separate category
  * Consistent with certification-service.ts and pilot-certification-service.ts.
  */
-const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
 
 /**
  * Get pilot portal statistics for dashboard
@@ -563,10 +563,15 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
     const sixtyDaysFromNow = new Date()
     sixtyDaysFromNow.setDate(sixtyDaysFromNow.getDate() + 60)
 
-    const { data: upcomingChecks } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
+    // Shared query shape for the four expiry-window lists below (was 4x duplicated)
+    const checksInWindow = (
+      window: { gte?: string; gt?: string; lte?: string; lt?: string },
+      opts: { ascending: boolean; limit: number }
+    ) => {
+      let query = supabase
+        .from('pilot_checks')
+        .select(
+          `
         id,
         expiry_date,
         check_types!inner (
@@ -575,81 +580,48 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
           category
         )
       `
-      )
-      .eq('pilot_id', pilotId)
-      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
-      .gte('expiry_date', new Date().toISOString())
-      .lte('expiry_date', sixtyDaysFromNow.toISOString())
-      .order('expiry_date', { ascending: true })
-      .limit(5)
+        )
+        .eq('pilot_id', pilotId)
+        .not(
+          'check_types.category',
+          'in',
+          `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`
+        )
+      if (window.gte) query = query.gte('expiry_date', window.gte)
+      if (window.gt) query = query.gt('expiry_date', window.gt)
+      if (window.lte) query = query.lte('expiry_date', window.lte)
+      if (window.lt) query = query.lt('expiry_date', window.lt)
+      return query.order('expiry_date', { ascending: opts.ascending }).limit(opts.limit)
+    }
+
+    const { data: upcomingChecks } = await checksInWindow(
+      { gte: new Date().toISOString(), lte: sixtyDaysFromNow.toISOString() },
+      { ascending: true, limit: 5 }
+    )
 
     // Get expired certifications
-    const { data: expiredChecks } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
-        id,
-        expiry_date,
-        check_types!inner (
-          check_code,
-          check_description,
-          category
-        )
-      `
-      )
-      .eq('pilot_id', pilotId)
-      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
-      .lt('expiry_date', new Date().toISOString())
-      .order('expiry_date', { ascending: false })
-      .limit(10)
+    const { data: expiredChecks } = await checksInWindow(
+      { lt: new Date().toISOString() },
+      { ascending: false, limit: 10 }
+    )
 
     // Get critical certifications (expiring within 14 days) — Warning tier
     const fourteenDaysFromNow = new Date()
     fourteenDaysFromNow.setDate(fourteenDaysFromNow.getDate() + 14)
 
-    const { data: criticalChecks } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
-        id,
-        expiry_date,
-        check_types!inner (
-          check_code,
-          check_description,
-          category
-        )
-      `
-      )
-      .eq('pilot_id', pilotId)
-      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
-      .gte('expiry_date', new Date().toISOString())
-      .lte('expiry_date', fourteenDaysFromNow.toISOString())
-      .order('expiry_date', { ascending: true })
-      .limit(10)
+    const { data: criticalChecks } = await checksInWindow(
+      { gte: new Date().toISOString(), lte: fourteenDaysFromNow.toISOString() },
+      { ascending: true, limit: 10 }
+    )
 
     // Get caution certifications (expiring in 15-30 days) — Caution tier
     const thirtyDaysFromNow = new Date()
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
 
-    const { data: cautionChecks } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
-        id,
-        expiry_date,
-        check_types!inner (
-          check_code,
-          check_description,
-          category
-        )
-      `
-      )
-      .eq('pilot_id', pilotId)
-      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
-      .gt('expiry_date', fourteenDaysFromNow.toISOString())
-      .lte('expiry_date', thirtyDaysFromNow.toISOString())
-      .order('expiry_date', { ascending: true })
-      .limit(10)
+    const { data: cautionChecks } = await checksInWindow(
+      { gt: fourteenDaysFromNow.toISOString(), lte: thirtyDaysFromNow.toISOString() },
+      { ascending: true, limit: 10 }
+    )
 
     return {
       success: true,

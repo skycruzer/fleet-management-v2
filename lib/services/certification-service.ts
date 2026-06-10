@@ -19,14 +19,17 @@ import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
 import { invalidateCertificationCaches } from './cache-invalidation-helper'
-import { getCertificationStatus, DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
+import {
+  getCertificationStatus,
+  DEFAULT_THRESHOLDS,
+  EXCLUDED_CATEGORIES,
+} from '@/lib/utils/certification-status'
 
 /**
  * Categories removed from the system — excluded from all read queries.
  * Non-renewal: one-time qualifications with no expiry (B767_PE_CNS, PBN, etc.)
  * Travel Visa: removed as a separate category
  */
-const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
 
 // ===================================
 // INTERFACES

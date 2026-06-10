@@ -147,6 +147,27 @@ export async function calculateSeniorityNumber(
 // ===================================
 
 /**
+ * Count a pilot's checks by certification status color.
+ * Shared by getAllPilots, getPilotById, and getPilotByUserId (was triplicated).
+ */
+function countCertificationsByStatus(certifications: Array<{ expiry_date: string | null }>): {
+  current: number
+  expiring: number
+  expired: number
+} {
+  return certifications.reduce(
+    (acc, check) => {
+      const status = getCertificationStatus(check.expiry_date ? new Date(check.expiry_date) : null)
+      if (status.color === 'green') acc.current++
+      else if (status.color === 'yellow') acc.expiring++
+      else if (status.color === 'red') acc.expired++
+      return acc
+    },
+    { current: 0, expiring: 0, expired: 0 }
+  )
+}
+
+/**
  * Get all pilots with pagination and eager loading (optimized)
  * @param page - Page number (default: 1)
  * @param pageSize - Items per page (default: 50)
@@ -228,18 +249,7 @@ export async function getAllPilots(
       }
 
       const certifications = pilot.pilot_checks || []
-      const certificationCounts = certifications.reduce(
-        (acc: any, check: any) => {
-          const status = getCertificationStatus(
-            check.expiry_date ? new Date(check.expiry_date) : null
-          )
-          if (status.color === 'green') acc.current++
-          else if (status.color === 'yellow') acc.expiring++
-          else if (status.color === 'red') acc.expired++
-          return acc
-        },
-        { current: 0, expiring: 0, expired: 0 }
-      )
+      const certificationCounts = countCertificationsByStatus(certifications)
 
       return {
         ...pilot,
@@ -318,18 +328,7 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
     }
 
     const certifications = checks || []
-    const certificationCounts = certifications.reduce(
-      (acc: any, check: any) => {
-        const status = getCertificationStatus(
-          check.expiry_date ? new Date(check.expiry_date) : null
-        )
-        if (status.color === 'green') acc.current++
-        else if (status.color === 'yellow') acc.expiring++
-        else if (status.color === 'red') acc.expired++
-        return acc
-      },
-      { current: 0, expiring: 0, expired: 0 }
-    )
+    const certificationCounts = countCertificationsByStatus(certifications)
 
     return {
       ...pilot,
@@ -400,18 +399,7 @@ export async function getPilotByUserId(userId: string): Promise<PilotWithCertifi
     }
 
     const certifications = checks || []
-    const certificationCounts = certifications.reduce(
-      (acc: any, check: any) => {
-        const status = getCertificationStatus(
-          check.expiry_date ? new Date(check.expiry_date) : null
-        )
-        if (status.color === 'green') acc.current++
-        else if (status.color === 'yellow') acc.expiring++
-        else if (status.color === 'red') acc.expired++
-        return acc
-      },
-      { current: 0, expiring: 0, expired: 0 }
-    )
+    const certificationCounts = countCertificationsByStatus(certifications)
 
     return {
       ...pilot,
