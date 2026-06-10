@@ -11,7 +11,11 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
-import { getCertificationStatus } from '@/lib/utils/certification-status'
+import {
+  getCertificationStatus,
+  getCertificationStatusKey,
+  EXCLUDED_CATEGORIES,
+} from '@/lib/utils/certification-status'
 
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
 type CheckType = Database['public']['Tables']['check_types']['Row']
@@ -21,7 +25,6 @@ type CheckType = Database['public']['Tables']['check_types']['Row']
  * Non-renewal: one-time qualifications with no expiry (B767_PE_CNS, PBN, etc.)
  * Travel Visa: removed as a separate category
  */
-const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
 
 /**
  * Certification with check type details
@@ -71,18 +74,10 @@ export async function getPilotCertifications(
   const certificationsWithStatus = renewalCerts.map((cert) => {
     const certStatus = getCertificationStatus(cert.expiry_date)
 
-    // Map shared utility colors to portal status values
-    const statusMap: Record<string, 'expired' | 'expiring_soon' | 'current'> = {
-      red: 'expired',
-      yellow: 'expiring_soon',
-      green: 'current',
-      gray: 'current', // No date treated as current (not alarming red)
-    }
-
     return {
       ...cert,
       daysUntilExpiry: certStatus.daysUntilExpiry,
-      status: statusMap[certStatus.color],
+      status: getCertificationStatusKey(certStatus.color),
     }
   })
 
@@ -200,17 +195,11 @@ export async function getPilotCertificationById(
 
   // Calculate days until expiry and status using shared utility
   const certStatus = getCertificationStatus(data.expiry_date)
-  const statusMap: Record<string, 'expired' | 'expiring_soon' | 'current'> = {
-    red: 'expired',
-    yellow: 'expiring_soon',
-    green: 'current',
-    gray: 'current',
-  }
 
   return {
     ...data,
     daysUntilExpiry: certStatus.daysUntilExpiry,
-    status: statusMap[certStatus.color],
+    status: getCertificationStatusKey(certStatus.color),
   }
 }
 

@@ -24,6 +24,24 @@ export interface CertificationStatus {
 }
 
 /**
+ * Check-type categories excluded from compliance tracking everywhere
+ * (admin certification views, pilot portal, dashboards). Previously
+ * defined independently in three services.
+ */
+export const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
+
+/**
+ * Map a certification status color to the portal-facing status string.
+ */
+export function getCertificationStatusKey(
+  color: CertificationColor
+): 'expired' | 'expiring_soon' | 'current' {
+  if (color === 'red') return 'expired'
+  if (color === 'yellow') return 'expiring_soon'
+  return 'current'
+}
+
+/**
  * Default thresholds (in days) - matches FAA compliance standards
  */
 export const DEFAULT_THRESHOLDS = {
