@@ -103,37 +103,57 @@ const { data } = await supabase.from('pilots').select('*')
 | Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
 | Users       | Admin staff, managers    | Pilots                    |
 
-### API Route Security Pipeline (`lib/middleware/`)
+### API Route Security Pipeline (`lib/middleware/create-api-route.ts`)
 
-All mutation API routes (POST/PUT/PATCH/DELETE) follow this standard pipeline:
+**All API routes MUST use the route factory** — `createAdminRoute` (admin portal) or
+`createPilotRoute` (pilot portal). Never hand-roll the CSRF/auth/rate-limit/role pipeline;
+the factory enforces the order and makes steps impossible to skip:
 
 ```typescript
-// 1. CSRF validation
-const csrfError = await validateCsrf(request)
-if (csrfError) return csrfError
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 
-// 2. Admin authentication (tries Supabase Auth, then admin-session cookie)
-const auth = await getAuthenticatedAdmin()
-if (!auth.authenticated) return unauthorizedResponse()
-
-// 3. Rate limiting
-const { success } = await authRateLimit.limit(auth.userId!)
-if (!success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-
-// 4. Role-based authorization (for destructive operations)
-const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
-if (!roleCheck.authorized) return forbiddenResponse('Insufficient permissions')
-
-// 5. Business logic via service layer
-// 6. revalidatePath() for affected routes
+export const POST = createAdminRoute(
+  {
+    operation: 'reviewLeaveBid', // for error logging
+    endpoint: '/api/admin/leave-bids/review',
+    roles: [UserRole.ADMIN, UserRole.MANAGER], // optional requireRole gate
+    schema: ReviewBidSchema, // optional Zod body validation
+    invalidateCache: invalidateLeaveBidCaches, // optional domain cache helper
+  },
+  async ({ request, params, body, admin }) => {
+    // business logic only — return a NextResponse
+  }
+)
 ```
 
-| Middleware                            | File                          | Purpose                                           |
-| ------------------------------------- | ----------------------------- | ------------------------------------------------- |
-| `validateCsrf(request)`               | `csrf-middleware.ts`          | Double-submit cookie CSRF protection              |
-| `getAuthenticatedAdmin()`             | `admin-auth-helper.ts`        | Dual-auth: Supabase Auth → admin-session fallback |
-| `authRateLimit` / `mutationRateLimit` | `rate-limit-middleware.ts`    | Per-user or per-IP rate limiting                  |
-| `requireRole(request, roles[])`       | `authorization-middleware.ts` | Role check for destructive operations             |
+Pipeline (enforced): per-IP rate limit → CSRF (mutations) → auth → per-user rate limit →
+role check → Zod validation → handler → cache invalidation on 2xx → sanitized errors.
+
+Key options: `rateLimit: false` (portal GETs — shared office IPs pool into one bucket),
+`rateLimit: { limiter, by: 'user' | 'ip' }`, `forbiddenMessage` (custom 403 text),
+`revalidate` (extra paths beyond the domain helper).
+
+NOT on the factory (different auth models): auth/login/logout/register/password flows,
+`/api/csrf`, `/api/health`, `/api/cron/*`, and the two legacy `verifyPilotSession` routes
+(`pilot/leave/[id]`, `pilot/flight-requests/[id]` — pending auth unification).
+
+Roles: `an_users.role` stores **lowercase** (`admin`/`manager`/`user`); `UserRole` enum
+values are lowercase to match. Never compare against capitalized role strings.
+
+### Cache Invalidation After Mutations
+
+`lib/services/cache-invalidation-helper.ts` is the single source of truth. Call the domain
+helper (non-blocking) instead of hand-rolling `revalidatePath` lists:
+
+```typescript
+await invalidateRequestCaches(id).catch((error) =>
+  console.error('Cache invalidation failed (non-blocking):', error)
+)
+```
+
+Helpers: requests, pilots, certifications, leave, tasks, feedback, disciplinary, settings
+(layout-scoped), published-rosters, renewal-planning, leave-bids, notifications.
 
 ### Notification Pattern
 
@@ -398,16 +418,16 @@ const cookieStore = cookies()
 const cookieStore = await cookies()
 ```
 
-### Cache Invalidation After Mutations
+### Inline revalidatePath Lists (use domain helpers instead)
 
 ```typescript
-import { revalidatePath } from 'next/cache'
+// WRONG - hand-rolled path list drifts and misses surfaces
+revalidatePath('/dashboard/certifications')
 
-export async function PUT(request: Request) {
-  const data = await updateCertification(id, body)
-  revalidatePath('/dashboard/certifications')
-  return NextResponse.json({ success: true, data })
-}
+// CORRECT - domain helper from cache-invalidation-helper.ts, non-blocking
+await invalidateCertificationCaches({ certificationId: id }).catch((error) =>
+  console.error('Cache invalidation failed (non-blocking):', error)
+)
 ```
 
 ### Navigation Order
@@ -505,6 +525,6 @@ Admin and pilot portal APIs use different auth systems. Never mix authentication
 
 ---
 
-**Version**: 4.1.0
-**Last Updated**: February 2026
+**Version**: 4.2.0
+**Last Updated**: June 2026
 **Maintainer**: Maurice (Skycruzer)
