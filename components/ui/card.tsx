@@ -4,13 +4,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const cardVariants = cva(
-  'rounded-xl border text-card-foreground transition-all duration-200 ease-out motion-reduce:transition-none',
+  'rounded-lg border text-card-foreground transition-all duration-200 ease-out motion-reduce:transition-none',
   {
     variants: {
       variant: {
-        default: 'border-border bg-card shadow-[var(--shadow-card)]',
-        elevated: 'border-border bg-card shadow-[var(--shadow-elevated)]',
-        featured: 'border-border bg-card shadow-[var(--shadow-elevated)]',
+        // Operations Navy: flat cards — border is the boundary, no resting shadow
+        default: 'border-border bg-card',
+        elevated: 'border-border bg-card shadow-[var(--shadow-card)]',
+        featured: 'border-border bg-card shadow-[var(--shadow-card)]',
       },
       padding: {
         compact: '[&>[class*=p-]]:p-3',

@@ -49,7 +49,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
       ref={ref}
       className={cn(
         'border-border border-b transition-all duration-150 motion-reduce:transition-none',
-        'even:bg-muted/20 hover:bg-muted/50 data-[state=selected]:bg-muted/60',
+        'hover:bg-muted/50 data-[state=selected]:bg-muted/60',
         className
       )}
       {...props}
@@ -67,9 +67,9 @@ const TableHead = React.forwardRef<
     role="columnheader"
     scope="col"
     className={cn(
-      // Dark theme: uppercase, tracking, subtle background
-      'h-10 px-3 text-left align-middle text-xs font-medium tracking-wider uppercase tabular-nums',
-      'text-muted-foreground bg-muted/30',
+      // Operations Navy: uppercase headers on a solid muted strip
+      'h-10 px-3 text-left align-middle text-xs font-semibold tracking-wider uppercase tabular-nums',
+      'text-muted-foreground bg-muted/60',
       '[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       className
     )}
