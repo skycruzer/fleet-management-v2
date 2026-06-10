@@ -68,8 +68,8 @@ App's pending set is `('SUBMITTED','IN_REVIEW')`; all 6 current pending leave re
 
 # Security P0 Fixes (2026-06-10) — from docs/PROJECT-REVIEW-2026-06-10.md
 
-- [x] **S1** Untracked + deleted `.env.production 2.local`; .gitignore hardened to `.env*` + example negations. **Maurice must still rotate: SUPABASE_SERVICE_ROLE_KEY (Supabase dashboard → Settings → API), RESEND_API_KEY (Resend dashboard), CRON_SECRET (new random value in Vercel env)** — old values remain in git history.
-- [x] **S2** RETRACTED — verified `ENABLE_CSRF_PROTECTION` is read by no code; `validateCsrf()` enforces unconditionally. Dead flag removed from local env files; also delete the var in Vercel dashboard.
+- [x] **S1** Untracked + deleted `.env.production 2.local`; .gitignore hardened. CRON_SECRET + RESEND_API_KEY rotated (2026-06-10, Vercel + .env.local; old Resend key "Fleet Management" left active until deploy verified — then delete in Resend dashboard). **REMAINING: SUPABASE_SERVICE_ROLE_KEY rotation** (dashboard → rotate JWT secret; also invalidates anon key → update both Vercel vars + redeploy).
+- [x] **S2** RETRACTED — verified `ENABLE_CSRF_PROTECTION` is read by no code; `validateCsrf()` enforces unconditionally. Dead flag removed from local env files AND deleted from Vercel production (2026-06-10).
 - [x] **S3** Route-level `getAuthenticatedAdmin()` added to renewal-planning/pilot/[pilotId], audit/[id], retirement/impact routes.
 
 ---
@@ -88,9 +88,9 @@ Feature: attach documents (PDF, Word .doc/.docx, JPEG) to (A) pilot details and 
 
 - [x] Extend `lib/validations/file-upload-schema.ts`: add `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document` MIME types
 - [x] Extend `validateFileWithMagicBytes()` in `file-upload-service.ts`: DOCX = ZIP header `50 4B 03 04`, legacy DOC = OLE2 `D0 CF 11 E0`
-- [x] Migration written: `20260610000001_pilot_documents_storage.sql` (also adds Word MIME to medical-certificates bucket) — **NOT YET APPLIED**: private bucket `pilot-documents` (copy `20260202000002_create_medical_certificates_bucket.sql` pattern, 10MB, new MIME list)
-- [x] Migration written: `20260610000002_create_pilot_documents_table.sql` — **NOT YET APPLIED**: `pilot_documents` table — `id`, `pilot_id` FK→pilots, `document_type` (CONTRACT | MEMO | QUALIFICATION | MEDICAL | OTHER), `title`, `file_path`, `file_name`, `file_size`, `mime_type`, `uploaded_by` FK→an_users, `request_id` nullable FK→pilot_requests (links sick-leave attachments), timestamps; RLS per `20251120000002_fix_pilot_requests_rls_policies.sql` pattern
-- [ ] **MAURICE**: apply migrations (db push blocked by migration-history drift — ~25 local migrations unrecorded remotely; apply the two 20260610 files directly via Supabase MCP/SQL editor like the 2026-05-31 one), then `npm run db:types` and remove the temporary cast in `pilot-document-service.ts`
+- [x] Migration written: `20260610000001_pilot_documents_storage.sql` (also adds Word MIME to medical-certificates bucket) — APPLIED to prod 2026-06-10 (post-apply fix: bucket came up public; corrected via storage API + ON CONFLICT now updates `public`): private bucket `pilot-documents` (copy `20260202000002_create_medical_certificates_bucket.sql` pattern, 10MB, new MIME list)
+- [x] Migration written: `20260610000002_create_pilot_documents_table.sql` — APPLIED to prod 2026-06-10: `pilot_documents` table — `id`, `pilot_id` FK→pilots, `document_type` (CONTRACT | MEMO | QUALIFICATION | MEDICAL | OTHER), `title`, `file_path`, `file_name`, `file_size`, `mime_type`, `uploaded_by` FK→an_users, `request_id` nullable FK→pilot_requests (links sick-leave attachments), timestamps; RLS per `20251120000002_fix_pilot_requests_rls_policies.sql` pattern
+- [x] Migrations applied via `supabase db push` after FULL HISTORY REPAIR (2026-06-10): 24 out-of-band migrations recorded as applied, 6 ghost remote entries reverted, duplicate date-only 2026-01 files archived. `db push` is usable again. `npm run db:types` run; temporary cast removed.
 
 ## Phase 2 — Service + API (admin) — DONE
 
@@ -113,5 +113,5 @@ Feature: attach documents (PDF, Word .doc/.docx, JPEG) to (A) pilot details and 
 ## Phase 5 — Validation — PARTIAL
 
 - [x] ESLint clean + Prettier formatted on all touched files; tsc deferred to Vercel CI (known local hang)
-- [ ] E2E: upload→list→view→delete on pilot details; sick-leave submit with attachment visible to admin
-- [ ] `npm run validate` + build; deploy via Vercel CI
+- [ ] E2E: upload→list→view→delete on pilot details; sick-leave submit with attachment visible to admin (follow-up after PR #56)
+- [x] CI green on PR #56 head (validate 20.x + check-secrets pass)
