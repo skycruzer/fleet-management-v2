@@ -2,11 +2,12 @@
 
 @theme {
   /* =========================================================================
-   * EXPO-INSPIRED DESIGN SYSTEM — Monochromatic, Gallery-Paced
+   * OPERATIONS NAVY DESIGN SYSTEM — Structured, enterprise-ops
    * Developer: Maurice Rondeau
-   * Philosophy: Luminous cool-white canvas, pure black headlines, pill geometry
-   * Palette ref: expo.dev — #000000 primary, #f0f0f3 canvas, #60646c slate
-   * WCAG 2.2 AA Accessible | Dual theme (light default + dark)
+   * Philosophy: Navy #0d2240 sidebar (both themes), blue #0b5cad primary,
+   * cool gray canvas, compact radius (4px controls / 6px cards), uppercase
+   * status badges. Reference: design-mockups/option-5-ops-navy.html
+   * WCAG 2.2 AA Accessible | Dual theme (light default + dark navy-tinted)
    *
    * COLOR NAMING CONVENTION:
    * - destructive: Component-level (buttons, alerts, badges via CVA variants)
@@ -18,19 +19,19 @@
    * - info:        Informational variant for alerts, badges, notices
    * ========================================================================= */
 
-  /* === PRIMARY (Expo Black — Headlines, CTAs) === */
-  --color-primary-50: #f5f5f5;
-  --color-primary-100: #e5e5e5;
-  --color-primary-200: #cccccc;
-  --color-primary-300: #999999;
-  --color-primary-400: #666666;
-  --color-primary-500: #333333;
-  --color-primary-600: #1c2024;
-  --color-primary-700: #111111;
-  --color-primary-800: #0a0a0a;
-  --color-primary-900: #000000;
+  /* === PRIMARY (Operations Blue — CTAs, links, active states) === */
+  --color-primary-50: #e9f2fb;
+  --color-primary-100: #d4e5f7;
+  --color-primary-200: #a9cbef;
+  --color-primary-300: #7eb1e7;
+  --color-primary-400: #4a8fd3;
+  --color-primary-500: #1a6fc4;
+  --color-primary-600: #0b5cad;
+  --color-primary-700: #094b8d;
+  --color-primary-800: #073a6e;
+  --color-primary-900: #052a50;
 
-  --color-primary: #000000;
+  --color-primary: #0b5cad;
   --color-primary-foreground: #ffffff;
 
   /* === ACCENT (Subtle cool gray — secondary actions, highlights) === */
@@ -45,101 +46,112 @@
   --color-accent-800: #424242;
   --color-accent-900: #212121;
 
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #1c2024;
+  --color-accent: #f1f2f4;
+  --color-accent-foreground: #172b4d;
 
-  /* === SEMANTIC: SUCCESS (Muted green — current certs, approved) === */
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success: #16a34a;
+  /* === SEMANTIC: SUCCESS (Deep green — current certs, approved) === */
+  --color-success-50: #e8f5ee;
+  --color-success-100: #d3ebdd;
+  --color-success-200: #a8d8bc;
+  --color-success-500: #28865c;
+  --color-success-600: #1f7a4d;
+  --color-success-700: #186143;
+  --color-success: #1f7a4d;
   --color-success-foreground: #ffffff;
-  --color-success-muted: rgba(22, 163, 74, 0.08);
-  --color-success-muted-foreground: #16a34a;
+  --color-success-muted: rgba(31, 122, 77, 0.08);
+  --color-success-muted-foreground: #1f7a4d;
 
   /* === SEMANTIC: WARNING (Deep amber — expiring certs ≤30 days) === */
-  --color-warning-50: #fffbeb;
-  --color-warning-100: #fef3c7;
-  --color-warning-200: #fde68a;
-  --color-warning-300: #fcd34d;
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #ab6400;
-  --color-warning-600: #92400e;
-  --color-warning-700: #78350f;
-  --color-warning-800: #5c2d0e;
-  --color-warning: #ab6400;
+  --color-warning-50: #fdf3e1;
+  --color-warning-100: #fbe9c8;
+  --color-warning-200: #f5d491;
+  --color-warning-300: #e9b659;
+  --color-warning-400: #cf8b27;
+  --color-warning-500: #97570b;
+  --color-warning-600: #854c08;
+  --color-warning-700: #6e3f07;
+  --color-warning-800: #573205;
+  --color-warning: #97570b;
   --color-warning-foreground: #ffffff;
-  --color-warning-text: #92400e;
-  --color-warning-muted: rgba(171, 100, 0, 0.08);
-  --color-warning-muted-foreground: #ab6400;
+  --color-warning-text: #854c08;
+  --color-warning-muted: rgba(151, 87, 11, 0.08);
+  --color-warning-muted-foreground: #97570b;
 
   /* === SEMANTIC: DESTRUCTIVE (Red — expired, errors, danger) === */
-  --color-danger-50: #fef2f2;
-  --color-danger-100: #fee2e2;
-  --color-danger-200: #fecaca;
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-destructive: #dc2626;
+  --color-danger-50: #fdeeec;
+  --color-danger-100: #fbdcd8;
+  --color-danger-200: #f5b7af;
+  --color-danger-400: #d95f4f;
+  --color-danger-500: #c9372c;
+  --color-danger-600: #ae2a19;
+  --color-danger-700: #931f12;
+  --color-destructive: #ae2a19;
   --color-destructive-foreground: #ffffff;
-  --color-destructive-muted: rgba(220, 38, 38, 0.08);
-  --color-destructive-muted-foreground: #dc2626;
+  --color-destructive-muted: rgba(174, 42, 25, 0.08);
+  --color-destructive-muted-foreground: #ae2a19;
 
-  /* === NEUTRAL (Cool neutrals — Expo's grayscale spectrum) === */
-  --color-slate-50: #fafafa;
-  --color-slate-100: #f5f5f5;
-  --color-slate-200: #e5e5e5;
-  --color-slate-300: #d4d4d4;
-  --color-slate-400: #a3a3a3;
-  --color-slate-500: #737373;
-  --color-slate-600: #60646c;
-  --color-slate-700: #555860;
-  --color-slate-800: #363a3f;
-  --color-slate-900: #1c2024;
+  /* === NEUTRAL (Navy-tinted cool neutrals) === */
+  --color-slate-50: #fafbfc;
+  --color-slate-100: #f4f5f7;
+  --color-slate-200: #dfe1e6;
+  --color-slate-300: #c1c7d0;
+  --color-slate-400: #a5adba;
+  --color-slate-500: #7a869a;
+  --color-slate-600: #5e6c84;
+  --color-slate-700: #44546f;
+  --color-slate-800: #2e405e;
+  --color-slate-900: #172b4d;
 
-  --color-secondary: #f0f0f3;
-  --color-secondary-foreground: #555860;
+  --color-secondary: #f4f5f7;
+  --color-secondary-foreground: #5e6c84;
 
-  /* === BACKGROUNDS & SURFACES (Cloud Gray canvas, Pure White cards) === */
-  --color-background: #f0f0f3;
-  --color-foreground: #1c2024;
+  /* === BACKGROUNDS & SURFACES (Cool gray canvas, Pure White cards) === */
+  --color-background: #f4f5f7;
+  --color-foreground: #172b4d;
 
   --color-card: #ffffff;
-  --color-card-foreground: #1c2024;
+  --color-card-foreground: #172b4d;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #1c2024;
+  --color-popover-foreground: #172b4d;
+
+  /* === SIDEBAR (Operations Navy — same in light AND dark theme) === */
+  --color-sidebar: #0d2240;
+  --color-sidebar-foreground: #b3bdcc;
+  --color-sidebar-muted: #6b7c95;
+  --color-sidebar-active: #1a3a63;
+  --color-sidebar-active-foreground: #ffffff;
+  --color-sidebar-border: #1a3a63;
+  --color-sidebar-icon: #2b4a73;
+  --color-sidebar-badge: #c9372c;
+  --color-sidebar-badge-foreground: #ffffff;
 
   /* === SURFACE ELEVATION SYSTEM === */
-  --color-surface-0: #f0f0f3;
+  --color-surface-0: #f4f5f7;
   --color-surface-1: #ffffff;
   --color-surface-2: #fafafa;
   --color-surface-3: #f5f5f5;
 
   /* === BORDERS & INPUTS === */
-  --color-border: #e0e1e6;
-  --color-input: #d9d9e0;
-  --color-ring: #2547d0;
+  --color-border: #dfe1e6;
+  --color-input: #c1c7d0;
+  --color-ring: #0b5cad;
 
   /* === MUTED === */
-  --color-muted: #f0f0f3;
-  --color-muted-foreground: #60646c;
+  --color-muted: #f1f2f4;
+  --color-muted-foreground: #5e6c84;
 
   /* === DISABLED STATE === */
-  --color-disabled-foreground: #b0b4ba;
-  --color-disabled-bg: #f0f0f3;
+  --color-disabled-foreground: #a5adba;
+  --color-disabled-bg: #f4f5f7;
 
-  /* === BORDER RADIUS (Expo — pill geometry signature) === */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-pill: 9999px;
+  /* === BORDER RADIUS (Operations Navy — compact geometry) === */
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+  --radius-pill: 9999px; /* avatars/spinners only — not buttons or badges */
 
   /* === LAYOUT TOKENS === */
   --layout-sidebar-width: 15rem;
@@ -217,52 +229,52 @@
   --surface-elevated: #ffffff;
 
   /* === STATUS COLORS (Aviation-standard) === */
-  --color-status-low: #16a34a;
-  --color-status-low-bg: rgba(22, 163, 74, 0.08);
-  --color-status-low-border: rgba(22, 163, 74, 0.25);
-  --color-status-medium: #ab6400;
-  --color-status-medium-bg: rgba(171, 100, 0, 0.08);
-  --color-status-medium-border: rgba(171, 100, 0, 0.25);
-  --color-status-high: #dc2626;
-  --color-status-high-bg: rgba(220, 38, 38, 0.08);
-  --color-status-high-border: rgba(220, 38, 38, 0.25);
-  --color-status-high-foreground: #dc2626;
+  --color-status-low: #1f7a4d;
+  --color-status-low-bg: rgba(31, 122, 77, 0.08);
+  --color-status-low-border: rgba(31, 122, 77, 0.25);
+  --color-status-medium: #97570b;
+  --color-status-medium-bg: rgba(151, 87, 11, 0.08);
+  --color-status-medium-border: rgba(151, 87, 11, 0.25);
+  --color-status-high: #ae2a19;
+  --color-status-high-bg: rgba(174, 42, 25, 0.08);
+  --color-status-high-border: rgba(174, 42, 25, 0.25);
+  --color-status-high-foreground: #ae2a19;
 
   /* === CATEGORY COLORS (Training/certification) === */
-  --color-category-flight: #2563eb;
-  --color-category-flight-bg: rgba(37, 99, 235, 0.08);
-  --color-category-flight-border: rgba(37, 99, 235, 0.2);
+  --color-category-flight: #0b5cad;
+  --color-category-flight-bg: rgba(11, 92, 173, 0.08);
+  --color-category-flight-border: rgba(11, 92, 173, 0.2);
   --color-category-simulator: #7c3aed;
   --color-category-simulator-bg: rgba(124, 58, 237, 0.08);
   --color-category-simulator-border: rgba(124, 58, 237, 0.2);
-  --color-category-ground: #16a34a;
-  --color-category-ground-bg: rgba(22, 163, 74, 0.08);
-  --color-category-ground-border: rgba(22, 163, 74, 0.2);
+  --color-category-ground: #1f7a4d;
+  --color-category-ground-bg: rgba(31, 122, 77, 0.08);
+  --color-category-ground-border: rgba(31, 122, 77, 0.2);
   --color-category-medical: #db2777;
   --color-category-medical-bg: rgba(219, 39, 119, 0.08);
   --color-category-medical-border: rgba(219, 39, 119, 0.2);
 
-  /* === INFO/LINK ACCENT (Expo Link Cobalt) === */
-  --color-info: #0d74ce;
-  --color-info-hover: #0a5ea8;
-  --color-info-bg: rgba(13, 116, 206, 0.08);
-  --color-info-border: rgba(13, 116, 206, 0.2);
-  --color-info-foreground: #0d74ce;
+  /* === INFO/LINK ACCENT (Operations Blue) === */
+  --color-info: #0b5cad;
+  --color-info-hover: #094b8d;
+  --color-info-bg: rgba(11, 92, 173, 0.08);
+  --color-info-border: rgba(11, 92, 173, 0.2);
+  --color-info-foreground: #0b5cad;
 
-  /* === HEADINGS (pure black per Expo philosophy; near-white in dark) === */
-  --color-heading: #000000;
+  /* === HEADINGS (deep navy; near-white in dark) === */
+  --color-heading: #172b4d;
 
   /* === CHART COLORS === */
-  --color-chart-1: #1c2024;
-  --color-chart-2: #60646c;
-  --color-chart-3: #0d74ce;
-  --color-chart-4: #ab6400;
-  --color-chart-5: #16a34a;
-  --color-chart-grid: rgba(0, 0, 0, 0.06);
-  --color-chart-axis: #60646c;
+  --color-chart-1: #0b5cad;
+  --color-chart-2: #5e6c84;
+  --color-chart-3: #1f7a4d;
+  --color-chart-4: #97570b;
+  --color-chart-5: #172b4d;
+  --color-chart-grid: rgba(9, 30, 66, 0.08);
+  --color-chart-axis: #5e6c84;
   --color-chart-tooltip-bg: #ffffff;
-  --color-chart-tooltip-text: #1c2024;
-  --color-chart-tooltip-border: rgba(0, 0, 0, 0.1);
+  --color-chart-tooltip-text: #172b4d;
+  --color-chart-tooltip-border: rgba(9, 30, 66, 0.12);
 
   /* === TYPOGRAPHY SCALE (Inter — 1.2× minor third) === */
   --text-xs: 0.75rem;
@@ -284,13 +296,13 @@
   --color-portal-accent-400: #94a3b8;
   --color-portal-accent-500: #64748b;
   --color-portal-accent-600: #475569;
-  --color-portal-accent: #475569;
+  --color-portal-accent: #1a3a63;
   --color-portal-accent-foreground: #ffffff;
 
   /* === BADGE COLOR TOKENS (Muted, monochromatic-leaning) === */
-  --color-badge-blue: #0d74ce;
-  --color-badge-blue-bg: rgba(13, 116, 206, 0.08);
-  --color-badge-blue-border: rgba(13, 116, 206, 0.2);
+  --color-badge-blue: #0b5cad;
+  --color-badge-blue-bg: rgba(11, 92, 173, 0.08);
+  --color-badge-blue-border: rgba(11, 92, 173, 0.2);
   --color-badge-purple: #7c3aed;
   --color-badge-purple-bg: rgba(124, 58, 237, 0.08);
   --color-badge-purple-border: rgba(124, 58, 237, 0.2);
@@ -308,50 +320,50 @@
   --color-badge-orange-border: rgba(194, 65, 12, 0.2);
 }
 
-/* === DARK MODE OVERRIDES === */
+/* === DARK MODE OVERRIDES (navy-tinted darks; sidebar stays #0d2240) === */
 .dark {
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-primary-50: #0a0a0a;
-  --color-primary-100: #171717;
-  --color-primary-200: #262626;
-  --color-primary-300: #404040;
-  --color-primary-400: #525252;
-  --color-primary-500: #737373;
-  --color-primary-600: #a3a3a3;
-  --color-primary-700: #d4d4d4;
-  --color-primary-800: #e5e5e5;
-  --color-primary-900: #fafafa;
+  --color-primary: #579dff;
+  --color-primary-foreground: #0c1c30;
+  --color-primary-50: #0a1b2e;
+  --color-primary-100: #0c2440;
+  --color-primary-200: #0e3158;
+  --color-primary-300: #14437a;
+  --color-primary-400: #1e60a8;
+  --color-primary-500: #3b82d4;
+  --color-primary-600: #579dff;
+  --color-primary-700: #85b8ff;
+  --color-primary-800: #b3d4ff;
+  --color-primary-900: #e0edff;
 
-  --color-accent: #1a1a1a;
-  --color-accent-foreground: #e5e5e5;
+  --color-accent: #1a2638;
+  --color-accent-foreground: #e7edf6;
 
-  --color-background: #0f0f0f;
-  --color-foreground: #e5e5e5;
+  --color-background: #0e1624;
+  --color-foreground: #e7edf6;
 
-  --color-card: #1a1a1a;
-  --color-card-foreground: #e5e5e5;
+  --color-card: #16202e;
+  --color-card-foreground: #e7edf6;
 
-  --color-popover: #1a1a1a;
-  --color-popover-foreground: #e5e5e5;
+  --color-popover: #16202e;
+  --color-popover-foreground: #e7edf6;
 
-  --color-secondary: #1a1a1a;
-  --color-secondary-foreground: #a3a3a3;
+  --color-secondary: #1a2638;
+  --color-secondary-foreground: #9fb1c9;
 
-  --color-muted: #1a1a1a;
-  --color-muted-foreground: #a3a3a3;
+  --color-muted: #1a2638;
+  --color-muted-foreground: #9fb1c9;
 
-  --color-disabled-foreground: #525252;
-  --color-disabled-bg: #1a1a1a;
+  --color-disabled-foreground: #5c6b80;
+  --color-disabled-bg: #1a2638;
 
-  --color-border: #2a2a2a;
-  --color-input: #2a2a2a;
-  --color-ring: #476cff;
+  --color-border: #243349;
+  --color-input: #2c3d57;
+  --color-ring: #579dff;
 
-  --color-surface-0: #0f0f0f;
-  --color-surface-1: #1a1a1a;
-  --color-surface-2: #222222;
-  --color-surface-3: #2a2a2a;
+  --color-surface-0: #0e1624;
+  --color-surface-1: #16202e;
+  --color-surface-2: #1b2738;
+  --color-surface-3: #243349;
 
   /* Semantic colors — brighter for dark backgrounds */
   --color-success-50: rgba(34, 197, 94, 0.08);
@@ -406,12 +418,12 @@
   --color-interactive-selected: rgba(255, 255, 255, 0.08);
 
   /* Elevated surfaces */
-  --surface-elevated: #1a1a1a;
+  --surface-elevated: #16202e;
 
   /* Badge colors — brighter for dark bg */
-  --color-badge-blue: #47a3f3;
-  --color-badge-blue-bg: rgba(71, 163, 243, 0.12);
-  --color-badge-blue-border: rgba(71, 163, 243, 0.3);
+  --color-badge-blue: #579dff;
+  --color-badge-blue-bg: rgba(87, 157, 255, 0.12);
+  --color-badge-blue-border: rgba(87, 157, 255, 0.3);
   --color-badge-purple: #a78bfa;
   --color-badge-purple-bg: rgba(167, 139, 250, 0.12);
   --color-badge-purple-border: rgba(167, 139, 250, 0.3);
@@ -454,41 +466,41 @@
   --color-category-medical-border: rgba(244, 114, 182, 0.25);
 
   /* Info — brighter for dark bg */
-  --color-info: #47a3f3;
-  --color-info-hover: #6db5f5;
-  --color-info-bg: rgba(71, 163, 243, 0.1);
-  --color-info-border: rgba(71, 163, 243, 0.25);
-  --color-info-foreground: #60a5fa;
+  --color-info: #579dff;
+  --color-info-hover: #85b8ff;
+  --color-info-bg: rgba(87, 157, 255, 0.1);
+  --color-info-border: rgba(87, 157, 255, 0.25);
+  --color-info-foreground: #579dff;
 
-  --color-heading: #fafafa;
+  --color-heading: #f0f4fa;
 
   /* Chart colors — brighter for dark bg */
-  --color-chart-1: #e5e5e5;
-  --color-chart-2: #a3a3a3;
-  --color-chart-3: #47a3f3;
+  --color-chart-1: #579dff;
+  --color-chart-2: #9fb1c9;
+  --color-chart-3: #4ade80;
   --color-chart-4: #f59e0b;
-  --color-chart-5: #4ade80;
+  --color-chart-5: #e7edf6;
   --color-chart-grid: rgba(255, 255, 255, 0.06);
-  --color-chart-axis: #737373;
-  --color-chart-tooltip-bg: #1a1a1a;
-  --color-chart-tooltip-text: #e5e5e5;
+  --color-chart-axis: #7d8ea6;
+  --color-chart-tooltip-bg: #16202e;
+  --color-chart-tooltip-text: #e7edf6;
   --color-chart-tooltip-border: rgba(255, 255, 255, 0.1);
 
-  /* Neutral slate — dark mode */
-  --color-slate-50: #fafafa;
-  --color-slate-100: #f5f5f5;
-  --color-slate-200: #e5e5e5;
-  --color-slate-300: #d4d4d4;
-  --color-slate-400: #a3a3a3;
-  --color-slate-500: #737373;
-  --color-slate-600: #525252;
-  --color-slate-700: #404040;
-  --color-slate-800: #262626;
-  --color-slate-900: #171717;
+  /* Neutral slate — dark mode (navy-tinted, flipped) */
+  --color-slate-50: #f4f7fb;
+  --color-slate-100: #e7edf6;
+  --color-slate-200: #d3deee;
+  --color-slate-300: #b5c4da;
+  --color-slate-400: #9fb1c9;
+  --color-slate-500: #7d8ea6;
+  --color-slate-600: #5c6b80;
+  --color-slate-700: #3a4a63;
+  --color-slate-800: #243349;
+  --color-slate-900: #1a2638;
 
   /* Portal accent — dark mode */
-  --color-portal-accent: #94a3b8;
-  --color-portal-accent-foreground: #0f172a;
+  --color-portal-accent: #9fb1c9;
+  --color-portal-accent-foreground: #0d2240;
 }
 
 /* === BASE STYLES === */
@@ -996,9 +1008,9 @@
     left: 16px;
     z-index: 9999;
     padding: 12px 16px;
-    background-color: #ffffff;
-    color: #1c2024;
-    border-radius: 8px;
+    background-color: var(--color-card);
+    color: var(--color-card-foreground);
+    border-radius: var(--radius-lg);
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
