@@ -1,93 +1,85 @@
-# Design Migration — Option 5 "Operations Navy" (Atlassian-style)
+# Approvals Hub — Option 2 implementation plan
 
-**Decision (2026-06-11):** Adopt the Operations Navy direction from `design-mockups/option-5-ops-navy.html`.
-Re-theme only — **zero content, layout, copy, or feature changes on any page.** All restyling flows
-through `globals.css` tokens and the canonical components (StatusBadge, PageHeader, Button, Card, Table).
+**Decision (2026-06-11):** Build the Approvals Hub from
+`design-mockups/content-options/option-2-approvals-hub.html` — every admin decision
+(leave, RDO/SDO, leave bids, pilot registrations) in ONE queue with a decision panel
+showing crew-eligibility impact BEFORE approving. Addresses the #1 finding of
+`tasks/content-ux-review-2026-06-11.md` (requests fragmented across 3 admin surfaces;
+10 CPT + 10 FO rule invisible until it blocks).
 
-_Previous (completed) plan archived to `tasks/design-remediation-2026-06-10-complete.md`._
+_Navy migration record archived to `tasks/design-navy-migration-2026-06-11.md`
+(all phases done; E2E suite result still pending in background)._
 
-## Target design language (from approved mockup)
+## Design decisions
 
-| Element       | Spec                                                                                    |
-| ------------- | --------------------------------------------------------------------------------------- |
-| Sidebar       | Navy `#0d2240`, active item `#1a3a63`, text `#b3bdcc` / white active, red count badges  |
-| Canvas        | `#f4f5f7` background, white cards, `#dfe1e6` borders                                    |
-| Accent        | Blue `#0b5cad` (primary buttons, links, chips), soft tint `#e9f2fb`                     |
-| Text          | `#172b4d` primary, `#5e6c84` dim                                                        |
-| Radius        | Compact: 4px buttons/chips, 6px cards (replaces pill geometry)                          |
-| KPI cards     | 3px color-coded top border (info blue / good green / warn amber / bad red)              |
-| Status badges | Uppercase 11px bold, 3px radius, tinted bg (same traffic-light logic, new shades)       |
-| Table headers | Uppercase 11.5px, `#f7f8f9` bg, letter-spacing 0.04em                                   |
-| Status colors | green `#1f7a4d`, amber `#97570b`, red `#ae2a19` (+ bg tints) — WCAG AA on white         |
+- **New route `/dashboard/approvals`** — master-detail: left queue list, right decision
+  panel. Tabs via nuqs: `?tab=leave | rdo-sdo | bids | registrations`. Pending items only.
+- **`/dashboard/requests` SURVIVES as the browse/history surface** (table/cards/calendar,
+  filters, exports). Approvals links to it via a "History" button. No redirect; nav demotes it.
+- **Crew-impact preview reuses `leave-eligibility-service`** (`checkCrewAvailabilityAtomic`
+  read-only / `calculateCrewAvailability`) — server-computed for the selected request.
+  Same engine that enforces approval, so preview can never disagree with the gate.
+- **Approve/deny reuse existing paths** (`unified-request-service` + existing server
+  actions) — they already do the atomic crew check, cache invalidation (domain helpers),
+  and notifications. The hub adds NO new mutation logic.
+- **Keyboard review**: ↑/↓ select, A approve (confirm), D deny (comment dialog), N needs-info.
+  Reuse `use-keyboard-shortcuts`.
+- Leave Bids tab reuses the existing bid review actions + adds the deadline banner.
+  Batch-approve-by-seniority is OUT of this phase (follow-up).
+- Registrations tab reuses `pilot-registrations/actions.ts` + approval client logic.
+- All UI on canonical components (Card, StatusBadge, Button) — Operations Navy tokens.
 
-Constraints: no gradients, no glassmorphism, no glow shadows, no aviation decor, single font (Inter stays).
+## Phase 1 — Hub scaffold (≤8 files)
 
-## Out of scope (explicitly unchanged)
+- [ ] `app/dashboard/approvals/page.tsx` — server component: fetch pending leave,
+      RDO/SDO, bids, registrations counts + lists (existing services)
+- [ ] `components/approvals/approvals-tabs.tsx` — nuqs tab nav with count chips
+- [ ] `components/approvals/approval-queue-list.tsx` — left list (selected state, status
+      chip, age, impact hint)
+- [ ] `app/dashboard/approvals/loading.tsx` + `error.tsx`
+- [ ] Build green
 
-- Page content, copy, information architecture, routes, features
-- PDF reports (`pdf-service`) — stay print-friendly black-on-white
-- Email templates (Resend) — untouched
-- Business logic, services, API routes
+## Phase 2 — Decision panel for Leave + RDO/SDO (≤8 files)
 
-## Decisions (Maurice, 2026-06-11)
+- [ ] `components/approvals/decision-panel.tsx` — detail fields, history line, actions row
+- [ ] `components/approvals/crew-impact-card.tsx` — green/amber/red impact summary
+      ("Approving drops RP6 Captains 11→10 — at minimum")
+- [ ] Server: impact computation for selected request (server component data or a small
+      `/api/approvals/impact` GET via createAdminRoute)
+- [ ] Wire approve/deny/needs-info to existing server actions; optimistic queue advance
+- [ ] `components/approvals/use-review-keyboard.ts` — ↑↓/A/D/N via use-keyboard-shortcuts
+- [ ] Build green + manual flow check
 
-- [x] Pilot portal: navy sidebar EVERYWHERE (admin + portal)
-- [x] Dark mode: KEEP dual theme — same navy sidebar, darker canvas in dark mode
+## Phase 3 — Bids + Registrations tabs (≤8 files)
 
----
+- [ ] Bids queue + panel: reuse leave-bid review actions; per-option statuses shown;
+      deadline banner (bid window dates from settings/service)
+- [ ] Registrations queue + panel: reuse registration approve/deny actions
+- [ ] Empty states for all four tabs ("Queue clear — nothing awaiting decision")
+- [ ] Build green
 
-## Phase 0 — Baseline (no visual change)
+## Phase 4 — Navigation rewire (≤8 files)
 
-- [x] Baseline reference set: existing screenshots/design-verify/ (light+dark × desktop+mobile, public pages) — unchanged since remediation pass; authenticated pages blocked on missing VERIFY_EMAIL creds (same as before)
-- [x] `npm run build` green before starting (exit 0, 2026-06-11, branch design/operations-navy)
+- [ ] `lib/config/admin-nav.ts`: primary item **Approvals** (replaces Requests + Leave Bids
+      positions); **Requests → History** demoted to More
+- [ ] `use-sidebar-badges`: Approvals badge = pending leave + RDO/SDO + bids + registrations
+- [ ] Dashboard quick-action "Approve Requests" → `/dashboard/approvals`;
+      pending-approvals widget links there too
+- [ ] Leave-bids + registrations pages get banner linking to the hub (pages stay functional)
+- [ ] Build green
 
-## Phase 1 — Token layer (`app/globals.css`) — DONE (commit ec8d14d)
+## Phase 5 — Verify & document
 
-- [x] Sidebar token group added (sidebar/foreground/muted/active/border/icon/badge — same navy both themes)
-- [x] Canvas `#f4f5f7`, borders `#dfe1e6`, input `#c1c7d0`, ring `#0b5cad`
-- [x] Primary black → blue `#0b5cad` with full 50–900 scale
-- [x] Text `#172b4d` / dim `#5e6c84`; navy-tinted slate scale
-- [x] Status scales: success `#1f7a4d`, warning `#97570b`, danger `#ae2a19` (token names unchanged)
-- [x] Radius compacted (sm 3px / md 4px / lg 6px); pill reserved for avatars/spinners
-- [x] Dark theme: navy-tinted darks (#0e1624 canvas, #16202e cards), blue `#579dff` primary
-- [x] Build green
+- [ ] New E2E spec `e2e/approvals.spec.ts`: tab counts, select → panel renders impact,
+      approve advances queue, keyboard nav
+- [ ] `npm run validate` + `npm run build` + targeted `npx playwright test e2e/approvals.spec.ts`
+- [ ] Visual pass (light/dark)
+- [ ] CLAUDE.md: routes table + redirects section updated; memory updated
 
-## Phase 2 — Layout chrome — DONE (commit 59c0aee)
+## Out of scope (follow-ups)
 
-- [x] Admin sidebar on sidebar tokens (navy, active #1a3a63, red count badges, rounded-md active)
-- [x] Header/PageHeader: already correct via tokens (white bg + border)
-- [x] Pilot portal sidebar + mobile sheet: navy treatment; bell gets className passthrough
-- [x] Bottom nav active → primary blue
-- [x] Build green
+- Batch approve bids by seniority; review-session notes; full leave-bids page merge;
+  /auth/login hydration mismatch (pre-existing, tracked)
 
-## Phase 3 — Canonical components — DONE (commit 37b58dc)
-
-- [x] button.tsx: 4px radius, blue primary + darken hover, pill sizes retired
-- [x] badge.tsx 3px radius; status-badge.tsx uppercase bold 11px signature
-- [x] card.tsx: 6px radius, flat default (border only)
-- [x] table.tsx: solid muted header strip, zebra stripes removed; responsive-table radius
-- [x] rank-badge: inherits new geometry/tokens (no file change needed)
-- [x] Build green
-
-## Phase 4 — Dashboard KPI treatment — DONE (commit a50efe3)
-
-- [x] stats-overview (requests) + pilot-stats-bar: 3px color-coded top border, uppercase labels, tabular-nums
-- [x] analytics-charts: runtime reads chart tokens (swapped in Phase 1); stale fallbacks aligned
-- [x] Build green
-
-## Phase 5 — Sweep & verify
-
-- [x] Sweep: hand-rolled pill chips → rounded-sm (tasks, audit, disciplinary); landing CTAs/chip squared + tokenized; bg-black/50 modal scrims kept (legit overlays)
-- [x] WCAG AA: primary 5.9:1, status colors 5.3–6.7:1 on white; sidebar text 8.6:1, sidebar-muted bumped #6b7c95→#8696ad (3.7→5.2:1); dark primary 6.2:1
-- [x] `npm run validate` green
-- [x] Visual pass (public pages, light+dark × desktop+mobile → screenshots/navy-verify/); authenticated pages still blocked on missing VERIFY_EMAIL creds (pre-existing)
-- [ ] Final `npm run build` + `npm test` (E2E)
-- [ ] Update design memory + CLAUDE.md notes
-
-## Follow-up found during verify (NOT this branch — behavior, not styling)
-
-- Hydration mismatch on /auth/login: h1 `tabindex="-1"` differs server vs client (focus-management code; pre-existing, unrelated to re-theme)
-
----
-
-**Rollback:** each phase is a separate commit; reverting the Phase 1 token commit restores the old look app-wide.
+**Rollback:** one commit per phase on a `feature/approvals-hub` branch off
+`design/operations-navy`.
