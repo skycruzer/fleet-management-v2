@@ -74,6 +74,35 @@ _Navy migration record archived to `tasks/design-navy-migration-2026-06-11.md`
 - [ ] Visual pass (light/dark) once test server frees port/lock
 - [ ] CLAUDE.md routes table + memory update
 
+---
+
+# Options 1 + 5 (approved 2026-06-11, after hub)
+
+## Option 1 — Morning Brief dashboard — DONE (commit ad8886a)
+
+- [x] A1 crew-eligibility-banner.tsx (worst-day CPT/FO vs 10/10 over remaining RP, CTA to hub)
+- [x] A2 todays-priorities.tsx → "Action required today" with NAMED certs (service already
+      returned items; widget now renders them) + queue link
+- [x] A3 Deadlines: reused DeadlineWidgetWrapper (maxPeriods=2) in the brief zone — no new
+      component needed (bid-window deadline still deferred, no data source)
+- [x] A4 fleet-insights KPIs → overdue / expiring ≤30d / awaiting decision / compliance;
+      dashboard-content reordered; PendingApprovalsWidget retired (duplicated the hub)
+- [x] Build green + committed
+
+## Option 5 — Pilot-First portal
+
+- [x] B1 Portal dashboard: RosterPeriodCard moved to top; NextCheckCard hero (soonest
+      expiry across all attention tiers, RP it falls in); request-deadline band when the
+      22-day review window is open (getFinalReviewAlert); RequestsSnapshot ("what changed")
+- [x] B2 Portal certifications: urgent (expired/critical) pulled into a top section
+      regardless of category; all groups sorted soonest-expiry first
+- [ ] Build green + commit
+
+## Final verification (both options)
+
+- [ ] `npm run validate` + build + full `npm test` rerun (was stopped for Maurice's
+      Chrome session) + visual pass light/dark
+
 ## Out of scope (follow-ups)
 
 - Batch approve bids by seniority; review-session notes; full leave-bids page merge;
