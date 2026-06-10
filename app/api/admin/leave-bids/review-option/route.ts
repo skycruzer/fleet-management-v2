@@ -4,58 +4,40 @@
  *
  * Developer: Maurice Rondeau
  *
- * CSRF PROTECTION: POST method requires CSRF token validation
- * RATE LIMITING: 20 mutation requests per minute per IP
+ * Security pipeline (CSRF, auth, rate limiting) via createAdminRoute.
+ *
+ * @version 2.0.0
+ * @updated 2026-06-10 - Migrated to createAdminRoute factory
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
-import { NextRequest, NextResponse } from 'next/server'
-import { validateCsrf } from '@/lib/middleware/csrf-middleware'
-import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
-import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
   sendLeaveBidRejectedEmail,
 } from '@/lib/services/pilot-email-notification-service'
 
-export const POST = withRateLimit(async (request: NextRequest) => {
-  try {
-    // CSRF Protection
-    const csrfError = await validateCsrf(request)
-    if (csrfError) {
-      return csrfError
-    }
+const ReviewOptionSchema = z.object({
+  bidId: z.string().min(1, 'Missing required fields: bidId, optionKey, and action'),
+  optionKey: z.union([z.string(), z.number()]),
+  action: z.enum(['approve', 'reject'], {
+    message: 'Invalid action. Must be "approve" or "reject"',
+  }),
+})
 
-    // Check authentication
-    const auth = await getAuthenticatedAdmin()
-    if (!auth.authenticated) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Please log in' },
-        { status: 401 }
-      )
-    }
+export const POST = createAdminRoute(
+  {
+    operation: 'reviewLeaveBidOption',
+    endpoint: '/api/admin/leave-bids/review-option',
+    schema: ReviewOptionSchema,
+  },
+  async ({ body }) => {
+    const { bidId, optionKey, action } = body
 
     const supabase = createAdminClient()
-
-    // Get request body
-    const { bidId, optionKey, action } = await request.json()
-
-    // Validate request
-    if (!bidId || optionKey === undefined || !action) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields: bidId, optionKey, and action' },
-        { status: 400 }
-      )
-    }
-
-    if (!['approve', 'reject'].includes(action)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid action. Must be "approve" or "reject"' },
-        { status: 400 }
-      )
-    }
 
     // Fetch the current bid
     const { data: bid, error: fetchError } = await supabase
@@ -179,12 +161,5 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         allStatuses: updatedStatuses,
       },
     })
-  } catch (error: any) {
-    console.error('Error in leave bid option review API:', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'reviewLeaveBidOption',
-      endpoint: '/api/admin/leave-bids/review-option',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-})
+)

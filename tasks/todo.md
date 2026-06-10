@@ -1,3 +1,51 @@
+# API Route Factory — Phase 1 of architecture consolidation
+
+Approved direction (2026-06-10): proceed with redesign recommendations in ROI order:
+route factory → tag-based invalidation → opportunistic service merges.
+Auth unification (Supabase-only) deferred to its own planned migration.
+
+## Phase 1: `createApiRoute` factory + leave-bids proof of concept (this branch)
+
+- [ ] Create `lib/middleware/create-api-route.ts` with `createAdminRoute` / `createPilotRoute`
+      factories implementing the standard pipeline: CSRF → auth → rate limit →
+      role check → Zod body validation → handler → cache revalidation → sanitized errors
+- [ ] Migrate `app/api/admin/leave-bids/review/route.ts` (preserve behavior; drop redundant
+      inline role query — `getAuthenticatedAdmin` already enforces admin/manager)
+- [ ] Migrate `app/api/admin/leave-bids/review-option/route.ts`
+- [ ] Migrate `app/api/admin/leave-bids/[id]/route.ts` (keep per-user `authRateLimit` +
+      `requireRole` + `invalidateLeaveCaches` semantics)
+- [ ] Migrate `app/api/portal/leave-bids/route.ts` (GET keeps no rate limit — shared-office-IP
+      lesson; POST/PUT/DELETE keep current limits and revalidate paths)
+- [ ] `npm run validate` + `npm run validate:naming` (local build may hang — Vercel CI is
+      source of truth per prior sessions)
+- [ ] Run `e2e/leave-bids.spec.ts` locally if dev server cooperates
+- [ ] Commit, push, open PR, watch CI run matching head SHA
+
+## Behavior-preservation notes
+
+- Pipeline order standardized to CSRF → auth (portal POST/PUT previously auth → CSRF;
+  only affects which error wins when both fail)
+- `review` route intentionally still does NOT revalidate paths (current behavior; flagged
+  as follow-up staleness fix)
+- Validation error responses move to the standard `validationErrorResponse` shape
+  (`success:false, error, errorCode, validationErrors`) — same `error` string field clients read
+
+## Follow-ups (separate branches)
+
+- [ ] Phase 1b: migrate remaining ~114 routes to factory in batches of 5–8 with build checks
+- [ ] Phase 2: tag-based cache invalidation (`revalidateTag` + domain tag taxonomy),
+      replace 138 manual `revalidatePath` call sites
+- [ ] Phase 3: merge service pairs opportunistically (pilot/pilot-portal, certification/
+      pilot-certification, leave-bid/unified-request)
+- [ ] CONFIRMED BUG (pre-existing): `an_users.role` is lowercase ('admin' x3, 'manager' x1)
+      but `UserRole` enum compares 'Admin'/'Manager' — `verifyUserRole` 403s every
+      Supabase-authenticated admin; `requireRole` only passes via the admin-session
+      fallback short-circuit. Affects all routes using `requireRole`. Fix enum values
+      (or normalize casing in `getUserRole`) in a dedicated PR.
+- [ ] `review` route: add revalidation after bid approval (staleness bug, behavior change)
+
+---
+
 # Dashboard Data Accuracy Fixes (2026-05-31)
 
 Audit found the admin dashboard's headline numbers are wrong: materialized-view schema
