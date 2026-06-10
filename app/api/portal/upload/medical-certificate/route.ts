@@ -19,7 +19,9 @@ import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import {
   uploadMedicalCertificate,
   validateFileWithMagicBytes,
+  MEDICAL_CERTIFICATES_BUCKET,
 } from '@/lib/services/file-upload-service'
+import { recordUploadedDocument } from '@/lib/services/pilot-document-service'
 import { isValidFileSize } from '@/lib/validations/file-upload-schema'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
@@ -120,11 +122,35 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
+    // Record document metadata so the file appears on the pilot's Documents
+    // tab and can be linked to the leave request after submission.
+    // Non-fatal: the legacy source_attachment_url flow still works without it.
+    let documentId: string | null = null
+    if (uploadResult.path) {
+      const record = await recordUploadedDocument({
+        pilotId: pilot.pilot_id,
+        filePath: uploadResult.path,
+        storageBucket: MEDICAL_CERTIFICATES_BUCKET,
+        filename: file.name,
+        fileSize: file.size,
+        mimeType: magicValidation.detectedType || file.type,
+        documentType: 'MEDICAL',
+        uploadedBy: pilot.id,
+        uploadedByName: `${pilot.first_name} ${pilot.last_name}`,
+      })
+      if (record.success && record.data) {
+        documentId = record.data.id
+      } else {
+        console.warn('Medical certificate uploaded but metadata record failed:', record.error)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         path: uploadResult.path,
         url: uploadResult.url,
+        documentId,
       },
       message: 'Medical certificate uploaded successfully',
     })

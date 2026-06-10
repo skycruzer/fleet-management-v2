@@ -25,19 +25,31 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024
 export const MAX_FILE_SIZE_DISPLAY = '10MB'
 
 /**
- * Allowed MIME types for medical certificates
+ * Allowed MIME types for document uploads (medical certificates, pilot documents)
  */
-export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'] as const
+export const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+] as const
 
 /**
  * Allowed file extensions for display
  */
-export const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'] as const
+export const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'] as const
+
+/**
+ * Human-readable list of allowed types (for error messages)
+ */
+export const ALLOWED_TYPES_DISPLAY = 'PDF, Word (DOC/DOCX), JPG, or PNG'
 
 /**
  * Accept string for file input elements
  */
-export const ACCEPT_STRING = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png'
+export const ACCEPT_STRING =
+  '.pdf,.jpg,.jpeg,.png,.doc,.docx,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -105,7 +117,7 @@ export const FileMetadataSchema = z.object({
       message: `File extension must be one of: ${ALLOWED_EXTENSIONS.join(', ')}`,
     }),
   mimeType: z.string().refine(isValidMimeType, {
-    message: `File type must be one of: PDF, JPG, or PNG`,
+    message: `File type must be one of: ${ALLOWED_TYPES_DISPLAY}`,
   }),
   size: z
     .number()
@@ -165,7 +177,7 @@ export function validateFile(file: File): {
   // Check MIME type
   if (!isValidMimeType(file.type)) {
     errors.push(
-      `File type "${file.type || 'unknown'}" is not allowed. Please upload a PDF, JPG, or PNG file.`
+      `File type "${file.type || 'unknown'}" is not allowed. Please upload a ${ALLOWED_TYPES_DISPLAY} file.`
     )
   }
 

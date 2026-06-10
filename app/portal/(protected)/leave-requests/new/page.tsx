@@ -50,6 +50,7 @@ export default function NewLeaveRequestPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isLateRequest, setIsLateRequest] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string>('')
 
@@ -76,18 +77,30 @@ export default function NewLeaveRequestPage() {
   }
 
   const handleFileSelect = useCallback((file: File | null) => {
-    setSelectedFile(file)
     setUploadError('')
+    if (!file) {
+      setSelectedFile(null)
+      return
+    }
+    // Add to the attachment list (multiple files supported) and reset the picker
+    setAttachedFiles((files) =>
+      files.some((f) => f.name === file.name && f.size === file.size) ? files : [...files, file]
+    )
+    setSelectedFile(null)
   }, [])
 
-  const handleFileRemove = useCallback(() => {
-    setSelectedFile(null)
-    setUploadError('')
-    form.setValue('source_attachment_url', null)
-  }, [form])
+  const handleAttachmentRemove = useCallback(
+    (index: number) => {
+      setAttachedFiles((files) => files.filter((_, i) => i !== index))
+      setUploadError('')
+      form.setValue('source_attachment_url', null)
+    },
+    [form]
+  )
 
-  const uploadMedicalCertificate = async (file: File): Promise<string | null> => {
-    setIsUploading(true)
+  const uploadMedicalCertificate = async (
+    file: File
+  ): Promise<{ url: string | null; documentId: string | null } | null> => {
     setUploadError('')
     try {
       const formData = new FormData()
@@ -102,17 +115,18 @@ export default function NewLeaveRequestPage() {
       if (!response.ok || !result.success) {
         const errorMessage =
           typeof result.error === 'string'
-            ? result.error
-            : 'Failed to upload medical certificate. Please try again.'
+            ? `${file.name}: ${result.error}`
+            : `Failed to upload ${file.name}. Please try again.`
         setUploadError(errorMessage)
         return null
       }
-      return result.data?.url || null
+      return {
+        url: result.data?.url || null,
+        documentId: result.data?.documentId || null,
+      }
     } catch {
-      setUploadError('Failed to upload medical certificate. Please try again.')
+      setUploadError(`Failed to upload ${file.name}. Please try again.`)
       return null
-    } finally {
-      setIsUploading(false)
     }
   }
 
@@ -123,12 +137,21 @@ export default function NewLeaveRequestPage() {
 
     try {
       let attachmentUrl: string | null = null
-      if (data.request_type === 'SICK' && selectedFile) {
-        attachmentUrl = await uploadMedicalCertificate(selectedFile)
-        if (!attachmentUrl && uploadError) {
-          setIsLoading(false)
-          return
+      const documentIds: string[] = []
+      if (data.request_type === 'SICK' && attachedFiles.length > 0) {
+        setIsUploading(true)
+        for (const file of attachedFiles) {
+          const uploaded = await uploadMedicalCertificate(file)
+          if (!uploaded) {
+            setIsUploading(false)
+            setIsLoading(false)
+            return
+          }
+          // Legacy single-URL field keeps the first attachment for older views
+          if (!attachmentUrl && uploaded.url) attachmentUrl = uploaded.url
+          if (uploaded.documentId) documentIds.push(uploaded.documentId)
         }
+        setIsUploading(false)
       }
 
       const submitData = { ...data, source_attachment_url: attachmentUrl }
@@ -148,6 +171,22 @@ export default function NewLeaveRequestPage() {
         setError(errorMessage)
         setIsLoading(false)
         return
+      }
+
+      // Link uploaded documents to the new request (best effort — files
+      // already live on the pilot's Documents tab even if linking fails)
+      const requestId: string | undefined = result.data?.id
+      if (requestId && documentIds.length > 0) {
+        try {
+          await fetch('/api/portal/leave-requests/link-documents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+            body: JSON.stringify({ request_id: requestId, document_ids: documentIds }),
+            credentials: 'include',
+          })
+        } catch {
+          // Non-fatal: reviewers can still find the files on the pilot record
+        }
       }
 
       setSuccess(true)
@@ -313,15 +352,36 @@ export default function NewLeaveRequestPage() {
               {watchRequestType === 'SICK' && (
                 <div className="space-y-2">
                   <FileUpload
-                    label="Medical certificate (optional)"
-                    helperText="Attach a medical certificate to support your sick leave. Admins may request this during review if needed."
+                    label="Supporting documents (optional)"
+                    helperText="Attach medical certificates or other supporting documents (PDF, Word, JPG or PNG — max 10MB each). You can add multiple files."
                     value={selectedFile}
                     onFileSelect={handleFileSelect}
-                    onFileRemove={handleFileRemove}
                     disabled={isLoading || isUploading}
                     isUploading={isUploading}
                     error={uploadError}
                   />
+                  {attachedFiles.length > 0 && (
+                    <ul className="space-y-1">
+                      {attachedFiles.map((file, index) => (
+                        <li
+                          key={`${file.name}-${file.size}`}
+                          className="bg-muted/40 flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                        >
+                          <span className="min-w-0 truncate">{file.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleAttachmentRemove(index)}
+                            disabled={isLoading || isUploading}
+                            aria-label={`Remove ${file.name}`}
+                          >
+                            Remove
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
 

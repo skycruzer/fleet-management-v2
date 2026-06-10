@@ -21,10 +21,11 @@ screenshots/
 *.backup
 node_modules_old/
 
-# Environment files
-.env.local
-.env.test.local
-.env.production
+# Environment files — broad pattern so stray duplicates (e.g. ".env.production 2.local"
+# from a vercel env pull) can never be committed; whitelist examples explicitly
+.env*
+!.env.example
+!.env.test.local.example
 
 # Vercel
 .vercel/

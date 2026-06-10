@@ -33,6 +33,11 @@ import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 export const MEDICAL_CERTIFICATES_BUCKET = 'medical-certificates'
 
 /**
+ * Storage bucket name for pilot documents (contracts, memos, qualifications)
+ */
+export const PILOT_DOCUMENTS_BUCKET = 'pilot-documents'
+
+/**
  * Signed URL expiration time (1 hour in seconds)
  */
 export const SIGNED_URL_EXPIRATION = 3600
@@ -80,6 +85,20 @@ export interface FileUploadInput {
  * ```
  */
 export async function uploadMedicalCertificate(input: FileUploadInput): Promise<UploadResult> {
+  return uploadFileToBucket(MEDICAL_CERTIFICATES_BUCKET, input)
+}
+
+/**
+ * Upload a file to a storage bucket under the pilot's folder
+ *
+ * Generic version of the medical-certificate upload used by both the
+ * medical-certificates and pilot-documents buckets. Same validation,
+ * path convention ({pilotId}/{timestamp}-{filename}) and signed-URL flow.
+ */
+export async function uploadFileToBucket(
+  bucket: string,
+  input: FileUploadInput
+): Promise<UploadResult> {
   try {
     const { file, filename, mimeType, pilotId } = input
 
@@ -95,7 +114,7 @@ export async function uploadMedicalCertificate(input: FileUploadInput): Promise<
     if (!isValidMimeType(mimeType)) {
       return {
         success: false,
-        error: 'Invalid file type. Please upload a PDF, JPG, or PNG file.',
+        error: 'Invalid file type. Please upload a PDF, Word (DOC/DOCX), JPG, or PNG file.',
       }
     }
 
@@ -106,13 +125,11 @@ export async function uploadMedicalCertificate(input: FileUploadInput): Promise<
     const supabase = createServiceRoleClient()
 
     // Upload file to storage
-    const { data, error } = await supabase.storage
-      .from(MEDICAL_CERTIFICATES_BUCKET)
-      .upload(storagePath, file, {
-        contentType: mimeType,
-        cacheControl: '3600',
-        upsert: false, // Don't overwrite existing files
-      })
+    const { data, error } = await supabase.storage.from(bucket).upload(storagePath, file, {
+      contentType: mimeType,
+      cacheControl: '3600',
+      upsert: false, // Don't overwrite existing files
+    })
 
     if (error) {
       console.error('Storage upload error:', error)
@@ -123,7 +140,7 @@ export async function uploadMedicalCertificate(input: FileUploadInput): Promise<
     }
 
     // Generate signed URL for immediate access
-    const signedUrl = await getMedicalCertificateSignedUrl(data.path)
+    const signedUrl = await getSignedUrlForBucket(bucket, data.path)
 
     if (!signedUrl) {
       // File uploaded but couldn't generate signed URL
@@ -137,7 +154,7 @@ export async function uploadMedicalCertificate(input: FileUploadInput): Promise<
       url: signedUrl || undefined,
     }
   } catch (error) {
-    console.error('Upload medical certificate error:', error)
+    console.error('Upload file error:', error)
     return {
       success: false,
       error: 'An unexpected error occurred during upload.',
@@ -164,21 +181,30 @@ export async function getMedicalCertificateSignedUrl(
   path: string,
   expiresIn: number = SIGNED_URL_EXPIRATION
 ): Promise<string | null> {
+  return getSignedUrlForBucket(MEDICAL_CERTIFICATES_BUCKET, path, expiresIn)
+}
+
+/**
+ * Get a signed URL for a file in any private bucket
+ */
+export async function getSignedUrlForBucket(
+  bucket: string,
+  path: string,
+  expiresIn: number = SIGNED_URL_EXPIRATION
+): Promise<string | null> {
   try {
     const supabase = createServiceRoleClient()
 
-    const { data, error } = await supabase.storage
-      .from(MEDICAL_CERTIFICATES_BUCKET)
-      .createSignedUrl(path, expiresIn)
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn)
 
     if (error) {
       // Storage outage vs missing file: both return null today, but log
       // loud so triage can distinguish them. Without this, a Supabase
-      // Storage outage looks identical to "no certificate uploaded."
+      // Storage outage looks identical to "no file uploaded."
       logError(new Error(error.message), {
-        source: 'file-upload-service:getMedicalCertificateSignedUrl',
+        source: 'file-upload-service:getSignedUrlForBucket',
         severity: ErrorSeverity.MEDIUM,
-        metadata: { path, operation: 'createSignedUrl' },
+        metadata: { bucket, path, operation: 'createSignedUrl' },
       })
       return null
     }
@@ -186,9 +212,9 @@ export async function getMedicalCertificateSignedUrl(
     return data.signedUrl
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'file-upload-service:getMedicalCertificateSignedUrl',
+      source: 'file-upload-service:getSignedUrlForBucket',
       severity: ErrorSeverity.MEDIUM,
-      metadata: { path, operation: 'createSignedUrl', stage: 'catchall' },
+      metadata: { bucket, path, operation: 'createSignedUrl', stage: 'catchall' },
     })
     return null
   }
@@ -209,16 +235,23 @@ export async function getMedicalCertificateSignedUrl(
  * ```
  */
 export async function deleteMedicalCertificate(path: string): Promise<boolean> {
+  return deleteFileFromBucket(MEDICAL_CERTIFICATES_BUCKET, path)
+}
+
+/**
+ * Delete a file from any storage bucket
+ */
+export async function deleteFileFromBucket(bucket: string, path: string): Promise<boolean> {
   try {
     const supabase = createServiceRoleClient()
 
-    const { error } = await supabase.storage.from(MEDICAL_CERTIFICATES_BUCKET).remove([path])
+    const { error } = await supabase.storage.from(bucket).remove([path])
 
     if (error) {
       logError(new Error(error.message), {
-        source: 'file-upload-service:deleteMedicalCertificate',
+        source: 'file-upload-service:deleteFileFromBucket',
         severity: ErrorSeverity.MEDIUM,
-        metadata: { path },
+        metadata: { bucket, path },
       })
       return false
     }
@@ -226,9 +259,9 @@ export async function deleteMedicalCertificate(path: string): Promise<boolean> {
     return true
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'file-upload-service:deleteMedicalCertificate',
+      source: 'file-upload-service:deleteFileFromBucket',
       severity: ErrorSeverity.MEDIUM,
-      metadata: { path, stage: 'catchall' },
+      metadata: { bucket, path, stage: 'catchall' },
     })
     return false
   }
@@ -341,6 +374,26 @@ export function detectMimeType(buffer: Buffer | Uint8Array): AllowedMimeType | n
     return 'image/png'
   }
 
+  // DOCX (OOXML): ZIP container, PK 03 04. Any OOXML/ZIP shares this header;
+  // claimed-vs-detected matching in validateFileWithMagicBytes narrows it.
+  if (arr[0] === 0x50 && arr[1] === 0x4b && arr[2] === 0x03 && arr[3] === 0x04) {
+    return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  }
+
+  // Legacy DOC: OLE2 compound file, D0 CF 11 E0 A1 B1 1A E1
+  if (
+    arr[0] === 0xd0 &&
+    arr[1] === 0xcf &&
+    arr[2] === 0x11 &&
+    arr[3] === 0xe0 &&
+    arr[4] === 0xa1 &&
+    arr[5] === 0xb1 &&
+    arr[6] === 0x1a &&
+    arr[7] === 0xe1
+  ) {
+    return 'application/msword'
+  }
+
   return null
 }
 
@@ -362,7 +415,8 @@ export function validateFileWithMagicBytes(
     return {
       isValid: false,
       detectedType: null,
-      error: 'Unable to detect file type. Please upload a valid PDF, JPG, or PNG file.',
+      error:
+        'Unable to detect file type. Please upload a valid PDF, Word (DOC/DOCX), JPG, or PNG file.',
     }
   }
 
