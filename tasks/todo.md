@@ -1,3 +1,28 @@
+# Role-Casing Fix (2026-06-10, branch fix/require-role-casing)
+
+`an_users.role` stores lowercase ('admin' x3, 'manager' x1) but code compares capitalized.
+Normalize on lowercase (matches DB + working auth path in admin-auth-helper).
+
+Confirmed-broken sites (capitalized comparisons against lowercase DB):
+
+- [x] `lib/middleware/authorization-middleware.ts` — UserRole enum values → lowercase;
+      `getUserRole` lowercases DB value (fixes ~15 requireRole routes for Supabase-auth admins)
+- [x] `app/api/retirement/export/pdf/route.ts:42` — broken for EVERYONE (both auth sources)
+- [x] `app/api/retirement/export/csv/route.ts:42` — broken for EVERYONE
+- [x] `app/api/audit/export/route.ts:51` — broken for EVERYONE
+- [x] `app/api/analytics/succession-pipeline/route.ts:40` — broken for EVERYONE
+- [x] `lib/services/user-service.ts` — stats byRole always 0; getUsersByRole filter empty;
+      role union types → lowercase (keep byRole.Admin/Manager/User display keys)
+- [x] `lib/validations/user-validation.ts` — UserRoleEnum accepts any case, stores lowercase
+      (currently user creation would write 'Admin' → user locked out of portal)
+- [x] `app/dashboard/admin/users/new/page.tsx` — option values + default → lowercase
+- [x] `app/api/users/route.ts` GET — normalize ?role= param
+- [x] Follow-up after merge: add `roles: [ADMIN, MANAGER]` to leave-bids review +
+      review-option routes (deferred from PR #58)
+- [x] Verify: tsc/eslint/prettier + grep sweep for remaining capitalized comparisons
+
+---
+
 # API Route Factory — Phase 1 of architecture consolidation
 
 Approved direction (2026-06-10): proceed with redesign recommendations in ROI order:

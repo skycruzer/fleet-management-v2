@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Only Admin and Manager roles can export audit trails
-    if (!['Admin', 'Manager'].includes(userData.role)) {
+    // Only Admin and Manager roles can export audit trails (an_users.role is lowercase)
+    if (!['admin', 'manager'].includes(userData.role?.toLowerCase())) {
       return NextResponse.json(
         { error: 'Insufficient permissions to export audit trails' },
         { status: 403 }

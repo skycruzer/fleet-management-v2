@@ -31,7 +31,7 @@ export default function NewUserPage() {
   } = useForm<UserFormData>({
     resolver: zodResolver(UserCreateSchema),
     defaultValues: {
-      role: 'User',
+      role: 'user',
     },
   })
 
@@ -145,9 +145,9 @@ export default function NewUserPage() {
                   errors.role ? 'border-[var(--color-danger-500)]' : 'border-border'
                 }`}
               >
-                <option value="User">User (Read-only access)</option>
-                <option value="Manager">Manager (View and approve requests)</option>
-                <option value="Admin">Admin (Full system access)</option>
+                <option value="user">User (Read-only access)</option>
+                <option value="manager">Manager (View and approve requests)</option>
+                <option value="admin">Admin (Full system access)</option>
               </select>
               {errors.role && (
                 <p className="text-sm text-[var(--color-danger-600)]">{errors.role.message}</p>
