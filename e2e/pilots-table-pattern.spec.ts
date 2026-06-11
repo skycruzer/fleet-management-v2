@@ -108,3 +108,51 @@ test.describe('Pilots Table — data-table pattern', () => {
     await expect(page).toHaveURL(/sort=/, { timeout: 10000 })
   })
 })
+
+test.describe('Certifications Page — data-table pattern', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page)
+    await page.goto('/dashboard/certifications')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+  })
+
+  test('renders table with pattern toolbar and rows', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    const toolbar = page.getByRole('toolbar')
+    await expect(toolbar.getByPlaceholder(/search pilot or check type/i)).toBeVisible()
+    // Status quick-filter Select lives in the toolbar (preserves ?filter= contract)
+    await expect(toolbar.getByRole('combobox')).toBeVisible()
+    await expect(toolbar.getByRole('button', { name: /toggle columns/i })).toBeVisible()
+
+    expect(await page.getByRole('row').count()).toBeGreaterThan(5)
+  })
+
+  test('search syncs to URL and status filter preserves ?filter= contract', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    const search = page.getByRole('toolbar').getByPlaceholder(/search pilot or check type/i)
+    await search.fill('RONDEAU')
+    await expect(page).toHaveURL(/pilot=RONDEAU/, { timeout: 10000 })
+
+    await page.getByRole('toolbar').getByRole('combobox').click()
+    await page
+      .getByRole('option', { name: /expired/i })
+      .first()
+      .click()
+    await expect(page).toHaveURL(/filter=expired/, { timeout: 10000 })
+
+    // Reset clears the search filter
+    await page.getByRole('button', { name: /reset filters/i }).click()
+    await expect(page).not.toHaveURL(/pilot=/, { timeout: 10000 })
+  })
+
+  test('deep link ?filter=attention narrows to expiring and expired only', async ({ page }) => {
+    await page.goto('/dashboard/certifications?filter=attention')
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    // No "Current" badges visible among the filtered rows
+    const currentBadges = page.locator('tbody [data-status="current"]')
+    expect(await currentBadges.count()).toBe(0)
+  })
+})
