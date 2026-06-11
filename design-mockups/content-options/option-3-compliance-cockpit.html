@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option 3 — Compliance Cockpit</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .cockpit { display: grid; grid-template-columns: 250px 1fr; gap: 16px; }
+  .triage { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px; align-self: start; }
+  .bucket { padding: 8px 10px; }
+  .bucket-title { display: flex; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .bucket-title .n { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .bucket-row { display: flex; font-size: 12.5px; padding: 5px 8px; border-radius: 4px; color: var(--text); }
+  .bucket-row.sel { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .bucket-row .n { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--dim); }
+  .bulkbar { display: flex; align-items: center; gap: 8px; background: var(--sidebar); color: #fff; border-radius: 6px; padding: 8px 14px; margin-bottom: 12px; font-size: 13px; }
+  .bulkbar .btn { background: transparent; border-color: #3a557e; color: #d6e0ef; }
+  .pill-days { font-weight: 700; font-variant-numeric: tabular-nums; }
+  input[type="checkbox"] { accent-color: var(--accent); }
+</style>
+</head>
+<body>
+  <aside>
+    <div class="brand"><div class="brand-mark"></div><span>Fleet Office</span></div>
+    <div class="nav-item"><span class="dot"></span>Dashboard</div>
+    <div class="nav-item"><span class="dot"></span>Pilots</div>
+    <div class="nav-item active"><span class="dot"></span>Certifications<span class="badge">14</span></div>
+    <div class="nav-item"><span class="dot"></span>Requests<span class="badge">6</span></div>
+    <div class="nav-label">Planning</div>
+    <div class="nav-item"><span class="dot"></span>Renewal Planning</div>
+    <div class="nav-item"><span class="dot"></span>Reports</div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <h1>Certifications</h1><span class="rp-chip">RP6 / 2026 · DAY 12 OF 28</span>
+      <div class="topbar-right"><button class="btn">Export</button><button class="btn primary">Add Certification</button></div>
+    </header>
+    <div class="content">
+      <div class="note">OPTION 3 — "Compliance Cockpit": certifications page becomes a triage workspace. Left rail = severity buckets (replaces stat cards + filter row). Rows are selectable for bulk actions; clicking a row opens a slide-out (not a dialog).</div>
+      <div class="cockpit">
+        <div class="triage">
+          <div class="bucket">
+            <div class="bucket-title" style="color:var(--red)">Critical <span class="n">11</span></div>
+            <div class="bucket-row sel">Overdue <span class="n">8</span></div>
+            <div class="bucket-row">Expiring &lt; 7 days <span class="n">3</span></div>
+          </div>
+          <div class="bucket">
+            <div class="bucket-title" style="color:var(--amber)">Attention <span class="n">34</span></div>
+            <div class="bucket-row">Expiring &lt; 14 days <span class="n">21</span></div>
+            <div class="bucket-row">Expiring &lt; 30 days <span class="n">13</span></div>
+          </div>
+          <div class="bucket">
+            <div class="bucket-title" style="color:var(--green)">Current <span class="n">562</span></div>
+            <div class="bucket-row">No expiry date <span class="n">41</span></div>
+          </div>
+          <div class="bucket">
+            <div class="bucket-title" style="color:var(--dim)">By role</div>
+            <div class="bucket-row">Captains <span class="n">6</span></div>
+            <div class="bucket-row">First Officers <span class="n">2</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="bulkbar">
+            <span><b>3 selected</b></span>
+            <button class="btn sm">Email pilots</button>
+            <button class="btn sm">Link to RP7 renewal plan</button>
+            <button class="btn sm">Set new expiry…</button>
+            <span style="margin-left:auto; color:#9fb1c9; font-size:12px">overdue = regulatory breach — sorted by seniority</span>
+          </div>
+          <div class="panel">
+            <table>
+              <tr><th></th><th>Pilot</th><th>Check</th><th>Expired</th><th>Days over</th><th>Renewal plan</th><th>Status</th></tr>
+              <tr><td><input type="checkbox" checked /></td><td><b>D. Karawana</b><div class="muted" style="font-size:11.5px">CPT · Sen 4</div></td><td>Line Check</td><td>02 Jun 2026</td><td class="pill-days" style="color:var(--red)">9</td><td><span class="status blue">RP7 · slot held</span></td><td><span class="status red">Overdue</span></td></tr>
+              <tr><td><input type="checkbox" checked /></td><td><b>J. Bani</b><div class="muted" style="font-size:11.5px">CPT · Sen 7</div></td><td>Route Check</td><td>05 Jun 2026</td><td class="pill-days" style="color:var(--red)">6</td><td><span class="muted">none</span></td><td><span class="status red">Overdue</span></td></tr>
+              <tr><td><input type="checkbox" checked /></td><td><b>K. Maino</b><div class="muted" style="font-size:11.5px">FO · Sen 25</div></td><td>Dangerous Goods</td><td>07 Jun 2026</td><td class="pill-days" style="color:var(--red)">4</td><td><span class="muted">none</span></td><td><span class="status red">Overdue</span></td></tr>
+              <tr><td><input type="checkbox" /></td><td><b>T. Kila</b><div class="muted" style="font-size:11.5px">CPT · Sen 9</div></td><td>Medical Class 1</td><td>08 Jun 2026</td><td class="pill-days" style="color:var(--red)">3</td><td><span class="status blue">RP6 · booked 14 Jun</span></td><td><span class="status red">Overdue</span></td></tr>
+              <tr><td><input type="checkbox" /></td><td><b>E. Kerea</b><div class="muted" style="font-size:11.5px">FO · Sen 28</div></td><td>Security Awareness</td><td>10 Jun 2026</td><td class="pill-days" style="color:var(--red)">1</td><td><span class="muted">none</span></td><td><span class="status red">Overdue</span></td></tr>
+            </table>
+          </div>
+          <p class="muted" style="font-size:12px; margin-top:10px">Row click → slide-out: cert history, documents, linked requests, reschedule. No more edit dialogs.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

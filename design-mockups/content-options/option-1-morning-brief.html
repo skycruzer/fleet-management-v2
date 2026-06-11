@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option 1 — Morning Brief Dashboard</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .elig-banner { display: flex; align-items: center; gap: 18px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--amber); border-radius: 6px; padding: 14px 18px; margin-bottom: 18px; }
+  .elig-banner .title { font-weight: 700; font-size: 13.5px; }
+  .elig-banner .detail { color: var(--dim); font-size: 13px; }
+  .elig-pill { font-size: 12px; font-weight: 650; padding: 3px 10px; border-radius: 4px; }
+  .brief-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .action-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #ebecf0; }
+  .action-row:last-child { border-bottom: none; }
+  .action-row .what { flex: 1; }
+  .action-row .what b { font-size: 13.5px; }
+  .action-row .what .why { color: var(--dim); font-size: 12px; }
+  .deadline { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #ebecf0; font-size: 13px; }
+  .deadline:last-child { border-bottom: none; }
+  .deadline .days { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+  .kpi .label { color: var(--dim); font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi .value { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; margin-top: 3px; }
+  .kpi .sub { font-size: 11.5px; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <aside>
+    <div class="brand"><div class="brand-mark"></div><span>Fleet Office</span></div>
+    <div class="nav-item active"><span class="dot"></span>Dashboard</div>
+    <div class="nav-item"><span class="dot"></span>Pilots</div>
+    <div class="nav-item"><span class="dot"></span>Certifications<span class="badge">14</span></div>
+    <div class="nav-item"><span class="dot"></span>Requests<span class="badge">6</span></div>
+    <div class="nav-label">Planning</div>
+    <div class="nav-item"><span class="dot"></span>Leave Bids</div>
+    <div class="nav-item"><span class="dot"></span>Renewal Planning</div>
+    <div class="nav-item"><span class="dot"></span>Reports</div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <h1>Dashboard</h1><span class="rp-chip">RP6 / 2026 · DAY 12 OF 28</span>
+      <div class="topbar-right"><button class="btn">Export</button><button class="btn primary">New Request</button></div>
+    </header>
+    <div class="content">
+      <div class="note">OPTION 1 — "Morning Brief": same pages, dashboard re-led by what needs action. Crew-eligibility rule becomes the headline; KPIs become verbs; deadlines get a column.</div>
+
+      <div class="elig-banner">
+        <div>
+          <div class="title">Crew eligibility — RP6</div>
+          <div class="detail">2 pending approvals would drop Captains to 9 (below minimum 10)</div>
+        </div>
+        <span class="elig-pill" style="color:var(--green); background:var(--green-bg)">CPT 11 / 10 min</span>
+        <span class="elig-pill" style="color:var(--amber); background:var(--amber-bg)">FO 10 / 10 min — at floor</span>
+        <button class="btn sm primary" style="margin-left:auto">Review the 2 approvals</button>
+      </div>
+
+      <div class="brief-grid">
+        <div class="panel">
+          <div class="panel-head"><h2>Action required today</h2><span class="right">6 items</span></div>
+          <div class="action-row">
+            <span class="status red">Overdue</span>
+            <div class="what"><b>D. Karawana — Line Check expired 9 days</b><div class="why">Captain · removes him from RP7 pairing if unresolved by 18 Jun</div></div>
+            <button class="btn sm">Schedule sim</button>
+          </div>
+          <div class="action-row">
+            <span class="status amber">Decide</span>
+            <div class="what"><b>Leave request · M. Tau · 20–24 Jun</b><div class="why">Approving keeps FO count at 10 — at minimum, no buffer</div></div>
+            <button class="btn sm primary">Review</button>
+          </div>
+          <div class="action-row">
+            <span class="status amber">Decide</span>
+            <div class="what"><b>RDO request · S. Pini · 22 Jun</b><div class="why">No eligibility impact (Captains stay at 11)</div></div>
+            <button class="btn sm primary">Review</button>
+          </div>
+          <div class="action-row">
+            <span class="status blue">Batch</span>
+            <div class="what"><b>5 certifications need sim slots inside RP7</b><div class="why">Bulk-link to renewal plan · 3 already have pairings</div></div>
+            <button class="btn sm">Bulk link</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Deadlines</h2></div>
+          <div class="deadline"><span class="status amber">Bids</span> Leave bid window closes <span class="days" style="color:var(--amber)">3 days</span></div>
+          <div class="deadline"><span class="status blue">RP7</span> Request submission deadline <span class="days">9 days</span></div>
+          <div class="deadline"><span class="status blue">Plan</span> RP8 renewal plan due <span class="days">16 days</span></div>
+          <div class="deadline"><span class="status green">Roster</span> RP7 publication target <span class="days">21 days</span></div>
+        </div>
+      </div>
+
+      <div class="kpi-strip">
+        <div class="kpi"><div class="label">Certs overdue</div><div class="value" style="color:var(--red)">2</div><div class="sub muted">both Captains — act today</div></div>
+        <div class="kpi"><div class="label">Expiring ≤ 14d</div><div class="value" style="color:var(--amber)">8</div><div class="sub muted">5 need sim slots</div></div>
+        <div class="kpi"><div class="label">Awaiting decision</div><div class="value">6</div><div class="sub muted">2 affect eligibility</div></div>
+        <div class="kpi"><div class="label">Fleet compliance</div><div class="value" style="color:var(--green)">92.4%</div><div class="sub muted">↑ 1.2% vs RP5</div></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
