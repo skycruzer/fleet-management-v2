@@ -1,3 +1,93 @@
+# Dashboard pattern adoption — Kiranism next-shadcn-dashboard-starter
+
+**Goal (2026-06-11):** Adopt [Kiranism/next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter)
+(Next.js 16 App Router + React 19 + TS + Tailwind v4 + shadcn/ui — exact stack match) as a
+**pattern source** for fleet-management-v2. Borrow liftable UI/page patterns (data tables,
+dashboard layouts) into our existing design system — NOT a redesign. Operations Navy theme,
+StatusBadge/PageHeader, Supabase auth, service layer, and API factory all stay untouched.
+Prove fit on ONE screen before any wider rollout.
+
+## Guardrails
+
+- UI patterns only — zero changes to auth, services, middleware, or API routes
+- No new dependencies (we already have nuqs, TanStack Query/Table, RHF+Zod, Recharts);
+  their Clerk/Zustand/Sentry wiring is explicitly NOT copied
+- Design rules apply: flat, token-driven, no gradients/glassmorphism (AI-slop rules)
+- One commit per phase on a feature branch; build verified after every batch
+
+## Phase 0 — Acquire & survey (read-only, no project changes) — DONE
+
+- [x] Clone repo to a sibling reference dir (`../_reference/next-shadcn-dashboard-starter`)
+- [x] Inventory: ported the data-table system (`src/components/ui/table/*`,
+      `use-data-table` hook, parsers, types). Other liftable patterns noted for later:
+      feature-folder layout, kanban, profile/settings pages
+- [x] Dependency delta: NONE — @tanstack/react-table 8.21.3 already installed
+
+## Phase 1 — Proof of fit (one pattern, one screen) — DONE (commit on branch)
+
+- [x] Branch `feature/dashboard-patterns` off main
+- [x] Pilots table view rebuilt on the pattern: `components/ui/data-table/` (6 components),
+      `lib/hooks/use-data-table.ts`, `lib/utils/data-table-parsers.ts`, `types/data-table.ts`.
+      Table owns filtering in table mode; shared PilotFilterBar still drives cards/grouped
+- [x] Adaptations vs reference: client-side processing (reference is server-driven);
+      lucide icons; normal-flow container (no fixed-height ScrollArea shell);
+      **`'use no memo'` on all table consumers** — React Compiler froze TanStack's
+      render-phase mutations (toolbar inputs wouldn't update; root-caused via
+      instrumented E2E). Any future TanStack Table consumer needs this directive.
+- [x] Operations Navy tokens throughout; pilots page switched to canonical PageHeader;
+      StatusBadge N/A (its map is workflow statuses, not active/inactive — kept Badge)
+- [x] `npm run build` + `npm run validate` green (also repaired corrupted
+      @testing-library/dom install that pre-broke type-check)
+- [x] Visual pass light/dark (screenshots in test-results/pilots-table-\*.png)
+- [x] e2e/pilots-table-pattern.spec.ts — 6/6 passing (search/faceted filters + URL sync,
+      deep-link restore, column visibility, sorting). Pre-existing pilots.spec.ts
+      List View failures confirmed identical on main (spec drift, not this change)
+
+## Phase 2 — Checkpoint with Maurice — APPROVED ("continue", 2026-06-11)
+
+- [x] Adopt wider; rollout proceeds on the same branch
+
+## Phase 3 — Rollout
+
+- [x] Batch 2 (commit 13ff802): live /dashboard/certifications page migrated to the
+      pattern — search/sort/pagination/column-visibility URL-synced; the documented
+      `?filter=` deep-link contract preserved (status Select stays as data pre-filter,
+      now in the toolbar with an aria-label); export respects filters
+- [x] Legacy `components/ui/data-table.tsx` RETIRED (+ stories + orphaned
+      data-table-loading.tsx) — all tables now on `components/ui/data-table/`
+- [x] E2E: pattern suite 9/9 green (pilots + certifications); certifications.spec
+      List View + Status Color 8/8 (fixed naive status-filter test that broke when the
+      Select gained an aria-label — open Radix Select aria-hides the page); the 2
+      "Pilot Certification History" failures are pre-existing on main
+- [x] Batch 3 (commit 75c7838): requests browse table migrated — sort/page/perPage
+      URL-synced; real pagination replaces the 200-row render cap; selection on TanStack
+      rowSelection (bulk bar unchanged); expansion via new `renderSubRow` on the shared
+      DataTable; props contract unchanged (drop-in for RequestsTableClient); external
+      filter bar keeps owning the filter URL params
+- [x] E2E: pattern suite 13/13 green (pilots 6 + certifications 3 + requests 4 read-only);
+      e2e/requests.spec.ts fails 17/18 identically on main (pre-existing drift, no signal)
+- [x] validate + build green after each batch
+- [ ] Full `npm test` on final tree (deferred — long run; CI is source of truth)
+- [ ] CLAUDE.md note documenting the pattern as canonical (all major tables migrated —
+      ready to add once Maurice merges)
+
+**Findings for Maurice:**
+
+1. `certifications-table.tsx` / `-tabs.tsx` / `-view-toggle.tsx` are UNMOUNTED (zero
+   consumers) — live page has its own implementation using `?filter=`, while CLAUDE.md
+   documents `?tab=attention`. Decide: delete the dead trio, or revive the tabs design.
+2. Legacy E2E spec drift on main (predates current UIs): pilots.spec "List View",
+   certifications.spec "Pilot Certification History", and most of requests.spec fail on
+   main identically. Worth a cleanup pass or deletion in favor of the pattern suite.
+
+**Rollout complete:** pilots, certifications, requests — all major admin tables on the
+pattern. Branch ready to merge.
+
+**Rollback:** reference clone lives outside the repo; all project changes on
+`feature/dashboard-patterns` — abandon = delete branch, zero residue.
+
+---
+
 # Approvals Hub — Option 2 implementation plan
 
 **Decision (2026-06-11):** Build the Approvals Hub from

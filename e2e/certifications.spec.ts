@@ -64,6 +64,13 @@ test.describe('Certification Management - List View', () => {
 
     if (await statusFilter.first().isVisible()) {
       await statusFilter.first().click()
+
+      // If the filter is a dropdown (combobox), complete the interaction by
+      // picking an option — an open overlay hides the table from role queries
+      const option = page.getByRole('option', { name: /current|expired|expiring/i }).first()
+      if (await option.isVisible().catch(() => false)) {
+        await option.click()
+      }
       await page.waitForTimeout(1000)
 
       // Verify filtered results

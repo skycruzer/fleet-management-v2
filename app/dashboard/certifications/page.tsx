@@ -15,13 +15,14 @@
  */
 
 'use client'
+'use no memo'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useQueryState } from 'nuqs'
+import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import { formatDate } from '@/lib/utils/date-utils'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -29,16 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Pagination, usePagination } from '@/components/ui/pagination'
 import { Skeleton, TableSkeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { DataTable } from '@/components/ui/data-table/data-table'
+import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
+import { DataTableToolbar } from '@/components/ui/data-table/data-table-toolbar'
+import { useDataTable } from '@/lib/hooks/use-data-table'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,18 +47,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { CertificationFormDialog } from '@/components/certifications/certification-form-dialog'
-import {
-  Plus,
-  Search,
-  Download,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Trash2,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-} from 'lucide-react'
+import { Plus, Download, AlertCircle, CheckCircle, Clock, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
@@ -111,11 +96,25 @@ interface Certification {
 }
 
 // ===================================
-// SORTING TYPES
+// TABLE FILTER FUNCTIONS
 // ===================================
 
-type CertSortColumn = 'pilot' | 'check_type' | 'status' | 'expiry_date' | 'days_remaining'
-type SortDirection = 'asc' | 'desc'
+// Text search spans pilot name, employee ID, and check description —
+// preserves the previous single-search behavior.
+const searchFilterFn: FilterFn<Certification> = (row, _columnId, filterValue) => {
+  const query = String(filterValue).toLowerCase()
+  const cert = row.original
+  return (
+    `${cert.pilot.first_name} ${cert.pilot.last_name}`.toLowerCase().includes(query) ||
+    cert.pilot.employee_id?.toLowerCase().includes(query) ||
+    cert.check_type.check_description?.toLowerCase().includes(query) ||
+    cert.check_type.check_code?.toLowerCase().includes(query) ||
+    false
+  )
+}
+
+// Sort status by severity (expired first), not alphabetically
+const STATUS_SEVERITY: Record<string, number> = { red: 0, yellow: 1, green: 2, gray: 3 }
 
 // ===================================
 // COMPONENT
@@ -127,16 +126,9 @@ export default function CertificationsPage() {
 
   // Data state
   const [certifications, setCertifications] = useState<Certification[]>([])
-  const [filteredCertifications, setFilteredCertifications] = useState<Certification[]>([])
   const [pilots, setPilots] = useState<Pilot[]>([])
   const [checkTypes, setCheckTypes] = useState<CheckType[]>([])
 
-  // Sort state
-  const [sortColumn, setSortColumn] = useState<CertSortColumn>('pilot')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-
-  // UI state
-  const [searchQuery, setSearchQuery] = useState('')
   // URL-synced so deep links work (?filter=expiring from dashboard widgets,
   // ?filter=attention from the /certifications/expiring redirect)
   const [statusFilter, setStatusFilter] = useQueryState('filter', { defaultValue: 'all' })
@@ -170,7 +162,6 @@ export default function CertificationsPage() {
       // API returns { data: { certifications: [...], pagination: {...} } }
       const certificationsList = data.data?.certifications || []
       setCertifications(certificationsList)
-      setFilteredCertifications(certificationsList)
     } catch (err) {
       console.error('Error fetching certifications:', err)
       setError(err instanceof Error ? err.message : 'Failed to load certifications')
@@ -211,113 +202,26 @@ export default function CertificationsPage() {
     fetchFormData()
   }, [])
 
-  // Filter certifications based on search and status
-  useEffect(() => {
-    let filtered = certifications
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter((cert) => {
-        const pilotName = `${cert.pilot.first_name} ${cert.pilot.last_name}`.toLowerCase()
-        const checkType = cert.check_type.check_description.toLowerCase()
-        const query = searchQuery.toLowerCase()
-        return pilotName.includes(query) || checkType.includes(query)
-      })
-    }
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((cert) => {
-        switch (statusFilter) {
-          case 'current':
-            return cert.status.color === 'green'
-          case 'expiring':
-            return cert.status.color === 'yellow'
-          case 'expired':
-            return cert.status.color === 'red'
-          case 'attention':
-            // Combined view: anything expiring soon or already expired
-            return cert.status.color === 'yellow' || cert.status.color === 'red'
-          default:
-            return true
-        }
-      })
-    }
-
-    setFilteredCertifications(filtered)
-  }, [searchQuery, statusFilter, certifications])
-
-  // Sort handler
-  const handleSort = (column: CertSortColumn) => {
-    if (column === sortColumn) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
-      setSortDirection('asc')
-    }
-  }
-
-  // aria-sort helper for accessible sortable column headers
-  const getAriaSortValue = (column: CertSortColumn): 'ascending' | 'descending' | 'none' => {
-    if (sortColumn !== column) return 'none'
-    return sortDirection === 'asc' ? 'ascending' : 'descending'
-  }
-
-  // Sort icon helper
-  const getSortIcon = (column: CertSortColumn) => {
-    if (sortColumn !== column) return <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
-    return sortDirection === 'asc' ? (
-      <ArrowUp className="ml-1 h-3.5 w-3.5" />
-    ) : (
-      <ArrowDown className="ml-1 h-3.5 w-3.5" />
-    )
-  }
-
-  // Sort the filtered data
-  const sortedCertifications = [...filteredCertifications].sort((a, b) => {
-    let aValue: string | number
-    let bValue: string | number
-
-    switch (sortColumn) {
-      case 'pilot':
-        aValue = `${a.pilot.first_name} ${a.pilot.last_name}`.toLowerCase()
-        bValue = `${b.pilot.first_name} ${b.pilot.last_name}`.toLowerCase()
-        break
-      case 'check_type':
-        aValue = a.check_type.check_description.toLowerCase()
-        bValue = b.check_type.check_description.toLowerCase()
-        break
-      case 'status': {
-        const statusOrder: Record<string, number> = { red: 0, yellow: 1, green: 2, gray: 3 }
-        aValue = statusOrder[a.status.color] ?? 4
-        bValue = statusOrder[b.status.color] ?? 4
-        break
+  // Status quick-filter (URL `filter` contract) pre-filters the table data;
+  // search/sort/pagination/column-visibility are handled by useDataTable
+  const statusFilteredCertifications = useMemo(() => {
+    if (statusFilter === 'all') return certifications
+    return certifications.filter((cert) => {
+      switch (statusFilter) {
+        case 'current':
+          return cert.status.color === 'green'
+        case 'expiring':
+          return cert.status.color === 'yellow'
+        case 'expired':
+          return cert.status.color === 'red'
+        case 'attention':
+          // Combined view: anything expiring soon or already expired
+          return cert.status.color === 'yellow' || cert.status.color === 'red'
+        default:
+          return true
       }
-      case 'expiry_date':
-        aValue = a.expiry_date ? new Date(a.expiry_date).getTime() : 0
-        bValue = b.expiry_date ? new Date(b.expiry_date).getTime() : 0
-        break
-      case 'days_remaining':
-        aValue = a.status.daysUntilExpiry ?? -9999
-        bValue = b.status.daysUntilExpiry ?? -9999
-        break
-      default:
-        return 0
-    }
-
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-    return 0
-  })
-
-  // Client-side pagination of sorted + filtered results
-  const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
-    usePagination<Certification>(sortedCertifications, 25)
-
-  // Reset pagination when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery, statusFilter, setCurrentPage])
+    })
+  }, [certifications, statusFilter])
 
   // Get status badge variant
   const getStatusBadgeVariant = (color: string) => {
@@ -375,7 +279,112 @@ export default function CertificationsPage() {
     setDeleteDialogOpen(true)
   }
 
-  // Handle export to CSV
+  const columns = useMemo<ColumnDef<Certification>[]>(
+    () => [
+      {
+        id: 'pilot',
+        accessorFn: (row) => `${row.pilot.last_name}, ${row.pilot.first_name}`,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Pilot" />,
+        meta: { label: 'Pilot', variant: 'text', placeholder: 'Search pilot or check type...' },
+        enableColumnFilter: true,
+        filterFn: searchFilterFn,
+        cell: ({ row }) => (
+          <span className="text-foreground font-medium">
+            {row.original.pilot.first_name} {row.original.pilot.last_name}
+          </span>
+        ),
+      },
+      {
+        id: 'employee',
+        accessorFn: (row) => row.pilot.employee_id,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Employee ID" />,
+        meta: { label: 'Employee ID' },
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.pilot.employee_id}</span>
+        ),
+      },
+      {
+        id: 'check',
+        accessorFn: (row) => row.check_type.check_description,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Check Type" />,
+        meta: { label: 'Check Type' },
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.check_type.check_description}</span>
+        ),
+      },
+      {
+        id: 'expiry',
+        accessorKey: 'expiry_date',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Expiry Date" />,
+        meta: { label: 'Expiry Date' },
+        cell: ({ row }) => (
+          <>
+            {row.original.expiry_date
+              ? format(new Date(row.original.expiry_date), 'MMM d, yyyy')
+              : 'No date set'}
+            {row.original.status.daysUntilExpiry !== undefined && (
+              <span className="text-muted-foreground ml-2 text-xs">
+                ({row.original.status.daysUntilExpiry > 0 ? '+' : ''}
+                {row.original.status.daysUntilExpiry}d)
+              </span>
+            )}
+          </>
+        ),
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => STATUS_SEVERITY[row.status.color] ?? 4,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+        meta: { label: 'Status' },
+        cell: ({ row }) => (
+          <Badge
+            variant={getStatusBadgeVariant(row.original.status.color)}
+            className="gap-1"
+            data-status={row.original.status.label.toLowerCase().replace(/\s+/g, '-')}
+          >
+            {getStatusIcon(row.original.status.color)}
+            {row.original.status.label}
+          </Badge>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+        enableHiding: false,
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => handleEditClick(row.original)}>
+              Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteClick(row.original)}
+              className="text-[var(--color-destructive-muted-foreground)] hover:text-[var(--color-danger-300)]"
+              aria-label={`Delete certification for ${row.original.pilot.first_name} ${row.original.pilot.last_name}`}
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    []
+  )
+
+  const { table } = useDataTable({
+    data: statusFilteredCertifications,
+    columns,
+    getRowId: (row) => row.id,
+    enableRowSelection: false,
+    initialState: {
+      sorting: [{ id: 'pilot', desc: false }],
+      pagination: { pageIndex: 0, pageSize: 25 },
+    },
+  })
+
+  // Handle export to CSV (respects current search/sort/status filters)
   const handleExport = () => {
     // Prepare CSV data
     const headers = [
@@ -387,7 +396,8 @@ export default function CertificationsPage() {
       'Status',
       'Days Until Expiry',
     ]
-    const rows = filteredCertifications.map((cert) => [
+    const exportRows = table.getFilteredRowModel().rows.map((tableRow) => tableRow.original)
+    const rows = exportRows.map((cert) => [
       `${cert.pilot.first_name} ${cert.pilot.last_name}`,
       cert.pilot.employee_id,
       cert.check_type.check_description,
@@ -590,28 +600,17 @@ export default function CertificationsPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="p-4">
-        <div
-          className="flex flex-col gap-4 sm:flex-row sm:items-center"
-          role="search"
-          aria-label="Filter certifications"
-        >
-          <div className="relative flex-1">
-            <Search
-              className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-            <Input
-              placeholder="Search by pilot name or check type..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-              aria-label="Search certifications"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+      {/* Certifications Table — search/sort/pagination URL-synced via useDataTable */}
+      <DataTable table={table}>
+        <DataTableToolbar table={table}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value)
+              table.setPageIndex(0)
+            }}
+          >
+            <SelectTrigger className="h-8 w-full sm:w-[200px]" aria-label="Filter by status">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -624,135 +623,8 @@ export default function CertificationsPage() {
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      </Card>
-
-      {/* Certifications Table */}
-      <Card>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead aria-sort={getAriaSortValue('pilot')}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSort('pilot')}
-                    className="-ml-3"
-                  >
-                    Pilot {getSortIcon('pilot')}
-                  </Button>
-                </TableHead>
-                <TableHead>Employee ID</TableHead>
-                <TableHead aria-sort={getAriaSortValue('check_type')}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSort('check_type')}
-                    className="-ml-3"
-                  >
-                    Check Type {getSortIcon('check_type')}
-                  </Button>
-                </TableHead>
-                <TableHead aria-sort={getAriaSortValue('expiry_date')}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSort('expiry_date')}
-                    className="-ml-3"
-                  >
-                    Expiry Date {getSortIcon('expiry_date')}
-                  </Button>
-                </TableHead>
-                <TableHead aria-sort={getAriaSortValue('status')}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSort('status')}
-                    className="-ml-3"
-                  >
-                    Status {getSortIcon('status')}
-                  </Button>
-                </TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center">
-                    <p className="text-muted-foreground">No certifications found</p>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedData.map((cert) => (
-                  <TableRow key={cert.id}>
-                    <TableCell className="text-foreground font-medium">
-                      {cert.pilot.first_name} {cert.pilot.last_name}
-                    </TableCell>
-                    <TableCell className="text-foreground">{cert.pilot.employee_id}</TableCell>
-                    <TableCell className="text-foreground">
-                      {cert.check_type.check_description}
-                    </TableCell>
-                    <TableCell>
-                      {cert.expiry_date
-                        ? format(new Date(cert.expiry_date), 'MMM d, yyyy')
-                        : 'No date set'}
-                      {cert.status.daysUntilExpiry !== undefined && (
-                        <span className="text-muted-foreground ml-2 text-xs">
-                          ({cert.status.daysUntilExpiry > 0 ? '+' : ''}
-                          {cert.status.daysUntilExpiry}d)
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={getStatusBadgeVariant(cert.status.color)}
-                        className="gap-1"
-                        data-status={cert.status.label.toLowerCase().replace(/\s+/g, '-')}
-                      >
-                        {getStatusIcon(cert.status.color)}
-                        {cert.status.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleEditClick(cert)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteClick(cert)}
-                          className="text-[var(--color-destructive-muted-foreground)] hover:text-[var(--color-danger-300)]"
-                          aria-label={`Delete certification for ${cert.pilot.first_name} ${cert.pilot.last_name}`}
-                        >
-                          <Trash2 className="h-4 w-4" aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Pagination */}
-        {filteredCertifications.length > 0 && (
-          <div className="border-t p-4">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={filteredCertifications.length}
-              pageSize={pageSize}
-              pageSizeOptions={[10, 25, 50, 100]}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={setPageSize}
-            />
-          </div>
-        )}
-      </Card>
+        </DataTableToolbar>
+      </DataTable>
 
       {/* Certification Form Dialog */}
       <CertificationFormDialog

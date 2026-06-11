@@ -121,14 +121,16 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
 
   return (
     <>
-      {/* Filter Bar */}
-      <PilotFilterBar
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        contractTypes={contractTypes}
-        resultCount={filteredPilots.length}
-        totalCount={allPilots.length}
-      />
+      {/* Filter Bar — table view owns its own filtering via the data-table toolbar */}
+      {viewMode !== 'table' && (
+        <PilotFilterBar
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          contractTypes={contractTypes}
+          resultCount={filteredPilots.length}
+          totalCount={allPilots.length}
+        />
+      )}
 
       {/* View Toggle — aria-pressed toggle buttons (same pattern as ViewModeToggle) */}
       <div
@@ -194,7 +196,7 @@ export function PilotsViewToggle({ allPilots, contractTypes }: PilotsViewToggleP
             </motion.div>
           )
         ) : viewMode === 'table' ? (
-          <PilotsTable pilots={filteredPilots} />
+          <PilotsTable pilots={allPilots} contractTypes={contractTypes} />
         ) : (
           <>
             {/* Rank Overview */}
