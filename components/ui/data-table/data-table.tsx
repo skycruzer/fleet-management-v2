@@ -12,8 +12,8 @@
 'use client'
 'use no memo'
 
-import { type Table as TanstackTable, flexRender } from '@tanstack/react-table'
-import type * as React from 'react'
+import { type Row, type Table as TanstackTable, flexRender } from '@tanstack/react-table'
+import * as React from 'react'
 
 import { DataTablePagination } from '@/components/ui/data-table/data-table-pagination'
 import {
@@ -31,6 +31,12 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   actionBar?: React.ReactNode
   onRowClick?: (row: TData) => void
   pageSizeOptions?: number[]
+  /**
+   * Optional detail row rendered directly beneath a data row (full width).
+   * Return null for rows without expanded content — the caller owns the
+   * expansion state.
+   */
+  renderSubRow?: (row: Row<TData>) => React.ReactNode
 }
 
 export function DataTable<TData>({
@@ -38,6 +44,7 @@ export function DataTable<TData>({
   actionBar,
   onRowClick,
   pageSizeOptions,
+  renderSubRow,
   children,
   className,
   ...props
@@ -70,20 +77,31 @@ export function DataTable<TData>({
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                    onClick={(event) => handleRowClick(event, row.original)}
-                    className={cn(onRowClick && 'cursor-pointer')}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  const subRow = renderSubRow?.(row)
+                  return (
+                    <React.Fragment key={row.id}>
+                      <TableRow
+                        data-state={row.getIsSelected() && 'selected'}
+                        onClick={(event) => handleRowClick(event, row.original)}
+                        className={cn(onRowClick && 'cursor-pointer')}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {subRow != null && (
+                        <TableRow>
+                          <TableCell colSpan={row.getVisibleCells().length} className="bg-muted/50">
+                            {subRow}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  )
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">

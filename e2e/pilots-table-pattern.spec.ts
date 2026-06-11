@@ -156,3 +156,59 @@ test.describe('Certifications Page — data-table pattern', () => {
     expect(await currentBadges.count()).toBe(0)
   })
 })
+
+test.describe('Requests Table — data-table pattern (read-only)', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page)
+    await page.goto('/dashboard/requests?view=table')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+  })
+
+  test('renders table with pagination controls', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    await expect(page.getByRole('columnheader', { name: /pilot/i })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible()
+    await expect(page.getByText(/row\(s\) total/i)).toBeVisible()
+    await expect(page.getByText(/rows per page/i)).toBeVisible()
+  })
+
+  test('row expansion shows request details', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    const expander = page.getByRole('button', { name: /expand details/i }).first()
+    await expander.click()
+    await expect(page.getByRole('heading', { name: /request details/i })).toBeVisible()
+
+    // Collapse again
+    await page
+      .getByRole('button', { name: /collapse details/i })
+      .first()
+      .click()
+    await expect(page.getByRole('heading', { name: /request details/i })).not.toBeVisible()
+  })
+
+  test('row selection shows bulk action bar and clears', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    await page
+      .getByRole('checkbox', { name: /select request from/i })
+      .first()
+      .check()
+    await expect(page.getByText(/1 request selected/i)).toBeVisible()
+    await expect(page.getByRole('button', { name: /approve all/i })).toBeVisible()
+
+    // Clear selection (no mutation performed)
+    await page.getByRole('button', { name: /^clear$/i }).click()
+    await expect(page.getByText(/1 request selected/i)).not.toBeVisible()
+  })
+
+  test('sorting by pilot syncs to URL', async ({ page }) => {
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
+
+    await page.getByRole('columnheader', { name: /pilot/i }).getByRole('button').click()
+    await page.getByRole('menuitemcheckbox', { name: /asc/i }).click()
+
+    await expect(page).toHaveURL(/sort=/, { timeout: 10000 })
+  })
+})
