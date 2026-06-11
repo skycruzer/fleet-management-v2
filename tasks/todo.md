@@ -43,18 +43,32 @@ Prove fit on ONE screen before any wider rollout.
       deep-link restore, column visibility, sorting). Pre-existing pilots.spec.ts
       List View failures confirmed identical on main (spec drift, not this change)
 
-## Phase 2 — Checkpoint with Maurice (decision gate)
+## Phase 2 — Checkpoint with Maurice — APPROVED ("continue", 2026-06-11)
 
-- [ ] Before/after comparison of the proof screen
-- [ ] Decide: adopt wider / adjust / abandon (delete branch, keep reference clone)
-- Candidate next screens if adopted: certifications-table (last consumer of legacy
-  ui/data-table.tsx), requests browse table
+- [x] Adopt wider; rollout proceeds on the same branch
 
-## Phase 3 — Rollout (ONLY if Phase 2 approves)
+## Phase 3 — Rollout
 
-- [ ] Apply chosen patterns to agreed screens in batches of 5-8 files, build after each
-- [ ] Update affected E2E specs; full `npm test` on final tree
-- [ ] CLAUDE.md + memory update if a pattern becomes canonical
+- [x] Batch 2 (commit 13ff802): live /dashboard/certifications page migrated to the
+      pattern — search/sort/pagination/column-visibility URL-synced; the documented
+      `?filter=` deep-link contract preserved (status Select stays as data pre-filter,
+      now in the toolbar with an aria-label); export respects filters
+- [x] Legacy `components/ui/data-table.tsx` RETIRED (+ stories + orphaned
+      data-table-loading.tsx) — all tables now on `components/ui/data-table/`
+- [x] E2E: pattern suite 9/9 green (pilots + certifications); certifications.spec
+      List View + Status Color 8/8 (fixed naive status-filter test that broke when the
+      Select gained an aria-label — open Radix Select aria-hides the page); the 2
+      "Pilot Certification History" failures are pre-existing on main
+- [x] validate + build green after each batch
+- [ ] Full `npm test` on final tree (deferred — long run; CI is source of truth)
+- [ ] CLAUDE.md note if pattern becomes canonical (suggest after requests table)
+
+**Finding for Maurice:** `certifications-table.tsx`, `certifications-tabs.tsx`, and
+`certifications-view-toggle.tsx` are UNMOUNTED (zero consumers) — the live page has its
+own inline implementation. certifications-table was migrated anyway (so nothing references
+the legacy ui/data-table), but the trio is dead code; CLAUDE.md documents `?tab=attention`
+consolidation that the live page implements as `?filter=` instead. Decide: delete the dead
+trio, or revive the tabs design. Remaining rollout candidate: requests browse table.
 
 **Rollback:** reference clone lives outside the repo; all project changes on
 `feature/dashboard-patterns` — abandon = delete branch, zero residue.
