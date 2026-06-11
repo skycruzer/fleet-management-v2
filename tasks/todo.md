@@ -59,16 +59,29 @@ Prove fit on ONE screen before any wider rollout.
       List View + Status Color 8/8 (fixed naive status-filter test that broke when the
       Select gained an aria-label — open Radix Select aria-hides the page); the 2
       "Pilot Certification History" failures are pre-existing on main
+- [x] Batch 3 (commit 75c7838): requests browse table migrated — sort/page/perPage
+      URL-synced; real pagination replaces the 200-row render cap; selection on TanStack
+      rowSelection (bulk bar unchanged); expansion via new `renderSubRow` on the shared
+      DataTable; props contract unchanged (drop-in for RequestsTableClient); external
+      filter bar keeps owning the filter URL params
+- [x] E2E: pattern suite 13/13 green (pilots 6 + certifications 3 + requests 4 read-only);
+      e2e/requests.spec.ts fails 17/18 identically on main (pre-existing drift, no signal)
 - [x] validate + build green after each batch
 - [ ] Full `npm test` on final tree (deferred — long run; CI is source of truth)
-- [ ] CLAUDE.md note if pattern becomes canonical (suggest after requests table)
+- [ ] CLAUDE.md note documenting the pattern as canonical (all major tables migrated —
+      ready to add once Maurice merges)
 
-**Finding for Maurice:** `certifications-table.tsx`, `certifications-tabs.tsx`, and
-`certifications-view-toggle.tsx` are UNMOUNTED (zero consumers) — the live page has its
-own inline implementation. certifications-table was migrated anyway (so nothing references
-the legacy ui/data-table), but the trio is dead code; CLAUDE.md documents `?tab=attention`
-consolidation that the live page implements as `?filter=` instead. Decide: delete the dead
-trio, or revive the tabs design. Remaining rollout candidate: requests browse table.
+**Findings for Maurice:**
+
+1. `certifications-table.tsx` / `-tabs.tsx` / `-view-toggle.tsx` are UNMOUNTED (zero
+   consumers) — live page has its own implementation using `?filter=`, while CLAUDE.md
+   documents `?tab=attention`. Decide: delete the dead trio, or revive the tabs design.
+2. Legacy E2E spec drift on main (predates current UIs): pilots.spec "List View",
+   certifications.spec "Pilot Certification History", and most of requests.spec fail on
+   main identically. Worth a cleanup pass or deletion in favor of the pattern suite.
+
+**Rollout complete:** pilots, certifications, requests — all major admin tables on the
+pattern. Branch ready to merge.
 
 **Rollback:** reference clone lives outside the repo; all project changes on
 `feature/dashboard-patterns` — abandon = delete branch, zero residue.
