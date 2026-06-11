@@ -333,6 +333,12 @@ Old routes redirect to consolidated tabbed views (configured in `next.config.js`
 
 **Dedicated pages** (no redirects): `/dashboard/admin/leave-bids`, `/dashboard/admin/settings`, `/dashboard/admin/check-types`, `/dashboard/admin/pilot-registrations`
 
+**Approvals Hub** (`/dashboard/approvals`, June 2026): the primary decision surface — ALL
+pending items (leave, RDO/SDO, leave bids, registrations) in one master-detail queue with a
+crew-impact preview (`calculateCrewAvailability`) and keyboard review. `/dashboard/requests`
+remains the browse/history surface (table/cards/calendar). New approval flows belong in the
+hub, not on new pages.
+
 ---
 
 ## Database Schema

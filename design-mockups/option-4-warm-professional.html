@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Option 4 — Warm Professional (Mercury/Notion-style)</title>
+    <style>
+      :root {
+        --bg: #f7f6f3;
+        --surface: #fffefb;
+        --border: #e8e5de;
+        --text: #37352f;
+        --text-dim: #82807a;
+        --accent: #44403c;
+        --teal: #0f766e;
+        --teal-bg: #f0faf8;
+        --green: #3f6212;
+        --green-bg: #f4f9ec;
+        --amber: #92590a;
+        --amber-bg: #fdf6e9;
+        --red: #9f1239;
+        --red-bg: #fdf1f4;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, 'SF Pro Text', 'Segoe UI', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.55;
+        display: flex;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+      aside {
+        width: 232px;
+        flex-shrink: 0;
+        padding: 22px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 2px 10px 24px;
+      }
+      .brand-mark {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: var(--accent);
+      }
+      .brand span {
+        font-weight: 650;
+        font-size: 14.5px;
+        letter-spacing: -0.01em;
+      }
+      .nav-label {
+        font-size: 11px;
+        color: var(--text-dim);
+        padding: 16px 10px 5px;
+        font-weight: 600;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        color: var(--text-dim);
+        font-weight: 500;
+        cursor: default;
+      }
+      .nav-item.active {
+        background: #edeae3;
+        color: var(--text);
+      }
+      .nav-item .dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 5px;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+      .nav-item .badge {
+        margin-left: auto;
+        font-size: 11.5px;
+        color: var(--text-dim);
+        background: #edeae3;
+        border-radius: 10px;
+        padding: 0 7px;
+        font-weight: 550;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding: 0 36px;
+      }
+      header {
+        padding: 30px 0 22px;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+      }
+      header h1 {
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+      }
+      .rp-chip {
+        font-size: 13px;
+        color: var(--text-dim);
+      }
+      .header-right {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+      }
+      .btn {
+        font-size: 13.5px;
+        padding: 7px 16px;
+        border-radius: 8px;
+        font-weight: 550;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: default;
+      }
+      .btn.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fffefb;
+      }
+      .content {
+        max-width: 1080px;
+        padding-bottom: 40px;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 26px;
+      }
+      .kpi {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .kpi .label {
+        color: var(--text-dim);
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .kpi .value {
+        font-size: 27px;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+        margin-top: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      .kpi .delta {
+        font-size: 12.5px;
+        margin-top: 5px;
+        font-weight: 500;
+      }
+      .delta.up {
+        color: var(--green);
+      }
+      .delta.warn {
+        color: var(--amber);
+      }
+      .delta.bad {
+        color: var(--red);
+      }
+      .delta.dim {
+        color: var(--text-dim);
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel-head h2 {
+        font-size: 15px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      .panel-head .view-all {
+        margin-left: auto;
+        font-size: 13px;
+        color: var(--teal);
+        font-weight: 550;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-dim);
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 13px 22px;
+        border-bottom: 1px solid #f0ede7;
+        font-size: 13.5px;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      td .name {
+        font-weight: 550;
+      }
+      td .sub {
+        color: var(--text-dim);
+        font-size: 12.5px;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 550;
+        padding: 3px 11px;
+        border-radius: 12px;
+      }
+      .status::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .status.red {
+        color: var(--red);
+        background: var(--red-bg);
+      }
+      .status.amber {
+        color: var(--amber);
+        background: var(--amber-bg);
+      }
+      .status.green {
+        color: var(--green);
+        background: var(--green-bg);
+      }
+      .days {
+        font-variant-numeric: tabular-nums;
+        color: var(--text-dim);
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <span>Fleet Office</span>
+      </div>
+      <div class="nav-item active"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item"><span class="dot"></span>Pilots</div>
+      <div class="nav-item">
+        <span class="dot"></span>Certifications<span class="badge">14</span>
+      </div>
+      <div class="nav-item"><span class="dot"></span>Requests<span class="badge">6</span></div>
+      <div class="nav-label">Planning</div>
+      <div class="nav-item"><span class="dot"></span>Leave Bids</div>
+      <div class="nav-item"><span class="dot"></span>Renewal Planning</div>
+      <div class="nav-item"><span class="dot"></span>Reports</div>
+      <div class="nav-label">System</div>
+      <div class="nav-item"><span class="dot"></span>Settings</div>
+    </aside>
+    <main>
+      <header>
+        <h1>Dashboard</h1>
+        <span class="rp-chip">RP6 / 2026 · Day 12 of 28</span>
+        <div class="header-right">
+          <button class="btn">Export</button>
+          <button class="btn primary">New Request</button>
+        </div>
+      </header>
+      <div class="content">
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Active Pilots</div>
+            <div class="value">27</div>
+            <div class="delta dim">19 Captains · 8 FOs</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Fleet Compliance</div>
+            <div class="value">92.4%</div>
+            <div class="delta up">↑ 1.2% vs RP5</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Expiring ≤ 30 days</div>
+            <div class="value">14</div>
+            <div class="delta warn">5 require sim slots</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Pending Requests</div>
+            <div class="value">6</div>
+            <div class="delta bad">2 past review deadline</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Certifications requiring attention</h2>
+            <span class="view-all">View all →</span>
+          </div>
+          <table>
+            <tr>
+              <th>Pilot</th>
+              <th>Check</th>
+              <th>Expires</th>
+              <th>Days</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">D. Karawana</div>
+                <div class="sub">Captain · Seniority 4</div>
+              </td>
+              <td>Line Check</td>
+              <td>02 Jun 2026</td>
+              <td class="days">−9</td>
+              <td><span class="status red">Expired</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">M. Tau</div>
+                <div class="sub">First Officer · Seniority 22</div>
+              </td>
+              <td>Instrument Rating</td>
+              <td>18 Jun 2026</td>
+              <td class="days">7</td>
+              <td><span class="status amber">Expiring</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">S. Pini</div>
+                <div class="sub">Captain · Seniority 9</div>
+              </td>
+              <td>Medical Class 1</td>
+              <td>27 Jun 2026</td>
+              <td class="days">16</td>
+              <td><span class="status amber">Expiring</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">R. Vagi</div>
+                <div class="sub">Captain · Seniority 11</div>
+              </td>
+              <td>Proficiency Check</td>
+              <td>05 Jul 2026</td>
+              <td class="days">24</td>
+              <td><span class="status amber">Expiring</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">L. Kombuk</div>
+                <div class="sub">First Officer · Seniority 30</div>
+              </td>
+              <td>Dangerous Goods</td>
+              <td>21 Aug 2026</td>
+              <td class="days">71</td>
+              <td><span class="status green">Current</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

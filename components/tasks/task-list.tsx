@@ -318,14 +318,14 @@ export default function TaskList({ tasks }: TaskListProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(task.status)}`}
+                      className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(task.status)}`}
                     >
                       {task.status.replace('_', ' ')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}
+                      className={`inline-flex rounded-sm px-2 py-1 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}
                     >
                       {task.priority}
                     </span>

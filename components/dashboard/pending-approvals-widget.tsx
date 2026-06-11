@@ -62,7 +62,7 @@ export async function PendingApprovalsWidget() {
     <DashboardCard
       title="Pending Approvals"
       icon={ClipboardList}
-      action={{ href: '/dashboard/requests', label: 'View all requests' }}
+      action={{ href: '/dashboard/approvals', label: 'Open approvals queue' }}
     >
       {hasError ? (
         <div className="flex items-center gap-2 py-4" role="alert">

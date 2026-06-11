@@ -129,10 +129,13 @@ function StatusBadge({
   const normalizedStatus = status.toUpperCase()
   const config = STATUS_MAP[normalizedStatus]
 
+  // Operations Navy signature: status chips are uppercase, bold, tight-tracked
+  const statusTypography = 'font-bold uppercase tracking-[0.03em] text-[11px]'
+
   // Unknown status: neutral badge with a humanized label (never raw enums)
   if (!config) {
     return (
-      <Badge variant="outline" size={size} className={className} {...props}>
+      <Badge variant="outline" size={size} className={cn(statusTypography, className)} {...props}>
         {label ?? getStatusLabel(status)}
       </Badge>
     )
@@ -146,7 +149,12 @@ function StatusBadge({
   const iconSize = size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'
 
   return (
-    <Badge variant="outline" size={size} className={cn(colorClasses, className)} {...props}>
+    <Badge
+      variant="outline"
+      size={size}
+      className={cn(colorClasses, statusTypography, className)}
+      {...props}
+    >
       {!hideIcon && (
         <Icon className={cn('mr-1', iconSize, shouldSpin && 'animate-spin')} aria-hidden="true" />
       )}

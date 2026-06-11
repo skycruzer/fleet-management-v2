@@ -14,7 +14,7 @@
 import Link from 'next/link'
 import { getDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { Card } from '@/components/ui/card'
-import { Users, ShieldCheck, AlertTriangle, ClipboardList } from 'lucide-react'
+import { ShieldCheck, AlertTriangle, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { DataDegradedBanner } from './data-degraded-banner'
@@ -62,7 +62,7 @@ function MetricCard({ icon, value, label, href, valueClassName }: MetricCardProp
 }
 
 export async function FleetInsightsWidget() {
-  let activePilots = 0
+  let expiredCerts = 0
   let complianceRate = 0
   let expiringCerts = 0
   let pendingLeave = 0
@@ -71,7 +71,7 @@ export async function FleetInsightsWidget() {
 
   try {
     const metrics = await getDashboardMetrics()
-    activePilots = metrics.pilots.active
+    expiredCerts = metrics.certifications.expired
     complianceRate = metrics.certifications.complianceRate
     expiringCerts = metrics.certifications.expiring
     pendingLeave = metrics.leave.pending
@@ -100,31 +100,34 @@ export async function FleetInsightsWidget() {
       {degraded ? <DataDegradedBanner reason={degradedReason} /> : null}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {/* Action KPIs — every number is something to act on, not a population count */}
         <MetricCard
-          icon={<Users className="h-5 w-5" aria-hidden="true" />}
-          value={String(activePilots)}
-          label="Active Pilots"
-          href="/dashboard/pilots"
-        />
-        <MetricCard
-          icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
-          value={`${Math.round(complianceRate)}%`}
-          label="Compliance"
-          href="/dashboard/certifications"
-          valueClassName={getComplianceColor(complianceRate)}
+          icon={<AlertTriangle className="h-5 w-5" aria-hidden="true" />}
+          value={String(expiredCerts)}
+          label="Certs overdue"
+          href="/dashboard/certifications?tab=attention"
+          valueClassName={expiredCerts > 0 ? 'text-destructive' : 'text-success'}
         />
         <MetricCard
           icon={<AlertTriangle className="h-5 w-5" aria-hidden="true" />}
           value={String(expiringCerts)}
-          label="Expiring"
-          href="/dashboard/certifications?filter=expiring"
+          label="Expiring ≤ 30d"
+          href="/dashboard/certifications?tab=attention"
           valueClassName={getExpiringColor(expiringCerts)}
         />
         <MetricCard
           icon={<ClipboardList className="h-5 w-5" aria-hidden="true" />}
           value={String(pendingLeave)}
-          label="Pending Leave"
-          href="/dashboard/requests?tab=leave"
+          label="Awaiting decision"
+          href="/dashboard/approvals"
+          valueClassName={pendingLeave > 0 ? 'text-warning' : undefined}
+        />
+        <MetricCard
+          icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+          value={`${Math.round(complianceRate)}%`}
+          label="Fleet compliance"
+          href="/dashboard/certifications"
+          valueClassName={getComplianceColor(complianceRate)}
         />
       </div>
     </div>

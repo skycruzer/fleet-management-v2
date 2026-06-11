@@ -85,9 +85,9 @@ function HeroSection() {
           {/* Badge */}
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 rounded-[9999px] border border-[var(--color-input)] bg-white px-4 py-1.5 dark:bg-[#1a1a1a]"
+            className="bg-card inline-flex items-center gap-2 rounded-sm border border-[var(--color-input)] px-4 py-1.5"
           >
-            <span className="h-2 w-2 rounded-full bg-[#16a34a]" />
+            <span className="h-2 w-2 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground text-sm font-medium">
               Aviation Operations Platform
             </span>
@@ -126,7 +126,7 @@ function HeroSection() {
             </Button>
             <Button
               variant="default"
-              className="h-12 rounded-full px-8 text-base"
+              className="h-12 px-8 text-base"
               disabled={!!loadingPath}
               loading={loadingPath === '/portal/login'}
               loadingText="Loading..."
@@ -426,7 +426,7 @@ function CTASection() {
           </Button>
           <Button
             variant="default"
-            className="h-12 rounded-full px-8 text-base"
+            className="h-12 px-8 text-base"
             disabled={!!loadingPath}
             loading={loadingPath === '/portal/login'}
             loadingText="Loading..."

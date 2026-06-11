@@ -99,7 +99,7 @@ function TableView<T>({
   onSort: (id: string) => void
 }) {
   return (
-    <div className="border-border overflow-hidden rounded-xl border">
+    <div className="border-border overflow-hidden rounded-lg border">
       <table className="w-full">
         <thead className="bg-muted/30">
           <tr>
@@ -216,7 +216,7 @@ function CardView<T>({
         <div
           key={keyExtractor(row)}
           className={cn(
-            'border-border bg-background rounded-xl border p-4 transition-all duration-200 motion-reduce:transition-none',
+            'border-border bg-background rounded-lg border p-4 transition-all duration-200 motion-reduce:transition-none',
             onRowClick && 'hover:border-border/80 cursor-pointer hover:shadow-md'
           )}
           onClick={() => onRowClick?.(row)}
@@ -294,7 +294,7 @@ function CardView<T>({
 // Loading skeleton
 function TableSkeleton({ columns, rows = 5 }: { columns: number; rows?: number }) {
   return (
-    <div className="border-border overflow-hidden rounded-xl border">
+    <div className="border-border overflow-hidden rounded-lg border">
       <div className="animate-shimmer">
         <div className="bg-muted/30 h-12" />
         {Array.from({ length: rows }).map((_, i) => (
@@ -362,7 +362,7 @@ export function ResponsiveTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed px-4 py-12 text-center">
+      <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed px-4 py-12 text-center">
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     )

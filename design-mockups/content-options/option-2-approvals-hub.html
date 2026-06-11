@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Option 2 — Approvals Hub</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 12px 24px 0;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+      .tab {
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--dim);
+        border-bottom: 2px solid transparent;
+      }
+      .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .tab .count {
+        font-size: 11px;
+        background: var(--red-solid);
+        color: #fff;
+        border-radius: 9px;
+        padding: 0 6px;
+        margin-left: 5px;
+      }
+      .hub {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 16px;
+      }
+      .queue-item {
+        padding: 11px 14px;
+        border-bottom: 1px solid #ebecf0;
+        cursor: default;
+      }
+      .queue-item.selected {
+        background: var(--accent-soft);
+        border-left: 3px solid var(--accent);
+      }
+      .queue-item b {
+        font-size: 13.5px;
+      }
+      .queue-item .meta {
+        color: var(--dim);
+        font-size: 12px;
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+      }
+      .impact {
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--green);
+        border-radius: 4px;
+        padding: 12px 14px;
+        margin: 14px 16px;
+        background: var(--green-bg);
+      }
+      .impact b {
+        font-size: 13px;
+      }
+      .impact .row {
+        display: flex;
+        gap: 16px;
+        margin-top: 6px;
+        font-size: 12.5px;
+      }
+      .detail-body {
+        padding: 4px 16px 16px;
+      }
+      .field {
+        display: flex;
+        padding: 7px 0;
+        border-bottom: 1px solid #f0f1f3;
+        font-size: 13px;
+      }
+      .field .k {
+        width: 140px;
+        color: var(--dim);
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        padding: 14px 16px;
+        border-top: 2px solid var(--border);
+        align-items: center;
+      }
+      .stepper {
+        margin-left: auto;
+        color: var(--dim);
+        font-size: 12.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <span>Fleet Office</span>
+      </div>
+      <div class="nav-item"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item"><span class="dot"></span>Pilots</div>
+      <div class="nav-item">
+        <span class="dot"></span>Certifications<span class="badge">14</span>
+      </div>
+      <div class="nav-item active">
+        <span class="dot"></span>Approvals<span class="badge">22</span>
+      </div>
+      <div class="nav-label">Planning</div>
+      <div class="nav-item"><span class="dot"></span>Renewal Planning</div>
+      <div class="nav-item"><span class="dot"></span>Reports</div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <h1>Approvals</h1>
+        <span class="rp-chip">RP6 / 2026 · DAY 12 OF 28</span>
+        <div class="topbar-right">
+          <button class="btn">History</button
+          ><button class="btn primary">Start review session</button>
+        </div>
+      </header>
+      <div class="tabs">
+        <div class="tab active">Leave <span class="count">4</span></div>
+        <div class="tab">RDO / SDO <span class="count">2</span></div>
+        <div class="tab">Leave Bids <span class="count">15</span></div>
+        <div class="tab">Registrations <span class="count">1</span></div>
+      </div>
+      <div class="content">
+        <div class="note">
+          OPTION 2 — "Approvals Hub": every decision (requests, bids, registrations) lands in ONE
+          queue. Left = queue, right = decision panel with crew-impact preview. Sidebar loses Leave
+          Bids + Requests as separate items.
+        </div>
+        <div class="hub">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Queue — Leave</h2>
+              <span class="right">oldest first</span>
+            </div>
+            <div class="queue-item selected">
+              <b>M. Tau — Annual · 20–24 Jun</b>
+              <div class="meta">
+                <span>FO · Sen 22</span><span class="status amber">at FO floor</span
+                ><span>submitted 5d ago</span>
+              </div>
+            </div>
+            <div class="queue-item">
+              <b>R. Vagi — Annual · 1–8 Jul</b>
+              <div class="meta">
+                <span>CPT · Sen 11</span><span class="status green">no impact</span
+                ><span>submitted 3d ago</span>
+              </div>
+            </div>
+            <div class="queue-item">
+              <b>L. Kombuk — Sick (paperwork) · 9 Jun</b>
+              <div class="meta">
+                <span>FO · Sen 30</span><span class="status green">past date</span
+                ><span>submitted 1d ago</span>
+              </div>
+            </div>
+            <div class="queue-item">
+              <b>P. Aihi — LSL · RP8 full period</b>
+              <div class="meta">
+                <span>CPT · Sen 6</span><span class="status red">drops CPT to 9</span
+                ><span>submitted 6h ago</span>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>M. Tau — Annual Leave · 20–24 Jun 2026</h2>
+              <span class="right">Sen 22 · First Officer</span>
+            </div>
+            <div class="impact">
+              <b>Crew impact — RP6</b>
+              <div class="row">
+                <span>Captains: <b class="num">11 → 11</b> (no change)</span
+                ><span
+                  >First Officers: <b class="num">10 → 10</b> — request days overlap an existing
+                  approval; FO count stays at minimum</span
+                >
+              </div>
+            </div>
+            <div class="detail-body">
+              <div class="field">
+                <span class="k">Dates</span><span>20–24 Jun (5 days, inside RP6)</span>
+              </div>
+              <div class="field">
+                <span class="k">Method</span><span>Pilot portal · within deadline</span>
+              </div>
+              <div class="field">
+                <span class="k">Seniority context</span
+                ><span>2 more-senior FOs already approved for overlap days</span>
+              </div>
+              <div class="field"><span class="k">Reason</span><span>Family travel</span></div>
+              <div class="field">
+                <span class="k">History</span><span>3 annual requests this year · 0 denied</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn primary">Approve</button>
+              <button class="btn" style="color: var(--red)">Deny…</button>
+              <button class="btn">Needs info</button>
+              <span class="stepper">1 of 4 · ↑↓ to move · A approve · D deny</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

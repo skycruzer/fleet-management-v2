@@ -27,16 +27,16 @@ import { motion, easeOut } from 'framer-motion'
 
 function useChartColors() {
   const [colors, setColors] = useState({
-    chart1: '#c47a5a',
-    chart2: '#5a9e6f',
-    chart3: '#d4a54a',
-    chart4: '#b45a3c',
-    chart5: '#6aab80',
-    grid: 'rgba(255,255,255,0.06)',
-    axis: '#8a8078',
-    tooltipBg: '#1c1a18',
-    tooltipText: '#e4e0db',
-    tooltipBorder: 'rgba(255,255,255,0.1)',
+    chart1: '#0b5cad',
+    chart2: '#5e6c84',
+    chart3: '#1f7a4d',
+    chart4: '#97570b',
+    chart5: '#172b4d',
+    grid: 'rgba(9,30,66,0.08)',
+    axis: '#5e6c84',
+    tooltipBg: '#ffffff',
+    tooltipText: '#172b4d',
+    tooltipBorder: 'rgba(9,30,66,0.12)',
   })
 
   useEffect(() => {
@@ -44,15 +44,15 @@ function useChartColors() {
       const s = getComputedStyle(document.documentElement)
       const get = (name: string, fallback: string) => s.getPropertyValue(name).trim() || fallback
       setColors({
-        chart1: get('--color-chart-1', '#c47a5a'),
-        chart2: get('--color-chart-2', '#5a9e6f'),
-        chart3: get('--color-chart-3', '#d4a54a'),
-        chart4: get('--color-chart-4', '#b45a3c'),
-        chart5: get('--color-chart-5', '#6aab80'),
-        grid: get('--color-chart-grid', 'rgba(255,255,255,0.06)'),
-        axis: get('--color-chart-axis', '#8a8078'),
-        tooltipBg: get('--color-chart-tooltip-bg', '#1c1a18'),
-        tooltipText: get('--color-chart-tooltip-text', '#e4e0db'),
+        chart1: get('--color-chart-1', '#0b5cad'),
+        chart2: get('--color-chart-2', '#5e6c84'),
+        chart3: get('--color-chart-3', '#1f7a4d'),
+        chart4: get('--color-chart-4', '#97570b'),
+        chart5: get('--color-chart-5', '#172b4d'),
+        grid: get('--color-chart-grid', 'rgba(9,30,66,0.08)'),
+        axis: get('--color-chart-axis', '#5e6c84'),
+        tooltipBg: get('--color-chart-tooltip-bg', '#ffffff'),
+        tooltipText: get('--color-chart-tooltip-text', '#172b4d'),
         tooltipBorder: get('--color-chart-tooltip-border', 'rgba(255,255,255,0.1)'),
       })
     }

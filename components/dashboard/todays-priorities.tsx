@@ -31,16 +31,24 @@ export async function TodaysPriorities() {
   try {
     const priorities = await getTodaysPriorities()
 
-    if (priorities.expiringCerts.count > 0) {
+    // Named expiring certs lead — "who and what", not just a count
+    for (const cert of priorities.expiringCerts.items) {
       items.push({
         icon: <AlertTriangle className="text-destructive h-4 w-4" aria-hidden="true" />,
-        label: `${priorities.expiringCerts.count} certification${priorities.expiringCerts.count === 1 ? '' : 's'} expired or expiring within 7 days`,
-        count:
-          priorities.expiringCerts.critical > 0
-            ? `${priorities.expiringCerts.critical} critical`
-            : String(priorities.expiringCerts.count),
-        href: '/dashboard/certifications?filter=expiring',
-        variant: 'destructive',
+        label: `${cert.pilotName} — ${cert.checkType}`,
+        count: cert.daysLeft < 0 ? `${Math.abs(cert.daysLeft)}d overdue` : `${cert.daysLeft}d left`,
+        href: '/dashboard/certifications?tab=attention',
+        variant: cert.daysLeft <= 3 ? 'destructive' : 'warning',
+      })
+    }
+    const namedCount = priorities.expiringCerts.items.length
+    if (priorities.expiringCerts.count > namedCount) {
+      items.push({
+        icon: <AlertTriangle className="text-warning h-4 w-4" aria-hidden="true" />,
+        label: `${priorities.expiringCerts.count - namedCount} more certification${priorities.expiringCerts.count - namedCount === 1 ? '' : 's'} expiring within 7 days`,
+        count: String(priorities.expiringCerts.count - namedCount),
+        href: '/dashboard/certifications?tab=attention',
+        variant: 'warning',
       })
     }
 
@@ -50,14 +58,14 @@ export async function TodaysPriorities() {
         parts.push(`${priorities.pendingRequests.leave} leave`)
       }
       if (priorities.pendingRequests.flight > 0) {
-        parts.push(`${priorities.pendingRequests.flight} flight`)
+        parts.push(`${priorities.pendingRequests.flight} RDO/SDO`)
       }
 
       items.push({
         icon: <ClipboardList className="text-warning h-4 w-4" aria-hidden="true" />,
-        label: `${priorities.pendingRequests.total} pending request${priorities.pendingRequests.total === 1 ? '' : 's'}${parts.length > 0 ? ` (${parts.join(', ')})` : ''}`,
+        label: `${priorities.pendingRequests.total} request${priorities.pendingRequests.total === 1 ? '' : 's'} awaiting decision${parts.length > 0 ? ` (${parts.join(', ')})` : ''} — crew impact shown in the queue`,
         count: String(priorities.pendingRequests.total),
-        href: '/dashboard/requests?status=SUBMITTED,IN_REVIEW',
+        href: '/dashboard/approvals',
         variant: 'warning',
       })
     }
@@ -74,7 +82,11 @@ export async function TodaysPriorities() {
   }
 
   return (
-    <DashboardCard title="Today's Priorities" icon={ListChecks}>
+    <DashboardCard
+      title="Action required today"
+      icon={ListChecks}
+      action={{ href: '/dashboard/approvals', label: 'Open approvals queue' }}
+    >
       {hasError ? (
         <div className="flex items-center gap-2 py-4" role="alert">
           <AlertTriangle className="text-warning h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -93,7 +105,7 @@ export async function TodaysPriorities() {
         <div className="space-y-1">
           {items.map((item) => (
             <Link
-              key={item.href}
+              key={`${item.href}-${item.label}`}
               href={item.href}
               className="hover:bg-muted/50 flex items-center gap-3 rounded-lg p-2.5 transition-colors"
             >

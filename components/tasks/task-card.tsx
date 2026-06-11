@@ -82,7 +82,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
           {task.title}
         </Link>
         <span
-          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}
+          className={`flex-shrink-0 rounded-sm px-2 py-0.5 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}
         >
           {task.priority}
         </span>
@@ -168,13 +168,13 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
           {(task.tags as string[]).slice(0, 3).map((tag, index) => (
             <span
               key={index}
-              className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+              className="bg-muted text-muted-foreground rounded-sm px-2 py-0.5 text-xs"
             >
               {tag}
             </span>
           ))}
           {(task.tags as string[]).length > 3 && (
-            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+            <span className="bg-muted text-muted-foreground rounded-sm px-2 py-0.5 text-xs">
               +{(task.tags as string[]).length - 3}
             </span>
           )}

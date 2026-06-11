@@ -173,7 +173,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
               <div className={`mb-4 rounded-lg p-4 ${column.color}`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-foreground text-lg font-semibold">{column.title}</h3>
-                  <span className="bg-background text-muted-foreground rounded-full px-2 py-1 text-sm font-medium">
+                  <span className="bg-background text-muted-foreground rounded-sm px-2 py-1 text-sm font-medium">
                     {columnTasks.length}
                   </span>
                 </div>

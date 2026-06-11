@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Option 3 — Geist Console (Vercel-style)</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --border: #eaeaea;
+        --border-dark: #d4d4d4;
+        --text: #000000;
+        --text-dim: #666666;
+        --green: #0f7b3e;
+        --green-bg: #f0faf4;
+        --amber: #8a5a00;
+        --amber-bg: #fff8e8;
+        --red: #c01c1c;
+        --red-bg: #fdf0f0;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, 'SF Pro Text', 'Segoe UI', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.45;
+        display: flex;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+      aside {
+        width: 208px;
+        flex-shrink: 0;
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 4px 10px 18px;
+      }
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        background: #000;
+      }
+      .brand span {
+        font-weight: 600;
+        font-size: 13.5px;
+      }
+      .nav-label {
+        font-size: 10.5px;
+        color: var(--text-dim);
+        padding: 14px 10px 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 6px 10px;
+        border-radius: 0;
+        color: var(--text-dim);
+        font-weight: 450;
+        cursor: default;
+        border-left: 2px solid transparent;
+      }
+      .nav-item.active {
+        color: var(--text);
+        border-left-color: #000;
+        background: #f0f0f0;
+      }
+      .nav-item .dot {
+        width: 13px;
+        height: 13px;
+        background: var(--border-dark);
+        flex-shrink: 0;
+      }
+      .nav-item .badge {
+        margin-left: auto;
+        font-size: 11px;
+        border: 1px solid var(--border-dark);
+        color: var(--text);
+        padding: 0 6px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+      }
+      header {
+        height: 52px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+        gap: 12px;
+      }
+      header h1 {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .rp-chip {
+        font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        color: var(--text-dim);
+        border: 1px solid var(--border-dark);
+        padding: 3px 8px;
+      }
+      .header-right {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        font-size: 12.5px;
+        padding: 6px 14px;
+        font-weight: 500;
+        border-radius: 0;
+        border: 1px solid var(--border-dark);
+        background: var(--surface);
+        color: var(--text);
+        cursor: default;
+      }
+      .btn.primary {
+        background: #000;
+        border-color: #000;
+        color: #fff;
+      }
+      .content {
+        padding: 28px;
+        max-width: 1100px;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        margin-bottom: 28px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+      }
+      .kpi {
+        padding: 18px 20px;
+        border-right: 1px solid var(--border);
+      }
+      .kpi:last-child {
+        border-right: none;
+      }
+      .kpi .label {
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+      .kpi .value {
+        font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+        font-size: 26px;
+        font-weight: 500;
+        margin-top: 6px;
+        letter-spacing: -0.02em;
+      }
+      .kpi .delta {
+        font-size: 11.5px;
+        margin-top: 5px;
+      }
+      .delta.up {
+        color: var(--green);
+      }
+      .delta.warn {
+        color: var(--amber);
+      }
+      .delta.bad {
+        color: var(--red);
+      }
+      .delta.dim {
+        color: var(--text-dim);
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel-head h2 {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .panel-head .view-all {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-dim);
+        padding: 8px 20px;
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      td {
+        padding: 10px 20px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #fafafa;
+      }
+      td .name {
+        font-weight: 500;
+      }
+      td .sub {
+        color: var(--text-dim);
+        font-size: 11.5px;
+      }
+      .status {
+        font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border: 1px solid;
+      }
+      .status.red {
+        color: var(--red);
+        border-color: var(--red);
+        background: var(--red-bg);
+      }
+      .status.amber {
+        color: var(--amber);
+        border-color: var(--amber);
+        background: var(--amber-bg);
+      }
+      .status.green {
+        color: var(--green);
+        border-color: var(--green);
+        background: var(--green-bg);
+      }
+      .days {
+        font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .expires {
+        font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <span>Fleet Office</span>
+      </div>
+      <div class="nav-item active"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item"><span class="dot"></span>Pilots</div>
+      <div class="nav-item">
+        <span class="dot"></span>Certifications<span class="badge">14</span>
+      </div>
+      <div class="nav-item"><span class="dot"></span>Requests<span class="badge">6</span></div>
+      <div class="nav-label">Planning</div>
+      <div class="nav-item"><span class="dot"></span>Leave Bids</div>
+      <div class="nav-item"><span class="dot"></span>Renewal Planning</div>
+      <div class="nav-item"><span class="dot"></span>Reports</div>
+      <div class="nav-label">System</div>
+      <div class="nav-item"><span class="dot"></span>Settings</div>
+    </aside>
+    <main>
+      <header>
+        <h1>Dashboard</h1>
+        <span class="rp-chip">RP6/2026 · D12/28</span>
+        <div class="header-right">
+          <button class="btn">Export</button>
+          <button class="btn primary">New Request</button>
+        </div>
+      </header>
+      <div class="content">
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Active Pilots</div>
+            <div class="value">27</div>
+            <div class="delta dim">19 CPT · 8 FO</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Fleet Compliance</div>
+            <div class="value">92.4%</div>
+            <div class="delta up">↑ 1.2% vs RP5</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Expiring ≤ 30 days</div>
+            <div class="value">14</div>
+            <div class="delta warn">5 require sim slots</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Pending Requests</div>
+            <div class="value">6</div>
+            <div class="delta bad">2 past deadline</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Certifications requiring attention</h2>
+            <span class="view-all">View all</span>
+          </div>
+          <table>
+            <tr>
+              <th>Pilot</th>
+              <th>Check</th>
+              <th>Expires</th>
+              <th>Days</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">D. Karawana</div>
+                <div class="sub">Captain · Seniority 4</div>
+              </td>
+              <td>Line Check</td>
+              <td class="expires">2026-06-02</td>
+              <td class="days">−9</td>
+              <td><span class="status red">EXPIRED</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">M. Tau</div>
+                <div class="sub">First Officer · Seniority 22</div>
+              </td>
+              <td>Instrument Rating</td>
+              <td class="expires">2026-06-18</td>
+              <td class="days">7</td>
+              <td><span class="status amber">EXPIRING</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">S. Pini</div>
+                <div class="sub">Captain · Seniority 9</div>
+              </td>
+              <td>Medical Class 1</td>
+              <td class="expires">2026-06-27</td>
+              <td class="days">16</td>
+              <td><span class="status amber">EXPIRING</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">R. Vagi</div>
+                <div class="sub">Captain · Seniority 11</div>
+              </td>
+              <td>Proficiency Check</td>
+              <td class="expires">2026-07-05</td>
+              <td class="days">24</td>
+              <td><span class="status amber">EXPIRING</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="name">L. Kombuk</div>
+                <div class="sub">First Officer · Seniority 30</div>
+              </td>
+              <td>Dangerous Goods</td>
+              <td class="expires">2026-08-21</td>
+              <td class="days">71</td>
+              <td><span class="status green">CURRENT</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -14,14 +14,25 @@ import Link from 'next/link'
 export const metadata: Metadata = portalMetadata.dashboard
 import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
+import { getFinalReviewAlert } from '@/lib/utils/roster-utils'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PageHead } from '@/components/ui/page-head'
-import { Clock, AlertTriangle, Calendar, Plane, ShieldCheck, ChevronRight } from 'lucide-react'
+import {
+  Clock,
+  AlertTriangle,
+  Calendar,
+  Plane,
+  ShieldCheck,
+  ChevronRight,
+  CalendarClock,
+} from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
 import { CertExpiryCard } from '@/components/portal/cert-expiry-card'
+import { NextCheckCard } from '@/components/portal/next-check-card'
+import { RequestsSnapshot } from '@/components/portal/requests-snapshot'
 
 function DashboardSkeleton() {
   return (
@@ -102,6 +113,8 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
   const leaveBidsResult = await getPilotLeaveBids(pilotUser.pilot_id || pilotUser.id, 5)
   const leaveBids = leaveBidsResult.success ? leaveBidsResult.data : []
 
+  const reviewAlert = getFinalReviewAlert()
+
   const complianceTone =
     !stats || stats.compliance_rate >= 90
       ? 'success'
@@ -127,6 +140,56 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
       />
 
       <main className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Pilot-First order (Option 5): roster context first, then "when do I
+            next act?", then deadline, then status — links come last. */}
+
+        {/* Roster period — the pilot's operating context, always first */}
+        <section>
+          <RosterPeriodCard />
+        </section>
+
+        {/* Next check countdown hero */}
+        {stats && (
+          <section>
+            <NextCheckCard
+              expired={stats.expired_certifications_details ?? []}
+              critical={stats.critical_certifications_details ?? []}
+              caution={stats.caution_certifications_details ?? []}
+              upcoming={stats.upcoming_checks_details ?? []}
+            />
+          </section>
+        )}
+
+        {/* Request deadline band — only when the next-RP review window is open */}
+        {reviewAlert.isWithinReviewWindow && (
+          <section>
+            <div
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${
+                reviewAlert.daysUntilRosterStarts <= 7
+                  ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
+                  : 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
+              }`}
+            >
+              <CalendarClock
+                className={`h-5 w-5 flex-shrink-0 ${
+                  reviewAlert.daysUntilRosterStarts <= 7
+                    ? 'text-[var(--color-status-high)]'
+                    : 'text-[var(--color-status-medium)]'
+                }`}
+                aria-hidden="true"
+              />
+              <p className="text-foreground min-w-0 flex-1 text-sm font-semibold">
+                {reviewAlert.nextRoster.code} starts in {reviewAlert.daysUntilRosterStarts} day
+                {reviewAlert.daysUntilRosterStarts === 1 ? '' : 's'} — submit leave or RDO/SDO
+                requests for it now
+              </p>
+              <Button variant="primary" size="sm" asChild>
+                <Link href="/portal/leave-requests/new">New request</Link>
+              </Button>
+            </div>
+          </section>
+        )}
+
         {/* Overview KPIs */}
         {stats && (
           <section>
@@ -206,10 +269,12 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
           </section>
         )}
 
-        {/* Roster period */}
-        <section>
-          <RosterPeriodCard />
-        </section>
+        {/* My requests — latest with "what changed" */}
+        {pilotUser.pilot_id && (
+          <section>
+            <RequestsSnapshot pilotId={pilotUser.pilot_id} />
+          </section>
+        )}
 
         {/* Leave bid status */}
         <section>

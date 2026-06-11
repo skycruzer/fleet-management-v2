@@ -14,13 +14,13 @@ import {
   AlertCircle,
   BarChart3,
   CalendarDays,
-  CalendarHeart,
   CheckSquare,
   ClipboardList,
   FileCheck,
   FileSearch,
   HelpCircle,
   LayoutDashboard,
+  ListChecks,
   MessageSquare,
   RefreshCw,
   ScrollText,
@@ -53,16 +53,14 @@ export const adminNavItems: AdminNavItem[] = [
     icon: FileCheck,
     section: 'primary',
   },
-  { title: 'Requests', href: '/dashboard/requests', icon: ClipboardList, section: 'primary' },
-  {
-    title: 'Leave Bids',
-    href: '/dashboard/admin/leave-bids',
-    icon: CalendarHeart,
-    section: 'primary',
-  },
+  // Approvals Hub replaces the separate Requests + Leave Bids entries — all
+  // pending decisions (leave, RDO/SDO, bids, registrations) in one queue.
+  { title: 'Approvals', href: '/dashboard/approvals', icon: ListChecks, section: 'primary' },
   { title: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, section: 'primary' },
 
   // Secondary — under the "More" expander in the desktop sidebar
+  // Browse/history view of all requests (approvals moved to the hub)
+  { title: 'Requests', href: '/dashboard/requests', icon: ClipboardList, section: 'more' },
   {
     title: 'Published Rosters',
     href: '/dashboard/published-rosters',

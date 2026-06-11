@@ -46,7 +46,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
   const enrichedItems = useMemo(() => {
     const enrich = (items: AdminNavItem[]): NavItem[] =>
       items.map((item) => {
-        if (item.title === 'Requests' && badges?.pendingRequests) {
+        if (item.title === 'Approvals' && badges?.pendingRequests) {
           return {
             ...item,
             badge: String(badges.pendingRequests),
@@ -140,17 +140,19 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       >
         <div
           className={cn(
-            'group relative flex min-h-[36px] items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-100',
+            'group relative flex min-h-[36px] items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors duration-100',
             isCollapsed && 'justify-center px-0',
             active
-              ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              ? 'bg-[var(--color-sidebar-active)] text-[var(--color-sidebar-active-foreground)]'
+              : 'text-[var(--color-sidebar-foreground)] hover:bg-white/5 hover:text-white'
           )}
         >
           <Icon
             className={cn(
               'h-4 w-4 flex-shrink-0 transition-colors',
-              active ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground'
+              active
+                ? 'text-[var(--color-sidebar-active-foreground)]'
+                : 'text-[var(--color-sidebar-muted)] group-hover:text-white'
             )}
             aria-hidden="true"
           />
@@ -161,10 +163,12 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           {item.badge && !isCollapsed && (
             <span
               className={cn(
-                'flex-shrink-0 rounded px-1 py-0.5 text-xs font-medium tabular-nums',
-                item.badgeVariant === 'warning' && 'bg-warning/10 text-warning',
-                item.badgeVariant === 'danger' && 'bg-destructive/10 text-destructive',
-                !item.badgeVariant && 'bg-muted-foreground/10 text-muted-foreground'
+                'flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums',
+                item.badgeVariant === 'warning' && 'bg-[#d97708] text-white',
+                item.badgeVariant === 'danger' &&
+                  'bg-[var(--color-sidebar-badge)] text-[var(--color-sidebar-badge-foreground)]',
+                !item.badgeVariant &&
+                  'bg-[var(--color-sidebar-badge)] text-[var(--color-sidebar-badge-foreground)]'
               )}
               aria-label={
                 item.badgeVariant === 'danger'
@@ -181,9 +185,9 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             <span
               className={cn(
                 'absolute top-1 right-1 h-2 w-2 rounded-full',
-                item.badgeVariant === 'warning' && 'bg-warning',
-                item.badgeVariant === 'danger' && 'bg-destructive',
-                !item.badgeVariant && 'bg-muted-foreground'
+                item.badgeVariant === 'warning' && 'bg-[#d97708]',
+                item.badgeVariant === 'danger' && 'bg-[var(--color-sidebar-badge)]',
+                !item.badgeVariant && 'bg-[var(--color-sidebar-badge)]'
               )}
               aria-label={`${item.badge} items`}
             />
@@ -199,7 +203,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       animate={{ x: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className={cn(
-        'bg-card border-border fixed top-0 left-0 z-[var(--z-sidebar)] h-screen border-r transition-[width] duration-200',
+        'fixed top-0 left-0 z-[var(--z-sidebar)] h-screen border-r border-[var(--color-sidebar-border)] bg-[var(--color-sidebar)] transition-[width] duration-200',
         isCollapsed ? 'w-14' : 'w-60'
       )}
       style={{ willChange: 'transform' }}
@@ -210,7 +214,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         header={
           <div
             className={cn(
-              'border-border flex h-12 items-center gap-2 border-b',
+              'flex h-12 items-center gap-2 border-b border-[var(--color-sidebar-border)]',
               isCollapsed ? 'justify-center px-2' : 'px-4'
             )}
           >
@@ -223,10 +227,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             />
             {!isCollapsed && (
               <div className="min-w-0">
-                <h1
-                  className="text-foreground truncate text-sm font-semibold"
-                  suppressHydrationWarning
-                >
+                <h1 className="truncate text-sm font-semibold text-white" suppressHydrationWarning>
                   {appTitle}
                 </h1>
               </div>
@@ -234,12 +235,12 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           </div>
         }
         footer={
-          <div className="border-border border-t p-2">
+          <div className="border-t border-[var(--color-sidebar-border)] p-2">
             {/* Collapse Toggle Button */}
             <button
               onClick={toggleCollapse}
               className={cn(
-                'text-muted-foreground hover:bg-muted/50 hover:text-foreground mb-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors',
+                'mb-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-[var(--color-sidebar-foreground)] transition-colors hover:bg-white/5 hover:text-white',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -259,7 +260,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             <button
               onClick={handleLogout}
               className={cn(
-                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-destructive-muted-foreground)]',
+                'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-[var(--color-sidebar-foreground)] transition-colors hover:bg-[rgba(201,55,44,0.2)] hover:text-[#ffb3ac]',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Logout' : undefined}
@@ -279,19 +280,19 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           </div>
 
           {/* Separator */}
-          <div className="border-border my-1.5 border-t" />
+          <div className="my-1.5 border-t border-[var(--color-sidebar-border)]" />
 
           {/* "More" collapsible section */}
           <div>
             {!isCollapsed && (
               <button
                 onClick={() => setMoreExpanded(!moreExpanded)}
-                className="focus:ring-primary/20 hover:bg-muted/50 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
+                className="mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors hover:bg-white/5 focus:ring-1 focus:ring-white/20 focus:outline-none"
                 aria-expanded={moreExpanded}
                 aria-controls="nav-section-more"
                 aria-label={`More navigation items, ${moreExpanded ? 'collapse' : 'expand'}`}
               >
-                <h3 className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
+                <h3 className="text-xs font-semibold tracking-widest text-[var(--color-sidebar-muted)] uppercase">
                   More
                 </h3>
                 <motion.div
@@ -300,7 +301,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                   aria-hidden="true"
                   style={{ willChange: 'transform' }}
                 >
-                  <ChevronDown className="text-muted-foreground h-3 w-3" />
+                  <ChevronDown className="h-3 w-3 text-[var(--color-sidebar-muted)]" />
                 </motion.div>
               </button>
             )}

@@ -224,11 +224,25 @@ export default function CertificationsPage() {
     return counts
   }, [certifications, getCertificationStatus])
 
-  // Group certifications by category (memoized)
+  // Group certifications: urgent first (expired/critical pulled out of their
+  // categories so a single overdue check can't hide three sections down),
+  // then categories alphabetically, every group sorted soonest-expiry first.
   const { groupedCerts, sortedCategories } = useMemo(() => {
+    const byExpiry = (a: Certification, b: Certification) => {
+      if (!a.expiry_date) return 1
+      if (!b.expiry_date) return -1
+      return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
+    }
+
+    const urgent: Certification[] = []
     const grouped: Record<string, Certification[]> = {}
 
     for (const cert of filteredCerts) {
+      const status = getCertificationStatus(cert.expiry_date)
+      if (status.filterKey === 'expired' || status.filterKey === 'critical') {
+        urgent.push(cert)
+        continue
+      }
       const category = cert.check_types?.category || 'Uncategorized'
       if (!grouped[category]) {
         grouped[category] = []
@@ -236,11 +250,21 @@ export default function CertificationsPage() {
       grouped[category].push(cert)
     }
 
+    for (const category of Object.keys(grouped)) {
+      grouped[category].sort(byExpiry)
+    }
+
+    const categories = Object.keys(grouped).sort()
+    if (urgent.length > 0) {
+      grouped['⚠ Urgent — expired or expiring within 14 days'] = urgent.sort(byExpiry)
+      categories.unshift('⚠ Urgent — expired or expiring within 14 days')
+    }
+
     return {
       groupedCerts: grouped,
-      sortedCategories: Object.keys(grouped).sort(),
+      sortedCategories: categories,
     }
-  }, [filteredCerts])
+  }, [filteredCerts, getCertificationStatus])
 
   if (isLoading) {
     return (
