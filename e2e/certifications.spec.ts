@@ -362,56 +362,34 @@ test.describe('Certification Management - Bulk Operations', () => {
 test.describe('Certification Management - Pilot Certification History', () => {
   test.beforeEach(async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto('/dashboard/pilots')
+    // Cards is the default pilots view — the table only renders at ?view=table
+    await page.goto('/dashboard/pilots?view=table')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+
+    // Cold dev-server starts can drop the first on-demand-compiled route render;
+    // one reload recovers it
+    if (!(await page.getByRole('table').isVisible())) {
+      await page.reload()
+      await page.waitForLoadState('networkidle', { timeout: 60000 })
+    }
     await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should view pilot certification history', async ({ page }) => {
-    // Navigate to first pilot
+    // Navigate to the first pilot's detail page (direct nav — click-through
+    // is covered by pilots.spec View Pilot Details)
     const firstRow = page.getByRole('row').nth(1)
-    const pilotLink = firstRow.getByRole('link').first()
+    const href = await firstRow.getByRole('link', { name: /view/i }).getAttribute('href')
+    expect(href).toBeTruthy()
+    await page.goto(href!)
+    await expect(page).toHaveURL(/\/dashboard\/pilots\/[a-z0-9-]+/, { timeout: 60000 })
 
-    if (await pilotLink.isVisible()) {
-      await pilotLink.click()
-      await expect(page).toHaveURL(/\/dashboard\/pilots\/[a-z0-9-]+/)
+    // Open the Certifications tab on the pilot detail page
+    await page.getByRole('tab', { name: /certifications/i }).click()
 
-      // Look for certifications section
-      const certificationsSection = page.getByRole('heading', { name: /certifications?/i })
-      if (await certificationsSection.isVisible()) {
-        await expect(certificationsSection).toBeVisible({ timeout: 60000 })
-
-        // Should show list of certifications
-        const certList = page
-          .locator('[data-section="certifications"]')
-          .or(page.getByRole('table').first())
-
-        await expect(certList.first()).toBeVisible({ timeout: 60000 })
-      }
-    }
-  })
-
-  test('should filter pilot certifications by status', async ({ page }) => {
-    // Navigate to first pilot
-    const firstRow = page.getByRole('row').nth(1)
-    const pilotLink = firstRow.getByRole('link').first()
-
-    if (await pilotLink.isVisible()) {
-      await pilotLink.click()
-      await expect(page).toHaveURL(/\/dashboard\/pilots\/[a-z0-9-]+/)
-
-      // Look for status filter on pilot page
-      const statusFilter = page.getByRole('tab', { name: /current|expired|expiring/i })
-
-      if (await statusFilter.first().isVisible()) {
-        await statusFilter.first().click()
-        await page.waitForTimeout(1000)
-
-        // Should show filtered certifications
-        const items = page.locator('[data-certification]')
-        const count = await items.count()
-        expect(count).toBeGreaterThanOrEqual(0)
-      }
-    }
+    // Certification history renders as one table per category
+    await expect(page.getByRole('table').first()).toBeVisible({ timeout: 60000 })
+    expect(await page.getByRole('row').count()).toBeGreaterThan(1)
   })
 })
 

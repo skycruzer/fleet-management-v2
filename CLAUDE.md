@@ -306,12 +306,38 @@ export async function GET(request: NextRequest) {
 | `components/skeletons/` | Loading state placeholders                                                                        |
 | `components/forms/`     | Reusable form components                                                                          |
 
+### Data Tables (canonical pattern)
+
+**All admin tables use `components/ui/data-table/` + `lib/hooks/use-data-table.ts`** — TanStack
+Table wired to nuqs so page, perPage, sort, and column filters live in the URL (deep-linkable,
+back/forward-safe). Used by pilots, certifications, and requests tables. Do not hand-roll
+sort/filter/pagination state for new tables.
+
+```tsx
+const { table } = useDataTable({ data, columns, getRowId: (r) => r.id })
+return (
+  <DataTable table={table}>
+    <DataTableToolbar table={table} />
+  </DataTable>
+)
+```
+
+- Column `meta` drives the toolbar: `{ label, variant: 'text' | 'select' | 'multiSelect', options, placeholder }`
+  with `enableColumnFilter: true` and a `filterFn` on the column
+- `DataTable` supports `onRowClick`, `renderSubRow` (expandable detail rows), and `actionBar`
+  (bulk actions shown when rows are selected)
+- **REQUIRED: `'use no memo'` directive** (after `'use client'`) in EVERY file that touches a
+  TanStack `table`/`column` instance. The React Compiler (`reactCompiler: true`) memoizes
+  consumers and cannot see TanStack's render-phase table mutations — without the directive,
+  toolbar inputs freeze and state updates never render.
+- Pattern E2E coverage: `e2e/pilots-table-pattern.spec.ts`
+
 ### Custom Hooks (`lib/hooks/`)
 
 Check existing hooks before writing new state logic. Key patterns:
 
 - **Optimistic mutations**: `use-optimistic-mutation` (generic), plus domain-specific variants for pilots, certifications, leave requests
-- **Table state**: `use-table-state` (sorting, pagination, filters), `use-filter-presets` (saved configurations)
+- **Data tables**: `use-data-table` (canonical — see Data Tables above); `use-table-state` and `use-filter-presets` remain for legacy non-table list state
 - **UX**: `use-unsaved-changes`, `use-keyboard-shortcuts`, `use-keyboard-nav`, `use-reduced-motion`
 - **Data fetching**: `use-report-query` (TanStack Query wrapper for reports), `use-sidebar-badges`
 - **Security**: `use-csrf-token`, `use-online-status`
@@ -325,7 +351,7 @@ Old routes redirect to consolidated tabbed views (configured in `next.config.js`
 
 | Old Route                            | Redirects To                                  |
 | ------------------------------------ | --------------------------------------------- |
-| `/dashboard/certifications/expiring` | `/dashboard/certifications?tab=attention`     |
+| `/dashboard/certifications/expiring` | `/dashboard/certifications?filter=attention`  |
 | `/dashboard/leave/approve`           | `/dashboard/requests?tab=leave`               |
 | `/dashboard/leave/calendar`          | `/dashboard/requests?tab=leave&view=calendar` |
 | `/dashboard/leave`                   | `/dashboard/requests?tab=leave`               |
