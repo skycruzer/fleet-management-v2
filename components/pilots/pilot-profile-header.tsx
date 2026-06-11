@@ -123,8 +123,8 @@ export function PilotProfileHeader({
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <EllipsisVertical className="h-4 w-4" />
+              <Button variant="outline" size="sm" aria-label="More actions">
+                <EllipsisVertical className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
