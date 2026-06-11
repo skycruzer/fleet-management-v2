@@ -1,3 +1,66 @@
+# Dashboard pattern adoption — Kiranism next-shadcn-dashboard-starter
+
+**Goal (2026-06-11):** Adopt [Kiranism/next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter)
+(Next.js 16 App Router + React 19 + TS + Tailwind v4 + shadcn/ui — exact stack match) as a
+**pattern source** for fleet-management-v2. Borrow liftable UI/page patterns (data tables,
+dashboard layouts) into our existing design system — NOT a redesign. Operations Navy theme,
+StatusBadge/PageHeader, Supabase auth, service layer, and API factory all stay untouched.
+Prove fit on ONE screen before any wider rollout.
+
+## Guardrails
+
+- UI patterns only — zero changes to auth, services, middleware, or API routes
+- No new dependencies (we already have nuqs, TanStack Query/Table, RHF+Zod, Recharts);
+  their Clerk/Zustand/Sentry wiring is explicitly NOT copied
+- Design rules apply: flat, token-driven, no gradients/glassmorphism (AI-slop rules)
+- One commit per phase on a feature branch; build verified after every batch
+
+## Phase 0 — Acquire & survey (read-only, no project changes) — DONE
+
+- [x] Clone repo to a sibling reference dir (`../_reference/next-shadcn-dashboard-starter`)
+- [x] Inventory: ported the data-table system (`src/components/ui/table/*`,
+      `use-data-table` hook, parsers, types). Other liftable patterns noted for later:
+      feature-folder layout, kanban, profile/settings pages
+- [x] Dependency delta: NONE — @tanstack/react-table 8.21.3 already installed
+
+## Phase 1 — Proof of fit (one pattern, one screen) — DONE (commit on branch)
+
+- [x] Branch `feature/dashboard-patterns` off main
+- [x] Pilots table view rebuilt on the pattern: `components/ui/data-table/` (6 components),
+      `lib/hooks/use-data-table.ts`, `lib/utils/data-table-parsers.ts`, `types/data-table.ts`.
+      Table owns filtering in table mode; shared PilotFilterBar still drives cards/grouped
+- [x] Adaptations vs reference: client-side processing (reference is server-driven);
+      lucide icons; normal-flow container (no fixed-height ScrollArea shell);
+      **`'use no memo'` on all table consumers** — React Compiler froze TanStack's
+      render-phase mutations (toolbar inputs wouldn't update; root-caused via
+      instrumented E2E). Any future TanStack Table consumer needs this directive.
+- [x] Operations Navy tokens throughout; pilots page switched to canonical PageHeader;
+      StatusBadge N/A (its map is workflow statuses, not active/inactive — kept Badge)
+- [x] `npm run build` + `npm run validate` green (also repaired corrupted
+      @testing-library/dom install that pre-broke type-check)
+- [x] Visual pass light/dark (screenshots in test-results/pilots-table-\*.png)
+- [x] e2e/pilots-table-pattern.spec.ts — 6/6 passing (search/faceted filters + URL sync,
+      deep-link restore, column visibility, sorting). Pre-existing pilots.spec.ts
+      List View failures confirmed identical on main (spec drift, not this change)
+
+## Phase 2 — Checkpoint with Maurice (decision gate)
+
+- [ ] Before/after comparison of the proof screen
+- [ ] Decide: adopt wider / adjust / abandon (delete branch, keep reference clone)
+- Candidate next screens if adopted: certifications-table (last consumer of legacy
+  ui/data-table.tsx), requests browse table
+
+## Phase 3 — Rollout (ONLY if Phase 2 approves)
+
+- [ ] Apply chosen patterns to agreed screens in batches of 5-8 files, build after each
+- [ ] Update affected E2E specs; full `npm test` on final tree
+- [ ] CLAUDE.md + memory update if a pattern becomes canonical
+
+**Rollback:** reference clone lives outside the repo; all project changes on
+`feature/dashboard-patterns` — abandon = delete branch, zero residue.
+
+---
+
 # Approvals Hub — Option 2 implementation plan
 
 **Decision (2026-06-11):** Build the Approvals Hub from
