@@ -245,9 +245,7 @@ export function PilotPortalSidebar({
 
               <div className="flex-1">
                 <div className="font-semibold">Dashboard</div>
-                <div className="text-sm text-[var(--color-sidebar-muted)]">
-                  Home &amp; overview
-                </div>
+                <div className="text-sm text-[var(--color-sidebar-muted)]">Home &amp; overview</div>
               </div>
             </div>
           </Link>

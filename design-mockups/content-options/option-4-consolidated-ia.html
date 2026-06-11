@@ -1,90 +1,228 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Option 4 — Consolidated IA</title>
-<link rel="stylesheet" href="shared.css" />
-<style>
-  .group { margin-top: 2px; }
-  .group .nav-item.parent { color: var(--sidebar-muted); font-size: 12.5px; }
-  .group .nav-item.child { padding-left: 33px; font-size: 13px; }
-  .bell { position: relative; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-  .bell .b { position: absolute; top: -5px; right: -5px; background: var(--red-solid); color: #fff; font-size: 10px; font-weight: 700; border-radius: 8px; padding: 0 4px; }
-  .hub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
-  .hub-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
-  .hub-card h3 { font-size: 14px; font-weight: 650; margin-bottom: 4px; }
-  .hub-card p { color: var(--dim); font-size: 12.5px; margin-bottom: 10px; }
-  .heat { display: flex; gap: 4px; margin-top: 8px; }
-  .heat .cell { flex: 1; height: 34px; border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; color: #fff; }
-  .deadband { display: flex; align-items: center; gap: 12px; background: var(--amber-bg); border: 1px solid #efd9ad; color: var(--amber); border-radius: 6px; padding: 10px 16px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
-</style>
-</head>
-<body>
-  <aside>
-    <div class="brand"><div class="brand-mark"></div><span>Fleet Office</span></div>
-    <div class="nav-item"><span class="dot"></span>Dashboard</div>
-    <div class="nav-item"><span class="dot"></span>Pilots</div>
-    <div class="nav-item"><span class="dot"></span>Certifications<span class="badge">14</span></div>
-    <div class="nav-item"><span class="dot"></span>Requests<span class="badge">22</span></div>
-    <div class="nav-item active"><span class="dot"></span>Scheduling</div>
-    <div class="nav-item"><span class="dot"></span>Reports &amp; Analytics</div>
-    <div class="nav-label">Admin &amp; Compliance</div>
-    <div class="group">
-      <div class="nav-item child">System Configuration</div>
-      <div class="nav-item child">Governance (Audit · Disciplinary · Feedback)</div>
-      <div class="nav-item child">Help &amp; Documentation</div>
-    </div>
-  </aside>
-  <main>
-    <header class="topbar">
-      <h1>Scheduling</h1><span class="rp-chip">RP6 / 2026 · DAY 12 OF 28</span>
-      <div class="topbar-right"><div class="bell">🔔<span class="b">3</span></div><button class="btn primary">New Request</button></div>
-    </header>
-    <div class="content">
-      <div class="note">OPTION 4 — "Consolidated IA": 6 primary nav items (was 14). Leave Bids merges into Requests; Rosters + Renewal Planning become a Scheduling hub; Analytics + Reports merge; notifications move to a header bell; Help absorbs Support. Below: the new Scheduling hub page.</div>
+  <head>
+    <meta charset="utf-8" />
+    <title>Option 4 — Consolidated IA</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      .group {
+        margin-top: 2px;
+      }
+      .group .nav-item.parent {
+        color: var(--sidebar-muted);
+        font-size: 12.5px;
+      }
+      .group .nav-item.child {
+        padding-left: 33px;
+        font-size: 13px;
+      }
+      .bell {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .bell .b {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--red-solid);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        border-radius: 8px;
+        padding: 0 4px;
+      }
+      .hub-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+      .hub-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 16px 18px;
+      }
+      .hub-card h3 {
+        font-size: 14px;
+        font-weight: 650;
+        margin-bottom: 4px;
+      }
+      .hub-card p {
+        color: var(--dim);
+        font-size: 12.5px;
+        margin-bottom: 10px;
+      }
+      .heat {
+        display: flex;
+        gap: 4px;
+        margin-top: 8px;
+      }
+      .heat .cell {
+        flex: 1;
+        height: 34px;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .deadband {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--amber-bg);
+        border: 1px solid #efd9ad;
+        color: var(--amber);
+        border-radius: 6px;
+        padding: 10px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <span>Fleet Office</span>
+      </div>
+      <div class="nav-item"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item"><span class="dot"></span>Pilots</div>
+      <div class="nav-item">
+        <span class="dot"></span>Certifications<span class="badge">14</span>
+      </div>
+      <div class="nav-item"><span class="dot"></span>Requests<span class="badge">22</span></div>
+      <div class="nav-item active"><span class="dot"></span>Scheduling</div>
+      <div class="nav-item"><span class="dot"></span>Reports &amp; Analytics</div>
+      <div class="nav-label">Admin &amp; Compliance</div>
+      <div class="group">
+        <div class="nav-item child">System Configuration</div>
+        <div class="nav-item child">Governance (Audit · Disciplinary · Feedback)</div>
+        <div class="nav-item child">Help &amp; Documentation</div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <h1>Scheduling</h1>
+        <span class="rp-chip">RP6 / 2026 · DAY 12 OF 28</span>
+        <div class="topbar-right">
+          <div class="bell">🔔<span class="b">3</span></div>
+          <button class="btn primary">New Request</button>
+        </div>
+      </header>
+      <div class="content">
+        <div class="note">
+          OPTION 4 — "Consolidated IA": 6 primary nav items (was 14). Leave Bids merges into
+          Requests; Rosters + Renewal Planning become a Scheduling hub; Analytics + Reports merge;
+          notifications move to a header bell; Help absorbs Support. Below: the new Scheduling hub
+          page.
+        </div>
 
-      <div class="deadband">⚠ Leave bid window closes in 3 days · RP7 request deadline in 9 days · RP8 renewal plan due in 16 days</div>
+        <div class="deadband">
+          ⚠ Leave bid window closes in 3 days · RP7 request deadline in 9 days · RP8 renewal plan
+          due in 16 days
+        </div>
 
-      <div class="hub-grid">
-        <div class="hub-card">
-          <h3>Renewal Planning</h3>
-          <p>Certification renewal capacity by roster period — red periods need attention first.</p>
-          <div class="heat">
-            <div class="cell" style="background:#1f7a4d">RP6<br/>58%</div>
-            <div class="cell" style="background:#1f7a4d">RP7<br/>62%</div>
-            <div class="cell" style="background:#d97708">RP8<br/>78%</div>
-            <div class="cell" style="background:#c9372c">RP9<br/>92%</div>
-            <div class="cell" style="background:#1f7a4d">RP10<br/>44%</div>
-            <div class="cell" style="background:#d97708">RP11<br/>71%</div>
+        <div class="hub-grid">
+          <div class="hub-card">
+            <h3>Renewal Planning</h3>
+            <p>
+              Certification renewal capacity by roster period — red periods need attention first.
+            </p>
+            <div class="heat">
+              <div class="cell" style="background: #1f7a4d">RP6<br />58%</div>
+              <div class="cell" style="background: #1f7a4d">RP7<br />62%</div>
+              <div class="cell" style="background: #d97708">RP8<br />78%</div>
+              <div class="cell" style="background: #c9372c">RP9<br />92%</div>
+              <div class="cell" style="background: #1f7a4d">RP10<br />44%</div>
+              <div class="cell" style="background: #d97708">RP11<br />71%</div>
+            </div>
+            <p style="margin-top: 10px">
+              RP9: 12 pilots scheduled · 4 pairs complete ·
+              <b style="color: var(--red)">2 unpaired Captains</b>
+            </p>
+            <button class="btn sm primary">Open planner</button>
           </div>
-          <p style="margin-top:10px">RP9: 12 pilots scheduled · 4 pairs complete · <b style="color:var(--red)">2 unpaired Captains</b></p>
-          <button class="btn sm primary">Open planner</button>
+          <div class="hub-card">
+            <h3>Published Rosters</h3>
+            <p>Current and upcoming crew rosters as disseminated.</p>
+            <table style="margin: 0 -18px 10px; width: calc(100% + 36px)">
+              <tr>
+                <th>Period</th>
+                <th>Status</th>
+                <th>Coverage</th>
+              </tr>
+              <tr>
+                <td>RP6 (current)</td>
+                <td><span class="status green">Published</span></td>
+                <td class="num">100%</td>
+              </tr>
+              <tr>
+                <td>RP7</td>
+                <td><span class="status amber">Draft</span></td>
+                <td class="num">94%</td>
+              </tr>
+              <tr>
+                <td>RP8</td>
+                <td><span class="status blue">Planning</span></td>
+                <td class="num">—</td>
+              </tr>
+            </table>
+            <button class="btn sm">View rosters</button>
+          </div>
         </div>
-        <div class="hub-card">
-          <h3>Published Rosters</h3>
-          <p>Current and upcoming crew rosters as disseminated.</p>
-          <table style="margin:0 -18px 10px; width:calc(100% + 36px)">
-            <tr><th>Period</th><th>Status</th><th>Coverage</th></tr>
-            <tr><td>RP6 (current)</td><td><span class="status green">Published</span></td><td class="num">100%</td></tr>
-            <tr><td>RP7</td><td><span class="status amber">Draft</span></td><td class="num">94%</td></tr>
-            <tr><td>RP8</td><td><span class="status blue">Planning</span></td><td class="num">—</td></tr>
-          </table>
-          <button class="btn sm">View rosters</button>
-        </div>
-      </div>
 
-      <div class="panel">
-        <div class="panel-head"><h2>Requests now lives as ONE hub</h2><span class="right">/dashboard/requests</span></div>
-        <table>
-          <tr><th>Tab</th><th>Was</th><th>Becomes</th></tr>
-          <tr><td><b>Leave</b> + <b>RDO/SDO</b></td><td>/dashboard/requests</td><td>unchanged — approval queue</td></tr>
-          <tr><td><b>Leave Bids</b></td><td>/dashboard/admin/leave-bids (separate page)</td><td>tab with deadline banner + batch approve by seniority</td></tr>
-          <tr><td><b>Registrations</b></td><td>/dashboard/admin/pilot-registrations (3 clicks deep)</td><td>tab — every pending decision in one place</td></tr>
-          <tr><td><b>Notifications</b></td><td>orphan page (no nav link)</td><td>header bell + archive view</td></tr>
-          <tr><td><b>Support / Help / FAQs</b></td><td>2 pages + chain links</td><td>one "Help &amp; Documentation" page</td></tr>
-        </table>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Requests now lives as ONE hub</h2>
+            <span class="right">/dashboard/requests</span>
+          </div>
+          <table>
+            <tr>
+              <th>Tab</th>
+              <th>Was</th>
+              <th>Becomes</th>
+            </tr>
+            <tr>
+              <td><b>Leave</b> + <b>RDO/SDO</b></td>
+              <td>/dashboard/requests</td>
+              <td>unchanged — approval queue</td>
+            </tr>
+            <tr>
+              <td><b>Leave Bids</b></td>
+              <td>/dashboard/admin/leave-bids (separate page)</td>
+              <td>tab with deadline banner + batch approve by seniority</td>
+            </tr>
+            <tr>
+              <td><b>Registrations</b></td>
+              <td>/dashboard/admin/pilot-registrations (3 clicks deep)</td>
+              <td>tab — every pending decision in one place</td>
+            </tr>
+            <tr>
+              <td><b>Notifications</b></td>
+              <td>orphan page (no nav link)</td>
+              <td>header bell + archive view</td>
+            </tr>
+            <tr>
+              <td><b>Support / Help / FAQs</b></td>
+              <td>2 pages + chain links</td>
+              <td>one "Help &amp; Documentation" page</td>
+            </tr>
+          </table>
+        </div>
       </div>
-    </div>
-  </main>
-</body>
+    </main>
+  </body>
 </html>

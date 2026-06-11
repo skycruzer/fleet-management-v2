@@ -65,7 +65,7 @@ export function NextCheckCard({ expired, critical, caution, upcoming }: NextChec
 
   return (
     <Link href="/portal/certifications" className="block">
-      <Card className={cn('border-t-[3px] p-4 transition-colors hover:bg-muted/40', tone)}>
+      <Card className={cn('hover:bg-muted/40 border-t-[3px] p-4 transition-colors', tone)}>
         <p className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
           {overdue ? 'Check overdue' : 'Next check due'}
         </p>

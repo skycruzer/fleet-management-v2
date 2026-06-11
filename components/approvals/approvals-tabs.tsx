@@ -46,9 +46,7 @@ export function ApprovalsTabs({ activeTab, counts }: ApprovalsTabsProps) {
               <span
                 className={cn(
                   'rounded-full px-1.5 py-0.5 text-[11px] leading-none font-bold tabular-nums',
-                  active
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
+                  active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
                 {counts[tab.key]}

@@ -85,7 +85,7 @@ function HeroSection() {
           {/* Badge */}
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 rounded-sm border border-[var(--color-input)] bg-card px-4 py-1.5"
+            className="bg-card inline-flex items-center gap-2 rounded-sm border border-[var(--color-input)] px-4 py-1.5"
           >
             <span className="h-2 w-2 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground text-sm font-medium">

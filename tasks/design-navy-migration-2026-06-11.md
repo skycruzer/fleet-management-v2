@@ -8,17 +8,17 @@ _Previous (completed) plan archived to `tasks/design-remediation-2026-06-10-comp
 
 ## Target design language (from approved mockup)
 
-| Element       | Spec                                                                                    |
-| ------------- | --------------------------------------------------------------------------------------- |
-| Sidebar       | Navy `#0d2240`, active item `#1a3a63`, text `#b3bdcc` / white active, red count badges  |
-| Canvas        | `#f4f5f7` background, white cards, `#dfe1e6` borders                                    |
-| Accent        | Blue `#0b5cad` (primary buttons, links, chips), soft tint `#e9f2fb`                     |
-| Text          | `#172b4d` primary, `#5e6c84` dim                                                        |
-| Radius        | Compact: 4px buttons/chips, 6px cards (replaces pill geometry)                          |
-| KPI cards     | 3px color-coded top border (info blue / good green / warn amber / bad red)              |
-| Status badges | Uppercase 11px bold, 3px radius, tinted bg (same traffic-light logic, new shades)       |
-| Table headers | Uppercase 11.5px, `#f7f8f9` bg, letter-spacing 0.04em                                   |
-| Status colors | green `#1f7a4d`, amber `#97570b`, red `#ae2a19` (+ bg tints) — WCAG AA on white         |
+| Element       | Spec                                                                                   |
+| ------------- | -------------------------------------------------------------------------------------- |
+| Sidebar       | Navy `#0d2240`, active item `#1a3a63`, text `#b3bdcc` / white active, red count badges |
+| Canvas        | `#f4f5f7` background, white cards, `#dfe1e6` borders                                   |
+| Accent        | Blue `#0b5cad` (primary buttons, links, chips), soft tint `#e9f2fb`                    |
+| Text          | `#172b4d` primary, `#5e6c84` dim                                                       |
+| Radius        | Compact: 4px buttons/chips, 6px cards (replaces pill geometry)                         |
+| KPI cards     | 3px color-coded top border (info blue / good green / warn amber / bad red)             |
+| Status badges | Uppercase 11px bold, 3px radius, tinted bg (same traffic-light logic, new shades)      |
+| Table headers | Uppercase 11.5px, `#f7f8f9` bg, letter-spacing 0.04em                                  |
+| Status colors | green `#1f7a4d`, amber `#97570b`, red `#ae2a19` (+ bg tints) — WCAG AA on white        |
 
 Constraints: no gradients, no glassmorphism, no glow shadows, no aviation decor, single font (Inter stays).
 

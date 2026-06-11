@@ -46,9 +46,6 @@ export async function denyRequestAction(id: string, comments: string): Promise<A
   return reviewRequest(id, 'DENIED', comments || 'Denied by admin')
 }
 
-export async function needsInfoRequestAction(
-  id: string,
-  comments?: string
-): Promise<ActionResult> {
+export async function needsInfoRequestAction(id: string, comments?: string): Promise<ActionResult> {
   return reviewRequest(id, 'IN_REVIEW', comments || 'More information requested')
 }

@@ -1,56 +1,156 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Fleet Office — Content/UX Direction Options</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, "SF Pro Text", "Segoe UI", sans-serif; background: #f4f5f7; color: #172b4d; padding: 44px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  h1 { font-size: 23px; letter-spacing: -0.02em; margin-bottom: 6px; }
-  p.lead { color: #5e6c84; margin-bottom: 30px; max-width: 700px; font-size: 14.5px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)); gap: 16px; max-width: 1400px; }
-  a.card { display: block; background: #fff; border: 1px solid #dfe1e6; border-radius: 6px; padding: 20px 22px; text-decoration: none; color: inherit; }
-  a.card:hover { border-color: #0b5cad; }
-  .tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 3px; margin-bottom: 10px; }
-  h2 { font-size: 15.5px; margin-bottom: 5px; }
-  .desc { font-size: 13.5px; color: #44546f; }
-  .scope { margin-top: 9px; font-size: 12px; color: #5e6c84; }
-</style>
-</head>
-<body>
-  <h1>Fleet Office — content &amp; UX direction options</h1>
-  <p class="lead">Visual skin is settled (Operations Navy). These five options restructure WHAT pages show and HOW work flows, based on the 2026-06-11 content/UX review (tasks/content-ux-review-2026-06-11.md). They are not mutually exclusive — pick one as the lead direction.</p>
-  <div class="grid">
-    <a class="card" href="option-1-morning-brief.html">
-      <span class="tag" style="color:#97570b; background:#fdf3e1">Dashboard rebuild · medium effort</span>
-      <h2>1 · Morning Brief</h2>
-      <div class="desc">Dashboard re-led by action: crew-eligibility banner up top, "action required today" queue, deadline column, KPIs become verbs ("2 overdue — act today"). Pages and nav unchanged.</div>
-      <div class="scope">Touches: dashboard widgets only. Lowest risk, immediate daily value.</div>
-    </a>
-    <a class="card" href="option-2-approvals-hub.html">
-      <span class="tag" style="color:#0b5cad; background:#e9f2fb">Workflow consolidation · high effort</span>
-      <h2>2 · Approvals Hub</h2>
-      <div class="desc">Every decision — leave, RDO/SDO, leave bids, registrations — in one queue with a decision panel: crew-impact preview, seniority context, keyboard-driven sequential review.</div>
-      <div class="scope">Touches: requests + leave-bids + registrations pages, nav. Kills the 3-surface fragmentation (the review's #1 finding).</div>
-    </a>
-    <a class="card" href="option-3-compliance-cockpit.html">
-      <span class="tag" style="color:#ae2a19; background:#fdeeec">Certifications rebuild · medium effort</span>
-      <h2>3 · Compliance Cockpit</h2>
-      <div class="desc">Certifications page becomes a triage workspace: severity buckets in a left rail (Critical/Attention/Current), bulk actions (email pilots, link to renewal plan), slide-out detail instead of dialogs.</div>
-      <div class="scope">Touches: certifications page only. Best for the FAA-compliance core job.</div>
-    </a>
-    <a class="card" href="option-4-consolidated-ia.html">
-      <span class="tag" style="color:#1f7a4d; background:#e8f5ee">Navigation restructure · medium-high effort</span>
-      <h2>4 · Consolidated IA</h2>
-      <div class="desc">14 sidebar items → 6 primary. Leave Bids merges into Requests; Rosters + Renewal Planning become a Scheduling hub with capacity heat-map; Analytics + Reports merge; notifications to a header bell; Help absorbs Support.</div>
-      <div class="scope">Touches: nav config, page merges, redirects. Structural cleanup that benefits every other option later.</div>
-    </a>
-    <a class="card" href="option-5-pilot-first-portal.html">
-      <span class="tag" style="color:#0b5cad; background:#e9f2fb">Portal rebuild · medium effort</span>
-      <h2>5 · Pilot-First Portal</h2>
-      <div class="desc">Portal home rebuilt for a pilot on a phone: roster strip pinned in the header, next-check countdown hero, bid-deadline band, data lists instead of link tiles, "what changed" on requests.</div>
-      <div class="scope">Touches: portal pages only; admin untouched. Highest user-count impact (27 pilots vs ~3 admins).</div>
-    </a>
-  </div>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fleet Office — Content/UX Direction Options</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, 'SF Pro Text', 'Segoe UI', sans-serif;
+        background: #f4f5f7;
+        color: #172b4d;
+        padding: 44px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1 {
+        font-size: 23px;
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+      }
+      p.lead {
+        color: #5e6c84;
+        margin-bottom: 30px;
+        max-width: 700px;
+        font-size: 14.5px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+        gap: 16px;
+        max-width: 1400px;
+      }
+      a.card {
+        display: block;
+        background: #fff;
+        border: 1px solid #dfe1e6;
+        border-radius: 6px;
+        padding: 20px 22px;
+        text-decoration: none;
+        color: inherit;
+      }
+      a.card:hover {
+        border-color: #0b5cad;
+      }
+      .tag {
+        display: inline-block;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 2px 8px;
+        border-radius: 3px;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 15.5px;
+        margin-bottom: 5px;
+      }
+      .desc {
+        font-size: 13.5px;
+        color: #44546f;
+      }
+      .scope {
+        margin-top: 9px;
+        font-size: 12px;
+        color: #5e6c84;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fleet Office — content &amp; UX direction options</h1>
+    <p class="lead">
+      Visual skin is settled (Operations Navy). These five options restructure WHAT pages show and
+      HOW work flows, based on the 2026-06-11 content/UX review
+      (tasks/content-ux-review-2026-06-11.md). They are not mutually exclusive — pick one as the
+      lead direction.
+    </p>
+    <div class="grid">
+      <a class="card" href="option-1-morning-brief.html">
+        <span class="tag" style="color: #97570b; background: #fdf3e1"
+          >Dashboard rebuild · medium effort</span
+        >
+        <h2>1 · Morning Brief</h2>
+        <div class="desc">
+          Dashboard re-led by action: crew-eligibility banner up top, "action required today" queue,
+          deadline column, KPIs become verbs ("2 overdue — act today"). Pages and nav unchanged.
+        </div>
+        <div class="scope">
+          Touches: dashboard widgets only. Lowest risk, immediate daily value.
+        </div>
+      </a>
+      <a class="card" href="option-2-approvals-hub.html">
+        <span class="tag" style="color: #0b5cad; background: #e9f2fb"
+          >Workflow consolidation · high effort</span
+        >
+        <h2>2 · Approvals Hub</h2>
+        <div class="desc">
+          Every decision — leave, RDO/SDO, leave bids, registrations — in one queue with a decision
+          panel: crew-impact preview, seniority context, keyboard-driven sequential review.
+        </div>
+        <div class="scope">
+          Touches: requests + leave-bids + registrations pages, nav. Kills the 3-surface
+          fragmentation (the review's #1 finding).
+        </div>
+      </a>
+      <a class="card" href="option-3-compliance-cockpit.html">
+        <span class="tag" style="color: #ae2a19; background: #fdeeec"
+          >Certifications rebuild · medium effort</span
+        >
+        <h2>3 · Compliance Cockpit</h2>
+        <div class="desc">
+          Certifications page becomes a triage workspace: severity buckets in a left rail
+          (Critical/Attention/Current), bulk actions (email pilots, link to renewal plan), slide-out
+          detail instead of dialogs.
+        </div>
+        <div class="scope">
+          Touches: certifications page only. Best for the FAA-compliance core job.
+        </div>
+      </a>
+      <a class="card" href="option-4-consolidated-ia.html">
+        <span class="tag" style="color: #1f7a4d; background: #e8f5ee"
+          >Navigation restructure · medium-high effort</span
+        >
+        <h2>4 · Consolidated IA</h2>
+        <div class="desc">
+          14 sidebar items → 6 primary. Leave Bids merges into Requests; Rosters + Renewal Planning
+          become a Scheduling hub with capacity heat-map; Analytics + Reports merge; notifications
+          to a header bell; Help absorbs Support.
+        </div>
+        <div class="scope">
+          Touches: nav config, page merges, redirects. Structural cleanup that benefits every other
+          option later.
+        </div>
+      </a>
+      <a class="card" href="option-5-pilot-first-portal.html">
+        <span class="tag" style="color: #0b5cad; background: #e9f2fb"
+          >Portal rebuild · medium effort</span
+        >
+        <h2>5 · Pilot-First Portal</h2>
+        <div class="desc">
+          Portal home rebuilt for a pilot on a phone: roster strip pinned in the header, next-check
+          countdown hero, bid-deadline band, data lists instead of link tiles, "what changed" on
+          requests.
+        </div>
+        <div class="scope">
+          Touches: portal pages only; admin untouched. Highest user-count impact (27 pilots vs ~3
+          admins).
+        </div>
+      </a>
+    </div>
+  </body>
 </html>

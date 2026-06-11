@@ -1,94 +1,282 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Option 5 — Pilot-First Portal (mobile)</title>
-<link rel="stylesheet" href="shared.css" />
-<style>
-  body { display: block; background: #e8eaee; }
-  .stage { display: flex; gap: 40px; justify-content: center; padding: 30px 20px; align-items: flex-start; }
-  .phone { width: 390px; background: var(--bg); border: 1px solid #c9ced8; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 16px rgba(9,30,66,0.12); }
-  .p-head { background: var(--sidebar); color: #fff; padding: 14px 16px 12px; }
-  .p-head .row1 { display: flex; align-items: center; gap: 8px; }
-  .p-head .row1 b { font-size: 14.5px; }
-  .p-head .bell { margin-left: auto; position: relative; font-size: 16px; border: none; }
-  .p-head .bell .b { position: absolute; top: -4px; right: -7px; background: var(--red-solid); font-size: 9px; font-weight: 700; border-radius: 7px; padding: 0 4px; }
-  .rp-strip { display: flex; align-items: center; gap: 8px; margin-top: 10px; background: var(--sidebar-active); border-radius: 6px; padding: 8px 12px; font-size: 12.5px; }
-  .rp-strip b { font-variant-numeric: tabular-nums; }
-  .p-body { padding: 14px; }
-  .hero { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--amber); border-radius: 6px; padding: 14px 16px; margin-bottom: 12px; }
-  .hero .label { font-size: 10.5px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
-  .hero .check { font-size: 16px; font-weight: 700; margin-top: 3px; }
-  .hero .count { font-size: 30px; font-weight: 750; color: var(--amber); font-variant-numeric: tabular-nums; line-height: 1.1; }
-  .hero .sub { font-size: 12px; color: var(--dim); }
-  .alertband { display: flex; gap: 8px; align-items: center; background: var(--amber-bg); border: 1px solid #efd9ad; color: var(--amber); border-radius: 6px; padding: 9px 12px; font-size: 12.5px; font-weight: 650; margin-bottom: 12px; }
-  .alertband .btn { margin-left: auto; }
-  .list-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; overflow: hidden; }
-  .list-card .head { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12.5px; font-weight: 700; display: flex; }
-  .list-card .head .right { margin-left: auto; color: var(--accent); font-weight: 600; }
-  .li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
-  .li:last-child { border-bottom: none; }
-  .li .right { margin-left: auto; }
-  .bottnav { display: flex; border-top: 1px solid var(--border); background: var(--surface); }
-  .bottnav .bi { flex: 1; text-align: center; padding: 9px 0 11px; font-size: 10px; font-weight: 600; color: var(--dim); }
-  .bottnav .bi.active { color: var(--accent); }
-  .bottnav .ic { display: block; width: 18px; height: 18px; border-radius: 5px; background: #c5ccd8; margin: 0 auto 3px; }
-  .bottnav .bi.active .ic { background: var(--accent); }
-  .legend { max-width: 360px; font-size: 13px; color: var(--text); }
-  .legend h2 { font-size: 16px; margin-bottom: 10px; }
-  .legend li { margin-bottom: 8px; color: var(--dim); }
-</style>
-</head>
-<body>
-  <div class="stage">
-    <div class="phone">
-      <div class="p-head">
-        <div class="row1"><b>B767 Pilot Portal</b><span class="bell">🔔<span class="b">2</span></span></div>
-        <div class="rp-strip">📅 <span><b>RP6</b> · Day 12 of 28 · ends <b>26 Jun</b></span></div>
-      </div>
-      <div class="p-body">
-        <div class="hero">
-          <div class="label">Next check due</div>
-          <div style="display:flex; align-items:center; gap:14px">
-            <div class="count">47<div class="sub" style="font-size:11px; text-align:center">days</div></div>
-            <div>
-              <div class="check">Instrument Rating</div>
-              <div class="sub">due 28 Jul 2026 · falls in RP8 — sim slot not yet booked</div>
+  <head>
+    <meta charset="utf-8" />
+    <title>Option 5 — Pilot-First Portal (mobile)</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      body {
+        display: block;
+        background: #e8eaee;
+      }
+      .stage {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        padding: 30px 20px;
+        align-items: flex-start;
+      }
+      .phone {
+        width: 390px;
+        background: var(--bg);
+        border: 1px solid #c9ced8;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(9, 30, 66, 0.12);
+      }
+      .p-head {
+        background: var(--sidebar);
+        color: #fff;
+        padding: 14px 16px 12px;
+      }
+      .p-head .row1 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .p-head .row1 b {
+        font-size: 14.5px;
+      }
+      .p-head .bell {
+        margin-left: auto;
+        position: relative;
+        font-size: 16px;
+        border: none;
+      }
+      .p-head .bell .b {
+        position: absolute;
+        top: -4px;
+        right: -7px;
+        background: var(--red-solid);
+        font-size: 9px;
+        font-weight: 700;
+        border-radius: 7px;
+        padding: 0 4px;
+      }
+      .rp-strip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        background: var(--sidebar-active);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12.5px;
+      }
+      .rp-strip b {
+        font-variant-numeric: tabular-nums;
+      }
+      .p-body {
+        padding: 14px;
+      }
+      .hero {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--amber);
+        border-radius: 6px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+      }
+      .hero .label {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .hero .check {
+        font-size: 16px;
+        font-weight: 700;
+        margin-top: 3px;
+      }
+      .hero .count {
+        font-size: 30px;
+        font-weight: 750;
+        color: var(--amber);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+      }
+      .hero .sub {
+        font-size: 12px;
+        color: var(--dim);
+      }
+      .alertband {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: var(--amber-bg);
+        border: 1px solid #efd9ad;
+        color: var(--amber);
+        border-radius: 6px;
+        padding: 9px 12px;
+        font-size: 12.5px;
+        font-weight: 650;
+        margin-bottom: 12px;
+      }
+      .alertband .btn {
+        margin-left: auto;
+      }
+      .list-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+      .list-card .head {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        font-size: 12.5px;
+        font-weight: 700;
+        display: flex;
+      }
+      .list-card .head .right {
+        margin-left: auto;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #f0f1f3;
+        font-size: 13px;
+      }
+      .li:last-child {
+        border-bottom: none;
+      }
+      .li .right {
+        margin-left: auto;
+      }
+      .bottnav {
+        display: flex;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+      }
+      .bottnav .bi {
+        flex: 1;
+        text-align: center;
+        padding: 9px 0 11px;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--dim);
+      }
+      .bottnav .bi.active {
+        color: var(--accent);
+      }
+      .bottnav .ic {
+        display: block;
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        background: #c5ccd8;
+        margin: 0 auto 3px;
+      }
+      .bottnav .bi.active .ic {
+        background: var(--accent);
+      }
+      .legend {
+        max-width: 360px;
+        font-size: 13px;
+        color: var(--text);
+      }
+      .legend h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+      .legend li {
+        margin-bottom: 8px;
+        color: var(--dim);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div class="phone">
+        <div class="p-head">
+          <div class="row1">
+            <b>B767 Pilot Portal</b><span class="bell">🔔<span class="b">2</span></span>
+          </div>
+          <div class="rp-strip">
+            📅 <span><b>RP6</b> · Day 12 of 28 · ends <b>26 Jun</b></span>
+          </div>
+        </div>
+        <div class="p-body">
+          <div class="hero">
+            <div class="label">Next check due</div>
+            <div style="display: flex; align-items: center; gap: 14px">
+              <div class="count">
+                47
+                <div class="sub" style="font-size: 11px; text-align: center">days</div>
+              </div>
+              <div>
+                <div class="check">Instrument Rating</div>
+                <div class="sub">due 28 Jul 2026 · falls in RP8 — sim slot not yet booked</div>
+              </div>
+            </div>
+          </div>
+          <div class="alertband">
+            ⏰ Leave bids close Fri 5pm <button class="btn sm primary">Bid now</button>
+          </div>
+          <div class="list-card">
+            <div class="head">MY STATUS <span class="right">All current ✓</span></div>
+            <div class="li">
+              <span class="status green">Current</span> 11 of 12 checks current
+              <span class="right muted num">92%</span>
+            </div>
+            <div class="li">
+              <span class="status amber">30d</span> Dangerous Goods expires
+              <span class="right muted">21 Aug</span>
+            </div>
+          </div>
+          <div class="list-card">
+            <div class="head">MY REQUESTS <span class="right">+ New</span></div>
+            <div class="li">
+              <b>Annual · 20–24 Jun</b><span class="right status blue">In Review</span>
+            </div>
+            <div class="li">
+              <b>RDO · 30 Jun</b><span class="right status green">Approved</span>
+            </div>
+            <div class="li muted" style="font-size: 12px">
+              Status changed 2 days ago — reviewer comment available
             </div>
           </div>
         </div>
-        <div class="alertband">⏰ Leave bids close Fri 5pm <button class="btn sm primary">Bid now</button></div>
-        <div class="list-card">
-          <div class="head">MY STATUS <span class="right">All current ✓</span></div>
-          <div class="li"><span class="status green">Current</span> 11 of 12 checks current <span class="right muted num">92%</span></div>
-          <div class="li"><span class="status amber">30d</span> Dangerous Goods expires <span class="right muted">21 Aug</span></div>
-        </div>
-        <div class="list-card">
-          <div class="head">MY REQUESTS <span class="right">+ New</span></div>
-          <div class="li"><b>Annual · 20–24 Jun</b><span class="right status blue">In Review</span></div>
-          <div class="li"><b>RDO · 30 Jun</b><span class="right status green">Approved</span></div>
-          <div class="li muted" style="font-size:12px">Status changed 2 days ago — reviewer comment available</div>
+        <div class="bottnav">
+          <div class="bi active"><span class="ic"></span>Home</div>
+          <div class="bi"><span class="ic"></span>Checks</div>
+          <div class="bi"><span class="ic"></span>Requests</div>
+          <div class="bi"><span class="ic"></span>Bids</div>
+          <div class="bi"><span class="ic"></span>More</div>
         </div>
       </div>
-      <div class="bottnav">
-        <div class="bi active"><span class="ic"></span>Home</div>
-        <div class="bi"><span class="ic"></span>Checks</div>
-        <div class="bi"><span class="ic"></span>Requests</div>
-        <div class="bi"><span class="ic"></span>Bids</div>
-        <div class="bi"><span class="ic"></span>More</div>
+      <div class="legend">
+        <h2>Option 5 — "Pilot-First Portal"</h2>
+        <ul>
+          <li>
+            <b style="color: var(--text)">Roster strip pinned to the header</b> — the pilot's
+            operating context (RP, day, end date) is always visible, not buried mid-page.
+          </li>
+          <li>
+            <b style="color: var(--text)">Next-check countdown is the hero</b> — answers "when do I
+            act?" instead of a backwards-looking compliance %.
+          </li>
+          <li>
+            <b style="color: var(--text)">Deadline band</b> — bid windows and request deadlines
+            surface here and push, instead of hiding in Notifications.
+          </li>
+          <li>
+            <b style="color: var(--text)">Lists over link-grids</b> — dashboard shows data with
+            inline status, not navigation tiles that repeat the bottom nav.
+          </li>
+          <li>
+            <b style="color: var(--text)">"What changed"</b> — requests show last status change so
+            pilots stop guessing whether anything moved.
+          </li>
+          <li>Admin portal unchanged in this option — effort goes to the 27 pilots on phones.</li>
+        </ul>
       </div>
     </div>
-    <div class="legend">
-      <h2>Option 5 — "Pilot-First Portal"</h2>
-      <ul>
-        <li><b style="color:var(--text)">Roster strip pinned to the header</b> — the pilot's operating context (RP, day, end date) is always visible, not buried mid-page.</li>
-        <li><b style="color:var(--text)">Next-check countdown is the hero</b> — answers "when do I act?" instead of a backwards-looking compliance %.</li>
-        <li><b style="color:var(--text)">Deadline band</b> — bid windows and request deadlines surface here and push, instead of hiding in Notifications.</li>
-        <li><b style="color:var(--text)">Lists over link-grids</b> — dashboard shows data with inline status, not navigation tiles that repeat the bottom nav.</li>
-        <li><b style="color:var(--text)">"What changed"</b> — requests show last status change so pilots stop guessing whether anything moved.</li>
-        <li>Admin portal unchanged in this option — effort goes to the 27 pilots on phones.</li>
-      </ul>
-    </div>
-  </div>
-</body>
+  </body>
 </html>

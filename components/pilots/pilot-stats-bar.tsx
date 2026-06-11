@@ -29,7 +29,15 @@ interface StatCardProps {
   topBorder: string
 }
 
-function StatCard({ icon: Icon, label, value, iconBg, iconColor, total, topBorder }: StatCardProps) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  iconBg,
+  iconColor,
+  total,
+  topBorder,
+}: StatCardProps) {
   const ratio = total > 0 ? (value / total) * 100 : 0
 
   return (

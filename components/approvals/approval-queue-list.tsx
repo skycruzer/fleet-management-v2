@@ -36,7 +36,12 @@ const HINT_TONE: Record<'red' | 'amber' | 'green', string> = {
   green: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
 }
 
-export function ApprovalQueueList({ tab, items, selectedId, emptyMessage }: ApprovalQueueListProps) {
+export function ApprovalQueueList({
+  tab,
+  items,
+  selectedId,
+  emptyMessage,
+}: ApprovalQueueListProps) {
   if (items.length === 0) {
     return (
       <div className="text-muted-foreground flex flex-col items-center gap-1 px-6 py-12 text-center">
@@ -58,7 +63,7 @@ export function ApprovalQueueList({ tab, items, selectedId, emptyMessage }: Appr
               className={cn(
                 'block px-4 py-3 transition-colors',
                 selected
-                  ? 'bg-[var(--color-info-bg)] border-l-[3px] border-l-primary'
+                  ? 'border-l-primary border-l-[3px] bg-[var(--color-info-bg)]'
                   : 'hover:bg-muted/50 border-l-[3px] border-l-transparent'
               )}
             >

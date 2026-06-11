@@ -43,7 +43,8 @@ function timeAgo(dateString: string): string {
 
 function requestToQueueItem(request: PilotRequest): QueueItem {
   const start = request.flight_date ?? request.start_date
-  const dates = request.end_date && request.end_date !== start ? `${start} → ${request.end_date}` : start
+  const dates =
+    request.end_date && request.end_date !== start ? `${start} → ${request.end_date}` : start
   let hint: QueueItem['hint'] = null
   if (request.is_past_deadline) hint = { label: 'past deadline', tone: 'red' }
   else if (request.is_late_request) hint = { label: 'late request', tone: 'amber' }
@@ -64,8 +65,7 @@ function requestToQueueItem(request: PilotRequest): QueueItem {
  * engine check, so this preview can warn but never bypass.
  */
 async function computeImpact(request: PilotRequest): Promise<CrewImpactSummary> {
-  const rank: 'Captain' | 'First Officer' =
-    request.rank === 'Captain' ? 'Captain' : 'First Officer'
+  const rank: 'Captain' | 'First Officer' = request.rank === 'Captain' ? 'Captain' : 'First Officer'
   const otherRankLabel = rank === 'Captain' ? 'First Officers' : 'Captains'
   const start = request.flight_date ?? request.start_date
   const end = request.end_date ?? start

@@ -14,8 +14,7 @@ const buttonVariants = cva(
         // Tokenized — dark mode comes from the token flips in globals.css,
         // no per-variant dark: overrides needed
         default: 'bg-card text-foreground border border-input shadow-sm hover:bg-muted/60',
-        primary:
-          'bg-primary text-primary-foreground shadow-sm hover:bg-[var(--color-primary-700)]',
+        primary: 'bg-primary text-primary-foreground shadow-sm hover:bg-[var(--color-primary-700)]',
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-[var(--color-danger-700)] focus-visible:ring-destructive/20',
         outline: 'border border-input bg-transparent text-foreground hover:bg-muted/60',
