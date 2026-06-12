@@ -33,6 +33,12 @@ node_modules_old/
 # Debug logs
 firebase-debug.log
 
+# Supabase CLI scratch state (per-machine, churns on CLI version changes)
+supabase/.temp/
+
+# Local assistant journal/notes — never project source
+knowledge/
+
 # IDE / tooling
 .worktrees/
 .playwright-mcp/
