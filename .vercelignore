@@ -1,15 +1,39 @@
+# Dependencies
 node_modules
 node_modules_broken_*
+node_modules_old
+
+# Build outputs
 .next
 .turbo
-.DS_Store
-*.log
+out
+storybook-static
+tsconfig.tsbuildinfo
+
+# Test outputs / artifacts
+playwright-report
+test-results
 screenshots
 test-screenshots
+.playwright-mcp
+*-error.png
+*-result.png
+error-screenshot.png
+
+# Local tooling / scratch
+.DS_Store
+*.log
 /tasks
 .claude
 .planning
 openspec
 todos
+.worktrees
+.serena
+.kombai
+knowledge
+
+# Supabase scratch / backups
+supabase/.temp
 supabase/migrations.backup
 supabase/migrations/_applied_backup
