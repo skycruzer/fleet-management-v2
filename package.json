@@ -28,7 +28,8 @@
     "prepare": "node -e \"if (!process.env.CI) { require('child_process').execSync('husky install', { stdio: 'inherit' }) }\"",
     "db:types": "supabase gen types typescript --project-id wgdmgvonqysflwdiiols > types/supabase.ts",
     "db:migration": "supabase migration new",
-    "db:deploy": "supabase db push"
+    "db:deploy": "supabase db push",
+    "deploy:redeploy": "vercel redeploy"
   },
   "dependencies": {
     "@alloc/quick-lru": "^5.2.0",
