@@ -53,7 +53,10 @@ export async function getAuthenticatedAdmin(): Promise<AdminAuthResult> {
   const user = userData?.user
 
   if (user) {
-    const { data: adminUser, error: adminErr } = await supabase
+    // Read the credential table with the service role, not the caller's RLS-bound
+    // session client — an_users is no longer anon/authenticated-readable.
+    const adminSupabase = createAdminClient()
+    const { data: adminUser, error: adminErr } = await adminSupabase
       .from('an_users')
       .select('id, email, role')
       .eq('id', user.id)

@@ -7,6 +7,7 @@
 
 import { getAppTitle } from '@/lib/services/admin-service'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { ProfessionalSidebarClient } from './professional-sidebar-client'
 
 /**
@@ -23,7 +24,9 @@ export async function ProfessionalSidebar() {
 
   let userRole: string | null = null
   if (user) {
-    const { data: userData } = await supabase
+    // an_users is service-role-only (holds password hashes); read role privileged.
+    const admin = createAdminClient()
+    const { data: userData } = await admin
       .from('an_users')
       .select('role')
       .eq('id', user.id)
