@@ -66,10 +66,18 @@ Findings tracked here; per-domain status in PRODUCTION-READINESS.md.
 - [x] Reviewed & accepted always-true authenticated policies + ~57 low-sensitivity SECURITY DEFINER fns (rationale in migration comments)
 - [x] Removed orphaned ebt/pilots/pilot-actions.ts; export-audit-button → recordId
 
+### Pass 5 — code review + runtime verification (CI green on acb3f7c)
+
+- [x] Self code-review of hardening diff (43fc81f..HEAD, 108 files) via 3 finder angles + verify
+- [x] Fixed 3 minor edges: --rf-\* dark-mode gap (report view light island); monthsAhead 0→400; reschedule reason ''→400
+- [x] Refuted 1 candidate (disciplinary null — incident_type_id/pilot_id are NOT NULL in DB)
+- [x] RUNTIME-VERIFIED hardening on prod via real anon client: ebt schema → 401 (PII closed),
+      validate_pilot_session RPC → 401 (locked), baseline check_types → 200 (key works)
+
 ### Remaining — USER ACTIONS + accepted follow-ups
 
 - [ ] USER (ONLY REMAINING BLOCKER): rotate leaked service_role key + purge git history
-- [ ] Eyeball EBT section in both themes behind admin auth (CSS de-slop done + build-verified in code)
+- [ ] USER: eyeball admin-auth login lockout + EBT theme (light/dark) + audit export in the running app (need admin creds)
 - [ ] E2E suite curation (separate project; 323 stale specs) OR treat Vercel CI as the gate
 - [ ] Tiny/accepted: signature-pad canvas decorative font (cosmetic); per-item review of remaining SECURITY DEFINER fns if desired
 
