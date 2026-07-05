@@ -48,3 +48,7 @@ knowledge/
 # Claude Code session artifacts
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+.vercel
+
+# EBT migration working files (raw pg_dump scratch — data is captured in supabase/migrations/)
+scratch/
