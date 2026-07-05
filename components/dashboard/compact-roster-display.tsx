@@ -27,11 +27,11 @@ import {
 import { RosterCarousel } from './roster-carousel'
 import { RosterPeriodRefresher } from './roster-period-refresher'
 import { NextRosterCountdown } from '@/components/shared/next-roster-countdown'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
 // Get leave request counts for a roster period with type breakdown
 async function getLeaveRequestCounts(rosterPeriod: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('pilot_requests')
@@ -63,7 +63,7 @@ async function getLeaveRequestCounts(rosterPeriod: string) {
 
 // Get certification check counts for a roster period
 async function getCertificationCheckCounts(rosterPeriod: string) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('certification_renewal_plans')

@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { NextRequest } from 'next/server'
@@ -269,8 +270,9 @@ export async function getPilotUserRoles(): Promise<{
       .eq('auth_user_id', user.id)
       .single()
 
-    // Check admin role
-    const { data: adminUser } = await supabase
+    // Check admin role — an_users is service-role-only (holds password hashes).
+    const admin = createAdminClient()
+    const { data: adminUser } = await admin
       .from('an_users')
       .select('role')
       .eq('id', user.id)
