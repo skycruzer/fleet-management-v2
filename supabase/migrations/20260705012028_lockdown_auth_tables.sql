@@ -41,6 +41,9 @@ revoke select, insert, update, delete, truncate, references, trigger
 drop policy if exists "Allow authenticated read of password reset tokens" on public.password_reset_tokens;
 drop policy if exists "authenticated_insert" on public.password_reset_tokens;
 drop policy if exists "authenticated_update" on public.password_reset_tokens;
+-- live policy names carry a table suffix — drop those too so nothing inert lingers
+drop policy if exists "authenticated_insert_password_reset_tokens" on public.password_reset_tokens;
+drop policy if exists "authenticated_update_password_reset_tokens" on public.password_reset_tokens;
 revoke select, insert, update, delete, truncate, references, trigger
   on table public.password_reset_tokens from anon, authenticated;
 

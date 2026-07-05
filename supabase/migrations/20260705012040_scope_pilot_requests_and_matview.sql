@@ -23,6 +23,8 @@
 
 -- --- H1: pilot_requests ---------------------------------------------------
 drop policy if exists "authenticated_full_access" on public.pilot_requests;
+-- idempotent: drop our own policy first so re-application never errors
+drop policy if exists "pilot_requests_admin_manager_all" on public.pilot_requests;
 
 create policy "pilot_requests_admin_manager_all"
   on public.pilot_requests
