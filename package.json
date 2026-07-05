@@ -26,7 +26,7 @@
     "validate": "npm run type-check && npm run lint && npm run format:check",
     "validate:naming": "node scripts/validate-naming.mjs",
     "prepare": "node -e \"if (!process.env.CI) { require('child_process').execSync('husky install', { stdio: 'inherit' }) }\"",
-    "db:types": "supabase gen types typescript --project-id wgdmgvonqysflwdiiols > types/supabase.ts",
+    "db:types": "supabase gen types typescript --project-id wgdmgvonqysflwdiiols --schema public --schema ebt > types/supabase.ts",
     "db:migration": "supabase migration new",
     "db:deploy": "supabase db push",
     "deploy:redeploy": "vercel redeploy"

@@ -89,11 +89,13 @@ export async function listPilots(): Promise<PilotListItem[]> {
   return (data ?? []).map((p) => {
     const at = Array.isArray(p.aircraft_types) ? p.aircraft_types[0] : p.aircraft_types
     return {
-      id: p.id,
-      staff_no: p.staff_no,
-      full_name: p.full_name,
+      // ebt.pilots is a view over public.pilots (+ pilot_ext); the generated types mark its
+      // columns nullable, but id/staff_no/full_name/employment_status are always present.
+      id: p.id ?? '',
+      staff_no: p.staff_no ?? '',
+      full_name: p.full_name ?? '',
       rank: p.rank,
-      employment_status: p.employment_status,
+      employment_status: p.employment_status ?? 'active',
       aircraft: (at as { code: string } | null)?.code ?? null,
     }
   })

@@ -1,4 +1,4 @@
-// The canonical DB types are generated in Phase 0a at <repo>/types/database.types.ts.
-// Regenerate with: supabase gen types typescript --local > types/database.types.ts
-// then: cp ../types/database.types.ts src/lib/database.types.ts
-export type { Database } from './database.types'
+// EBT domain now lives in the `ebt` schema of the shared fleet Supabase project.
+// Canonical DB types are generated at <repo>/types/supabase.ts (public + ebt schemas).
+// Regenerate with: npm run db:types
+export type { Database } from '@/types/supabase'

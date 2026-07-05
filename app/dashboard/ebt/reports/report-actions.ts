@@ -96,7 +96,6 @@ export async function createReport(
 
   revalidatePath('/dashboard/ebt/reports')
   redirect(`/dashboard/ebt/reports/${data.id}`)
-  return { ok: true, message: '' } // unreachable in prod (redirect throws); satisfies the type + mocked test
 }
 
 export interface ReportSetupPatch {
@@ -609,16 +608,14 @@ export async function setPhaseCompetencies(
   }
 
   if (clean.length > 0) {
-    const { error: insErr } = await supabase
-      .from('report_competency_grades')
-      .insert(
-        clean.map((competency_code) => ({
-          report_id: reportId,
-          phase,
-          competency_code,
-          grade: null,
-        }))
-      )
+    const { error: insErr } = await supabase.from('report_competency_grades').insert(
+      clean.map((competency_code) => ({
+        report_id: reportId,
+        phase,
+        competency_code,
+        grade: null,
+      }))
+    )
     if (insErr) {
       logDbError('setPhaseCompetencies.insert', insErr)
       return { ok: false, message: 'Could not save. Please try again.' }
@@ -712,14 +709,12 @@ export async function toggleObservedBehaviour(
   }
 
   if ((count ?? 0) === 0) {
-    const { error: insErr } = await supabase
-      .from('report_observed_behaviours')
-      .insert({
-        report_id: reportId,
-        phase: 'EVAL',
-        competency_code: competencyCode,
-        observable_behaviour_id: obId,
-      })
+    const { error: insErr } = await supabase.from('report_observed_behaviours').insert({
+      report_id: reportId,
+      phase: 'EVAL',
+      competency_code: competencyCode,
+      observable_behaviour_id: obId,
+    })
     if (insErr) {
       if (insErr.code === '42501') return { ok: false, message: 'Not permitted.' }
       if (insErr.code === '23503')
@@ -795,5 +790,4 @@ export async function softDeleteReport(reportId: string): Promise<ReportActionSt
   }
   revalidatePath('/dashboard/ebt/reports')
   redirect('/dashboard/ebt/reports')
-  return { ok: true, message: '' } // unreachable in prod (redirect throws); satisfies the type + mocked test
 }
