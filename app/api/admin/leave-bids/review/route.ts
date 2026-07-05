@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
+import { reviewLeaveBid } from '@/lib/services/leave-bid-service'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
@@ -41,34 +42,21 @@ export const POST = createAdminRoute(
   async ({ body }) => {
     const { bidId, action } = body
 
-    // Use admin client to bypass RLS for admin operations
-    const supabase = createAdminClient()
+    // Write the status change through the service layer
+    const reviewResult = await reviewLeaveBid(bidId, action)
 
-    // Determine new status
-    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
-
-    // Update bid status
-    const { data: updatedBid, error: updateError } = await supabase
-      .from('leave_bids')
-      .update({
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bidId)
-      .select('id, roster_period_code, pilot_id, status, preferred_dates')
-      .single()
-
-    if (updateError) {
-      console.error('Error updating leave bid:', updateError)
+    if (!reviewResult.success || !reviewResult.data) {
+      const statusCode = reviewResult.error === 'Leave bid not found' ? 404 : 500
       return NextResponse.json(
-        { success: false, error: `Failed to ${action} bid: ${updateError.message}` },
-        { status: 500 }
+        { success: false, error: reviewResult.error ?? `Failed to ${action} bid` },
+        { status: statusCode }
       )
     }
 
-    if (!updatedBid) {
-      return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
-    }
+    const updatedBid = reviewResult.data
+
+    // Admin client for downstream pilot/email lookups (bypasses RLS)
+    const supabase = createAdminClient()
 
     // Send notification to pilot about bid status change
     const notificationType = action === 'approve' ? 'leave_bid_approved' : 'leave_bid_rejected'

@@ -56,8 +56,9 @@ export default function NewUserPage() {
       }
 
       // Success - redirect to admin overview (no standalone users list route exists)
-      router.push('/dashboard/admin')
       router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      router.push('/dashboard/admin')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create user')
       setIsSubmitting(false)

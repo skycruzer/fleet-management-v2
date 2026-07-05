@@ -944,3 +944,150 @@ export async function adminDeleteLeaveBid(bidId: string): Promise<ServiceRespons
     }
   }
 }
+
+/**
+ * Reviewed leave bid returned by {@link reviewLeaveBid}.
+ * Contains only the fields the review route needs for its notification/email fan-out.
+ */
+export interface ReviewedLeaveBid {
+  id: string
+  roster_period_code: string
+  pilot_id: string
+  status: string | null
+  preferred_dates: string | null
+}
+
+/**
+ * Review a whole leave bid (approve/reject).
+ *
+ * Encapsulates the `leave_bids` status write for the admin review route so the
+ * route never touches Supabase directly. Uses the admin client to bypass RLS.
+ *
+ * @param bidId - Leave bid ID to review
+ * @param action - 'approve' or 'reject'
+ * @returns Service response with the updated bid
+ */
+export async function reviewLeaveBid(
+  bidId: string,
+  action: 'approve' | 'reject'
+): Promise<ServiceResponse<ReviewedLeaveBid>> {
+  try {
+    const supabase = createAdminClient()
+
+    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
+
+    const { data: updatedBid, error: updateError } = await supabase
+      .from('leave_bids')
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bidId)
+      .select('id, roster_period_code, pilot_id, status, preferred_dates')
+      .single()
+
+    if (updateError) {
+      logError(updateError instanceof Error ? updateError : new Error(String(updateError)), {
+        source: 'leave-bid-service/reviewLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return { success: false, error: `Failed to ${action} bid` }
+    }
+
+    if (!updatedBid) return ServiceResponse.notFound('Leave bid not found')
+
+    return { success: true, data: updatedBid as ReviewedLeaveBid }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/reviewLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: `Failed to ${action} bid` }
+  }
+}
+
+/**
+ * Reviewed leave bid option returned by {@link reviewLeaveBidOption}.
+ */
+export interface ReviewedLeaveBidOption {
+  id: string
+  roster_period_code: string
+  pilot_id: string
+  preferred_dates: string | null
+  /** The full option_statuses map after applying this review */
+  optionStatuses: Record<string, string>
+  /** The status applied to the reviewed option */
+  optionStatus: string
+}
+
+/**
+ * Review a single option (preference) of a leave bid (approve/reject).
+ *
+ * Fetches the current bid, merges the new option status into `option_statuses`,
+ * and persists it. Encapsulates the `leave_bids` write for the admin review-option
+ * route. Uses the admin client to bypass RLS.
+ *
+ * @param bidId - Leave bid ID
+ * @param optionKey - Index/key of the option being reviewed
+ * @param action - 'approve' or 'reject'
+ * @returns Service response with the updated bid and option statuses
+ */
+export async function reviewLeaveBidOption(
+  bidId: string,
+  optionKey: string | number,
+  action: 'approve' | 'reject'
+): Promise<ServiceResponse<ReviewedLeaveBidOption>> {
+  try {
+    const supabase = createAdminClient()
+
+    // Fetch the current bid
+    const { data: bid, error: fetchError } = await supabase
+      .from('leave_bids')
+      .select('id, roster_period_code, pilot_id, status, option_statuses, preferred_dates')
+      .eq('id', bidId)
+      .single()
+
+    if (fetchError || !bid) {
+      return ServiceResponse.notFound('Leave bid not found')
+    }
+
+    // Merge the new option status
+    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
+    const currentStatuses = (bid.option_statuses as Record<string, string>) || {}
+    const updatedStatuses = { ...currentStatuses, [String(optionKey)]: newStatus }
+
+    const { error: updateError } = await supabase
+      .from('leave_bids')
+      .update({
+        option_statuses: updatedStatuses,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bidId)
+
+    if (updateError) {
+      logError(updateError instanceof Error ? updateError : new Error(String(updateError)), {
+        source: 'leave-bid-service/reviewLeaveBidOption',
+        severity: ErrorSeverity.MEDIUM,
+      })
+      return { success: false, error: `Failed to ${action} option` }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: bid.id,
+        roster_period_code: bid.roster_period_code,
+        pilot_id: bid.pilot_id,
+        preferred_dates: bid.preferred_dates,
+        optionStatuses: updatedStatuses,
+        optionStatus: newStatus,
+      },
+    }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/reviewLeaveBidOption',
+      severity: ErrorSeverity.MEDIUM,
+    })
+    return { success: false, error: `Failed to ${action} option` }
+  }
+}

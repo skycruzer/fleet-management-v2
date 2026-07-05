@@ -15,6 +15,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
 import { CreateDisciplinarySchema } from '@/lib/validations/disciplinary-schema'
+import { invalidateDisciplinaryCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/disciplinary
@@ -202,6 +203,10 @@ export const POST = createAdminRoute(
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
+
+      await invalidateDisciplinaryCaches(result.data?.id).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({ success: true, data: result.data }, { status: 201 })
     } catch (error) {

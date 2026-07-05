@@ -17,6 +17,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { FlightRequestReviewInput } from '@/lib/validations/flight-request-schema'
 import type { FlightRequest } from './pilot-flight-service'
 import type { ServiceResponse } from '@/lib/types/service-response'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * Get All Flight Requests (Admin View)
@@ -273,6 +274,11 @@ export async function reviewFlightRequest(
       ...updatedRequest,
       description: updatedRequest.reason || updatedRequest.notes || 'Flight request',
     }
+
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(requestId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,

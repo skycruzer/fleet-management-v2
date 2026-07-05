@@ -11,6 +11,7 @@ import {
   getRosterPeriodCapacity,
 } from '@/lib/services/certification-renewal-planning-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const GET = createAdminRoute(
   {
@@ -77,15 +78,15 @@ export const GET = createAdminRoute(
           })),
         },
       })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching roster period renewals:', error)
+      const sanitized = sanitizeError(error, {
+        operation: 'getRosterPeriodRenewals',
+        endpoint: '/api/renewal-planning/roster-period/[period]',
+      })
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch roster period renewals',
-          details: error.message,
-        },
-        { status: 500 }
+        { success: false, ...sanitized },
+        { status: sanitized.statusCode || 500 }
       )
     }
   }

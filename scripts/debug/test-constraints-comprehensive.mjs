@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://wgdmgvonqysflwdiiols.supabase.co'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || (!supabaseServiceKey && !supabaseAnonKey)) {
+  console.error(
+    'Missing NEXT_PUBLIC_SUPABASE_URL or both SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_ANON_KEY in environment'
+  )
+  process.exit(1)
+}
 
 if (!supabaseServiceKey) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY not found in environment')
@@ -11,9 +19,7 @@ if (!supabaseServiceKey) {
   console.log()
 }
 
-const supabaseKey =
-  supabaseServiceKey ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
+const supabaseKey = supabaseServiceKey || supabaseAnonKey
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 

@@ -69,8 +69,16 @@ async function sendEmailWithRetry(emailData: any, attempt = 1): Promise<any> {
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 
+    // No fallback here: RESEND_TO_EMAIL must be verified present by the caller
+    // (see POST handler) before this function is invoked — silently defaulting
+    // to a placeholder address would misdeliver pilot certification data to an
+    // address nobody controls.
+    if (!process.env.RESEND_TO_EMAIL) {
+      throw new Error('RESEND_TO_EMAIL not configured')
+    }
+
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'Fleet Office <onboarding@resend.dev>'
-    const toEmail = process.env.RESEND_TO_EMAIL || 'rostering-team@example.com'
+    const toEmail = process.env.RESEND_TO_EMAIL
 
     const result = await resend.emails.send({
       from: fromEmail,
@@ -348,6 +356,21 @@ export const POST = createAdminRoute(
         )
       }
 
+      // Fail fast: never fall back to a placeholder recipient. Sending pilot
+      // certification data to a default/example address would misdeliver it
+      // outside the organization.
+      const toEmail = process.env.RESEND_TO_EMAIL
+      if (!toEmail) {
+        console.error('[Email] RESEND_TO_EMAIL not configured — refusing to send')
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Email service not configured. Contact the system administrator.',
+          },
+          { status: 503 }
+        )
+      }
+
       // Get roster periods for the year via the service (no direct supabase here).
       let periods: Awaited<ReturnType<typeof listRosterPeriodsForYear>>
       try {
@@ -491,7 +514,7 @@ Fleet Operations
         newData: {
           type: 'renewal_plan',
           year,
-          recipient: process.env.RESEND_TO_EMAIL,
+          recipient: toEmail,
           total_renewals: totalPlanned,
           utilization_percentage: overallUtilization,
         },

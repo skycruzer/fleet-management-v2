@@ -153,8 +153,9 @@ export default function NewLeaveRequestPage() {
       }
 
       // Success - redirect to unified requests page
-      router.push('/dashboard/requests?tab=leave')
       router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      router.push('/dashboard/requests?tab=leave')
     } catch (err) {
       console.error('Submit error:', err)
       setError(err instanceof Error ? err.message : 'Failed to create leave request')

@@ -17,6 +17,7 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { generateRenewalPlanPDF } from '@/lib/services/renewal-planning-pdf-service'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,13 +67,11 @@ export const GET = createAdminRoute(
 
       if (periodsError) {
         console.error('Error fetching roster periods:', periodsError)
-        return NextResponse.json(
-          {
-            error: 'Failed to fetch roster periods',
-            details: periodsError.message || 'Database query error',
-          },
-          { status: 500 }
-        )
+        const sanitized = sanitizeError(periodsError, {
+          operation: 'exportRenewalPlanPdf:fetchPeriods',
+          endpoint: '/api/renewal-planning/export-pdf',
+        })
+        return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
       }
 
       // FIX #3: Validate that we have data before proceeding
@@ -129,13 +128,11 @@ export const GET = createAdminRoute(
 
       if (renewalsError) {
         console.error('Error fetching renewals:', renewalsError)
-        return NextResponse.json(
-          {
-            error: 'Failed to fetch renewal plans',
-            details: renewalsError.message || 'Database query error',
-          },
-          { status: 500 }
-        )
+        const sanitized = sanitizeError(renewalsError, {
+          operation: 'exportRenewalPlanPdf:fetchRenewals',
+          endpoint: '/api/renewal-planning/export-pdf',
+        })
+        return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
       }
 
       // FIX #3: Validate that we have renewal data
@@ -310,14 +307,11 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('[PDF Export] Error:', error)
-      return NextResponse.json(
-        {
-          error: 'Failed to generate PDF',
-          details: error instanceof Error ? error.message : 'Unknown error occurred',
-          suggestion: 'Please try again or contact support if the issue persists.',
-        },
-        { status: 500 }
-      )
+      const sanitized = sanitizeError(error, {
+        operation: 'exportRenewalPlanPdf',
+        endpoint: '/api/renewal-planning/export-pdf',
+      })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
     }
   }
 )

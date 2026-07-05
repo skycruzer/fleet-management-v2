@@ -8,6 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
@@ -15,13 +16,30 @@ import { invalidateRenewalPlanningCaches } from '@/lib/services/cache-invalidati
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
+const GenerateRenewalPlanSchema = z.object({
+  // Coerce 0/negative (e.g. a cleared number input sending 0) to the 12-month default rather
+  // than 400-ing; >60 and non-numeric still fail validation.
+  monthsAhead: z.coerce
+    .number()
+    .int()
+    .max(60)
+    .transform((n) => (n >= 1 ? n : 12))
+    .default(12),
+  categories: z.array(z.string()).optional(),
+  pilotIds: z.array(z.string().uuid()).optional(),
+  checkCodes: z.array(z.string()).optional(),
+  clearExisting: z.boolean().optional().default(false),
+  captainRoles: z.array(z.string()).optional(),
+})
+
 export const POST = createAdminRoute(
   {
     operation: 'generateRenewalPlan',
     endpoint: '/api/renewal-planning/generate',
     rateLimit: false,
+    schema: GenerateRenewalPlanSchema,
   },
-  async ({ request, admin }) => {
+  async ({ body, admin }) => {
     // Verify admin/manager role
     // For Supabase Auth users: trust them as admins (only admins can access dashboard via Supabase Auth)
     // For admin-session users: look up by ID in an_users table
@@ -44,15 +62,7 @@ export const POST = createAdminRoute(
     }
     // Supabase Auth users are trusted as admins (dashboard access requires Supabase Auth)
 
-    const body = await request.json()
-    const {
-      monthsAhead = 12,
-      categories,
-      pilotIds,
-      checkCodes,
-      clearExisting = false,
-      captainRoles,
-    } = body
+    const { monthsAhead, categories, pilotIds, checkCodes, clearExisting, captainRoles } = body
 
     // Clear existing renewal plans if requested.
     //
@@ -90,7 +100,7 @@ export const POST = createAdminRoute(
         pilotIds,
         checkCodes,
         pairingOptions: {
-          ...(captainRoles?.length > 0 ? { captainRoles } : {}),
+          ...((captainRoles?.length ?? 0) > 0 ? { captainRoles } : {}),
         },
       })
       renewals = result.renewals

@@ -19,6 +19,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 // ============================================================================
 // Validation Schema
@@ -276,10 +277,11 @@ export const POST = createAdminRoute(
       }
 
       logger.error('Requests email report API error', { error })
-      return NextResponse.json(
-        { success: false, error: error.message || 'Internal server error' },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'sendRequestsEmailReport',
+        endpoint: '/api/requests/email-report',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

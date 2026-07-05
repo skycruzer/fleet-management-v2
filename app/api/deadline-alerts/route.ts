@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server'
 import { getAllDeadlineAlerts } from '@/lib/services/roster-deadline-alert-service'
 import { logger } from '@/lib/services/logging-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -44,14 +45,11 @@ export const GET = createAdminRoute(
         stack: error instanceof Error ? error.stack : undefined,
       })
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch deadline alerts',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'getDeadlineAlerts',
+        endpoint: '/api/deadline-alerts',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

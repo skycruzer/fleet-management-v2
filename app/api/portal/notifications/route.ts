@@ -13,6 +13,7 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import {
   getUserNotifications,
   markNotificationAsRead,
@@ -25,6 +26,10 @@ import {
   ErrorSeverity,
 } from '@/lib/utils/error-messages'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
+
+const NotificationIdSchema = z.object({
+  notificationId: z.string().uuid('Invalid notification ID'),
+})
 
 /**
  * GET - Get Pilot Notifications
@@ -91,15 +96,15 @@ export const PATCH = createPilotRoute(
     rateLimit: false,
   },
   async ({ request, pilot }) => {
-    // Parse request body
+    // Parse and validate request body
     const body = await request.json()
-    const { notificationId } = body
+    const validation = NotificationIdSchema.safeParse(body)
 
-    if (!notificationId) {
+    if (!validation.success) {
       return NextResponse.json(
         formatApiError(
           {
-            message: 'Notification ID is required',
+            message: 'A valid notification ID is required',
             category: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('notificationId').category,
             severity: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('notificationId').severity,
           },
@@ -108,6 +113,8 @@ export const PATCH = createPilotRoute(
         { status: 400 }
       )
     }
+
+    const { notificationId } = validation.data
 
     // Mark notification as read using service layer (with ownership check)
     const result = await markNotificationAsRead(notificationId, pilot.id)
@@ -146,15 +153,15 @@ export const DELETE = createPilotRoute(
     rateLimit: false,
   },
   async ({ request, pilot }) => {
-    // Parse request body
+    // Parse and validate request body
     const body = await request.json()
-    const { notificationId } = body
+    const validation = NotificationIdSchema.safeParse(body)
 
-    if (!notificationId) {
+    if (!validation.success) {
       return NextResponse.json(
         formatApiError(
           {
-            message: 'Notification ID is required',
+            message: 'A valid notification ID is required',
             category: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('notificationId').category,
             severity: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('notificationId').severity,
           },
@@ -163,6 +170,8 @@ export const DELETE = createPilotRoute(
         { status: 400 }
       )
     }
+
+    const { notificationId } = validation.data
 
     // Delete notification using service layer (with ownership check)
     const result = await deleteNotification(notificationId, pilot.id)

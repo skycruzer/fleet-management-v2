@@ -11,6 +11,7 @@ import {
   getRosterWithAssignments,
   uploadPublishedRoster,
 } from '@/lib/services/published-roster-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 // Maximum roster file size: 10MB
 const MAX_ROSTER_FILE_SIZE = 10 * 1024 * 1024
@@ -130,8 +131,11 @@ export const POST = createAdminRoute(
         source: 'api/published-rosters/POST',
         severity: ErrorSeverity.HIGH,
       })
-      const message = error instanceof Error ? error.message : 'Server error'
-      return NextResponse.json({ success: false, error: message }, { status: 500 })
+      const s = sanitizeError(error, {
+        operation: 'uploadPublishedRoster',
+        endpoint: '/api/published-rosters',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

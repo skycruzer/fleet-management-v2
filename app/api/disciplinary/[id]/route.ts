@@ -20,6 +20,7 @@ import {
 } from '@/lib/services/disciplinary-service'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { invalidateDisciplinaryCaches } from '@/lib/services/cache-invalidation-helper'
+import { UpdateDisciplinaryMatterSchema } from '@/lib/validations/disciplinary-schema'
 
 /**
  * GET /api/disciplinary/[id]
@@ -132,7 +133,17 @@ export const PATCH = createAdminRoute(
       resolution_notes: body.resolution_notes === '' ? null : body.resolution_notes,
     }
 
-    const result = await updateMatter(id, sanitizedBody, admin.userId)
+    // SECURITY: Allowlist-validate the update payload before it reaches the
+    // service-role `.update()` call — never spread raw request body columns.
+    const validation = UpdateDisciplinaryMatterSchema.safeParse(sanitizedBody)
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid update data', details: validation.error.issues },
+        { status: 400 }
+      )
+    }
+
+    const result = await updateMatter(id, validation.data, admin.userId)
 
     if (!result.success) {
       if (result.error === 'Matter not found') {

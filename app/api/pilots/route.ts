@@ -20,6 +20,7 @@ import { validationErrorResponse, HTTP_STATUS } from '@/lib/utils/api-response-h
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { getCacheHeadersPreset, getNoCacheHeaders } from '@/lib/utils/cache-headers'
 import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/pilots
@@ -56,13 +57,8 @@ export const GET = createAdminRoute(
       )
     } catch (error) {
       console.error('GET /api/pilots error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch pilots',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'getPilots', endpoint: '/api/pilots' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )
@@ -114,13 +110,8 @@ export const POST = createAdminRoute(
       )
     } catch (error) {
       console.error('POST /api/pilots error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to create pilot',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'createPilot', endpoint: '/api/pilots' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

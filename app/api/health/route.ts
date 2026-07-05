@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server'
 import { getAllPilots } from '@/lib/services/pilot-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,9 +36,10 @@ export async function GET() {
       },
     }
   } catch (error) {
+    const s = sanitizeError(error, { operation: 'healthCheckEnvVars', endpoint: '/api/health' })
     checks.checks.environment_variables = {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: s.error,
     }
   }
 
@@ -52,9 +54,13 @@ export async function GET() {
       details: { totalPilots: result.total },
     }
   } catch (error) {
+    const s = sanitizeError(error, {
+      operation: 'healthCheckSupabaseConnection',
+      endpoint: '/api/health',
+    })
     checks.checks.supabase_connection = {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown database error',
+      message: s.error,
     }
   }
 
@@ -73,10 +79,13 @@ export async function GET() {
       },
     }
   } catch (error) {
+    const s = sanitizeError(error, {
+      operation: 'healthCheckDashboardService',
+      endpoint: '/api/health',
+    })
     checks.checks.dashboard_service = {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Dashboard service failed',
-      details: error instanceof Error ? { stack: error.stack?.split('\n').slice(0, 3) } : undefined,
+      message: s.error,
     }
   }
 

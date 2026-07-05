@@ -19,6 +19,7 @@ import { validationErrorResponse, HTTP_STATUS } from '@/lib/utils/api-response-h
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { getCacheHeadersPreset, getNoCacheHeaders } from '@/lib/utils/cache-headers'
 import { invalidateCertificationCaches } from '@/lib/services/cache-invalidation-helper'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/certifications
@@ -69,13 +70,11 @@ export const GET = createAdminRoute(
       )
     } catch (error) {
       console.error('GET /api/certifications error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch certifications',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'getCertifications',
+        endpoint: '/api/certifications',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )
@@ -125,13 +124,11 @@ export const POST = createAdminRoute(
       )
     } catch (error) {
       console.error('POST /api/certifications error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to create certification',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'createCertification',
+        endpoint: '/api/certifications',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

@@ -58,6 +58,42 @@ export const CreateDisciplinarySchema = z.object({
 
 export type CreateDisciplinaryInput = z.infer<typeof CreateDisciplinarySchema>
 
+/**
+ * Allowlist schema for PATCH /api/disciplinary/[id]
+ *
+ * Restricts updatable columns to the editable fields on `disciplinary_matters`.
+ * Deliberately excludes server-controlled/system columns: id, created_at,
+ * updated_at, reported_by, reported_date, resolved_by, resolved_date.
+ *
+ * Field types intentionally mirror the existing form/table values (plain
+ * strings for status/severity, not enums) to avoid changing behavior for
+ * the current frontend which uses lowercase values.
+ */
+export const UpdateDisciplinaryMatterSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().min(1).max(5000).optional(),
+  pilot_id: z.string().uuid().optional(),
+  incident_date: dateSchema.optional(),
+  incident_type_id: z.string().uuid().optional(),
+  severity: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  assigned_to: z.string().uuid().nullable().optional(),
+  aircraft_registration: z.string().max(20).nullable().optional(),
+  flight_number: z.string().max(20).nullable().optional(),
+  location: z.string().max(200).nullable().optional(),
+  witnesses: z.any().optional().nullable(),
+  evidence_files: z.any().optional().nullable(),
+  corrective_actions: z.string().max(2000).nullable().optional(),
+  impact_on_operations: z.string().max(1000).nullable().optional(),
+  regulatory_notification_required: z.boolean().optional(),
+  regulatory_body: z.string().max(100).nullable().optional(),
+  notification_date: optionalDateSchema,
+  due_date: optionalDateSchema,
+  resolution_notes: z.string().max(2000).nullable().optional(),
+})
+
+export type UpdateDisciplinaryMatterInput = z.infer<typeof UpdateDisciplinaryMatterSchema>
+
 // Legacy: Disciplinary matter creation schema (kept for backwards compatibility)
 export const DisciplinaryMatterSchema = z.object({
   pilot_id: z.string().uuid('Invalid pilot ID format'),

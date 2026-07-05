@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { deleteUserAccount } from '@/lib/services/account-deletion-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const DELETE = createAdminRoute(
   {
@@ -44,12 +45,13 @@ export const DELETE = createAdminRoute(
       })
     } catch (error) {
       console.error('Error deleting account:', error)
+      const s = sanitizeError(error, {
+        operation: 'deleteUserAccount',
+        endpoint: '/api/user/delete-account',
+      })
       return NextResponse.json(
-        {
-          success: false,
-          message: error instanceof Error ? error.message : 'Failed to delete account',
-        },
-        { status: 500 }
+        { success: false, message: s.error },
+        { status: s.statusCode || 500 }
       )
     }
   }

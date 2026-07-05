@@ -15,6 +15,7 @@ import { NextResponse } from 'next/server'
 import { getSystemSettings } from '@/lib/services/admin-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getCacheHeadersPreset } from '@/lib/utils/cache-headers'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const GET = createAdminRoute(
   {
@@ -37,13 +38,8 @@ export const GET = createAdminRoute(
       )
     } catch (error) {
       console.error('Error fetching settings:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch settings',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'getSystemSettings', endpoint: '/api/settings' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

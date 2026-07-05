@@ -10,6 +10,7 @@ import { getAllUsers, createUser, getUsersByRole } from '@/lib/services/user-ser
 import { UserCreateSchema } from '@/lib/validations/user-validation'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/users
@@ -37,13 +38,8 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('GET /api/users error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch users',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'getUsers', endpoint: '/api/users' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )
@@ -91,13 +87,8 @@ export const POST = createAdminRoute(
         )
       }
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to create user',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'createUser', endpoint: '/api/users' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

@@ -30,6 +30,10 @@ import {
   parseRosterPeriodCode,
 } from '@/lib/services/roster-period-service'
 import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
+import {
+  invalidateRequestCaches,
+  invalidateLeaveCaches,
+} from '@/lib/services/cache-invalidation-helper'
 
 // Use canonical ServiceResponse (includes errorCode field + static builder methods)
 export { ServiceResponse } from '@/lib/types/service-response'
@@ -291,6 +295,14 @@ export async function updatePilotLeaveRequest(
         reason: updates.reason || null,
       }).catch((err: unknown) => console.error('Failed to send leave edit email:', err))
 
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(requestId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+    await invalidateLeaveCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+
     return {
       success: true,
       data: updatedRequest as LeaveRequest,
@@ -365,6 +377,14 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
         error: ERROR_MESSAGES.LEAVE.UPDATE_FAILED.message,
       }
     }
+
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(requestId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+    await invalidateLeaveCaches().catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,

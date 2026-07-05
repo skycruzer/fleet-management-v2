@@ -154,8 +154,9 @@ export default function DisciplinaryMatterForm({
       if (onSuccess) {
         onSuccess()
       } else {
-        router.push('/dashboard/disciplinary')
         router.refresh()
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        router.push('/dashboard/disciplinary')
       }
     } catch (err) {
       setError('An unexpected error occurred')
