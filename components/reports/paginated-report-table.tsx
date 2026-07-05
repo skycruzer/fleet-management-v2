@@ -13,6 +13,7 @@
  */
 
 'use client'
+'use no memo'
 
 import { useMemo, useState } from 'react'
 import {

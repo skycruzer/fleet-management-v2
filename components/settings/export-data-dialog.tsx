@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
-import { createClient } from '@/lib/supabase/client'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { toast } from 'sonner'
 import { Loader2, Download, FileJson, FileSpreadsheet } from 'lucide-react'
 
@@ -35,7 +35,7 @@ export function ExportDataDialog({ open, onOpenChange }: ExportDataDialogProps) 
   const [includeLeaveRequests, setIncludeLeaveRequests] = useState(true)
   const [includeActivityLog, setIncludeActivityLog] = useState(false)
 
-  const supabase = createClient()
+  const { csrfToken } = useCsrfToken()
 
   const handleExport = async () => {
     if (!includeProfile && !includeCertifications && !includeLeaveRequests && !includeActivityLog) {
@@ -46,76 +46,27 @@ export function ExportDataDialog({ open, onOpenChange }: ExportDataDialogProps) 
     setIsExporting(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      // Data is assembled server-side (service role, scoped to the current user).
+      const response = await fetch('/api/settings/export-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        body: JSON.stringify({
+          includeProfile,
+          includeCertifications,
+          includeLeaveRequests,
+          includeActivityLog,
+        }),
+      })
 
-      if (!user) {
-        toast.error('Not authenticated')
+      if (!response.ok) {
+        toast.error(response.status === 401 ? 'Not authenticated' : 'Failed to export data')
         return
       }
 
-      const exportData: any = {
-        export_date: new Date().toISOString(),
-        user_id: user.id,
-      }
-
-      // Fetch user profile data
-      if (includeProfile) {
-        const { data: userData } = await supabase
-          .from('an_users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-
-        exportData.profile = userData
-      }
-
-      // Fetch pilot data if user is a pilot
-      if (includeCertifications || includeLeaveRequests) {
-        const { data: pilotData } = await supabase
-          .from('pilots')
-          .select('*')
-          .eq('email', user.email || '')
-          .single()
-
-        if (pilotData) {
-          exportData.pilot_profile = pilotData
-
-          // Fetch certifications
-          if (includeCertifications) {
-            const { data: certifications } = await supabase
-              .from('pilot_checks')
-              .select('*, check_types(*)')
-              .eq('pilot_id', pilotData.id)
-
-            exportData.certifications = certifications
-          }
-
-          // Fetch leave requests
-          if (includeLeaveRequests) {
-            const { data: leaveRequests } = await supabase
-              .from('pilot_requests')
-              .select('*')
-              .eq('pilot_id', pilotData.id)
-              .eq('request_category', 'LEAVE')
-
-            exportData.leave_requests = leaveRequests
-          }
-        }
-      }
-
-      // Fetch activity log
-      if (includeActivityLog) {
-        const { data: auditLogs } = await supabase
-          .from('audit_logs')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(100)
-
-        exportData.activity_log = auditLogs
-      }
+      const exportData = await response.json()
 
       // Export based on format
       if (format === 'json') {

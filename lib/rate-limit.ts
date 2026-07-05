@@ -208,22 +208,36 @@ export function formatRateLimitError(resetTimestamp: number): string {
 export function getClientIp(request: Request | { headers: Headers }): string {
   const headers = request.headers
 
-  // Check common proxy headers
-  const forwardedFor = headers.get('x-forwarded-for')
-  if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, take the first one
-    return forwardedFor.split(',')[0].trim()
+  // Prefer platform-trusted headers that clients cannot forge.
+  // On Vercel these are set by the edge network and overwrite any client-sent value,
+  // unlike `x-forwarded-for`, whose LEFTMOST entry is attacker-controlled (spoofable
+  // for rate-limit evasion — a rotated XFF header yields a fresh bucket per request).
+  const vercelForwardedFor = headers.get('x-vercel-forwarded-for')
+  if (vercelForwardedFor) {
+    return vercelForwardedFor.split(',')[0].trim()
   }
 
-  const realIp = headers.get('x-real-ip')
+  const realIp = headers.get('x-real-ip') // Vercel/most proxies set this to the true client IP
   if (realIp) {
     return realIp.trim()
   }
 
-  // Fallback to other headers
-  const cfConnectingIp = headers.get('cf-connecting-ip') // Cloudflare
+  const cfConnectingIp = headers.get('cf-connecting-ip') // Cloudflare (platform-set)
   if (cfConnectingIp) {
     return cfConnectingIp.trim()
+  }
+
+  // Last resort: `x-forwarded-for`. Take the RIGHTMOST entry — the hop appended by the
+  // nearest trusted proxy — not the spoofable leftmost client-supplied value.
+  const forwardedFor = headers.get('x-forwarded-for')
+  if (forwardedFor) {
+    const parts = forwardedFor
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean)
+    if (parts.length > 0) {
+      return parts[parts.length - 1]
+    }
   }
 
   // If no IP found, return 'unknown' (should not happen in production)

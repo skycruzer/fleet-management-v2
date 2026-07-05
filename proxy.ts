@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
+
+// Roles permitted into the admin dashboard / admin API namespace.
+const ADMIN_ROLES = new Set(['admin', 'manager'])
 
 /**
  * Root Proxy Middleware - Unified Authentication with Role-Based Access Control
@@ -79,6 +83,19 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Privileged client for reading credential/session tables (an_users,
+  // admin_sessions, pilot_sessions, pilot_users). These tables must NOT be
+  // anon-readable (they hold password hashes and bearer tokens), so middleware
+  // reads them with the service role instead of the anon key. Falls back to the
+  // anon client only if the service key is absent (e.g. a misconfigured preview),
+  // preserving prior behavior rather than hard-failing the request.
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const db = serviceRoleKey
+    ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      })
+    : supabase
+
   // ============================================================================
   // PUBLIC ROUTES - Allow everyone
   // ============================================================================
@@ -108,7 +125,7 @@ export async function proxy(request: NextRequest) {
     if (pilotSessionToken) {
       try {
         // Validate token against pilot_sessions table
-        const { data: session, error } = await supabase
+        const { data: session, error } = await db
           .from('pilot_sessions')
           .select('id, pilot_user_id, expires_at, is_active')
           .eq('session_token', pilotSessionToken)
@@ -121,7 +138,7 @@ export async function proxy(request: NextRequest) {
           // Check if session is still valid
           if (expiresAt > new Date()) {
             // Verify pilot is still approved
-            const { data: pilotUser } = await supabase
+            const { data: pilotUser } = await db
               .from('pilot_users')
               .select('id, registration_approved')
               .eq('id', session.pilot_user_id)
@@ -146,7 +163,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // Check if user is an approved pilot (Supabase Auth)
-    const { data: pilotUser } = await supabase
+    const { data: pilotUser } = await db
       .from('pilot_users')
       .select('id, registration_approved, auth_user_id')
       .eq('auth_user_id', user.id)
@@ -189,7 +206,7 @@ export async function proxy(request: NextRequest) {
     if (adminSessionToken) {
       try {
         // Validate token against admin_sessions table
-        const { data: session, error } = await supabase
+        const { data: session, error } = await db
           .from('admin_sessions')
           .select('id, admin_user_id, expires_at, is_active')
           .eq('session_token', adminSessionToken)
@@ -201,14 +218,14 @@ export async function proxy(request: NextRequest) {
 
           // Check if session is still valid
           if (expiresAt > new Date()) {
-            // Verify admin user exists
-            const { data: adminUser } = await supabase
+            // Verify admin user exists AND holds an admin/manager role
+            const { data: adminUser } = await db
               .from('an_users')
               .select('id, email, role')
               .eq('id', session.admin_user_id)
               .single()
 
-            if (adminUser) {
+            if (adminUser && ADMIN_ROLES.has(adminUser.role)) {
               // Valid custom session - allow access
               return response
             }
@@ -227,15 +244,15 @@ export async function proxy(request: NextRequest) {
     }
 
     // Check if user is admin or manager
-    const { data: adminUser } = await supabase
+    const { data: adminUser } = await db
       .from('an_users')
       .select('id, role')
       .eq('id', user.id)
       .single()
 
-    if (!adminUser) {
+    if (!adminUser || !ADMIN_ROLES.has(adminUser.role)) {
       // Not an admin/manager - check if they're a pilot
-      const { data: pilotUser } = await supabase
+      const { data: pilotUser } = await db
         .from('pilot_users')
         .select('id')
         .eq('auth_user_id', user.id)
@@ -288,7 +305,7 @@ export async function proxy(request: NextRequest) {
     if (pilotSessionCookie) {
       try {
         // Validate token against pilot_sessions table
-        const { data: session, error } = await supabase
+        const { data: session, error } = await db
           .from('pilot_sessions')
           .select('id, pilot_user_id, expires_at, is_active')
           .eq('session_token', pilotSessionCookie)
@@ -301,7 +318,7 @@ export async function proxy(request: NextRequest) {
           // Check if session is still valid
           if (expiresAt > new Date()) {
             // Verify pilot is still approved
-            const { data: pilotUser } = await supabase
+            const { data: pilotUser } = await db
               .from('pilot_users')
               .select('id, registration_approved')
               .eq('id', session.pilot_user_id)
@@ -323,7 +340,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: pilotUser } = await supabase
+    const { data: pilotUser } = await db
       .from('pilot_users')
       .select('id, registration_approved')
       .eq('auth_user_id', user.id)
@@ -354,7 +371,7 @@ export async function proxy(request: NextRequest) {
     if (adminApiSessionToken) {
       try {
         // Validate token against admin_sessions table
-        const { data: session, error } = await supabase
+        const { data: session, error } = await db
           .from('admin_sessions')
           .select('id, admin_user_id, expires_at, is_active')
           .eq('session_token', adminApiSessionToken)
@@ -366,14 +383,14 @@ export async function proxy(request: NextRequest) {
 
           // Check if session is still valid
           if (expiresAt > new Date()) {
-            // Verify admin user exists
-            const { data: adminUser } = await supabase
+            // Verify admin user exists AND holds an admin/manager role
+            const { data: adminUser } = await db
               .from('an_users')
               .select('id, email, role')
               .eq('id', session.admin_user_id)
               .single()
 
-            if (adminUser) {
+            if (adminUser && ADMIN_ROLES.has(adminUser.role)) {
               // Valid custom session - allow access
               return response
             }
@@ -389,13 +406,9 @@ export async function proxy(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: adminUser } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    const { data: adminUser } = await db.from('an_users').select('role').eq('id', user.id).single()
 
-    if (!adminUser) {
+    if (!adminUser || !ADMIN_ROLES.has(adminUser.role)) {
       return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 403 })
     }
 
