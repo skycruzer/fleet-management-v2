@@ -5,9 +5,13 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://wgdmgvonqysflwdiiols.supabase.co'
-const supabaseAnonKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY2OTM5NzEsImV4cCI6MjA0MjI2OTk3MX0.4Rw3PmsCGGf_GdJO7JUfCxbXrFvN8mCRNd2SfEYPJXE'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in environment')
+  process.exit(1)
+}
 
 console.log('🔐 Testing Reports API...\n')
 

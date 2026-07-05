@@ -240,8 +240,9 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
       })
 
       // Navigate back to requests list
-      router.push('/dashboard/requests')
       router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      router.push('/dashboard/requests')
     } catch (error) {
       toast({
         title: 'Error',

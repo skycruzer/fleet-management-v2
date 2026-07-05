@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { formatDate } from '@/lib/utils/date-utils'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,10 +75,11 @@ export const GET = createAdminRoute(
 
       if (periodsError) {
         console.error('[CSV Export] Error fetching periods:', periodsError)
-        return NextResponse.json(
-          { error: 'Failed to fetch roster periods', details: periodsError.message },
-          { status: 500 }
-        )
+        const sanitized = sanitizeError(periodsError, {
+          operation: 'exportRenewalPlanCsv:fetchPeriods',
+          endpoint: '/api/renewal-planning/export-csv',
+        })
+        return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
       }
 
       if (!periods || periods.length === 0) {
@@ -129,10 +131,11 @@ export const GET = createAdminRoute(
 
       if (renewalsError) {
         console.error('[CSV Export] Error fetching renewals:', renewalsError)
-        return NextResponse.json(
-          { error: 'Failed to fetch renewal plans', details: renewalsError.message },
-          { status: 500 }
-        )
+        const sanitized = sanitizeError(renewalsError, {
+          operation: 'exportRenewalPlanCsv:fetchRenewals',
+          endpoint: '/api/renewal-planning/export-csv',
+        })
+        return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
       }
 
       if (!renewals || renewals.length === 0) {
@@ -248,13 +251,11 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('[CSV Export] Error:', error)
-      return NextResponse.json(
-        {
-          error: 'Failed to generate CSV',
-          details: error instanceof Error ? error.message : 'Unknown error',
-        },
-        { status: 500 }
-      )
+      const sanitized = sanitizeError(error, {
+        operation: 'exportRenewalPlanCsv',
+        endpoint: '/api/renewal-planning/export-csv',
+      })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
     }
   }
 )

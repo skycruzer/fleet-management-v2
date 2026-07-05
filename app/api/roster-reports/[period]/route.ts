@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/roster-reports/[period]
@@ -81,13 +82,11 @@ export const GET = createAdminRoute(
       })
     } catch (error: any) {
       logger.error('Roster report generation API error', { error })
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message || 'Internal server error',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'generateRosterPeriodReport',
+        endpoint: '/api/roster-reports/[period]',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

@@ -19,6 +19,7 @@ import { redisCacheService, checkRedisHealth } from '@/lib/services/redis-cache-
 import { unifiedCacheService, getCacheStats } from '@/lib/services/unified-cache-service'
 import { getNoCacheHeaders } from '@/lib/utils/cache-headers'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/admin/cache-metrics
@@ -103,13 +104,11 @@ export const GET = createAdminRoute(
         source: 'api/admin/cache-metrics/GET',
         severity: ErrorSeverity.MEDIUM,
       })
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch cache metrics',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'getCacheMetrics',
+        endpoint: '/api/admin/cache-metrics',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )
@@ -172,13 +171,11 @@ export const POST = createAdminRoute(
         source: 'api/admin/cache-metrics/POST',
         severity: ErrorSeverity.MEDIUM,
       })
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to perform cache action',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'performCacheAction',
+        endpoint: '/api/admin/cache-metrics',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

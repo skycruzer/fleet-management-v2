@@ -66,21 +66,27 @@ export async function saveSignature(
   const up = await supabase.storage
     .from('signatures')
     .upload(path, bytes, { contentType: 'image/png', upsert: true })
-  if (up.error) return { ok: false, message: 'Upload failed: ' + up.error.message }
+  if (up.error) {
+    // Never echo raw storage error text (leaks bucket/path internals) — log it server-side only.
+    console.error('[signature-actions] signature upload failed', up.error)
+    return { ok: false, message: 'Could not upload the signature. Please try again.' }
+  }
 
-  const { error } = await supabase
-    .from('report_signatures')
-    .upsert(
-      {
-        report_id: reportId,
-        kind,
-        storage_path: path,
-        signed_by: user.id,
-        signed_at: new Date().toISOString(),
-      },
-      { onConflict: 'report_id,kind' }
-    )
-  if (error) return { ok: false, message: 'Could not record signature: ' + error.message }
+  const { error } = await supabase.from('report_signatures').upsert(
+    {
+      report_id: reportId,
+      kind,
+      storage_path: path,
+      signed_by: user.id,
+      signed_at: new Date().toISOString(),
+    },
+    { onConflict: 'report_id,kind' }
+  )
+  if (error) {
+    // Never echo raw DB error text (leaks table/column/constraint names) — log it server-side only.
+    console.error('[signature-actions] recording signature failed', error)
+    return { ok: false, message: 'Could not record the signature. Please try again.' }
+  }
 
   revalidatePath(`/dashboard/ebt/reports/${reportId}`)
   return { ok: true }
@@ -142,20 +148,26 @@ export async function saveSignOffSignature(
   const up = await supabase.storage
     .from('signatures')
     .upload(path, bytes, { contentType: 'image/png', upsert: true })
-  if (up.error) return { ok: false, message: 'Upload failed: ' + up.error.message }
-  const { error } = await supabase
-    .from('report_signatures')
-    .upsert(
-      {
-        report_id: reportId,
-        kind,
-        storage_path: path,
-        signed_by: user.id,
-        signed_at: new Date().toISOString(),
-      },
-      { onConflict: 'report_id,kind' }
-    )
-  if (error) return { ok: false, message: 'Could not record signature: ' + error.message }
+  if (up.error) {
+    // Never echo raw storage error text (leaks bucket/path internals) — log it server-side only.
+    console.error('[signature-actions] signature upload failed', up.error)
+    return { ok: false, message: 'Could not upload the signature. Please try again.' }
+  }
+  const { error } = await supabase.from('report_signatures').upsert(
+    {
+      report_id: reportId,
+      kind,
+      storage_path: path,
+      signed_by: user.id,
+      signed_at: new Date().toISOString(),
+    },
+    { onConflict: 'report_id,kind' }
+  )
+  if (error) {
+    // Never echo raw DB error text (leaks table/column/constraint names) — log it server-side only.
+    console.error('[signature-actions] recording signature failed', error)
+    return { ok: false, message: 'Could not record the signature. Please try again.' }
+  }
   revalidatePath(`/dashboard/ebt/reports/${reportId}`)
   return { ok: true }
 }

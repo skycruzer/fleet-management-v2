@@ -14,6 +14,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportPreviewRequestSchema } from '@/lib/validations/reports-schema'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
@@ -89,13 +90,11 @@ export const POST = createAdminRoute(
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
       })
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to generate report preview',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'generateReportPreview',
+        endpoint: '/api/reports/preview',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

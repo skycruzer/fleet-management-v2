@@ -16,6 +16,7 @@ import { redisCacheService } from '@/lib/services/redis-cache-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/admin/memory-stats
@@ -82,13 +83,11 @@ export const GET = createAdminRoute(
         source: 'api/admin/memory-stats/GET',
         severity: ErrorSeverity.MEDIUM,
       })
-      return NextResponse.json(
-        {
-          error: 'Failed to fetch memory statistics',
-          details: error instanceof Error ? error.message : 'Unknown error',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'getMemoryStats',
+        endpoint: '/api/admin/memory-stats',
+      })
+      return NextResponse.json({ error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

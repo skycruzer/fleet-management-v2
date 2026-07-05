@@ -13,6 +13,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import {
   previewRenewalPlan,
   VALID_CATEGORIES,
@@ -53,13 +54,13 @@ export const POST = createAdminRoute(
         metadata: { operation: 'POST' },
       })
 
+      const sanitized = sanitizeError(error, {
+        operation: 'previewRenewalPlan',
+        endpoint: '/api/renewal-planning/preview',
+      })
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to generate preview',
-          details: (error as Error).message,
-        },
-        { status: 500 }
+        { success: false, ...sanitized },
+        { status: sanitized.statusCode || 500 }
       )
     }
   }

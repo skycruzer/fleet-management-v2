@@ -16,6 +16,7 @@ import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
+import { reviewLeaveBidOption } from '@/lib/services/leave-bid-service'
 import { createNotification } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
@@ -41,40 +42,23 @@ export const POST = createAdminRoute(
   async ({ body }) => {
     const { bidId, optionKey, action } = body
 
-    const supabase = createAdminClient()
+    // Write the option status change through the service layer
+    const reviewResult = await reviewLeaveBidOption(bidId, optionKey, action)
 
-    // Fetch the current bid
-    const { data: bid, error: fetchError } = await supabase
-      .from('leave_bids')
-      .select('id, roster_period_code, pilot_id, status, option_statuses, preferred_dates')
-      .eq('id', bidId)
-      .single()
-
-    if (fetchError || !bid) {
-      return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
-    }
-
-    // Update option_statuses
-    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
-    const currentStatuses = (bid.option_statuses as Record<string, string>) || {}
-    const updatedStatuses = { ...currentStatuses, [String(optionKey)]: newStatus }
-
-    // Update the bid
-    const { error: updateError } = await supabase
-      .from('leave_bids')
-      .update({
-        option_statuses: updatedStatuses,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bidId)
-
-    if (updateError) {
-      console.error('Error updating option status:', updateError)
+    if (!reviewResult.success || !reviewResult.data) {
+      const statusCode = reviewResult.error === 'Leave bid not found' ? 404 : 500
       return NextResponse.json(
-        { success: false, error: `Failed to ${action} option: ${updateError.message}` },
-        { status: 500 }
+        { success: false, error: reviewResult.error ?? `Failed to ${action} option` },
+        { status: statusCode }
       )
     }
+
+    const bid = reviewResult.data
+    const newStatus = bid.optionStatus
+    const updatedStatuses = bid.optionStatuses
+
+    // Admin client for downstream pilot/email lookups (bypasses RLS)
+    const supabase = createAdminClient()
 
     // Send notification to pilot
     const ordinal =

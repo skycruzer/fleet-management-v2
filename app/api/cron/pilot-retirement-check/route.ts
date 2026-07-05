@@ -30,6 +30,7 @@ export async function GET(request: Request) {
     const expectedToken = `Bearer ${process.env.CRON_SECRET}`
     if (
       !authHeader ||
+      !process.env.CRON_SECRET ||
       !authHeader.startsWith('Bearer ') ||
       authHeader.length !== expectedToken.length ||
       !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedToken))

@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getCheckTypes } from '@/lib/services/check-types-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/check-types
@@ -54,13 +55,8 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('GET /api/check-types error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch check types',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, { operation: 'getCheckTypes', endpoint: '/api/check-types' })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

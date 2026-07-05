@@ -28,6 +28,7 @@ import {
   sendAdminRequestNotificationEmail,
 } from '@/lib/services/pilot-email-service'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
+import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
 export interface FlightRequest {
   id: string
@@ -224,6 +225,11 @@ export async function submitPilotFlightRequest(
       endDate: request.end_date || null,
       requestId: createdRequest.id,
     }).catch((err: unknown) => console.error('Failed to send admin notification email:', err))
+
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(createdRequest.id).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,
@@ -443,6 +449,11 @@ export async function updatePilotFlightRequest(
         reason: updates.reason || null,
       }).catch((err: unknown) => console.error('Failed to send flight edit email:', err))
 
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(requestId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
+
     return {
       success: true,
       data: mappedRequest,
@@ -521,6 +532,11 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
         error: ERROR_MESSAGES.FLIGHT.DELETE_FAILED.message,
       }
     }
+
+    // Invalidate caches (non-blocking)
+    await invalidateRequestCaches(requestId).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return {
       success: true,

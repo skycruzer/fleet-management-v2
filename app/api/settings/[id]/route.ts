@@ -8,12 +8,18 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { authRateLimit } from '@/lib/rate-limit'
 import { updateSystemSetting } from '@/lib/services/admin-service'
 import { invalidateSettingsCaches } from '@/lib/services/cache-invalidation-helper'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+
+const UpdateSettingSchema = z.object({
+  value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+  description: z.string().max(1000, 'Description too long').optional(),
+})
 
 export const PUT = createAdminRoute(
   {
@@ -26,7 +32,16 @@ export const PUT = createAdminRoute(
     try {
       const { id } = params
       const body = await request.json()
-      const { value, description } = body
+      const validation = UpdateSettingSchema.safeParse(body)
+
+      if (!validation.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid setting data', details: validation.error.issues },
+          { status: 400 }
+        )
+      }
+
+      const { value, description } = validation.data
 
       // Validate input
       if (value === undefined && !description) {
@@ -52,7 +67,7 @@ export const PUT = createAdminRoute(
         operation: 'updateSystemSetting',
         settingId: params.id,
       })
-      return NextResponse.json(sanitized, { status: sanitized.statusCode })
+      return NextResponse.json(sanitized, { status: sanitized.statusCode || 500 })
     }
   }
 )

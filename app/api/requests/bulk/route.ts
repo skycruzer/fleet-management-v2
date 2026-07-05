@@ -11,6 +11,7 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { updateRequestStatus, deletePilotRequest } from '@/lib/services/unified-request-service'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
@@ -18,11 +19,16 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { invalidateRequestCaches } from '@/lib/services/cache-invalidation-helper'
 
-interface BulkActionRequest {
-  request_ids: string[]
-  action: 'approve' | 'deny' | 'delete'
-  comments?: string
-}
+const BulkActionSchema = z.object({
+  request_ids: z
+    .array(z.string().uuid('Invalid request ID'))
+    .min(1, 'must be non-empty array')
+    .max(50, 'maximum 50 per bulk operation'),
+  action: z.enum(['approve', 'deny', 'delete']),
+  comments: z.string().max(2000).optional(),
+})
+
+type BulkActionRequest = z.infer<typeof BulkActionSchema>
 
 export const POST = createAdminRoute(
   {
@@ -33,29 +39,21 @@ export const POST = createAdminRoute(
   },
   async ({ request, admin }) => {
     try {
-      // Parse request body
-      const body = (await request.json()) as BulkActionRequest
-      const { request_ids, action, comments } = body
+      // Parse and validate request body
+      const rawBody = await request.json()
+      const validation = BulkActionSchema.safeParse(rawBody)
 
-      // Validate input
-      if (!request_ids || !Array.isArray(request_ids) || request_ids.length === 0) {
+      if (!validation.success) {
         return NextResponse.json(
-          { success: false, error: 'Invalid request_ids - must be non-empty array' },
+          {
+            success: false,
+            error: validation.error.issues[0]?.message || 'Invalid bulk request payload',
+          },
           { status: 400 }
         )
       }
 
-      // Cap array size to prevent abuse
-      if (request_ids.length > 50) {
-        return NextResponse.json(
-          { success: false, error: 'Too many items - maximum 50 per bulk operation' },
-          { status: 400 }
-        )
-      }
-
-      if (!['approve', 'deny', 'delete'].includes(action)) {
-        return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 })
-      }
+      const { request_ids, action, comments }: BulkActionRequest = validation.data
 
       // Perform bulk action
       let successCount = 0
@@ -88,10 +86,13 @@ export const POST = createAdminRoute(
           }
         } catch (error) {
           failureCount++
-          errors.push({
-            id: requestId,
+          logger.error('Bulk request item action failed', {
+            source: 'api:requests:bulk:post',
+            requestId,
+            action,
             error: error instanceof Error ? error.message : String(error),
           })
+          errors.push({ id: requestId, error: 'Failed to process request' })
         }
       }
 

@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
+import { invalidateRenewalPlanningCaches } from '@/lib/services/cache-invalidation-helper'
 
 export const DELETE = createAdminRoute(
   {
@@ -49,6 +50,10 @@ export const DELETE = createAdminRoute(
       .neq('id', '00000000-0000-0000-0000-000000000000')
 
     if (error) throw error
+
+    await invalidateRenewalPlanningCaches().catch((cacheError) =>
+      console.error('Cache invalidation failed (non-blocking):', cacheError)
+    )
 
     return NextResponse.json({
       success: true,

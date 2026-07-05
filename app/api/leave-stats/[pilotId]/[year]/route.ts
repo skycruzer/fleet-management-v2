@@ -10,14 +10,18 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import {
   getPilotLeaveStats,
   getPriorityRanking,
   getPriorityExplanation,
 } from '@/lib/services/leave-stats-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
+
+const pilotIdSchema = z.string().uuid()
 
 export const GET = createAdminRoute(
   {
@@ -28,6 +32,15 @@ export const GET = createAdminRoute(
   async ({ params }) => {
     try {
       const { pilotId, year } = params
+
+      const pilotIdValidation = pilotIdSchema.safeParse(pilotId)
+      if (!pilotIdValidation.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid pilotId parameter' },
+          { status: 400 }
+        )
+      }
+
       const yearNumber = parseInt(year, 10)
 
       if (isNaN(yearNumber)) {
@@ -66,13 +79,11 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('Error fetching leave stats:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch leave statistics',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'getLeaveStats',
+        endpoint: '/api/leave-stats/[pilotId]/[year]',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

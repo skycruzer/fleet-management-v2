@@ -22,6 +22,11 @@ import {
   validateRedisSession,
   destroyRedisSession,
 } from '@/lib/services/redis-session-service'
+import {
+  checkAccountLockout,
+  recordFailedAttempt,
+  clearFailedAttempts,
+} from '@/lib/services/account-lockout-service'
 import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 
 /**
@@ -87,6 +92,20 @@ export async function adminLogin(
   metadata?: { ipAddress?: string; userAgent?: string }
 ): Promise<ServiceResponse<{ user: AdminUser; sessionToken: string }>> {
   try {
+    const email = credentials.email.toLowerCase()
+
+    // SECURITY: brute-force protection — refuse when the account is locked out.
+    // Mirrors the pilot-login flow (5 failed attempts / 15 min → 30 min lock).
+    const lockout = await checkAccountLockout(email)
+    if (lockout.success && lockout.data?.isLocked) {
+      return {
+        success: false,
+        error: `Account temporarily locked due to repeated failed logins. Try again in ${
+          lockout.data.remainingTime ?? 30
+        } minutes.`,
+      }
+    }
+
     const supabase = createServiceRoleClient()
 
     const { data: adminUser, error: adminError } = await supabase
@@ -96,6 +115,9 @@ export async function adminLogin(
       .single()
 
     if (adminError || !adminUser) {
+      // Count misses against the submitted identifier so enumeration + guessing
+      // are both throttled without revealing whether the email exists.
+      await recordFailedAttempt(email, metadata?.ipAddress)
       return { success: false, error: 'Invalid email or password' }
     }
 
@@ -111,8 +133,12 @@ export async function adminLogin(
 
     const passwordMatch = await bcrypt.compare(credentials.password, user.password_hash)
     if (!passwordMatch) {
+      await recordFailedAttempt(email, metadata?.ipAddress, user.email)
       return { success: false, error: 'Invalid email or password' }
     }
+
+    // Successful auth — reset the failed-attempt counter for this identifier.
+    await clearFailedAttempts(email)
 
     // Update last login time
     await supabase

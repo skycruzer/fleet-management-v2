@@ -15,8 +15,13 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US2, T047)
  */
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id: requestId } = await params
+
     // SECURITY: Validate CSRF token
     const csrfError = await validateCsrf(_request)
     if (csrfError) return csrfError
@@ -35,8 +40,6 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
         { status: 429 }
       )
     }
-
-    const requestId = params.id
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -69,7 +72,6 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     console.error('Pilot leave DELETE error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'cancelPilotLeaveRequest',
-      requestId: params.id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

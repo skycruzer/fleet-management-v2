@@ -11,6 +11,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,13 +84,11 @@ export const GET = createAdminRoute(
 
       if (error) {
         console.error('Error fetching leave bids:', error)
-        return NextResponse.json(
-          {
-            error: 'Failed to fetch leave bids',
-            details: error.message || 'Database query error',
-          },
-          { status: 500 }
-        )
+        const s = sanitizeError(error, {
+          operation: 'exportLeaveBidsPdf',
+          endpoint: '/api/leave-bids/export-pdf',
+        })
+        return NextResponse.json({ error: s.error }, { status: s.statusCode || 500 })
       }
 
       if (!leaveBids || leaveBids.length === 0) {
@@ -233,13 +232,11 @@ export const GET = createAdminRoute(
       })
     } catch (error) {
       console.error('Error generating PDF:', error)
-      return NextResponse.json(
-        {
-          error: 'Failed to generate PDF',
-          details: error instanceof Error ? error.message : 'Unknown error occurred',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'exportLeaveBidsPdf',
+        endpoint: '/api/leave-bids/export-pdf',
+      })
+      return NextResponse.json({ error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

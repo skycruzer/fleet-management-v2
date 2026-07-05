@@ -1172,14 +1172,10 @@ export async function getLeaveRequestApprovalHistory(
         )
       `
       )
-      // TODO(schema-drift): audit_logs columns renamed — `entity_type` → `table_name`,
-      //                     `entity_id` → `record_id`. Runtime behavior of this query is
-      //                     already broken (returns empty set); fix requires checking what
-      //                     the trigger actually writes for pilot_requests audit rows.
-
-      .eq('entity_type' as any, 'leave_request')
-
-      .eq('entity_id' as any, leaveRequestId)
+      // Leave requests are audited under the unified `pilot_requests` table (and, for
+      // legacy rows, the deprecated `leave_requests` table). Match on record_id.
+      .in('table_name', ['pilot_requests', 'leave_requests'])
+      .eq('record_id', leaveRequestId)
       .order('created_at', { ascending: true })
 
     if (auditError) {
@@ -1277,12 +1273,11 @@ export async function getLeaveRequestApprovalHistory(
  * Export filters for audit trail CSV
  */
 export interface ExportAuditFilters {
-  entityType?: string
-  entityId?: string
+  tableName?: string
+  recordId?: string
+  action?: string
   startDate?: Date
   endDate?: Date
-  tableName?: string
-  operation?: string
   userId?: string
 }
 
@@ -1311,24 +1306,17 @@ export async function exportAuditTrailCSV(filters: ExportAuditFilters = {}): Pro
       )
       .order('created_at', { ascending: false })
 
-    // Apply filters
-    // TODO(schema-drift): audit_logs columns renamed — entity_type/entity_id/operation
-    //                     no longer exist. These filters silently do nothing in production.
-    //                     Proper fix: migrate callers to use table_name/record_id/action.
-    if (filters.entityType) {
-      query = query.eq('entity_type' as any, filters.entityType)
-    }
-
-    if (filters.entityId) {
-      query = query.eq('entity_id' as any, filters.entityId)
-    }
-
+    // Apply filters (real audit_logs columns: table_name, record_id, action)
     if (filters.tableName) {
       query = query.eq('table_name', filters.tableName)
     }
 
-    if (filters.operation) {
-      query = query.eq('operation' as any, filters.operation)
+    if (filters.recordId) {
+      query = query.eq('record_id', filters.recordId)
+    }
+
+    if (filters.action) {
+      query = query.eq('action', filters.action)
     }
 
     if (filters.userId) {

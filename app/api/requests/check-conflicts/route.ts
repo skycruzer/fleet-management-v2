@@ -16,6 +16,7 @@ import { detectConflicts, type RequestInput } from '@/lib/services/conflict-dete
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 // ============================================================================
 // Validation Schema
@@ -85,13 +86,11 @@ export const POST = createAdminRoute(
       }
 
       logger.error('Conflict check API error', { error })
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message || 'Internal server error',
-        },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'checkConflicts',
+        endpoint: '/api/requests/check-conflicts',
+      })
+      return NextResponse.json({ success: false, error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

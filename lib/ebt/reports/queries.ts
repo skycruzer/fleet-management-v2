@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/ebt/supabase/server'
 import { createAdminClient } from '@/lib/ebt/supabase/admin'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import type { Database } from '@/lib/ebt/types'
 
 export type ReportStatus = Database['ebt']['Enums']['report_status']
@@ -146,24 +147,44 @@ export async function getOpenRemedials(pilotId: string): Promise<OpenRemedial[]>
   return (data ?? []) as OpenRemedial[]
 }
 
-/** Display name for any app user (examiner/fleet_manager/admin) by id, for showing the report's
- *  actual examiner. RLS: readable for self/admin today; readable to all authenticated once the
- *  profiles_read policy widening is applied (so fleet managers see other instructors' names too).
- *  Returns null when not found/visible — callers should render a dash, never fall back to an email. */
+/** Display name for the report's actual examiner by id.
+ *
+ *  In the fleet app, `training_reports.examiner_id` holds a fleet `an_users.id` (the admin-auth
+ *  identity of whoever captured the report), so the name resolves from `public.an_users` — NOT
+ *  from `ebt.profiles`, which has no row for fleet auth ids (that was the standalone-EBT identity
+ *  store and left new reports rendering a blank examiner). Legacy reports migrated from the old
+ *  standalone app may still carry an `auth.users` id that only exists in `ebt.profiles`, so we
+ *  fall back to that.
+ *
+ *  Returns null when not found/visible — callers should render a dash, never fall back to an email.
+ *  A missing examiner name must not throw and break the whole report. */
 export async function getDisplayName(userId: string | null | undefined): Promise<string | null> {
   if (!userId) return null
+
+  // Primary source: the fleet an_users record (new reports). Uses the fleet service-role client
+  // (default public schema) rather than the ebt-scoped client.
+  const fleet = createServiceRoleClient()
+  const { data: fleetUser, error: fleetError } = await fleet
+    .from('an_users')
+    .select('name')
+    .eq('id', userId)
+    .maybeSingle()
+  if (fleetError) {
+    // Observable in server logs, but don't stop — a legacy report may still resolve via profiles.
+    console.error('getDisplayName an_users(' + userId + '): ' + fleetError.message)
+  } else if (fleetUser?.name) {
+    return fleetUser.name
+  }
+
+  // Legacy fallback: examiner recorded under the old standalone-EBT profiles identity.
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('profiles')
     .select('full_name')
     .eq('id', userId)
     .maybeSingle()
-  // FIX #12: don't silently swallow a genuine error. An RLS denial or connection failure would
-  // otherwise be indistinguishable from "no such profile" and the report would render a bare dash
-  // with no trace. We still return null (callers render a dash — a missing examiner name must not
-  // throw and break the whole report), but the error is now observable in server logs.
   if (error) {
-    console.error('getDisplayName(' + userId + '): ' + error.message)
+    console.error('getDisplayName profiles(' + userId + '): ' + error.message)
     return null
   }
   return data?.full_name ?? null

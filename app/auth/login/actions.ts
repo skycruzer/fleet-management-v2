@@ -1,6 +1,7 @@
 'use server'
 
 import { adminLogin } from '@/lib/services/admin-auth-service'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function loginAction(formData: FormData) {
@@ -11,7 +12,14 @@ export async function loginAction(formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
-  const result = await adminLogin({ email, password })
+  // Best-effort client IP for lockout attribution/audit (left of x-forwarded-for chain).
+  const headerList = await headers()
+  const ipAddress =
+    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    headerList.get('x-real-ip') ||
+    undefined
+
+  const result = await adminLogin({ email, password }, { ipAddress })
 
   if (!result.success) {
     return { error: result.error || 'Invalid credentials' }

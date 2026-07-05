@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import { confirmRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { invalidateRenewalPlanningCaches } from '@/lib/services/cache-invalidation-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const PUT = createAdminRoute(
@@ -19,13 +20,18 @@ export const PUT = createAdminRoute(
     endpoint: '/api/renewal-planning/[planId]/confirm',
     rateLimit: { limiter: authRateLimit, by: 'user' },
   },
-  async ({ request, params }) => {
+  async ({ params, admin }) => {
     try {
       const { planId } = params
-      const body = await request.json()
-      const { userId } = body
+      // No request body is required for this action — the actor is the
+      // authenticated admin, not a client-supplied field. Previously this
+      // route parsed `request.json()` for an unused `userId` field, which
+      // threw a 500 whenever the client sent an empty body.
+      const confirmed = await confirmRenewalPlan(planId, admin.userId)
 
-      const confirmed = await confirmRenewalPlan(planId, userId)
+      await invalidateRenewalPlanningCaches().catch((cacheError) =>
+        console.error('Cache invalidation failed (non-blocking):', cacheError)
+      )
 
       return NextResponse.json({
         success: true,

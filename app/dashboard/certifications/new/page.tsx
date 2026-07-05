@@ -122,8 +122,9 @@ export default function NewCertificationPage() {
       }
 
       // Success - redirect to certifications list
-      router.push('/dashboard/certifications')
       router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      router.push('/dashboard/certifications')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create certification')
       setIsSubmitting(false)

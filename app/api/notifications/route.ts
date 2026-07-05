@@ -9,9 +9,15 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { authRateLimit } from '@/lib/rate-limit'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { getUserNotifications, markNotificationAsRead } from '@/lib/services/notification-service'
+import { invalidateNotificationCaches } from '@/lib/services/cache-invalidation-helper'
+
+const MarkReadSchema = z.object({
+  notificationId: z.string().uuid('Invalid notification ID'),
+})
 
 export const GET = createAdminRoute(
   {
@@ -48,20 +54,26 @@ export const PATCH = createAdminRoute(
   async ({ request, admin }) => {
     try {
       const body = await request.json()
-      const { notificationId } = body
+      const validation = MarkReadSchema.safeParse(body)
 
-      if (!notificationId) {
+      if (!validation.success) {
         return NextResponse.json(
           { success: false, error: 'Notification ID required' },
           { status: 400 }
         )
       }
 
+      const { notificationId } = validation.data
+
       const result = await markNotificationAsRead(notificationId, admin.userId)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
+
+      await invalidateNotificationCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({ success: true })
     } catch (error) {

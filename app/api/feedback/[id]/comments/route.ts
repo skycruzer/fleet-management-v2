@@ -24,6 +24,7 @@ import {
   deleteFeedbackComment,
 } from '@/lib/services/feedback-comment-service'
 import { z } from 'zod'
+import { invalidateFeedbackCaches } from '@/lib/services/cache-invalidation-helper'
 
 // Validation schemas
 const createCommentSchema = z.object({
@@ -112,6 +113,10 @@ export const POST = createAdminRoute(
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
       }
 
+      await invalidateFeedbackCaches(feedbackId).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
+
       return NextResponse.json({
         success: true,
         data: result.data,
@@ -134,8 +139,10 @@ export const PATCH = createAdminRoute(
     endpoint: '/api/feedback/[id]/comments',
     rateLimit: false,
   },
-  async ({ request, admin }) => {
+  async ({ request, params, admin }) => {
     try {
+      const { id: feedbackId } = params
+
       // Parse and validate request body
       const body = await request.json()
       const validation = updateCommentSchema.safeParse(body)
@@ -155,6 +162,10 @@ export const PATCH = createAdminRoute(
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
       }
+
+      await invalidateFeedbackCaches(feedbackId).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,

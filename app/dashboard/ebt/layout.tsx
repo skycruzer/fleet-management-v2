@@ -16,7 +16,6 @@ const EBT_TABS = [
   { href: '/dashboard/ebt/pilots', label: 'Pilots' },
   { href: '/dashboard/ebt/reports', label: 'Reports' },
   { href: '/dashboard/ebt/analytics', label: 'Analytics' },
-  { href: '/dashboard/ebt/roles', label: 'Roles' },
 ]
 
 export default async function EbtLayout({ children }: { children: React.ReactNode }) {

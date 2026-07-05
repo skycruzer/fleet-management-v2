@@ -12,6 +12,7 @@
  */
 
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import {
@@ -22,6 +23,11 @@ import {
 // Authorization handled by getAuthenticatedAdmin() - admin users can manage all feedback
 import { revalidatePath } from 'next/cache'
 import { invalidateFeedbackCaches } from '@/lib/services/cache-invalidation-helper'
+
+const UpdateFeedbackSchema = z.object({
+  adminResponse: z.string().min(1).max(5000).optional(),
+  status: z.enum(['PENDING', 'REVIEWED', 'RESOLVED', 'DISMISSED']).optional(),
+})
 
 /**
  * GET /api/feedback/[id]
@@ -74,8 +80,16 @@ export const PUT = createAdminRoute(
     // NOTE: Authorization is already verified by getAuthenticatedAdmin() above
     // Admin users can manage all feedback - no ownership check needed
 
-    // Parse request body
-    const body = await request.json()
+    // Parse and validate request body
+    const rawBody = await request.json()
+    const validation = UpdateFeedbackSchema.safeParse(rawBody)
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid update data', details: validation.error.issues },
+        { status: 400 }
+      )
+    }
+    const body = validation.data
 
     // Handle admin response
     if (body.adminResponse) {

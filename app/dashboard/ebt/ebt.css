@@ -28,13 +28,11 @@
   --rf-r-card: 18px;
   --rf-r-ctl: 11px;
   --rf-sh-1: 0 1px 2px rgba(27, 20, 32, 0.04), 0 1px 3px rgba(27, 20, 32, 0.05);
-  --rf-serif: 'Hoefler Text', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --rf-serif: inherit;
   --rf-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   color: var(--rf-ink);
-  background:
-    radial-gradient(1200px 480px at 80% -10%, rgba(124, 29, 63, 0.05), transparent 60%),
-    var(--rf-bg);
+  background: var(--rf-bg);
   min-height: 100vh;
   padding: 28px 28px 132px;
 }
@@ -73,7 +71,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--rf-brand), var(--rf-brand-3) 60%, var(--rf-gold-2));
+  background: var(--rf-brand);
 }
 .rf-mast-top {
   display: flex;
@@ -90,10 +88,10 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: linear-gradient(150deg, var(--rf-brand), var(--rf-brand-2));
+  background: var(--rf-brand);
   display: grid;
   place-items: center;
-  box-shadow: 0 6px 16px -6px rgba(124, 29, 63, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .rf-who {
   font-size: 10.5px;
@@ -237,7 +235,7 @@ textarea.rf-ctl {
 .rf-meter > i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--rf-brand), var(--rf-gold-2));
+  background: var(--rf-brand);
   border-radius: 999px;
   transition: width 0.4s;
 }
@@ -290,7 +288,7 @@ textarea.rf-ctl {
   bottom: 8px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(var(--rf-brand), var(--rf-brand-3));
+  background: var(--rf-brand);
 }
 .rf-bdg {
   width: 22px;
@@ -580,17 +578,14 @@ textarea.rf-ctl {
 .rf-tile.sel.amber {
   background: var(--rf-amber);
   color: #fff;
-  box-shadow: 0 3px 8px -3px rgba(179, 134, 47, 0.6);
 }
 .rf-tile.sel.red {
   background: var(--rf-red);
   color: #fff;
-  box-shadow: 0 3px 8px -3px rgba(192, 57, 43, 0.55);
 }
 .rf-tile.sel.green {
   background: var(--rf-green);
   color: #fff;
-  box-shadow: 0 3px 8px -3px rgba(47, 125, 79, 0.5);
 }
 .rf-cstat {
   width: 120px;
@@ -724,7 +719,7 @@ textarea.rf-ctl {
 /* declaration */
 .rf-declbox {
   position: relative;
-  background: linear-gradient(180deg, #fdfaf6, #fbf6ef);
+  background: var(--rf-surface);
   border: 1px solid var(--rf-brand-line);
   border-left: 4px solid var(--rf-brand);
   border-radius: 14px;
@@ -757,7 +752,7 @@ textarea.rf-ctl {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: linear-gradient(var(--rf-brand), var(--rf-brand-3));
+  background: var(--rf-brand);
   flex: 0 0 auto;
 }
 
@@ -784,7 +779,7 @@ textarea.rf-ctl {
   height: 104px;
   border: 1.5px dashed #d4cabd;
   border-radius: 14px;
-  background: linear-gradient(#fdfbf8, #fbf7f1);
+  background: var(--rf-surface);
   display: grid;
   place-items: center;
   position: relative;
@@ -796,7 +791,7 @@ textarea.rf-ctl {
   background: #fff;
 }
 .rf-sigink {
-  font-family: 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive;
+  font-family: inherit;
   font-size: 30px;
   color: #2c2632;
   transform: rotate(-5deg);
@@ -815,7 +810,7 @@ textarea.rf-ctl {
 .rf-note-foot {
   display: flex;
   gap: 13px;
-  background: linear-gradient(180deg, #fbf3e6, #f9efde);
+  background: var(--rf-gold-soft);
   border: 1px solid #ecd9b6;
   border-radius: 14px;
   padding: 15px 18px;
@@ -855,8 +850,7 @@ textarea.rf-ctl {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(252, 250, 246, 0.86);
-  backdrop-filter: blur(12px) saturate(1.4);
+  background: var(--rf-surface);
   border-top: 1px solid var(--rf-line-2);
   padding: 13px 28px;
   z-index: 30;
@@ -924,10 +918,10 @@ textarea.rf-ctl {
   background: #fdfbf8;
 }
 .rf-btn.primary {
-  background: linear-gradient(180deg, var(--rf-brand), var(--rf-brand-2));
+  background: var(--rf-brand);
   color: #fff;
   border-color: var(--rf-brand-2);
-  box-shadow: 0 6px 16px -8px rgba(124, 29, 63, 0.7);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .rf-btn.primary:hover {
   filter: brightness(1.07);
@@ -943,7 +937,9 @@ textarea.rf-ctl {
    Mirrors mockups/app-screens-preview.html.
    ============================================================================ */
 .ax-app,
-.ax-login {
+.ax-login,
+.ebt-scope,
+.ax-scope {
   --ax-brand: #7c1d3f;
   --ax-brand-2: #5e1430;
   --ax-brand-3: #9d3556;
@@ -967,8 +963,24 @@ textarea.rf-ctl {
   --ax-r-ctl: 11px;
   --ax-sh-1: 0 1px 2px rgba(27, 20, 32, 0.04), 0 1px 3px rgba(27, 20, 32, 0.05);
   --ax-sh-2: 0 10px 30px -12px rgba(27, 20, 32, 0.22);
-  --ax-serif: 'Hoefler Text', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --ax-serif: inherit;
   --ax-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+/* Dark-mode neutral remap — the EBT palette above is light-only, so flip only the
+   neutral tokens (bg/surface/ink/line) here to stay readable under the app's dark
+   theme. Brand/gold/red/green/amber accent hues are intentionally left unchanged. */
+.dark .ebt-scope,
+.dark .ax-scope {
+  --ax-bg: #17131a;
+  --ax-bg-2: #1e1922;
+  --ax-surface: #211b28;
+  --ax-ink: #f3eef7;
+  --ax-ink-2: #cfc6d6;
+  --ax-muted: #a99fb3;
+  --ax-faint: #a99fb3;
+  --ax-line: #332b3d;
+  --ax-line-2: #3d3447;
+  --ax-gold-soft: #2a2333;
 }
 .ax-app {
   display: grid;
@@ -986,7 +998,7 @@ textarea.rf-ctl {
 
 /* sidebar */
 .ax-side {
-  background: linear-gradient(170deg, var(--ax-brand), var(--ax-brand-2));
+  background: var(--ax-brand);
   color: #fff;
   padding: 20px 16px;
   display: flex;
@@ -1000,7 +1012,7 @@ textarea.rf-ctl {
   right: 0;
   width: 3px;
   height: 100%;
-  background: linear-gradient(var(--ax-gold-2), transparent);
+  background: var(--ax-gold-2);
 }
 .ax-brand {
   display: flex;
@@ -1091,9 +1103,7 @@ textarea.rf-ctl {
 
 /* main + page head */
 .ax-main {
-  background:
-    radial-gradient(1000px 420px at 85% -10%, rgba(124, 29, 63, 0.05), transparent 60%),
-    var(--ax-bg);
+  background: var(--ax-bg);
   min-height: 100vh;
   padding: 30px 34px 48px;
 }
@@ -1144,10 +1154,10 @@ textarea.rf-ctl {
   background: #fdfbf8;
 }
 .ax-btn.primary {
-  background: linear-gradient(180deg, var(--ax-brand), var(--ax-brand-2));
+  background: var(--ax-brand);
   color: #fff;
   border-color: var(--ax-brand-2);
-  box-shadow: 0 6px 16px -8px rgba(124, 29, 63, 0.7);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 /* cards */
@@ -1683,8 +1693,7 @@ textarea.rf-ctl {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(900px 420px at 50% -10%, rgba(124, 29, 63, 0.1), transparent 60%), var(--ax-bg);
+  background: var(--ax-bg);
   padding: 24px;
 }
 .ax-logincard {
@@ -1698,7 +1707,7 @@ textarea.rf-ctl {
 }
 .ax-logincard .top {
   height: 5px;
-  background: linear-gradient(90deg, var(--ax-brand), var(--ax-brand-3) 60%, var(--ax-gold-2));
+  background: var(--ax-brand);
 }
 .ax-logincard .in {
   padding: 34px 32px 30px;
@@ -1713,8 +1722,8 @@ textarea.rf-ctl {
   width: 46px;
   height: 46px;
   border-radius: 13px;
-  background: linear-gradient(150deg, var(--ax-brand), var(--ax-brand-2));
-  box-shadow: 0 8px 18px -8px rgba(124, 29, 63, 0.6);
+  background: var(--ax-brand);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .ax-loginbrand .ax-bn {
   font-weight: 800;
@@ -1762,14 +1771,14 @@ textarea.rf-ctl {
   width: 100%;
   margin-top: 14px;
   border: 0;
-  background: linear-gradient(180deg, var(--ax-brand), var(--ax-brand-2));
+  background: var(--ax-brand);
   color: #fff;
   font: inherit;
   font-weight: 700;
   padding: 12px;
   border-radius: var(--ax-r-ctl);
   cursor: pointer;
-  box-shadow: 0 8px 18px -8px rgba(124, 29, 63, 0.6);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .ax-loginbtn:disabled {
   opacity: 0.6;

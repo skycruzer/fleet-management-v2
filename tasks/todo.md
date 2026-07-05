@@ -1,3 +1,74 @@
+# Production-Readiness Review Loop (started 2026-07-05)
+
+Principal-level full review of frontend + backend. Loop until every gate passes clean.
+Findings tracked here; per-domain status in PRODUCTION-READINESS.md.
+
+## Iteration 1
+
+### Hard gates
+
+- [x] G1. npm run validate — PASS (exit 0)
+- [x] G2. npm run validate:naming — PASS (exit 0)
+- [x] G3. npm run build — PASS (exit 0, all routes compiled)
+- [~] G4. npm test — 308 passed / 323 failed / 10 skipped. Failures are ENVIRONMENTAL,
+  not regressions: 2288 "Auth session missing!" + 1144 assorted — the local test-login
+  harness isn't establishing Supabase sessions. Consistent with known aspirational/flaky
+  local suite; Vercel CI is source of truth per CLAUDE.md. NOT a code blocker.
+
+### Review fan-out — COMPLETE (12 dims, hand-verified; see PRODUCTION-READINESS.md)
+
+- [x] R1. Route factory — a few bypasses (cache/health, leave-bids/review, EBT exports)
+- [x] R2. Service layer — direct writes in leave-bids + EBT route/action code
+- [x] R3. Cache invalidation — ~12 mutation paths skip domain helpers
+- [x] R4. Zod/errors — ~10 routes lack Zod; ~25 leak raw error.message
+- [x] R5. Rate limiter / auth separation — shared authRateLimit bucket; admin login NO lockout (HIGH)
+- [x] R6. Env/secrets — 🔴 CRITICAL committed service_role key (fixed in code; rotation=user)
+- [x] R7. Supabase advisors — 0 ERROR; 72 anon-exec SECURITY DEFINER fns; 9 always-true write policies; ebt PII isolation
+- [x] R8. TanStack tables — EBT reports table hand-rolls state (medium)
+- [x] R9. Next 16 — legacy [id] routes sync params (build green); push/refresh inversions; console PII
+- [x] R10. UI/design — EBT dead CSS tokens, AI-slop gradients, dark-mode gaps, missing loading.tsx
+- [x] R11. EBT wiring — 🟠 signatures bucket MISSING (sign-off broken); Roles 404; orphan code
+- [x] R12. Security/completeness — audit CSV export broken; .env.example drift; stale dup removed
+
+### Fixed this pass
+
+- [x] Removed hardcoded service_role key → env (scripts/debug/check-disciplinary-data.mjs)
+- [x] Deleted stale route 2.ts duplicate
+- [x] Authored draft hardening migration 20260706120000 (ebt revoke + renewal_plan_history)
+- [x] PRODUCTION-READINESS.md written (per-domain status + ranked findings)
+
+### Pass 2 — FIXED (validate + build green, 87 files)
+
+- [x] Admin login lockout + IP attribution (admin-auth-service, login/actions)
+- [x] EBT `signatures` bucket created (prod + migration 20260706130000)
+- [x] Error sanitization across ~26 API routes (sanitizeError)
+- [x] Zod on ~10 mutation routes; disciplinary PATCH allowlist; reschedule userId spoofing fixed
+- [x] Cache invalidation on ~14 mutation paths
+- [x] cron pilot-retirement-check fail-closed; renewal email example.com fallback removed
+- [x] EBT: Roles 404 removed, error boundary dark-mode, examiner name, 3x loading.tsx, orphan deletes
+- [x] nav-order (6 files), PII log redaction, .env.example parity
+- [x] Migration 20260706120000 extended: ebt anon/auth revoke + renewal_plan_history + 15 RPC revokes
+
+### Pass 3 — FIXED (validate + build green)
+
+- [x] DB hardening migration APPLIED to prod + verified (ebt grants revoked, renewal_plan_history anon-write closed, 13 sensitive RPCs locked to service_role via REVOKE FROM PUBLIC)
+- [x] 12 anon-key scripts/debug/\*.mjs → env (zero hardcoded keys remain)
+- [x] cache/health → createAdminRoute; leave-bids review/review-option → leave-bid-service
+- [x] audit CSV export schema drift fixed (real columns; verified vs live DB); /dashboard/audit no longer 400s
+- [x] legacy pilot [id] routes → await params (Next 16)
+- [x] EBT ebt.css: token scope fixed, 19 gradients→solid, glassmorphism/glow/decorative-fonts removed, dark-mode block
+
+### Remaining — USER ACTIONS + follow-ups
+
+- [ ] USER (ONLY REMAINING BLOCKER): rotate leaked service_role key + purge git history
+- [ ] Commit the two applied migrations (20260706120000, 20260706130000) so history matches prod
+- [ ] Follow-up migration: remaining ~57 anon-exec SECURITY DEFINER fns + 8 always-true write policies (per-item review)
+- [ ] Eyeball EBT section in both themes behind admin auth (CSS de-slop done in code)
+- [ ] E2E suite curation (separate project; 323 stale specs) OR treat Vercel CI as the gate
+- [ ] Tiny: export-audit-button legacy params; signature-pad canvas font; orphaned pilot-actions.ts
+
+---
+
 # EBT → Fleet: make `/dashboard/ebt` fully functional
 
 Goal: single Supabase + single Vercel. EBT domain in `ebt` schema of fleet project
@@ -46,3 +117,4 @@ EBT source DB: `omicxkfwdsadyycetmsk` (reachable via Supabase MCP). Local repo:
 - 2026-07-05: fixed branch login bug (merged main → proxy service-role client).
   Root-caused EBT menu bounce = EBT gate wants Supabase JWT `user_role`, fleet admin
   uses bcrypt admin-session cookie. User chose FULL functional path. MCP reaches EBT DB.
+- 2026-07-05: production-readiness review loop started (see top section).

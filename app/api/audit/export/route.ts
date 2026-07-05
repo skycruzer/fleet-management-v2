@@ -14,19 +14,19 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { exportAuditTrailCSV } from '@/lib/services/audit-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/audit/export
  * Export audit trail to CSV
  *
- * Query Parameters:
- * - entityType (required): Type of entity (leave_request, pilot_check, etc.)
- * - entityId (optional): Specific entity UUID
- * - startDate (optional): ISO date string for start of range
- * - endDate (optional): ISO date string for end of range
- * - tableName (optional): Database table name
- * - operation (optional): Operation type (INSERT, UPDATE, DELETE)
- * - userId (optional): User UUID who performed the action
+ * Query Parameters (all optional — an unfiltered export returns the full trail):
+ * - tableName: Database table name (e.g. pilots, pilot_checks, pilot_requests)
+ * - recordId: Specific record UUID
+ * - action: Action type (INSERT, UPDATE, DELETE, RESTORE, SOFT_DELETE)
+ * - userId: User UUID who performed the action
+ * - startDate: ISO date string for start of range
+ * - endDate: ISO date string for end of range
  */
 export const GET = createAdminRoute(
   {
@@ -56,20 +56,15 @@ export const GET = createAdminRoute(
         )
       }
 
-      // Parse query parameters
+      // Parse query parameters (matches the params the audit page forwards)
       const searchParams = request.nextUrl.searchParams
-      const entityType = searchParams.get('entityType')
-      const entityId = searchParams.get('entityId')
+      const tableName = searchParams.get('tableName')
+      // `entityId` is the legacy param name still sent by <ExportAuditButton>; it maps to record_id.
+      const recordId = searchParams.get('recordId') ?? searchParams.get('entityId')
+      const action = searchParams.get('action')
+      const userId = searchParams.get('userId')
       const startDateStr = searchParams.get('startDate')
       const endDateStr = searchParams.get('endDate')
-      const tableName = searchParams.get('tableName')
-      const operation = searchParams.get('operation')
-      const userId = searchParams.get('userId')
-
-      // Validate required parameters
-      if (!entityType) {
-        return NextResponse.json({ error: 'entityType parameter is required' }, { status: 400 })
-      }
 
       // Parse dates if provided
       const startDate = startDateStr ? new Date(startDateStr) : undefined
@@ -90,14 +85,13 @@ export const GET = createAdminRoute(
         )
       }
 
-      // Build filters object
+      // Build filters object (all optional — omitted filters export the full trail)
       const filters = {
-        entityType,
-        entityId: entityId || undefined,
+        tableName: tableName || undefined,
+        recordId: recordId || undefined,
+        action: action || undefined,
         startDate,
         endDate,
-        tableName: tableName || undefined,
-        operation: operation || undefined,
         userId: userId || undefined,
       }
 
@@ -105,11 +99,12 @@ export const GET = createAdminRoute(
       const csvData = await exportAuditTrailCSV(filters)
 
       // Set headers for CSV download
+      const filenameScope = tableName || action || 'all'
       const headers = new Headers()
       headers.set('Content-Type', 'text/csv; charset=utf-8')
       headers.set(
         'Content-Disposition',
-        `attachment; filename="audit-trail-${entityType}-${new Date().toISOString().split('T')[0]}.csv"`
+        `attachment; filename="audit-trail-${filenameScope}-${new Date().toISOString().split('T')[0]}.csv"`
       )
       headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
 
@@ -120,10 +115,11 @@ export const GET = createAdminRoute(
     } catch (error) {
       console.error('Audit export error:', error)
 
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Failed to export audit trail' },
-        { status: 500 }
-      )
+      const s = sanitizeError(error, {
+        operation: 'exportAuditTrail',
+        endpoint: '/api/audit/export',
+      })
+      return NextResponse.json({ error: s.error }, { status: s.statusCode || 500 })
     }
   }
 )

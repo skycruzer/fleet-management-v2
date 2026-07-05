@@ -1732,7 +1732,7 @@ export async function sendRequestLifecycleEmail(
     }
 
     console.log(
-      `[sendRequestLifecycleEmail] Sent '${event}' email to ${pilot.email} for ${requestData.requestCategory} request`
+      `[sendRequestLifecycleEmail] Sent '${event}' email for ${requestData.requestCategory} request (pilot ${pilotId})`
     )
   } catch (error) {
     console.error(
@@ -1824,7 +1824,7 @@ export async function sendAdminRequestNotificationEmail(params: {
     )
 
     console.log(
-      `[sendAdminRequestNotificationEmail] Sent admin notification to ${validEmails.join(', ')} for ${params.requestCategory} request ${params.requestId}`
+      `[sendAdminRequestNotificationEmail] Sent admin notification to ${validEmails.length} recipient(s) for ${params.requestCategory} request ${params.requestId}`
     )
     return { success: true }
   } catch (error) {

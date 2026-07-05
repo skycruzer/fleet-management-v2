@@ -17,6 +17,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
+import { invalidatePilotCaches } from '@/lib/services/cache-invalidation-helper'
 
 /**
  * GET /api/portal/profile
@@ -164,6 +165,10 @@ export const PUT = createPilotRoute(
 
     revalidatePath('/portal/profile')
     revalidatePath('/portal/dashboard')
+
+    await invalidatePilotCaches(pilot.pilot_id || undefined).catch((error) =>
+      console.error('Cache invalidation failed (non-blocking):', error)
+    )
 
     return NextResponse.json({ success: true })
   }

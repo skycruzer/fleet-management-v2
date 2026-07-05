@@ -1,29 +1,36 @@
 'use client'
 
-// Segment error boundary for the authenticated app shell. Catches any error thrown during render
-// or from a Server Action whose rejected transition wasn't handled in-component (the components
-// handle their own failures gracefully; this is the safety net so an unexpected throw degrades to a
-// retry prompt instead of a blank page). Next.js sanitizes the error message in production.
-export default function AppError({
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+
+// Segment error boundary for the EBT section. Catches any error thrown during render or from a
+// Server Action whose rejected transition wasn't handled in-component (components handle their own
+// failures gracefully; this is the safety net so an unexpected throw degrades to a retry prompt
+// instead of a blank page). Next.js sanitizes the error message in production. Styled with theme
+// tokens so it reads correctly in both light and dark mode.
+export default function EbtError({
   error,
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    console.error('EBT section error:', error)
+  }, [error])
+
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h2 className="text-lg font-semibold text-slate-900">Something went wrong</h2>
-      <p className="mt-2 text-sm text-slate-500">
+      <h2 className="text-foreground text-lg font-semibold">Something went wrong</h2>
+      <p className="text-muted-foreground mt-2 text-sm">
         The page hit an unexpected error. Your saved work is not affected — try again.
       </p>
-      {error.digest && <p className="mt-1 text-xs text-slate-400">Reference: {error.digest}</p>}
-      <button
-        onClick={reset}
-        className="mt-6 rounded bg-[#7c1d3f] px-4 py-2 text-sm font-medium text-white hover:bg-[#6a1836]"
-      >
+      {error.digest && (
+        <p className="text-muted-foreground mt-1 text-xs">Reference: {error.digest}</p>
+      )}
+      <Button onClick={reset} className="mt-6">
         Try again
-      </button>
+      </Button>
     </div>
   )
 }

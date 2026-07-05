@@ -33,7 +33,7 @@ export function CarryoverBanner({
       style={{
         display: 'flex',
         gap: 13,
-        background: 'linear-gradient(180deg,#fbf3e6,#f9efde)',
+        background: '#f7efde',
         border: '1px solid #ecd9b6',
         borderLeft: '4px solid #b3862f',
         borderRadius: 14,

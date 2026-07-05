@@ -93,8 +93,8 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
 
       setSuccess('Leave bid updated successfully!')
       setTimeout(() => {
-        router.push('/dashboard/admin/leave-bids')
         router.refresh()
+        router.push('/dashboard/admin/leave-bids')
       }, 1500)
     } catch (err) {
       setError('An unexpected error occurred')
@@ -136,8 +136,8 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
 
       setSuccess('Leave bid deleted successfully.')
       setTimeout(() => {
-        router.push('/dashboard/admin/leave-bids')
         router.refresh()
+        router.push('/dashboard/admin/leave-bids')
       }, 1500)
     } catch {
       setError('An unexpected error occurred')

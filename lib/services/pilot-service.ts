@@ -47,6 +47,7 @@ function safeRevalidate(tag: string) {
   }
 }
 import { getPilotRequirements } from './admin-service'
+import { invalidatePilotCaches } from './cache-invalidation-helper'
 
 // Type aliases for convenience
 type Pilot = Database['public']['Tables']['pilots']['Row']
@@ -1428,6 +1429,10 @@ export async function processRetiredPilots(): Promise<RetirementProcessingSummar
     if (summary.retired > 0) {
       await safeRevalidate('pilots')
       await safeRevalidate('pilot-stats')
+      // Also clear Redis pilot caches (safeRevalidate only handles Next.js path revalidation)
+      await invalidatePilotCaches().catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
     }
 
     logInfo('Automated retirement processing completed', {
