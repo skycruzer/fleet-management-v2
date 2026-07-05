@@ -4,11 +4,19 @@
 
 ## Verdict: 🟠 One blocker left — and it's yours
 
-All code- and DB-fixable findings are resolved and verified (validate + build green; DB hardening
-applied to prod and verified). **The only remaining production blocker is the leaked service_role
-key, which requires you to rotate it in Supabase + purge git history — I have no tool to rotate a
-Supabase key.** Once that's done, the app is production-ready modulo the follow-up hardening and the
-(separate) E2E-suite curation. History of this review is in the "Applied — pass 1/2/3" sections below.
+All code- and DB-fixable findings are resolved and verified (validate + build + **GitHub CI green**;
+DB hardening applied to prod and verified). **The only remaining production blocker is the leaked
+service_role key, which requires you to rotate it in Supabase + purge git history — I have no tool
+to rotate a Supabase key.** Once that's done, the app is production-ready. The only items left are
+the (separate) E2E-suite curation and a visual eyeball of the EBT theme.
+
+**Follow-up (pass 4, applied):** revoked the inert anon write grants on the audit/history/feedback/
+assessment tables (`disciplinary_audit_log`, `task_audit_log`, `pilot_ebt_assessments`,
+`pilot_feedback`, `audit_logs`, `password_history`) — migration `20260706140000`. The remaining
+always-true `authenticated` policies and the ~57 lower-sensitivity SECURITY DEFINER functions were
+reviewed and consciously left (see that migration's comments for rationale — not anon-reachable,
+tightening risks breaking audit writes / RLS for marginal benefit). Removed orphaned
+`ebt/pilots/pilot-actions.ts`; `export-audit-button` now sends `recordId`.
 
 ---
 

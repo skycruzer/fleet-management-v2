@@ -58,14 +58,20 @@ Findings tracked here; per-domain status in PRODUCTION-READINESS.md.
 - [x] legacy pilot [id] routes → await params (Next 16)
 - [x] EBT ebt.css: token scope fixed, 19 gradients→solid, glassmorphism/glow/decorative-fonts removed, dark-mode block
 
-### Remaining — USER ACTIONS + follow-ups
+### Pass 4 — FIXED (validate + build + GitHub CI green)
+
+- [x] CI green on pushed HEAD (fixed prettier format:check on 2 files — .mjs outside lint-staged globs)
+- [x] Committed both applied migrations (20260706120000, 20260706130000); PR #74 updated + commented
+- [x] Follow-up migration 20260706140000: revoked inert anon write grants on 6 audit/feedback tables (applied+verified)
+- [x] Reviewed & accepted always-true authenticated policies + ~57 low-sensitivity SECURITY DEFINER fns (rationale in migration comments)
+- [x] Removed orphaned ebt/pilots/pilot-actions.ts; export-audit-button → recordId
+
+### Remaining — USER ACTIONS + accepted follow-ups
 
 - [ ] USER (ONLY REMAINING BLOCKER): rotate leaked service_role key + purge git history
-- [ ] Commit the two applied migrations (20260706120000, 20260706130000) so history matches prod
-- [ ] Follow-up migration: remaining ~57 anon-exec SECURITY DEFINER fns + 8 always-true write policies (per-item review)
-- [ ] Eyeball EBT section in both themes behind admin auth (CSS de-slop done in code)
+- [ ] Eyeball EBT section in both themes behind admin auth (CSS de-slop done + build-verified in code)
 - [ ] E2E suite curation (separate project; 323 stale specs) OR treat Vercel CI as the gate
-- [ ] Tiny: export-audit-button legacy params; signature-pad canvas font; orphaned pilot-actions.ts
+- [ ] Tiny/accepted: signature-pad canvas decorative font (cosmetic); per-item review of remaining SECURITY DEFINER fns if desired
 
 ---
 

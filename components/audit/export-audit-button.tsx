@@ -47,12 +47,12 @@ export function ExportAuditButton({
       setIsExporting(true)
       setExportSuccess(false)
 
-      // Build query parameters
+      // Build query parameters. The export API keys off record_id (the audit table's real
+      // column); entityType is a semantic label, not a table name, so it's not sent.
       const params = new URLSearchParams()
-      params.append('entityType', entityType)
 
       if (entityId) {
-        params.append('entityId', entityId)
+        params.append('recordId', entityId)
       }
 
       if (startDate) {
