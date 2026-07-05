@@ -54,8 +54,8 @@ Supabase key.** Once that's done, the app is production-ready modulo the follow-
    password hashes, sessions).
    - ✅ **Code fixed** — file now reads `SUPABASE_SERVICE_ROLE_KEY` from env.
    - ⛔ **USER ACTION (only you can do):**
-     1. **Rotate** the service_role key in Supabase (Settings → API → roll secret). This is the
-        _only_ thing that neutralizes the leak — removal from code does not.
+     1. **Rotate** the service*role key in Supabase (Settings → API → roll secret). This is the
+        \_only* thing that neutralizes the leak — removal from code does not.
      2. **Purge from git history** (BFG / `git filter-repo`) and force-push, since the value
         persists in prior commits of a public repo.
      3. Update `SUPABASE_SERVICE_ROLE_KEY` in Vercel + local `.env.local` after rotation.
