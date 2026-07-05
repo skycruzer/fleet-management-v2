@@ -24,7 +24,7 @@ const RescheduleSchema = z.object({
   newDate: z.string().refine((val) => isValid(parseISO(val)), {
     message: 'newDate must be a valid ISO date (e.g. YYYY-MM-DD)',
   }),
-  reason: z.string().trim().min(1).max(500).optional(),
+  reason: z.string().trim().max(500).optional(),
   previousDate: z.string().optional(),
 })
 

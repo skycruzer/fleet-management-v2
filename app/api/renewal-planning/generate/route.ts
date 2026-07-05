@@ -17,7 +17,14 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const GenerateRenewalPlanSchema = z.object({
-  monthsAhead: z.coerce.number().int().positive().max(60).optional().default(12),
+  // Coerce 0/negative (e.g. a cleared number input sending 0) to the 12-month default rather
+  // than 400-ing; >60 and non-numeric still fail validation.
+  monthsAhead: z.coerce
+    .number()
+    .int()
+    .max(60)
+    .transform((n) => (n >= 1 ? n : 12))
+    .default(12),
   categories: z.array(z.string()).optional(),
   pilotIds: z.array(z.string().uuid()).optional(),
   checkCodes: z.array(z.string()).optional(),

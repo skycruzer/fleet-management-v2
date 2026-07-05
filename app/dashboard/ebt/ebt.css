@@ -4,6 +4,24 @@
    shadcn imports, global theme token remaps, and base element resets are
    intentionally excluded — the fleet app owns those. */
 
+/* Dark-mode neutrals for the report view's --rf-* token system (mirrors the .dark .ebt-scope
+   --ax-* block). Without this, .rf-shell (report detail/editor) renders as a bright light panel
+   inside the otherwise-dark app shell. Accent hues (brand/gold/red/green/amber) stay as-is. */
+.dark .rf-shell {
+  --rf-bg: #17131a;
+  --rf-bg-2: #1e1922;
+  --rf-surface: #211b28;
+  --rf-ink: #f3eef7;
+  --rf-ink-2: #cfc6d6;
+  --rf-muted: #a99fb3;
+  --rf-faint: #a99fb3;
+  --rf-line: #332b3d;
+  --rf-line-2: #3d3447;
+  --rf-brand-soft: #2a1f27;
+  --rf-brand-line: #3d2f37;
+  --rf-gold-soft: #2a2333;
+}
+
 .rf-shell {
   --rf-brand: #7c1d3f;
   --rf-brand-2: #5e1430;
