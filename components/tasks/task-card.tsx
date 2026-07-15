@@ -209,7 +209,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
             />
           </svg>
           <span>
-            {task.subtasks.filter((st) => st.status === 'DONE').length}/{task.subtasks.length}{' '}
+            {task.subtasks.filter((st) => st.status === 'COMPLETED').length}/{task.subtasks.length}{' '}
             subtasks
           </span>
         </div>

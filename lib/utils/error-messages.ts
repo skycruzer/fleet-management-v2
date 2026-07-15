@@ -402,7 +402,7 @@ export const TASK_ERRORS = {
   NOT_FOUND: DATABASE_ERRORS.NOT_FOUND('Task'),
   INVALID_STATUS: {
     message: 'Invalid task status. Please select a valid status.',
-    action: 'Choose from TODO, IN_PROGRESS, DONE, or CANCELLED',
+    action: 'Choose from TODO, IN_PROGRESS, BLOCKED, COMPLETED, or CANCELLED',
     category: ErrorCategory.VALIDATION,
     severity: ErrorSeverity.WARNING,
   },
@@ -510,7 +510,7 @@ export const PORTAL_ERRORS = {
     severity: ErrorSeverity.ERROR,
   },
   LOGIN_FAILED: {
-    message: 'Login failed. Please check your email and password.',
+    message: 'Login failed. Please check your staff ID and password.',
     action: 'Verify your credentials or reset your password',
     category: ErrorCategory.AUTHENTICATION,
     severity: ErrorSeverity.ERROR,

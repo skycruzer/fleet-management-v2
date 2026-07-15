@@ -104,22 +104,22 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
+    "@emotion/is-prop-valid": "^1.4.0",
     "@eslint/eslintrc": "^3.3.3",
     "@next/bundle-analyzer": "^16.1.6",
     "@playwright/test": "^1.58.0",
-    "@storybook/addon-essentials": "^8.6.14",
-    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-docs": "^10.5.0",
     "@storybook/addon-links": "^10.2.1",
-    "@storybook/blocks": "^8.6.14",
-    "@storybook/nextjs": "^10.2.1",
+    "@storybook/nextjs-vite": "^10.5.0",
     "@storybook/react": "^10.2.1",
-    "@storybook/test": "^8.6.15",
     "@tailwindcss/postcss": "^4.0.7",
     "@tanstack/react-query-devtools": "^5.91.2",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -128,7 +128,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "dotenv": "^17.2.3",
     "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
@@ -138,14 +138,15 @@
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
-    "postcss": "^8.5.6",
+    "postcss": "8.5.19",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "storybook": "^10.5.0",
     "supabase": "^2.72.9",
     "tailwindcss": "^4.0.7",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.10"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -159,6 +160,12 @@
   "engines": {
     "node": ">=18.18.0 <25",
     "npm": ">=9.0.0"
+  },
+  "overrides": {
+    "postcss": "$postcss",
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.13"
+    }
   },
   "optionalDependencies": {
     "@esbuild/darwin-arm64": "^0.27.2"

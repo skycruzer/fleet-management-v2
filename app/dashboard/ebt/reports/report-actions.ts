@@ -87,10 +87,21 @@ export async function createReport(
     .insert({ report_id: data.id, phase: 'EVAL' })
   if (phaseErr) {
     logDbError('createReport.phaseInit', phaseErr)
+    // Compensate for the failed second write so callers never receive an unusable report without
+    // its mandatory EVAL phase. A database function would be fully atomic; this cleanup keeps the
+    // two-step web action consistent until creation is moved behind one.
+    const { error: cleanupErr } = await supabase.from('training_reports').delete().eq('id', data.id)
+    if (cleanupErr) {
+      logDbError('createReport.cleanup', cleanupErr)
+      return {
+        ok: false,
+        message:
+          'The report could not be initialised and automatic cleanup failed. Ask an administrator to remove the incomplete draft.',
+      }
+    }
     return {
       ok: false,
-      message:
-        'The report was created but its evaluation could not be initialised. Open it and try again.',
+      message: 'Could not initialise the report. No report was created. Please try again.',
     }
   }
 

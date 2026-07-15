@@ -7,7 +7,7 @@
 
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
 /**
@@ -16,8 +16,17 @@ import { usePathname } from 'next/navigation'
  */
 export function RouteChangeFocusManager() {
   const pathname = usePathname()
+  const isInitialRender = useRef(true)
 
   useEffect(() => {
+    // Initial page focus is already determined by the browser. Mutating a
+    // streamed route's heading while it is still hydrating causes a React
+    // attribute mismatch; focus management is only needed after navigation.
+    if (isInitialRender.current) {
+      isInitialRender.current = false
+      return
+    }
+
     // Focus management on route change
     const handleRouteChange = () => {
       // Try to focus the main content area

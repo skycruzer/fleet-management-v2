@@ -13,6 +13,10 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Pilot Portal Login Redirect', () => {
   test('should redirect to dashboard after successful login', async ({ page }) => {
+    const staffId = process.env.TEST_PILOT_STAFF_ID
+    const password = process.env.TEST_PILOT_PASSWORD
+    test.skip(!staffId || !password, 'Requires TEST_PILOT_STAFF_ID and TEST_PILOT_PASSWORD')
+
     // Enable console logging to see debug messages
     page.on('console', (msg) => {
       if (msg.text().includes('[LOGIN]')) {
@@ -27,18 +31,14 @@ test.describe('Pilot Portal Login Redirect', () => {
     await page.waitForLoadState('networkidle')
 
     // Verify we're on the login page
-    await expect(page.getByRole('heading', { name: 'Pilot Portal' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'B767 Pilot Portal' })).toBeVisible()
 
     // Fill in credentials
-    await page
-      .getByPlaceholder('pilot@airniugini.com')
-      .fill(process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
-    await page
-      .getByPlaceholder('Enter your password')
-      .fill(process.env.TEST_PILOT_PASSWORD || 'test-password')
+    await page.getByLabel('Staff ID').fill(staffId!)
+    await page.getByLabel('Password', { exact: true }).fill(password!)
 
     // Submit the form
-    await page.getByRole('button', { name: /Access Portal/i }).click()
+    await page.getByRole('button', { name: /Sign in/i }).click()
 
     // Wait for redirect to dashboard
     // Using waitForURL with domcontentloaded instead of networkidle
@@ -62,19 +62,29 @@ test.describe('Pilot Portal Login Redirect', () => {
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
+    const hydrationWarnings: string[] = []
+    page.on('console', (message) => {
+      if (message.text().includes('hydrated but some attributes')) {
+        hydrationWarnings.push(message.text())
+      }
+    })
+
     await page.goto('/portal/login')
 
     // Fill in invalid credentials
-    await page.getByPlaceholder('pilot@airniugini.com').fill('invalid@airniugini.com.pg')
-    await page.getByPlaceholder('Enter your password').fill('wrongpassword')
+    await page.getByLabel('Staff ID').fill(`invalid-${Date.now()}`)
+    await page.getByLabel('Password', { exact: true }).fill('wrongpassword')
 
     // Submit the form
-    await page.getByRole('button', { name: /Access Portal/i }).click()
+    await page.getByRole('button', { name: /Sign in/i }).click()
 
     // Should see error message
-    await expect(page.getByText(/Invalid email or password/i)).toBeVisible()
+    await expect(
+      page.getByText(/Login failed\. Please check your staff ID and password\./i)
+    ).toBeVisible()
 
     // Should still be on login page
     expect(page.url()).toContain('/portal/login')
+    expect(hydrationWarnings).toEqual([])
   })
 })

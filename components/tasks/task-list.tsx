@@ -94,7 +94,7 @@ export default function TaskList({ tasks }: TaskListProps) {
           bVal = priorityOrder[b.priority as keyof typeof priorityOrder] || 0
           break
         case 'status':
-          const statusOrder = { TODO: 1, IN_PROGRESS: 2, IN_REVIEW: 3, COMPLETED: 4, CANCELLED: 5 }
+          const statusOrder = { TODO: 1, IN_PROGRESS: 2, BLOCKED: 3, COMPLETED: 4, CANCELLED: 5 }
           aVal = statusOrder[a.status as keyof typeof statusOrder] || 0
           bVal = statusOrder[b.status as keyof typeof statusOrder] || 0
           break
@@ -124,9 +124,9 @@ export default function TaskList({ tasks }: TaskListProps) {
         return 'bg-muted text-muted-foreground'
       case 'IN_PROGRESS':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]'
-      case 'IN_REVIEW':
+      case 'BLOCKED':
         return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
-      case 'DONE':
+      case 'COMPLETED':
         return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low-foreground)]'
       case 'CANCELLED':
         return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high-foreground)]'
@@ -151,7 +151,7 @@ export default function TaskList({ tasks }: TaskListProps) {
   }
 
   const isOverdue = (task: TaskWithRelations) => {
-    if (!task.due_date || task.status === 'DONE' || task.status === 'CANCELLED') {
+    if (!task.due_date || task.status === 'COMPLETED' || task.status === 'CANCELLED') {
       return false
     }
     const today = new Date()
@@ -201,14 +201,24 @@ export default function TaskList({ tasks }: TaskListProps) {
           In Progress ({tasks.filter((t) => t.status === 'IN_PROGRESS').length})
         </button>
         <button
-          onClick={() => setStatusFilter('DONE')}
+          onClick={() => setStatusFilter('BLOCKED')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            statusFilter === 'DONE'
+            statusFilter === 'BLOCKED'
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
-          Done ({tasks.filter((t) => t.status === 'DONE').length})
+          Blocked ({tasks.filter((t) => t.status === 'BLOCKED').length})
+        </button>
+        <button
+          onClick={() => setStatusFilter('COMPLETED')}
+          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            statusFilter === 'COMPLETED'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
+        >
+          Completed ({tasks.filter((t) => t.status === 'COMPLETED').length})
         </button>
         <button
           onClick={() => setStatusFilter('CANCELLED')}

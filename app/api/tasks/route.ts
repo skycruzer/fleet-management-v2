@@ -23,7 +23,7 @@ import { invalidateTaskCaches } from '@/lib/services/cache-invalidation-helper'
  * Fetch tasks with optional filtering and statistics.
  *
  * Query parameters:
- * - status: Filter by status (TODO, IN_PROGRESS, DONE, CANCELLED)
+ * - status: Filter by status (TODO, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED)
  * - priority: Filter by priority (LOW, MEDIUM, HIGH, URGENT)
  * - assignedTo: Filter by assigned user ID
  * - createdBy: Filter by creator user ID

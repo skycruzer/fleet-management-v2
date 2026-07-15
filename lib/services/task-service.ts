@@ -81,8 +81,8 @@ export interface TaskStats {
   }
 }
 
-// Valid task statuses for Kanban board
-export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED'] as const
+// Valid task statuses enforced by the public.tasks table constraint
+export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED', 'CANCELLED'] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 
 // Valid task priorities
@@ -163,7 +163,7 @@ export async function getTasks(
     }
 
     if (filters?.includeCompleted === false) {
-      query = query.neq('status', 'DONE')
+      query = query.neq('status', 'COMPLETED')
     }
 
     if (filters?.searchQuery) {
@@ -380,13 +380,13 @@ export async function updateTask(
       }
     }
 
-    // Auto-set completed_date when status changes to DONE
-    if (updates.status === 'DONE' && existingTask.status !== 'DONE') {
+    // Auto-set completed_date when status changes to COMPLETED
+    if (updates.status === 'COMPLETED' && existingTask.status !== 'COMPLETED') {
       updates.completed_date = new Date().toISOString()
     }
 
-    // Clear completed_date if status is changed away from DONE
-    if (updates.status && updates.status !== 'DONE' && existingTask.status === 'DONE') {
+    // Clear completed_date if status is changed away from COMPLETED
+    if (updates.status && updates.status !== 'COMPLETED' && existingTask.status === 'COMPLETED') {
       updates.completed_date = null
     }
 
@@ -569,7 +569,7 @@ export async function getTaskStats(filters?: TaskFilters): Promise<ServiceRespon
     const doneCount = tasks.filter((t) => t.status === 'COMPLETED').length
     const cancelledCount = tasks.filter((t) => t.status === 'CANCELLED').length
 
-    // Count overdue tasks (due_date < today AND status !== DONE)
+    // Count overdue tasks (due_date < today AND status !== COMPLETED)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const overdueCount = tasks.filter((t) => {

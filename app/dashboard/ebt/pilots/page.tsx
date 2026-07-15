@@ -107,10 +107,14 @@ export default async function PilotsPage({
                   </tr>
                 )
               })}
-              {pilots.length === 0 && (
+              {rows.length === 0 && (
                 <tr>
                   <td colSpan={6}>
-                    <div className="ax-empty">No pilots yet.</div>
+                    <div className="ax-empty">
+                      {pilots.length === 0
+                        ? 'No pilots yet.'
+                        : 'No active pilots. Show inactive pilots to view the roster.'}
+                    </div>
                   </td>
                 </tr>
               )}

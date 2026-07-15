@@ -177,7 +177,7 @@ This matches the centralized `slideInDown` variant in `motion-variants.ts` but d
 
 ### 2.7 z-index Inconsistencies
 
-**Severity: Low** — The design system defines a z-index scale (`globals.css:118-128`), and most components use it via `z-[var(--z-*)]`. However:
+**Severity: Low** — The design system defines a z-index scale (`globals.css:118-128`), and most components use a Tailwind arbitrary-value class backed by a named `--z-<token>` custom property. However:
 
 - `SheetOverlay` uses `z-50` (raw) instead of `z-[var(--z-overlay)]` (50)
 - `SheetContent` uses `z-50` (raw) instead of `z-[var(--z-modal)]` (60)
