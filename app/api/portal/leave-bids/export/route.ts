@@ -246,8 +246,8 @@ export async function GET(request: NextRequest) {
 
     <div class="label">Overall Status:</div>
     <div class="value">
-      <span class="status-badge status-${(bid.status || 'pending').toLowerCase()}">
-        ${bid.status || 'PENDING'}
+      <span class="status-badge status-${escapeHtml((bid.status || 'pending').toLowerCase())}">
+        ${escapeHtml(bid.status || 'PENDING')}
       </span>
     </div>
 

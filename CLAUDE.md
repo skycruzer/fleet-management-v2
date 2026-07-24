@@ -190,11 +190,16 @@ The portal uses **Next.js route groups** for auth enforcement — `(protected)` 
 | Server       | `lib/supabase/server.ts`       | Server Components, API routes              |
 | Admin        | `lib/supabase/admin.ts`        | Service operations (pilot portal auth)     |
 | Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations         |
-| Middleware   | `lib/supabase/middleware.ts`   | Auth state, session refresh, rate limiting |
+| Proxy        | `proxy.ts` (repo root)         | Auth state + role gating on every request  |
 
 ### Rate Limiting (`lib/rate-limit.ts`)
 
-Distributed rate limiting via Upstash Redis, enforced in `lib/supabase/middleware.ts` for `/api/auth/*` and in services for actions:
+Distributed rate limiting via Upstash Redis, enforced **per route** — the route factory
+applies a per-IP limit before auth, and the auth routes that sit outside the factory wrap
+themselves (`withAuthRateLimit`, or an explicit `authRateLimit.limit()` keyed by staffId on
+pilot login). There is no middleware-level rate limiter: a `lib/supabase/middleware.ts`
+`updateSession` helper used to claim that role in this document but had no importers, so it
+was removed rather than left as a false assurance. Limits in force:
 
 | Endpoint / Action     | Limit              |
 | --------------------- | ------------------ |
@@ -420,6 +425,19 @@ Red:    Expired (days < 0)
 Yellow: Expiring (days <= 30)
 Green:  Current (days > 30)
 ```
+
+**Always compute expiry days via `lib/utils/fleet-date.ts`** (`daysUntilFleetDate`), which
+`getCertificationStatus` and `daysUntil` both delegate to. Compliance is a _calendar_
+question anchored to the operating base (`Pacific/Port_Moresby`, UTC+10, no DST) — never to
+the runtime's timezone.
+
+Never write `new Date(expiry).setHours(0,0,0,0)` against `new Date()`. A `YYYY-MM-DD` column
+parses as **UTC midnight**, so comparing it to a local midnight made the same certification
+resolve differently on the server (UTC) and in a pilot's browser (UTC+10). PNG is 10 hours
+ahead, so for the first 10 hours of every PNG day the dashboard, reports, PDFs and the
+expiry cron disagreed with the portal about expired-vs-expiring. Regression coverage lives
+in `tests/unit/lib/fleet-date.test.ts`; it must keep passing under `TZ=UTC`,
+`TZ=Pacific/Port_Moresby` and a timezone behind UTC.
 
 ### 3. Leave Eligibility (Rank-Separated)
 

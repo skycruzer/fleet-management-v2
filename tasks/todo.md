@@ -148,3 +148,67 @@ EBT source DB: `omicxkfwdsadyycetmsk` (reachable via Supabase MCP). Local repo:
   Root-caused EBT menu bounce = EBT gate wants Supabase JWT `user_role`, fleet admin
   uses bcrypt admin-session cookie. User chose FULL functional path. MCP reaches EBT DB.
 - 2026-07-05: production-readiness review loop started (see top section).
+
+---
+
+## Deep Review Remediation — 2026-07-25
+
+All findings from the full frontend/backend deep review, resolved on
+`worktree-deep-review-fixes`.
+
+### Backend
+
+- [x] **1. [High] Unified certification compliance on a fleet-local calendar date.**
+      Added `lib/utils/fleet-date.ts` (Pacific/Port_Moresby). Collapsed FOUR divergent
+      implementations into it: `certification-status.ts` (x2 — `getCertificationStatus`
+      and `getDaysUntilExpiry`), `date-utils.ts` (`daysUntil`), and an inline copy in the
+      portal certifications page. Server (UTC) and pilot browser (UTC+10) now agree.
+- [x] **2. [Med] Stopped double-authenticating admin API requests** — `getAuthenticatedAdmin`
+      wrapped in React `cache()`.
+- [x] **3. [Med] Deleted dead `lib/supabase/middleware.ts`**; corrected the two CLAUDE.md
+      claims that it enforced `/api/auth/*` rate limiting.
+- [x] **4. [Med] Removed fail-open `withCsrfProtection`** — it allowed unlisted paths through
+      when no token header was present. Unused; `validateCsrf` fails closed.
+- [x] **5. [Low] Moved `/api/portal/registration-approval` → `/api/admin/registration-approval`**
+      so admins can reach it. Root cause recorded in task 061.
+- [x] **6. [Low] Escaped `bid.status`** in the leave-bid HTML export.
+
+### Frontend
+
+- [x] **7. [Med] Portal certifications page → TanStack Query** (replaced useEffect + manual
+      isMounted fetch; gains caching, retry, dedupe).
+- [x] **8. [Low] Removed the duplicated day-math**; portal keeps only its 4-tier presentation
+      mapping and shares `DEFAULT_THRESHOLDS`.
+
+### Hygiene
+
+- [x] **9. [Med] Added `tests/unit/lib/fleet-date.test.ts`** — 17 tests. Verified they FAIL
+      against the old implementation (5 failures, exactly the wrong values) and pass under
+      `TZ=UTC`, `TZ=Pacific/Port_Moresby` and `TZ=America/Los_Angeles`.
+- [x] **10. [Low] Deleted 30 tracked ad-hoc root scripts/screenshots** (`test-*.js`, stray
+      `.png`/`.sql`/`.sh`, `run-portal-tests.js`, `analyze-pilot-ages.mjs`).
+- [x] **11. [Low] Deleted 18 committed cloud-sync duplicates** (`openspec/project 6-16.md`,
+      `install-global-agents 6-8.sh`, ...) + untracked `package 2.json`; added a `.gitignore`
+      rule so they cannot be recommitted.
+
+### Verification
+
+- `npx tsc --noEmit` — exit 0, no output
+- `npx eslint .` — exit 0, no output
+- `npx vitest run` — 14 files / **88 tests passed** (was 13 / 71)
+- `npx prettier --check .` — exit 0
+- `node scripts/validate-naming.mjs` — 1241 valid / 0 invalid
+
+`npm run build` was NOT run locally (known to hang at 0% CPU on this machine); Vercel CI is
+the source of truth per CLAUDE.md.
+
+### Review
+
+The high-severity item was the only finding producing wrong operational data, and it was
+invisible to CI: the pre-existing `certification-status.test.ts` froze the clock at noon UTC,
+outside the 14:00–24:00 UTC window where the server and fleet calendars diverge. The new
+suite pins that window explicitly.
+
+Deliberately left alone: the two legacy `verifyPilotSession` cancel routes (ownership is
+correctly enforced inside the services; auth unification is tracked separately), and the
+remaining `openspec`/`scripts` naming warnings, which are pre-existing Next.js conventions.
