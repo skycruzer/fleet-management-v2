@@ -12,7 +12,13 @@
  * - 🔴 Red: Expired (days < 0)
  * - 🟡 Yellow: Expiring Soon (days ≤ threshold)
  * - 🟢 Green: Current (days > threshold)
+ *
+ * All day arithmetic is anchored to the fleet's operating-base calendar
+ * (Port Moresby) via lib/utils/fleet-date.ts, so a certification resolves to the
+ * same colour on the server, in the admin dashboard, and in a pilot's browser.
  */
+
+import { daysUntilFleetDate } from './fleet-date'
 
 export type CertificationColor = 'red' | 'yellow' | 'green' | 'gray'
 export type CertificationLabel = 'Expired' | 'Expiring Soon' | 'Current' | 'No Date'
@@ -75,23 +81,14 @@ export function getCertificationStatus(
     return { color: 'gray', label: 'No Date' }
   }
 
-  // Normalize to Date object
-  const expiry = expiryDate instanceof Date ? expiryDate : new Date(expiryDate)
+  // Resolve to a fleet-local calendar date. Compliance is a calendar question,
+  // so this must not depend on whether we are running on the server (UTC) or in
+  // a pilot's browser (UTC+10) — see lib/utils/fleet-date.ts.
+  const daysUntilExpiry = daysUntilFleetDate(expiryDate)
 
-  // Validate date
-  if (isNaN(expiry.getTime())) {
+  if (daysUntilExpiry === null) {
     return { color: 'gray', label: 'No Date' }
   }
-
-  const today = new Date()
-  // Reset time to compare dates only (not time)
-  today.setHours(0, 0, 0, 0)
-  const expiryNormalized = new Date(expiry)
-  expiryNormalized.setHours(0, 0, 0, 0)
-
-  const daysUntilExpiry = Math.ceil(
-    (expiryNormalized.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
 
   if (daysUntilExpiry < 0) {
     return {
@@ -170,17 +167,7 @@ export function getDetailedCertificationStatus(expiryDate: Date | string | null 
  * @returns Number of days until expiry (negative if expired), or null if no date
  */
 export function getDaysUntilExpiry(expiryDate: Date | string | null | undefined): number | null {
-  if (!expiryDate) return null
-
-  const expiry = expiryDate instanceof Date ? expiryDate : new Date(expiryDate)
-  if (isNaN(expiry.getTime())) return null
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const expiryNormalized = new Date(expiry)
-  expiryNormalized.setHours(0, 0, 0, 0)
-
-  return Math.ceil((expiryNormalized.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  return daysUntilFleetDate(expiryDate)
 }
 
 /**

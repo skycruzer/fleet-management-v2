@@ -1,17 +1,25 @@
 /**
  * Pilot Registration Approval API Route (Admin Only)
  *
- * GET /api/portal/registration-approval - Get pending registrations
- * POST /api/portal/registration-approval - Approve/deny registration
+ * GET /api/admin/registration-approval - Get pending registrations
+ * POST /api/admin/registration-approval - Approve/deny registration
  *
  * Developer: Maurice Rondeau
  *
  * CSRF PROTECTION: POST method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 3.0.0
- * @updated 2026-06-10 - Migrated to createAdminRoute factory
+ * @version 3.1.0
+ * @updated 2026-07-25 - Moved out of /api/portal/* so admins can actually reach it
  * @spec 001-missing-core-features (US8)
+ *
+ * NOTE ON THE PATH: this route previously lived at /api/portal/registration-approval.
+ * `proxy.ts` gates every /api/portal/* path on the caller existing in `pilot_users`,
+ * so a pure admin was rejected with 403 before the handler ever ran — the route
+ * used `createAdminRoute`, which no admin could satisfy. That is the root cause
+ * behind tasks/061-tracked-admin-auth-registration-approval.md, which recorded the
+ * symptom ("admin auth isn't passed through") but not the reason. Under /api/admin/*
+ * the proxy's admin branch applies and the factory's own auth is authoritative.
  */
 
 import { NextResponse } from 'next/server'
@@ -29,7 +37,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 export const GET = createAdminRoute(
   {
     operation: 'getPendingRegistrations',
-    endpoint: '/api/portal/registration-approval',
+    endpoint: '/api/admin/registration-approval',
     rateLimit: false,
   },
   async () => {
@@ -63,7 +71,7 @@ export const GET = createAdminRoute(
 export const POST = createAdminRoute(
   {
     operation: 'reviewRegistration',
-    endpoint: '/api/portal/registration-approval',
+    endpoint: '/api/admin/registration-approval',
   },
   async ({ request, admin }) => {
     // Parse and validate request body

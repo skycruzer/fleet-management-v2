@@ -52,3 +52,10 @@ knowledge/
 
 # EBT migration working files (raw pg_dump scratch — data is captured in supabase/migrations/)
 scratch/
+
+# Cloud-sync conflict copies. The repo lives in a synced folder, which spawns
+# "<name> 2.ext" duplicates (18 of these had been committed, plus copies under
+# .git/ that silently break fetch). Keep them out of the index; clean the ones
+# under .git/refs/ by hand if origin/* ever looks stale.
+*[ ][0-9].*
+*[ ][0-9][0-9].*

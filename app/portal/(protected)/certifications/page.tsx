@@ -7,7 +7,8 @@
  * @spec 001-missing-core-features (US1)
  */
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,6 +29,7 @@ import {
 import { PageHead } from '@/components/ui/page-head'
 import { CardGridSkeleton } from '@/components/ui/skeleton'
 import { DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
+import { daysUntilFleetDate } from '@/lib/utils/fleet-date'
 
 interface Certification {
   id: string
@@ -53,9 +55,6 @@ const CERTIFICATION_THRESHOLDS = {
 } as const
 
 export default function CertificationsPage() {
-  const [certifications, setCertifications] = useState<Certification[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('card')
@@ -76,9 +75,11 @@ export default function CertificationsPage() {
       }
     }
 
-    const expiry = new Date(expiryDate)
-    const today = new Date()
-    const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    // Fleet-local calendar arithmetic — the shared source of truth used by the
+    // services, reports and cron alerts. Previously this compared a UTC-parsed
+    // expiry against `new Date()` including time-of-day, so a pilot's status
+    // both drifted during the day and disagreed with the admin dashboard.
+    const daysUntilExpiry = daysUntilFleetDate(expiryDate) ?? 0
 
     // Calculate progress percentage based on validity period
     const progressPercent = Math.max(
@@ -137,51 +138,30 @@ export default function CertificationsPage() {
     }
   }, [])
 
-  // Fetch certifications on mount with proper cleanup to prevent memory leaks
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/portal/certifications')
-
-        // Check if component is still mounted before proceeding
-        if (!isMounted) return
-
-        if (!response.ok) {
-          setError('Failed to fetch certifications')
-          setIsLoading(false)
-          return
-        }
-
-        const result = await response.json()
-
-        // Check again after JSON parsing (async operation)
-        if (!isMounted) return
-
-        if (!result.success) {
-          setError(result.error || 'Failed to fetch certifications')
-          setIsLoading(false)
-          return
-        }
-
-        setCertifications(result.data || [])
-        setIsLoading(false)
-      } catch (err) {
-        // Only update state if still mounted
-        if (isMounted) {
-          setError('An unexpected error occurred')
-          setIsLoading(false)
-        }
+  // TanStack Query owns caching, retries, dedupe and unmount safety — the manual
+  // useEffect/isMounted fetch this replaced did none of that.
+  const {
+    data: certifications = [],
+    isPending,
+    error: queryError,
+  } = useQuery<Certification[]>({
+    queryKey: ['portal', 'certifications'],
+    queryFn: async () => {
+      const response = await fetch('/api/portal/certifications')
+      if (!response.ok) {
+        throw new Error('Failed to fetch certifications')
       }
-    }
 
-    fetchData()
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch certifications')
+      }
 
-    return () => {
-      isMounted = false
-    }
-  }, [])
+      return result.data ?? []
+    },
+  })
+
+  const error = queryError ? queryError.message : ''
 
   // Apply filters using useMemo (derived state - React Compiler friendly)
   const filteredCerts = useMemo(() => {
@@ -266,7 +246,7 @@ export default function CertificationsPage() {
     }
   }, [filteredCerts, getCertificationStatus])
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="bg-background min-h-screen p-6">
         <CardGridSkeleton count={6} />

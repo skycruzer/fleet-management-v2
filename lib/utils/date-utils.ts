@@ -9,6 +9,7 @@
  */
 
 import { getCertificationStatus } from './certification-status'
+import { daysUntilFleetDate } from './fleet-date'
 
 /**
  * Format options for consistent date display across the app
@@ -214,17 +215,9 @@ export function formatDateRelative(date: Date | string | null | undefined): stri
  * @returns Number of days (negative if in past), or null
  */
 export function daysUntil(date: Date | string | null | undefined): number | null {
-  const d = toDate(date)
-  if (!d) return null
-
-  const now = new Date()
-  now.setHours(0, 0, 0, 0) // Reset to start of day
-
-  const target = new Date(d)
-  target.setHours(0, 0, 0, 0)
-
-  const diffMs = target.getTime() - now.getTime()
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+  // Delegates to the fleet calendar so that "days until" means the same thing on
+  // the server (UTC) and in a pilot's browser (UTC+10). See lib/utils/fleet-date.ts.
+  return daysUntilFleetDate(date)
 }
 
 /**
