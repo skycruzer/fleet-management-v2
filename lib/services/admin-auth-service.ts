@@ -380,6 +380,65 @@ export async function hashAdminPassword(password: string): Promise<string> {
 }
 
 /**
+ * Change password for an authenticated admin user.
+ * Verifies the current password against an_users.password_hash before
+ * writing the new bcrypt hash — the same credential store adminLogin checks.
+ */
+export async function changeAdminPassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<ServiceResponse<void>> {
+  try {
+    const supabase = createServiceRoleClient()
+
+    const { data: adminUser, error: fetchError } = await supabase
+      .from('an_users')
+      .select('id, password_hash')
+      .eq('id', userId)
+      .single()
+
+    if (fetchError || !adminUser) {
+      return { success: false, error: 'Account not found', errorCode: 'NOT_FOUND' }
+    }
+
+    if (!adminUser.password_hash) {
+      return {
+        success: false,
+        error: 'Account not configured for password login. Please contact a system administrator.',
+        errorCode: 'ACCOUNT_NOT_CONFIGURED',
+      }
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, adminUser.password_hash)
+    if (!passwordMatch) {
+      return {
+        success: false,
+        error: 'Current password is incorrect.',
+        errorCode: 'INVALID_CURRENT_PASSWORD',
+      }
+    }
+
+    const passwordHash = await hashAdminPassword(newPassword)
+
+    const { error: updateError } = await supabase
+      .from('an_users')
+      .update({ password_hash: passwordHash, updated_at: new Date().toISOString() })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('Failed to change admin password:', updateError)
+      return { success: false, error: 'Failed to change password' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error changing admin password:', error)
+    return { success: false, error: 'Failed to change password' }
+  }
+}
+
+/**
  * Set password for an admin user
  */
 export async function setAdminPassword(

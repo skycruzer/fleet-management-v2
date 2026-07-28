@@ -20,19 +20,24 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createClient } from '../../lib/supabase/client'
 import { toast } from 'sonner'
 import { Loader2, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { AdminPasswordComplexity } from '@/lib/validations/change-password-schema'
 
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    newPassword: AdminPasswordComplexity,
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: 'New password must be different from your current password.',
+    path: ['newPassword'],
   })
 
 type PasswordFormData = z.infer<typeof passwordSchema>
@@ -47,7 +52,7 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const supabase = createClient()
+  const { csrfToken } = useCsrfToken()
 
   const {
     register,
@@ -76,19 +81,32 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
     setIsSubmitting(true)
 
     try {
-      // Attempt to update password
-      const { error } = await supabase.auth.updateUser({
-        password: data.newPassword,
+      // Admin sessions are Redis-backed (admin-session cookie), not Supabase Auth,
+      // so the change must go through the bcrypt-based API route.
+      const response = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
       })
 
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error.error || error.message || 'Failed to change password')
+      }
 
       toast.success('Password changed successfully')
       reset()
       onOpenChange(false)
     } catch (error) {
       console.error('Error changing password:', error)
-      toast.error('Failed to change password. Please check your current password.')
+      toast.error(error instanceof Error ? error.message : 'Failed to change password')
     } finally {
       setIsSubmitting(false)
     }

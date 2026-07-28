@@ -259,3 +259,43 @@ EBT source DB: `omicxkfwdsadyycetmsk` (reachable via Supabase MCP). Local repo:
   Root-caused EBT menu bounce = EBT gate wants Supabase JWT `user_role`, fleet admin
   uses bcrypt admin-session cookie. User chose FULL functional path. MCP reaches EBT DB.
 - 2026-07-05: production-readiness review loop started (see top section).
+
+---
+
+# Fix: Admin "Change Password" always fails (2026-07-29)
+
+## Root cause (confirmed)
+
+`components/settings/change-password-dialog.tsx` calls `supabase.auth.updateUser({ password })`
+from the browser. Admin login (`/auth/login` → `adminLogin` in `admin-auth-service.ts`) does NOT
+use Supabase Auth — it bcrypt-verifies `an_users.password_hash` and issues a Redis-backed
+`admin-session` cookie. No Supabase Auth session exists in the browser, so `updateUser` throws
+`AuthSessionMissingError` every time; the catch masks it with "Please check your current
+password." The dialog never verifies the current password, and even a "successful" `updateUser`
+would write to the wrong credential store (Supabase Auth, not `an_users` that login checks).
+
+## Plan
+
+- [x] Add `changeAdminPassword(userId, currentPassword, newPassword)` to
+      `lib/services/admin-auth-service.ts` — bcrypt-verify current password against
+      `an_users.password_hash`, hash new password, update row (service-layer rule)
+- [x] Add `POST /api/user/change-password` via `createAdminRoute` factory
+      (CSRF + auth + per-user `authRateLimit` + Zod schema; sibling of `/api/user/profile`)
+- [x] Rewire `change-password-dialog.tsx` to POST to the new route with CSRF token
+      (same pattern as `edit-profile-dialog.tsx`); surface real server error messages;
+      enforce the displayed password requirements in the client Zod schema
+- [x] Validate: `npm run validate` ✅ + `npm run build` ✅ (route registered)
+- [x] Cross-check with MOA debug consult — 2 independent agents CONFIRMED root cause
+      (AuthSessionMissingError deterministic on clean login; wrong credential store;
+      no admin change-password route existed at HEAD)
+
+## Review / verification (2026-07-29)
+
+- E2E verified against local prod build (:3021) with a TEMP manager user
+  (created + deleted, deletion verified): login ✅ → dialog opens ✅ → wrong current
+  password shows "Current password is incorrect." ✅ → change succeeds ✅ → old
+  password rejected at login ✅ → new password logs in ✅.
+- Unauthenticated POST to /api/user/change-password → 401 (factory pipeline holds).
+- Error surfacing fixed: dialog now shows the server's real message instead of the
+  hardcoded "check your current password" toast.
+- Complexity rules now enforced (client + server) matching the dialog checklist UI.
