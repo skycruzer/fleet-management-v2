@@ -76,10 +76,14 @@ prod audit 5 high → 3 high.
 - [x] VERIFIED LIVE: `GET /api/portal/register?email=%25` → 405 (was 200 + full pilot_users row);
       health green; auth gates 401/307; landing + both logins 200
 
-## BLOCKING — one item left
+## Rate limiting — CLOSED IN CODE
 
-- [ ] **Provision Upstash** + set UPSTASH*REDIS_REST*{URL,TOKEN} in Vercel. User handles
-      provisioning; then I wire vars + verify a real 429.
+- [x] Root defect was the always-succeed mock fallback, not the missing Upstash resource. New
+      `lib/rate-limit-fallback.ts` enforces a real in-process sliding window in production
+      (permissive in dev) across all 11 limiters; 9 unit tests; `[rate-limit] DEGRADED` logged
+      while in use.
+- [ ] RECOMMENDED (not blocking): provision Upstash for distributed limits — the fallback is
+      per-instance, so budget scales with warm instance count.
 
 ## Needs care — DO NOT run `npm run db:deploy` blindly
 

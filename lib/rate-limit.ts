@@ -21,6 +21,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
+import { selectFallbackLimiter } from '@/lib/rate-limit-fallback'
 
 // ============================================================================
 // REDIS CLIENT CONFIGURATION
@@ -43,36 +44,31 @@ const redis = isRedisConfigured
     })
   : null
 
-// Falling back to the mock limiter is correct in development and dangerous in production: every
-// limiter below silently becomes "always allow", so login throttling and abuse protection are off
-// while the app looks healthy. This is not thrown, because failing closed here would take the
-// whole site down over a missing env var — but it must be loud enough to see in the logs.
+// Without Redis the limiters below fall back to an in-process sliding window, which is enforced
+// but per-instance rather than distributed — so the effective budget scales with the number of
+// warm serverless instances. Degraded, not disabled. Loud enough to be visible in log triage.
 if (!isRedisConfigured && process.env.NODE_ENV === 'production') {
   console.error(
-    '[rate-limit] SECURITY: UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN are not set in ' +
-      'production. ALL rate limiting is disabled (every limiter returns success). Provision ' +
-      'Upstash and set both variables. Account lockout still applies to logins; nothing else ' +
-      'is throttled.'
+    '[rate-limit] DEGRADED: UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN are not set in ' +
+      'production. Falling back to per-instance in-memory rate limiting: limits are enforced, ' +
+      'but each serverless instance keeps its own counters, so a distributed attacker gets ' +
+      'roughly N times the budget. Provision Upstash and set both variables.'
   )
 }
 
 // ============================================================================
-// MOCK RATE LIMITER (Development Mode)
+// FALLBACK RATE LIMITER (no Redis configured)
 // ============================================================================
 
 /**
- * Mock rate limiter that always returns success
- * Used when Redis is not configured (development mode)
+ * Fallback used when Redis is not configured.
+ *
+ * This used to be a mock that always returned success, which meant a missing pair of environment
+ * variables silently disabled every limit below in production. `selectFallbackLimiter` enforces a
+ * real in-process sliding window in production and stays permissive in development.
+ * See lib/rate-limit-fallback.ts for the trade-offs (per-instance, not distributed).
  */
-const createMockRateLimiter = () => ({
-  limit: async () => ({
-    success: true,
-    limit: 999,
-    remaining: 999,
-    reset: Date.now() + 60000,
-    pending: Promise.resolve(),
-  }),
-})
+const fallback = (limit: number, windowMs: number) => selectFallbackLimiter({ limit, windowMs })
 
 // ============================================================================
 // RATE LIMITERS FOR SERVER ACTIONS
@@ -89,7 +85,7 @@ export const feedbackRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:feedback',
     })
-  : createMockRateLimiter()
+  : fallback(5, 60_000)
 
 /**
  * Leave requests: 3 per minute
@@ -102,7 +98,7 @@ export const leaveRequestRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:leave',
     })
-  : createMockRateLimiter()
+  : fallback(3, 60_000)
 
 /**
  * Flight requests: 3 per minute
@@ -115,7 +111,7 @@ export const flightRequestRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:flight',
     })
-  : createMockRateLimiter()
+  : fallback(3, 60_000)
 
 /**
  * Votes: 30 per minute
@@ -128,7 +124,7 @@ export const voteRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:vote',
     })
-  : createMockRateLimiter()
+  : fallback(30, 60_000)
 
 // ============================================================================
 // RATE LIMITERS FOR AUTHENTICATION
@@ -146,7 +142,7 @@ export const loginRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:login',
     })
-  : createMockRateLimiter()
+  : fallback(5, 60_000)
 
 /**
  * Authentication Rate Limiter (General)
@@ -160,7 +156,7 @@ export const authRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:auth',
     })
-  : createMockRateLimiter()
+  : fallback(10, 60_000)
 
 /**
  * Password Reset Rate Limiter
@@ -174,7 +170,7 @@ export const passwordResetRateLimit = redis
       analytics: true,
       prefix: 'ratelimit:password-reset',
     })
-  : createMockRateLimiter()
+  : fallback(3, 3_600_000)
 
 // ============================================================================
 // HELPER TYPES

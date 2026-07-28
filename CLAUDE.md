@@ -198,10 +198,16 @@ Distributed rate limiting via Upstash Redis, enforced **per route** — the rout
 per-IP limit before auth, and the auth routes outside the factory wrap themselves. There is no
 middleware-level rate limiter: `lib/supabase/middleware.ts` has no importers and does not run.
 
-**Both `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` must be set in every deployed
-environment.** They are `.optional()` in `lib/env.ts`, and when absent `lib/rate-limit.ts`
-substitutes a mock limiter that always returns success — so a missing variable silently disables
-every limit below rather than failing the deploy. Verify with `vercel env ls` after any env change.
+**Set both `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in every deployed environment.**
+They are `.optional()` in `lib/env.ts`. When they are absent the limiters fall back to
+`lib/rate-limit-fallback.ts`, which enforces a real in-process sliding window in production and
+stays permissive in development. That fallback is a floor, not a substitute: counters are
+per-instance, so a distributed attacker gets roughly N times the budget across N warm instances,
+and counters reset when an instance recycles. Startup logs a `[rate-limit] DEGRADED` error when it
+is in use. Verify with `vercel env ls` after any env change.
+
+Never reintroduce an always-succeed mock here — a missing env var previously turned every limit
+below into a no-op in production while the app looked healthy.
 
 | Endpoint / Action     | Limit              |
 | --------------------- | ------------------ |

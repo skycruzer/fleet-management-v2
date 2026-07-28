@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
+import { selectFallbackLimiter, type FallbackRateLimiter } from '@/lib/rate-limit-fallback'
 import { Redis } from '@upstash/redis'
 
 // ============================================================================
@@ -46,23 +47,19 @@ const redis = isRedisConfigured
 // ============================================================================
 
 /**
- * Type for rate limiter (real or mock)
+ * Type for rate limiter (Redis-backed, or the no-Redis fallback)
  */
-type RateLimiter = Ratelimit | ReturnType<typeof createMockRateLimiter>
+type RateLimiter = Ratelimit | FallbackRateLimiter
 
 /**
- * Mock rate limiter that always returns success
- * Used when Redis is not configured (development mode)
+ * Fallback used when Redis is not configured.
+ *
+ * This was previously a mock that always returned success, so a missing pair of environment
+ * variables silently switched off every limit in this file — including the auth limiter — in
+ * production. `selectFallbackLimiter` enforces a real in-process sliding window in production and
+ * stays permissive in development. See lib/rate-limit-fallback.ts for the trade-offs.
  */
-const createMockRateLimiter = () => ({
-  limit: async () => ({
-    success: true,
-    limit: 999,
-    remaining: 999,
-    reset: Date.now() + 60000,
-    pending: Promise.resolve(),
-  }),
-})
+const fallback = (limit: number, windowMs: number) => selectFallbackLimiter({ limit, windowMs })
 
 // Rate limiters for different endpoint types.
 // IMPORTANT: Each Ratelimit instance MUST have a unique `prefix`. Upstash's
@@ -78,7 +75,7 @@ export const readRateLimit: RateLimiter = redis
       analytics: true,
       prefix: 'ratelimit:read',
     })
-  : createMockRateLimiter()
+  : fallback(100, 60_000)
 
 export const mutationRateLimit: RateLimiter = redis
   ? new Ratelimit({
@@ -87,7 +84,7 @@ export const mutationRateLimit: RateLimiter = redis
       analytics: true,
       prefix: 'ratelimit:mutation',
     })
-  : createMockRateLimiter()
+  : fallback(20, 60_000)
 
 export const authRateLimit: RateLimiter = redis
   ? new Ratelimit({
@@ -96,7 +93,7 @@ export const authRateLimit: RateLimiter = redis
       analytics: true,
       prefix: 'ratelimit:auth-middleware',
     })
-  : createMockRateLimiter()
+  : fallback(5, 60_000)
 
 /**
  * Rate limit configuration for different HTTP methods
@@ -205,7 +202,7 @@ export function withStrictRateLimit(handler: (request: NextRequest) => Promise<N
         analytics: true,
         prefix: 'ratelimit:strict',
       })
-    : createMockRateLimiter()
+    : fallback(10, 60_000)
 
   return withRateLimit(handler, strictLimit)
 }
