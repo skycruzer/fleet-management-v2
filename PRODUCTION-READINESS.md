@@ -1,6 +1,6 @@
 # Production Readiness Report
 
-**Branch:** `main` · **HEAD:** `2f315d0` · **Reviewed:** 2026-07-28
+**Branch:** `main` · **HEAD:** `def4a1f` · **Reviewed + remediated:** 2026-07-28
 **Method:** hand-verified code review + independent reference-mesh review (2 agents) + runtime
 verification against live production (`https://www.pxb767office.app`) and the Vercel project config.
 
@@ -14,14 +14,24 @@ Every code-fixable defect below is **fixed, merged and deployed**. Commit `6ab84
 CI is green on that exact SHA (`validate` now includes the unit tests), and the Vercel production
 deployment is Ready.
 
-**Verified against `https://www.pxb767office.app` after deploy:**
+**Verified against `https://www.pxb767office.app` after deploy — measured, not assumed:**
 
-- The password-hash leak is closed: `GET /api/portal/register?email=%25` now returns **405**, where
-  before it returned **200** with a full `pilot_users` row.
+- **The password-hash leak is closed.** `GET /api/portal/register?email=%25` returns **405**. Before
+  the fix that exact request returned **200** with a full `pilot_users` row, `password_hash`
+  included.
+- **Rate limiting genuinely enforces.** Ten POSTs to `/api/portal/register`: attempts 1-5 returned
+  403, attempt **6 onward returned 429**. Before the fix all ten would have sailed through
+  unthrottled, because the no-Redis fallback always returned success. Upstash is still not
+  provisioned — this is the in-process limiter doing its job.
+- **Account lockout enforces.** Six POSTs to `/api/portal/login` with a non-existent staff ID:
+  five 401s, then **423 Locked**.
 - Health check green (DB connected, dashboard metrics loading).
 - Auth gates hold: `/api/pilots`, `/api/dashboard/stats`, `/api/users` and the cron endpoint all
   401; `/dashboard` and `/portal/dashboard` 307 to their logins.
 - Landing, admin login and portal login all serve 200 — nothing regressed.
+
+**Shipped:** `6ab84b1` (security fixes) · `9f16303` (docs) · `def4a1f` (rate-limit enforcement).
+CI green on each SHA; final gates `validate` exit 0, **86 unit tests / 15 files**, `build` exit 0.
 
 The live credential compromise is closed and every blocker is resolved. Status of the three items
 that were blocking:
@@ -51,7 +61,7 @@ the diff.
 | `npm run validate` (types + lint + format) | ✅ PASS     | exit 0; 1 eslint warning, in an ignored worktree copy                         |
 | `npm run validate:naming`                  | ✅ PASS     | 80 advisory warnings (loose `.sql`/`.mjs` names at repo root)                 |
 | `npm run build` (prod, strict TS)          | ✅ PASS     | all routes compiled; built with **Turbopack**                                 |
-| `npm run test:unit` (vitest)               | ✅ PASS     | 14 files / 77 tests after remediation (was 13 / 71)                           |
+| `npm run test:unit` (vitest)               | ✅ PASS     | 15 files / 86 tests after remediation (was 13 / 71)                           |
 | Production runtime                         | ✅ HEALTHY  | `/api/health` ok, DB connected, 37 pilots, dashboard metrics ok               |
 | Production auth gates                      | ✅ HOLD     | admin APIs 401; `/dashboard` + `/portal` 307 to login; cron 401               |
 | Security headers                           | ✅ GOOD     | HSTS preload, CSP, nosniff, frame-options, referrer, permissions              |
