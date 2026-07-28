@@ -8,11 +8,22 @@ verification against live production (`https://www.pxb767office.app`) and the Ve
 > left, and it's yours" — is no longer accurate in either direction: the service-role key **was**
 > rotated (good), but this review found live exploitable defects the July pass did not cover.
 
-## Verdict: 🟡 One blocker left — provisioning Upstash
+## Verdict: 🟡 Shipped and verified live — one item left, and it's an account action
 
-Every code-fixable defect below has been **fixed and verified** (`validate`, 77 unit tests and
-`build` all green — see "Remediation"). The live credential compromise has been **closed against
-production**. One item remains, and it is an account action:
+Every code-fixable defect below is **fixed, merged and deployed**. Commit `6ab84b1` is on `main`,
+CI is green on that exact SHA (`validate` now includes the unit tests), and the Vercel production
+deployment is Ready.
+
+**Verified against `https://www.pxb767office.app` after deploy:**
+
+- The password-hash leak is closed: `GET /api/portal/register?email=%25` now returns **405**, where
+  before it returned **200** with a full `pilot_users` row.
+- Health check green (DB connected, dashboard metrics loading).
+- Auth gates hold: `/api/pilots`, `/api/dashboard/stats`, `/api/users` and the cron endpoint all
+  401; `/dashboard` and `/portal/dashboard` 307 to their logins.
+- Landing, admin login and portal login all serve 200 — nothing regressed.
+
+The live credential compromise is closed. One item remains, and it is an account action:
 
 | #   | Status               | Item                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | --- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

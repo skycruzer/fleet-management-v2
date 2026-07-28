@@ -69,6 +69,13 @@ prod audit 5 high → 3 high.
 - [x] Verified leaked service_role JWT is DEAD (doesn't match either active legacy key → JWT
       secret was rolled). Legacy key types still enabled = hardening, not a blocker.
 
+## SHIPPED (2026-07-28)
+
+- [x] Committed `6ab84b1` + pushed to main; CI green on that exact SHA (validate now runs
+      test:unit); Vercel production deployment Ready
+- [x] VERIFIED LIVE: `GET /api/portal/register?email=%25` → 405 (was 200 + full pilot_users row);
+      health green; auth gates 401/307; landing + both logins 200
+
 ## BLOCKING — one item left
 
 - [ ] **Provision Upstash** + set UPSTASH*REDIS_REST*{URL,TOKEN} in Vercel. User handles
