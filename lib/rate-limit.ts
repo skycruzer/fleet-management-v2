@@ -43,6 +43,19 @@ const redis = isRedisConfigured
     })
   : null
 
+// Falling back to the mock limiter is correct in development and dangerous in production: every
+// limiter below silently becomes "always allow", so login throttling and abuse protection are off
+// while the app looks healthy. This is not thrown, because failing closed here would take the
+// whole site down over a missing env var — but it must be loud enough to see in the logs.
+if (!isRedisConfigured && process.env.NODE_ENV === 'production') {
+  console.error(
+    '[rate-limit] SECURITY: UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN are not set in ' +
+      'production. ALL rate limiting is disabled (every limiter returns success). Provision ' +
+      'Upstash and set both variables. Account lockout still applies to logins; nothing else ' +
+      'is throttled.'
+  )
+}
+
 // ============================================================================
 // MOCK RATE LIMITER (Development Mode)
 // ============================================================================

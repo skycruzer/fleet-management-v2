@@ -38,6 +38,11 @@ jobs:
       - name: Run validation (type-check + lint + format)
         run: npm run validate
 
+      # Always run: unit tests gate every push. The E2E job below is conditional on secrets, so
+      # without this a green CI run only proved the project compiles, not that it behaves.
+      - name: Run unit tests
+        run: npm run test:unit
+
       - name: Run production build
         run: npm run build
 

@@ -16,6 +16,7 @@ import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
 import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
@@ -195,12 +196,15 @@ export const POST = createAdminRoute(
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
       })
+      // Build our own response here, so the route factory's sanitizer never sees this error —
+      // sanitize explicitly rather than handing the provider's raw message to the client.
+      const sanitized = sanitizeError(error, {
+        operation: 'emailReport',
+        endpoint: '/api/reports/email',
+      })
       return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to send email',
-        },
-        { status: 500 }
+        { success: false, error: sanitized.error, errorId: sanitized.errorId },
+        { status: sanitized.statusCode || 500 }
       )
     }
   }

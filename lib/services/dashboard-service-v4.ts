@@ -275,7 +275,10 @@ async function fetchDashboardMetricsFromView(startTime: number): Promise<Dashboa
         current: typedViewData.current_certifications || 0,
         expiring: typedViewData.expiring_certifications || 0,
         expired: typedViewData.expired_certifications || 0,
-        complianceRate: Number(typedViewData.compliance_rate) || 100,
+        // `||` treated a real 0% compliance rate as falsy and rendered it as 100% — the worst
+        // possible direction to be wrong on a safety surface. Use `??` so only a genuinely
+        // absent value falls back.
+        complianceRate: Number(typedViewData.compliance_rate ?? 100),
       },
       leave: {
         pending: typedViewData.pending_leave || 0,

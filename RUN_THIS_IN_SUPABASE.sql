@@ -40,5 +40,6 @@ CREATE POLICY "Service role full access"
 
 -- ============================================================================
 -- Done! Test admin login at: http://localhost:3000/auth/login
--- Credentials: skycruzer@icloud.com / mron2393
+-- Credentials: use your own admin account. Never write a working password into
+-- a tracked file — this repository is public.
 -- ============================================================================

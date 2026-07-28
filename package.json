@@ -38,8 +38,8 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^3.10.0",
-    "@logtail/browser": "^0.5.6",
-    "@logtail/node": "^0.5.6",
+    "@logtail/browser": "^0.5.8",
+    "@logtail/node": "^0.5.8",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -87,7 +87,7 @@
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.575.0",
-    "next": "^16.1.6",
+    "next": "^16.2.12",
     "next-themes": "^0.4.6",
     "nuqs": "^2.8.8",
     "papaparse": "^5.5.3",
@@ -100,7 +100,7 @@
     "recharts": "^2.15.4",
     "resend": "^6.9.1",
     "server-only": "^0.0.1",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
@@ -165,7 +165,8 @@
     "postcss": "$postcss",
     "minimatch@3.1.5": {
       "brace-expansion": "1.1.13"
-    }
+    },
+    "sharp": "$sharp"
   },
   "optionalDependencies": {
     "@esbuild/darwin-arm64": "^0.27.2"

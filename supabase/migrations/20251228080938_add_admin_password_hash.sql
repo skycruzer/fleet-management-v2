@@ -82,7 +82,12 @@ $$;
 -- ============================================
 
 -- Set password for existing admin user (skycruzer@icloud.com)
--- Password: mron2393 (bcrypt hash with 10 salt rounds)
+--
+-- SECURITY: this migration originally recorded the seed password in plaintext next to its bcrypt
+-- hash, in a public repository. The plaintext has been removed, but THE HASH BELOW IS STILL THE
+-- PUBLISHED ONE — removing a comment does not un-publish a credential. This account's password
+-- must be changed in the running database; until it is, treat this hash as public knowledge.
+-- Do not seed passwords from migrations again; provision them out of band.
 UPDATE an_users
 SET password_hash = '$2b$10$hME7XuW.8yCwCLhDFOsOTemsmDSA7o6BkymOq.lJ/9rKT1/MG5YnK'
 WHERE email = 'skycruzer@icloud.com';

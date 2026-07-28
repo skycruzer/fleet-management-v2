@@ -25,7 +25,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { submitPilotRegistration, getRegistrationStatus } from '@/lib/services/pilot-portal-service'
+import { submitPilotRegistration } from '@/lib/services/pilot-portal-service'
 import { PilotRegistrationSchema } from '@/lib/validations/pilot-portal-schema'
 import {
   ERROR_MESSAGES,
@@ -151,56 +151,12 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
   }
 })
 
-/**
- * GET - Check registration status by email
- */
-export async function GET(_request: NextRequest) {
-  try {
-    const { searchParams } = new URL(_request.url)
-    const email = searchParams.get('email')
-
-    if (!email) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('email'), 400),
-        { status: 400 }
-      )
-    }
-
-    // Get registration status
-    const result = await getRegistrationStatus(email)
-
-    if (!result.success) {
-      return NextResponse.json(
-        formatApiError(
-          {
-            message: result.error || 'Failed to fetch registration status',
-            category: ERROR_MESSAGES.DATABASE.FETCH_FAILED('registration').category,
-            severity: ERROR_MESSAGES.DATABASE.FETCH_FAILED('registration').severity,
-          },
-          500
-        ),
-        { status: 500 }
-      )
-    }
-
-    if (!result.data) {
-      return NextResponse.json({
-        success: true,
-        data: null,
-        message: 'No registration found for this email',
-      })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: result.data,
-    })
-  } catch (error) {
-    logger.error('Get registration status API error', error)
-    const sanitized = sanitizeError(error, {
-      operation: 'getRegistrationStatus',
-      endpoint: '/api/portal/register',
-    })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
-  }
-}
+// NOTE: there is deliberately no GET handler here.
+//
+// `proxy.ts` allowlists this path for *all* methods so that anonymous visitors can submit a
+// registration. A status-by-email GET therefore ran unauthenticated, and it returned whatever
+// `getRegistrationStatus()` selected — which was the whole `pilot_users` row, `password_hash`
+// included. Its `.ilike()` filter also accepted `%` from the query string, so a single request
+// could match every account. Nothing in the app ever called it. If a status lookup is needed
+// again, it must prove ownership of the address (emailed link or signed token) rather than
+// trusting an email in the query string.

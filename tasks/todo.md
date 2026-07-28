@@ -1,3 +1,103 @@
+# Production-Readiness Re-Verification (2026-07-28) — COMPLETE
+
+Goal: full review and verify the project is production ready.
+**Verdict: 🔴 NOT production ready.** Full report in PRODUCTION-READINESS.md.
+
+- [x] Hard gates: validate ✅, build ✅, validate:naming ✅, test:unit ✅ (71 tests)
+- [x] Runtime verification vs live prod: health ✅, auth gates hold ✅, security headers ✅
+- [x] Service*role key: ROTATED ✅ (prod + local both on new `sb_secret*` format)
+- [x] Git history: legacy JWT still reachable from main; repo is PUBLIC — purge still pending
+- [x] MOA reference-mesh review (2 independent agents) + hand-verified every load-bearing finding
+- [x] Compile verdict + rewrite PRODUCTION-READINESS.md
+
+## Confirmed blockers found (detail in PRODUCTION-READINESS.md)
+
+- [ ] **P1** `GET /api/portal/register` leaks full `pilot_users` row incl. `password_hash` to
+      anonymous callers; `.ilike()` accepts `%` wildcard → dump newest account without any email
+- [ ] **P2** `requireRole()` authorizes ANY admin-session for ADMIN-only routes without checking
+      the role → managers can `POST /api/users` with `role: 'admin'` (privilege escalation)
+- [ ] **P3** Working admin + pilot passwords committed in the PUBLIC repo (RUN_THIS_IN_SUPABASE.sql,
+      migration 20251228080938, scripts/debug/create-pilot-user.mjs)
+- [ ] **P4** Upstash Redis absent from Vercel prod → every rate limiter is a no-op mock
+- [ ] **P5** Next 16.2.10 → 16.2.11+ fixes 9 advisories (proxy-bypass CVE assessed N/A: no i18n)
+- [ ] **P6** Confirm legacy Supabase JWT keys are DISABLED (rotation alone doesn't revoke them)
+- [ ] **P7** `complianceRate: Number(x) || 100` renders 0% compliance as 100%
+- [ ] **P8** Certification status uses server TZ (UTC) not fleet TZ (UTC+10) → expired shows as
+      "expiring" for 10h/day; fix already written in `.claude/worktrees/deep-review-fixes`, unmerged
+- [ ] **P9** 2 report routes return raw `error.message` to clients
+- [ ] **P10** `complete_task(uuid)` SECURITY DEFINER never revoked from PUBLIC
+- [ ] **P11** CI never runs unit tests; E2E job silently skips when secrets absent
+- [ ] **P2b** `getUserRole()` reads `an_users` with the anon client, but migration 20260703000001
+      revoked that grant → always null → task + disciplinary PATCH/DELETE broken for all admins.
+      MUST be fixed together with P2 (the obvious P2 fix routes through this and would lock out
+      every admin route).
+- [ ] **P12** `supabase/migrations/20260128_redesign_unified_auth.sql` is UNAPPLIED but armed and
+      DROPs an_users/pilot_users/sessions/tasks CASCADE. `npm run db:deploy` (= `supabase db push`)
+      could take prod down. Archive it.
+- [ ] **P13** `getPendingRegistrations()` `.select('*')` → registrant password hashes + PII
+      serialized into the admin browser's RSC payload (same root cause as P1)
+- [ ] **P14** session token echoed in login response body; dead `/api/pilot/*` duplicates;
+      no-op unit test; over-broad .gitignore; undeclared `vite` dep
+
+## Remediation pass (2026-07-28) — CODE COMPLETE, uncommitted
+
+Gates: validate ✅ · test:unit ✅ 77 tests / 14 files (6 new) · build ✅ exit 0 ·
+prod audit 5 high → 3 high.
+
+- [x] P12 archived armed destructive migration → `supabase/migrations/archive/…UNAPPLIED`
+- [x] P1 + P13 removed anonymous GET; explicit column projection + LIKE-wildcard escaping
+- [x] P2 + P2b authorize off getAuthenticatedAdmin(); getUserRole() → service-role client
+- [x] P9 sanitizeError in reports/email + reports/export
+- [x] P7 complianceRate `??` instead of `||`
+- [x] P14 session token out of login response; deleted dead /api/pilot/{login,register}
+      (kept logout — CSRF-protected + unit-tested)
+- [x] P5 next → 16.2.12, sharp → 0.35.3 (+override), @logtail/\* → 0.5.8
+- [x] P3 credentials scrubbed from tracked files
+- [x] P10 migration 20260728120000 authored (NOT applied — run `npm run db:deploy`)
+- [x] P11 test:unit added to CI validate job
+- [x] P4 loud production warning + CLAUDE.md corrected (provisioning still required)
+- [x] NEW regression test: tests/unit/lib/require-role-authorization.test.ts (proved it fails
+      when the vulnerable short-circuit is reintroduced)
+
+## Remediation applied to PRODUCTION (2026-07-28)
+
+- [x] **Published passwords ROTATED + verified.** Admin hash was byte-identical to the one in the
+      public repo (compromise was live). Both accounts now have strong random passwords, verified
+      by read-back; sessions revoked (admin 1878, pilot 150; active admin sessions 1880 → 2).
+      New passwords in `.env.rotated-credentials.local` (mode 600, gitignored) — USER: log in,
+      change to your own, delete the file.
+- [x] Verified leaked service_role JWT is DEAD (doesn't match either active legacy key → JWT
+      secret was rolled). Legacy key types still enabled = hardening, not a blocker.
+
+## BLOCKING — one item left
+
+- [ ] **Provision Upstash** + set UPSTASH*REDIS_REST*{URL,TOKEN} in Vercel. User handles
+      provisioning; then I wire vars + verify a real 429.
+
+## Needs care — DO NOT run `npm run db:deploy` blindly
+
+- [ ] Migration history is out of sync with the DB **in both directions**: `20260128` is marked
+      applied but its SQL never ran (all its DROP targets still exist with data); the three
+      `202607061x0000` July migrations are marked NOT applied but were applied + verified live.
+      A push would replay those three (one creates a storage bucket). Run
+      `supabase migration repair` first, THEN apply `20260728120000_revoke_complete_task_from_public.sql`.
+- [ ] Commit + push (HEAD is unpushed; CI has never run on 2f315d0)
+
+## Deferred by design
+
+- [ ] Disable legacy JWT key types + purge git history — now hygiene, not incident response
+- [ ] P8 fleet-timezone fix exists on `worktree-deep-review-fixes`; rewrites date handling across
+      compliance surfaces — wants its own review, not a fold-in to a security pass
+- [ ] 3 remaining audit highs = @logtail/node → minimatch → brace-expansion; no fix in the 2.x
+      line, DoS only, not user-reachable. Accepted with rationale.
+
+## Notes
+
+- HEAD `2f315d0` is UNPUSHED; origin/main = prod = `5926cfe` (Jul 15). July hardening IS live.
+- All remediation is uncommitted, for human review.
+
+---
+
 # Production-Readiness Review Loop (started 2026-07-05)
 
 ## Full Project Error Review (2026-07-15)

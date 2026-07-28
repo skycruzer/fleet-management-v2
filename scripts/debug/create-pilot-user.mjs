@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 /**
  * Create pilot user in an_users table
+ *
+ * Credentials come from the environment. They used to be literals in this file, which published
+ * a working pilot login to a public repository.
+ *
+ * Usage:
+ *   SEED_PILOT_EMAIL=… SEED_PILOT_PASSWORD=… node scripts/debug/create-pilot-user.mjs
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -8,26 +14,35 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
+const pilotEmail = process.env.SEED_PILOT_EMAIL
+const pilotPassword = process.env.SEED_PILOT_PASSWORD
+const pilotEmployeeNumber = process.env.SEED_PILOT_EMPLOYEE_NUMBER ?? '001'
+
+if (!pilotEmail || !pilotPassword) {
+  console.error('❌ Set SEED_PILOT_EMAIL and SEED_PILOT_PASSWORD before running this script.')
+  process.exit(1)
+}
+
 const serviceClient = createClient(supabaseUrl, serviceRoleKey)
 
 console.log('🔧 Creating pilot user in an_users table\n')
 
 // Create the pilot user with hashed password
-const { data, error } = await serviceClient.rpc('create_pilot_user', {
-  p_email: 'mrondeau@airniugini.com.pg',
-  p_password: 'Lemakot@1972',
-  p_employee_number: '001',
+const { error } = await serviceClient.rpc('create_pilot_user', {
+  p_email: pilotEmail,
+  p_password: pilotPassword,
+  p_employee_number: pilotEmployeeNumber,
 })
 
 if (error) {
   console.log('⚠️  RPC function not found, using direct SQL insert\n')
 
   // Fallback: Use raw SQL
-  const { data: insertData, error: insertError } = await serviceClient
+  const { error: insertError } = await serviceClient
     .from('an_users')
     .insert({
-      email: 'mrondeau@airniugini.com.pg',
-      employee_number: '001',
+      email: pilotEmail,
+      employee_number: pilotEmployeeNumber,
       status: 'active',
       created_at: new Date().toISOString(),
     })
@@ -38,7 +53,7 @@ if (error) {
     console.log('\n💡 You need to run this SQL directly in Supabase SQL Editor:')
     console.log(`
 INSERT INTO an_users (email, password_hash, employee_number, status)
-VALUES ('mrondeau@airniugini.com.pg', crypt('Lemakot@1972', gen_salt('bf')), '001', 'active');
+VALUES ('<email>', crypt('<password>', gen_salt('bf')), '<employee_number>', 'active');
     `)
     process.exit(1)
   } else {
@@ -46,8 +61,8 @@ VALUES ('mrondeau@airniugini.com.pg', crypt('Lemakot@1972', gen_salt('bf')), '00
     console.log('💡 Run this SQL in Supabase SQL Editor:')
     console.log(`
 UPDATE an_users
-SET password_hash = crypt('Lemakot@1972', gen_salt('bf'))
-WHERE email = 'mrondeau@airniugini.com.pg';
+SET password_hash = crypt('<password>', gen_salt('bf'))
+WHERE email = '<email>';
     `)
   }
 } else {
@@ -57,8 +72,8 @@ WHERE email = 'mrondeau@airniugini.com.pg';
 // Verify the user was created
 const { data: user, error: checkError } = await serviceClient
   .from('an_users')
-  .select('*')
-  .eq('email', 'mrondeau@airniugini.com.pg')
+  .select('email, employee_number, status, password_hash, created_at')
+  .eq('email', pilotEmail)
   .single()
 
 if (checkError) {

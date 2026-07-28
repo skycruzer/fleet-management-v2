@@ -14,6 +14,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
@@ -111,12 +112,15 @@ export const POST = createAdminRoute(
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
       })
+      // Build our own response here, so the route factory's sanitizer never sees this error —
+      // sanitize explicitly rather than leaking PDF/storage internals to the client.
+      const sanitized = sanitizeError(error, {
+        operation: 'exportReport',
+        endpoint: '/api/reports/export',
+      })
       return NextResponse.json(
-        {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to export PDF',
-        },
-        { status: 500 }
+        { success: false, error: sanitized.error, errorId: sanitized.errorId },
+        { status: sanitized.statusCode || 500 }
       )
     }
   }

@@ -199,7 +199,10 @@ export async function pilotLogin(
         },
       },
       session: {
-        access_token: sessionResult.sessionToken,
+        // The session token is deliberately NOT returned here. It is delivered only as the
+        // httpOnly `pilot-session` cookie; echoing it in the response body handed the same token
+        // to any XSS payload or response-logging tool and made httpOnly pointless. Nothing reads
+        // it — the login route just forwarded this object to the client.
         user: {
           id: pilotUser.id,
           email: pilotUser.email,
@@ -346,6 +349,42 @@ export async function submitPilotRegistration(
 }
 
 /**
+ * Columns an approval/status screen actually reads.
+ *
+ * Never widen this to `*`. These queries run through the service-role client, so `*` pulls
+ * `password_hash` along with date of birth, phone and address — and both callers hand the result
+ * straight to a client (an RSC payload for the admin screen, previously an anonymous HTTP response
+ * for the status lookup). Add a column here only after checking where the row ends up.
+ */
+const REGISTRATION_SUMMARY_COLUMNS =
+  'id, email, first_name, last_name, rank, employee_id, seniority_number, registration_approved, registration_date, denial_reason, created_at'
+
+/** The subset of `pilot_users` selected by {@link REGISTRATION_SUMMARY_COLUMNS}. */
+export type PilotRegistrationSummary = Pick<
+  PilotRegistration,
+  | 'id'
+  | 'email'
+  | 'first_name'
+  | 'last_name'
+  | 'rank'
+  | 'employee_id'
+  | 'seniority_number'
+  | 'registration_approved'
+  | 'registration_date'
+  | 'denial_reason'
+  | 'created_at'
+>
+
+/**
+ * Escape PostgREST `LIKE`/`ILIKE` metacharacters so caller-supplied text matches literally.
+ *
+ * Without this, `%` in a query string turns an equality check into "match every row".
+ */
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`)
+}
+
+/**
  * Get registration status by email
  *
  * @param email - Pilot email address
@@ -353,14 +392,14 @@ export async function submitPilotRegistration(
  */
 export async function getRegistrationStatus(
   email: string
-): Promise<ServiceResponse<PilotRegistration | null>> {
+): Promise<ServiceResponse<PilotRegistrationSummary | null>> {
   try {
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('pilot_users')
-      .select('*')
-      .ilike('email', email.trim())
+      .select(REGISTRATION_SUMMARY_COLUMNS)
+      .ilike('email', escapeLikePattern(email.trim()))
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
@@ -390,13 +429,15 @@ export async function getRegistrationStatus(
  *
  * @returns Service response with pending registrations
  */
-export async function getPendingRegistrations(): Promise<ServiceResponse<PilotRegistration[]>> {
+export async function getPendingRegistrations(): Promise<
+  ServiceResponse<PilotRegistrationSummary[]>
+> {
   try {
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('pilot_users')
-      .select('*')
+      .select(REGISTRATION_SUMMARY_COLUMNS)
       .is('registration_approved', null) // NULL means pending
       .order('created_at', { ascending: true })
 

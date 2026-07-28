@@ -10,6 +10,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateAdminSession } from '@/lib/services/admin-auth-service'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
@@ -53,7 +55,11 @@ interface AuthorizationResult {
  */
 export async function getUserRole(userId: string): Promise<UserRole | null> {
   try {
-    const supabase = await createClient()
+    // Read the credential table with the service role. `an_users` is not readable by
+    // anon/authenticated (migration 20260703000001 revoked those grants), and admin login is
+    // bcrypt + admin-session cookie, which issues no Supabase JWT — so the RLS-bound client this
+    // used to call could never see a row, and every caller silently got `null`.
+    const supabase = createAdminClient()
 
     const { data: userData, error } = await supabase
       .from('an_users')
@@ -306,38 +312,42 @@ export async function verifyRequestAuthorization(
  * ```
  */
 export async function requireRole(
-  request: NextRequest,
+  _request: NextRequest,
   requiredRoles: UserRole[]
 ): Promise<AuthorizationResult> {
   try {
-    const supabase = await createClient()
+    // Single source of truth for identity across BOTH auth systems: getAuthenticatedAdmin()
+    // tries Supabase Auth, falls back to the admin-session cookie, and resolves the role via the
+    // service-role client either way.
+    //
+    // This previously short-circuited to `authorized: true` for any valid admin-session whenever
+    // requiredRoles contained ADMIN, without reading the session's role. Admin sessions are issued
+    // to managers as well as admins (ADMIN_ROLES = {admin, manager}), so every `roles: [ADMIN]`
+    // route was reachable by any manager — including POST /api/users, whose schema accepts a role
+    // and so allowed a manager to mint themselves an admin account.
+    const auth = await getAuthenticatedAdmin()
 
-    // Try Supabase Auth first
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      return await verifyUserRole(user.id, requiredRoles)
-    }
-
-    // Fallback to admin-session cookie (dual auth support)
-    const adminSession = await validateAdminSession()
-
-    if (adminSession.isValid && adminSession.user?.id) {
-      // Admin-session users are authenticated admins - check if Admin role is allowed
-      if (requiredRoles.includes(UserRole.ADMIN)) {
-        return { authorized: true }
+    if (!auth.authenticated || !auth.role) {
+      return {
+        authorized: false,
+        error: 'Unauthorized',
+        statusCode: 401,
       }
-      // For other roles, verify against the database
-      return await verifyUserRole(adminSession.user.id, requiredRoles)
     }
 
-    return {
-      authorized: false,
-      error: 'Unauthorized',
-      statusCode: 401,
+    // an_users.role is stored lowercase and UserRole values are lowercase; normalize anyway so a
+    // stray 'Admin' row can neither bypass nor break the comparison.
+    const role = auth.role.toLowerCase() as UserRole
+
+    if (!requiredRoles.includes(role)) {
+      return {
+        authorized: false,
+        error: 'Insufficient permissions',
+        statusCode: 403,
+      }
     }
+
+    return { authorized: true }
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'authorization-middleware/requireRole',

@@ -194,7 +194,14 @@ The portal uses **Next.js route groups** for auth enforcement — `(protected)` 
 
 ### Rate Limiting (`lib/rate-limit.ts`)
 
-Distributed rate limiting via Upstash Redis, enforced in `lib/supabase/middleware.ts` for `/api/auth/*` and in services for actions:
+Distributed rate limiting via Upstash Redis, enforced **per route** — the route factory applies a
+per-IP limit before auth, and the auth routes outside the factory wrap themselves. There is no
+middleware-level rate limiter: `lib/supabase/middleware.ts` has no importers and does not run.
+
+**Both `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` must be set in every deployed
+environment.** They are `.optional()` in `lib/env.ts`, and when absent `lib/rate-limit.ts`
+substitutes a mock limiter that always returns success — so a missing variable silently disables
+every limit below rather than failing the deploy. Verify with `vercel env ls` after any env change.
 
 | Endpoint / Action     | Limit              |
 | --------------------- | ------------------ |
