@@ -12,6 +12,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/hooks/use-toast'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 // Query Keys - Centralized for consistency and cache invalidation
 export const QUERY_KEYS = {
@@ -221,7 +222,7 @@ export function useSubmitLeaveRequest() {
     }) => {
       const response = await fetch('/api/portal/leave-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...csrfHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
       if (!response.ok) {
@@ -299,7 +300,7 @@ export function useSubmitFlightRequest() {
     }) => {
       const response = await fetch('/api/portal/flight-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...csrfHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
       if (!response.ok) {
@@ -363,6 +364,7 @@ export function useCancelLeaveRequest() {
     mutationFn: async (requestId: string) => {
       const response = await fetch(`/api/portal/leave-requests/${requestId}`, {
         method: 'DELETE',
+        headers: { ...csrfHeaders() },
       })
       if (!response.ok) {
         const result = await response.json()

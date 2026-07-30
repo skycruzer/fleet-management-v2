@@ -47,7 +47,7 @@ const adminNavItems: BottomNavItem[] = [
 
 const pilotNavItems: BottomNavItem[] = [
   { href: '/portal/dashboard', icon: Home, label: 'Home' },
-  { href: '/portal/leave', icon: Calendar, label: 'Leave' },
+  { href: '/portal/leave-requests', icon: Calendar, label: 'Leave' },
   { href: '/portal/certifications', icon: FileCheck, label: 'Certs' },
   { href: '/portal/profile', icon: User, label: 'Profile' },
 ]
