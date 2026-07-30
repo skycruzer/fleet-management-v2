@@ -61,3 +61,10 @@ scratch/
 *[ ][0-9][0-9].*
 *[ ][0-9]
 *[ ][0-9][0-9]
+
+# Vendored MCP server dropped into the repo root. It is a self-contained Bun
+# project with its own tests and toolchain; leaving it in scope pulled Bun's
+# global type definitions into `tsc` and produced 363 errors plus two spurious
+# ones in lib/supabase/*, which made `npm run validate` impossible to pass.
+# Also excluded in tsconfig.json.
+claude-talk-to-figma-mcp/

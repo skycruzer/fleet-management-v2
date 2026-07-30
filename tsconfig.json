@@ -51,6 +51,7 @@
     "**/*.stories.tsx",
     "**/*.stories.ts",
     "components/examples/**",
-    "lib/examples/**"
+    "lib/examples/**",
+    "claude-talk-to-figma-mcp/**"
   ]
 }

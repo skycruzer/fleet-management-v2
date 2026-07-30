@@ -112,11 +112,20 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
             return false
           })
 
-        // Check if no extra modifiers are pressed (for simple key shortcuts)
+        // Check that no EXTRA modifiers are held (for bare-key shortcuts).
+        //
+        // The leading `!shortcut.modifiers ||` used to short-circuit this whole
+        // check to true whenever `modifiers` was omitted — which is exactly the
+        // case it needed to guard. A bare `{ key: 'a' }` shortcut therefore also
+        // fired on Cmd+A / Ctrl+A / Shift+A, and preventDefault() suppressed the
+        // browser's native behaviour with it. On the Approvals Hub that meant
+        // Cmd+A opened the approve dialog and Ctrl+N ran an unconfirmed mutation.
+        //
+        // `shift` is included here too; it was missing before.
+        const declaresModifiers = (shortcut.modifiers?.length ?? 0) > 0
         const noExtraModifiers =
-          !shortcut.modifiers ||
-          shortcut.modifiers.length > 0 ||
-          (!event.metaKey && !event.ctrlKey && !event.altKey)
+          declaresModifiers ||
+          (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey)
 
         // Check key (case-insensitive)
         const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase()
