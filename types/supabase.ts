@@ -5732,6 +5732,15 @@ export type Database = {
         | { Args: { expiry_date: string }; Returns: string }
       aus_to_date: { Args: { date_text: string }; Returns: string }
       auth_get_user_role: { Args: never; Returns: string }
+      approve_leave_request_atomic: {
+        Args: {
+          p_comments?: string
+          p_force?: boolean
+          p_request_id: string
+          p_reviewed_by: string
+        }
+        Returns: Json
+      }
       batch_update_certifications: {
         Args: { p_updates: Json[] }
         Returns: {
