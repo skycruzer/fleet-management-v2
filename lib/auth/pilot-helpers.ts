@@ -61,6 +61,10 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
   try {
     const supabase = await createClient()
 
+    // pilot_users is service-role-only (holds password hashes and pilot PII).
+    // The anon/SSR client above is used solely for Supabase Auth session reads.
+    const admin = createAdminClient()
+
     // First, check for custom pilot session cookie via Redis
     const cookieStore = await cookies()
     const pilotSessionCookie = cookieStore.get('pilot-session')
@@ -76,7 +80,7 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
 
         if (sessionResult.isValid && sessionResult.data) {
           // Get pilot user from database
-          const { data: pilotUser, error } = await supabase
+          const { data: pilotUser, error } = await admin
             .from('pilot_users')
             .select('*')
             .eq('id', sessionResult.data.userId)
@@ -102,7 +106,7 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
     }
 
     // Get pilot record
-    const { data: pilotUser, error } = await supabase
+    const { data: pilotUser, error } = await admin
       .from('pilot_users')
       .select('*')
       .eq('auth_user_id', user.id)
@@ -182,8 +186,8 @@ export async function getPilotFromRequest(request: NextRequest): Promise<PilotUs
       return null
     }
 
-    // Get pilot record
-    const { data: pilotUser, error } = await supabase
+    // Get pilot record — pilot_users is service-role-only (password hashes + PII)
+    const { data: pilotUser, error } = await createAdminClient()
       .from('pilot_users')
       .select('*')
       .eq('auth_user_id', user.id)
@@ -263,15 +267,17 @@ export async function getPilotUserRoles(): Promise<{
       }
     }
 
+    // Both pilot_users and an_users are service-role-only (they hold password hashes).
+    const admin = createAdminClient()
+
     // Check pilot role
-    const { data: pilotUser } = await supabase
+    const { data: pilotUser } = await admin
       .from('pilot_users')
       .select('registration_approved')
       .eq('auth_user_id', user.id)
       .single()
 
-    // Check admin role — an_users is service-role-only (holds password hashes).
-    const admin = createAdminClient()
+    // Check admin role
     const { data: adminUser } = await admin
       .from('an_users')
       .select('role')
@@ -304,9 +310,10 @@ export async function getPilotUserRoles(): Promise<{
  */
 export async function updatePilotLastLogin(pilotId: string): Promise<void> {
   try {
-    const supabase = await createClient()
+    // pilot_users is service-role-only (holds password hashes and pilot PII)
+    const admin = createAdminClient()
 
-    await supabase
+    await admin
       .from('pilot_users')
       .update({
         last_login_at: new Date().toISOString(),

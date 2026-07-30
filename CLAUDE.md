@@ -95,13 +95,17 @@ const { data } = await supabase.from('pilots').select('*')
 
 **Two completely separate auth systems — never mix them:**
 
-|             | Admin Portal             | Pilot Portal              |
-| ----------- | ------------------------ | ------------------------- |
-| Routes      | `/dashboard/*`           | `/portal/*`               |
-| API         | `/api/*` (non-portal)    | `/api/portal/*`           |
-| Auth System | Supabase Auth            | Custom (`an_users` table) |
-| Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
-| Users       | Admin staff, managers    | Pilots                    |
+|             | Admin Portal                           | Pilot Portal                 |
+| ----------- | -------------------------------------- | ---------------------------- |
+| Routes      | `/dashboard/*`                         | `/portal/*`                  |
+| API         | `/api/*` (non-portal)                  | `/api/portal/*`              |
+| Auth System | Supabase Auth + `an_users` (passwords) | Custom (`pilot_users` table) |
+| Client      | `lib/supabase/server.ts`               | `pilot-portal-service.ts`    |
+| Users       | Admin staff, managers                  | Pilots                       |
+
+`an_users` and `pilot_users` are **two distinct tables**, one per portal, each with its own
+`password_hash`. Neither is reachable by the `anon`/`authenticated` roles — read both with the
+service-role client only.
 
 ### API Route Security Pipeline (`lib/middleware/create-api-route.ts`)
 
@@ -386,14 +390,15 @@ hub, not on new pages.
 
 ### Primary Tables
 
-| Table            | Purpose                                                     |
-| ---------------- | ----------------------------------------------------------- |
-| `pilots`         | Pilot profiles, qualifications, seniority                   |
-| `pilot_checks`   | Certification records                                       |
-| `check_types`    | Check type definitions                                      |
-| `pilot_requests` | **UNIFIED** — ALL leave and flight requests                 |
-| `leave_bids`     | Annual leave bidding (separate system)                      |
-| `an_users`       | Pilot portal authentication (also aliased as `pilot_users`) |
+| Table            | Purpose                                                                                                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pilots`         | Pilot profiles, qualifications, seniority                                                                                                                               |
+| `pilot_checks`   | Certification records                                                                                                                                                   |
+| `check_types`    | Check type definitions                                                                                                                                                  |
+| `pilot_requests` | **UNIFIED** — ALL leave and flight requests                                                                                                                             |
+| `leave_bids`     | Annual leave bidding (separate system)                                                                                                                                  |
+| `an_users`       | Admin/manager authentication — service-role only                                                                                                                        |
+| `pilot_users`    | Pilot portal accounts — service-role only. **Distinct table from `an_users`, not an alias.** Both hold `password_hash`; neither is reachable by `anon`/`authenticated`. |
 
 ### Unified Requests Table (`pilot_requests`)
 
