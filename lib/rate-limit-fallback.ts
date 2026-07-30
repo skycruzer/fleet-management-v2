@@ -40,8 +40,12 @@ export interface FallbackRateLimiter {
 
 /**
  * Cap on tracked identifiers, so a flood of unique keys (spoofed IPs, random staff IDs) cannot
- * grow the map without bound. On overflow the coldest entries are dropped first — those are the
- * ones furthest from their limit, so dropping them is the least harmful choice.
+ * grow the map without bound. On overflow the least-recently-USED entries are dropped first.
+ *
+ * This relies on `touch()` below re-inserting each key it updates: `Map.set()` on an existing
+ * key does NOT move it, so without that the map stays in insertion order and eviction drops the
+ * oldest-CREATED keys — which could be an active attacker who simply started early, while a key
+ * that just arrived survives. The comment here used to claim LRU behaviour the code did not have.
  */
 const MAX_TRACKED_KEYS = 10_000
 
@@ -75,7 +79,8 @@ export function createInMemoryRateLimiter(options: {
 
       if (now - lastSweep > SWEEP_INTERVAL_MS) sweep(now)
 
-      // Map iteration order is insertion order; the first keys are the least recently created.
+      // Map iteration order is insertion order, and touch() re-inserts on every update,
+      // so the first keys here are the least recently USED.
       if (hits.size > MAX_TRACKED_KEYS) {
         const overflow = hits.size - MAX_TRACKED_KEYS
         let dropped = 0
@@ -83,6 +88,12 @@ export function createInMemoryRateLimiter(options: {
           hits.delete(key)
           if (++dropped >= overflow) break
         }
+      }
+
+      /** Write back and move the key to the most-recently-used end of the Map. */
+      const touch = (key: string, timestamps: number[]) => {
+        hits.delete(key)
+        hits.set(key, timestamps)
       }
 
       const windowStart = now - windowMs
@@ -93,7 +104,7 @@ export function createInMemoryRateLimiter(options: {
       const reset = live.length > 0 ? live[0] + windowMs : now + windowMs
 
       if (live.length >= maxRequests) {
-        hits.set(identifier, live)
+        touch(identifier, live)
         return {
           success: false,
           limit: maxRequests,
@@ -104,7 +115,7 @@ export function createInMemoryRateLimiter(options: {
       }
 
       live.push(now)
-      hits.set(identifier, live)
+      touch(identifier, live)
 
       return {
         success: true,

@@ -13,6 +13,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { exportAuditTrailCSV } from '@/lib/services/audit-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -33,6 +34,10 @@ export const GET = createAdminRoute(
     operation: 'exportAuditTrail',
     endpoint: '/api/audit/export',
     rateLimit: false,
+    // Admin-only, per this endpoint's stated contract. Without an explicit
+    // `roles` gate, getAuthenticatedAdmin admits managers too — leaving the
+    // compliance audit trail readable by people it audits.
+    roles: [UserRole.ADMIN],
   },
   async ({ request, admin }) => {
     try {

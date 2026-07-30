@@ -115,9 +115,24 @@ export const POST = createAdminRoute(
 
       // Prepare email content
       const emailSubject = subject || `${report.title} - ${timestamp}`
-      const emailBody =
-        message ||
-        `
+
+      // The caller-supplied `message` used to REPLACE the whole body and was
+      // passed to Resend as raw `html`. Combined with caller-supplied
+      // recipients/cc/bcc, that turned this route into an authenticated
+      // phishing relay sending from the company domain. It is now escaped and
+      // rendered as a note inside the standard template instead.
+      const escapeHtml = (value: string) =>
+        value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+
+      const note = message ? `<p style="white-space: pre-wrap;">${escapeHtml(message)}</p>` : ''
+
+      const emailBody = `
+      ${note}
       <h2>${report.title}</h2>
       <p>${report.description}</p>
       <p><strong>Generated:</strong> ${new Date(report.generatedAt).toLocaleString()}</p>
