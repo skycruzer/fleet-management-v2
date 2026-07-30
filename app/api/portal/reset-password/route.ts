@@ -42,10 +42,36 @@ const TokenValidationSchema = z.object({
 })
 
 /**
+ * Partially mask an email for display.
+ *
+ * The reset screen shows "for <email>" so the user can confirm which account
+ * they are resetting. Returning the full address meant anyone holding a reset
+ * token — a forwarded link, shared browser history, a referrer leak — could
+ * resolve it to the pilot's address. Masking keeps the confirmation useful to
+ * the account owner while disclosing far less to anyone else.
+ *
+ * jdoe@airline.com -> j••e@airline.com ; al@airline.com -> a•@airline.com
+ */
+function maskEmail(email: string | undefined): string | undefined {
+  if (!email) return undefined
+  const at = email.lastIndexOf('@')
+  if (at <= 0) return '•••'
+
+  const local = email.slice(0, at)
+  const domain = email.slice(at)
+
+  if (local.length <= 2) return `${local[0]}${'•'.repeat(Math.max(local.length - 1, 1))}${domain}`
+  return `${local[0]}${'•'.repeat(local.length - 2)}${local[local.length - 1]}${domain}`
+}
+
+/**
  * GET /api/portal/reset-password?token=xxx
  * Validate a password reset token
+ *
+ * Rate limited: this is an unauthenticated endpoint that performs a database
+ * lookup per call. Only POST was limited before.
  */
-export async function GET(request: Request) {
+export const GET = withAuthRateLimit(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token')
@@ -76,7 +102,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: {
-        email: result.data?.email,
+        email: maskEmail(result.data?.email),
       },
     })
   } catch (error: any) {
@@ -87,7 +113,7 @@ export async function GET(request: Request) {
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+})
 
 /**
  * POST /api/portal/reset-password

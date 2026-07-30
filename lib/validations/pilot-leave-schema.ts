@@ -8,6 +8,7 @@
  */
 
 import { z } from 'zod'
+import { todayLocalIso, inclusiveDaySpan } from '@/lib/utils/date-utils'
 
 /**
  * Leave request types available to pilots
@@ -36,15 +37,10 @@ export const PilotLeaveRequestSchema = z
       .string()
       .min(1, 'Start date is required')
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'Start date must be in format YYYY-MM-DD')
-      .refine(
-        (date) => {
-          const requestDate = new Date(date)
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          return requestDate >= today
-        },
-        { message: 'Start date cannot be in the past' }
-      ),
+      // String comparison, not Date: see todayLocalIso() for why.
+      .refine((date) => date >= todayLocalIso(), {
+        message: 'Start date cannot be in the past',
+      }),
     end_date: z
       .string()
       .min(1, 'End date is required')
@@ -68,11 +64,10 @@ export const PilotLeaveRequestSchema = z
   )
   .refine(
     (data) => {
-      // Maximum 90 days per request
-      const startDate = new Date(data.start_date)
-      const endDate = new Date(data.end_date)
-      const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-      return daysDiff <= 90
+      // Maximum 90 days per request, counted inclusively so a 90-day span is the
+      // limit the message promises (the old exclusive diff admitted 91).
+      const span = inclusiveDaySpan(data.start_date, data.end_date)
+      return span === null || span <= 90
     },
     {
       message: 'Leave request cannot exceed 90 days',

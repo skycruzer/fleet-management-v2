@@ -405,3 +405,39 @@ export function formatExpiryDate(date: Date | string | null | undefined): {
     label: status.label,
   }
 }
+
+/**
+ * Today's date in the viewer's LOCAL timezone, as a `YYYY-MM-DD` string.
+ *
+ * Use this — not `new Date()` — when comparing against a `YYYY-MM-DD` form
+ * value. `new Date('2026-07-31')` parses as UTC midnight, while
+ * `new Date().setHours(0,0,0,0)` is LOCAL midnight, so comparing the two judges
+ * "today" to be in the past at every negative UTC offset. That rejected
+ * same-day leave and RDO/SDO submissions for any pilot on a layover west of
+ * Greenwich, while passing at the airline's UTC+10 base — which is why it went
+ * unnoticed. Comparing `YYYY-MM-DD` strings lexicographically avoids Date
+ * parsing entirely and is timezone-stable.
+ */
+export function todayLocalIso(): string {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
+/**
+ * Number of calendar days spanned by two `YYYY-MM-DD` dates, INCLUSIVE.
+ *
+ * A single-day request spans 1 day, not 0. Callers enforcing a maximum used a
+ * bare `end - start`, which is an exclusive difference, so a `<= 90` check
+ * actually admitted 91 calendar days while the error message promised 90.
+ *
+ * Both endpoints are parsed the same way (UTC midnight), so the subtraction is
+ * timezone-stable. Returns null if either date is unparseable.
+ */
+export function inclusiveDaySpan(startIso: string, endIso: string): number | null {
+  const start = new Date(`${startIso}T00:00:00Z`).getTime()
+  const end = new Date(`${endIso}T00:00:00Z`).getTime()
+  if (Number.isNaN(start) || Number.isNaN(end)) return null
+  return Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1
+}

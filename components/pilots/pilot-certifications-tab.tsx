@@ -426,6 +426,7 @@ export function PilotCertificationsTab({
                     {editingId === cert.id ? (
                       <Input
                         type="date"
+                        aria-label={`Expiry date for ${cert.check_type?.check_description || cert.check_type?.check_code || 'certification'}`}
                         value={editDate}
                         onChange={(e) => setEditDate(e.target.value)}
                         onKeyDown={(e) => {

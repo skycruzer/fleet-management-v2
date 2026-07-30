@@ -360,7 +360,7 @@ export default async function PilotDashboardPage() {
             </p>
           </div>
           <Button asChild variant="outline">
-            <Link href="/portal">Back to Home</Link>
+            <Link href="/portal/dashboard">Back to Home</Link>
           </Button>
         </Card>
       </div>
