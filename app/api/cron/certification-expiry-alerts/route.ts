@@ -57,7 +57,7 @@ export async function GET(request: Request) {
           id,
           first_name,
           last_name,
-          rank,
+          role,
           is_active
         ),
         check_types!inner (
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
     const certsByPilot: Record<
       string,
       {
-        pilot: { first_name: string; last_name: string; rank: string }
+        pilot: { first_name: string; last_name: string; role: string }
         certifications: Array<{ checkCode: string; daysUntilExpiry: number }>
       }
     > = {}
@@ -106,7 +106,7 @@ export async function GET(request: Request) {
           pilot: {
             first_name: pilot.first_name,
             last_name: pilot.last_name,
-            rank: pilot.rank,
+            role: pilot.role,
           },
           certifications: [],
         }
