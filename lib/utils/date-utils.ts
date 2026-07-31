@@ -436,8 +436,19 @@ export function todayLocalIso(): string {
  * timezone-stable. Returns null if either date is unparseable.
  */
 export function inclusiveDaySpan(startIso: string, endIso: string): number | null {
-  const start = new Date(`${startIso}T00:00:00Z`).getTime()
-  const end = new Date(`${endIso}T00:00:00Z`).getTime()
-  if (Number.isNaN(start) || Number.isNaN(end)) return null
+  // Round-trip the parse: `new Date('2026-02-30T00:00:00Z')` does not throw, it
+  // silently normalises to 2026-03-02. Without this check an impossible date
+  // yields a plausible span and the caller's maximum-duration guard is computed
+  // against the wrong end date.
+  const parseDate = (value: string): number | null => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
+    const timestamp = new Date(`${value}T00:00:00Z`).getTime()
+    if (Number.isNaN(timestamp)) return null
+    return new Date(timestamp).toISOString().slice(0, 10) === value ? timestamp : null
+  }
+
+  const start = parseDate(startIso)
+  const end = parseDate(endIso)
+  if (start === null || end === null) return null
   return Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1
 }

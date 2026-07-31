@@ -145,3 +145,21 @@ describe('90-day maximum is inclusive', () => {
     }
   })
 })
+
+describe('inclusiveDaySpan — calendar-invalid input', () => {
+  it('rejects a date that does not exist rather than normalising it', () => {
+    // new Date('2026-02-30T00:00:00Z') silently becomes 2026-03-02, which would
+    // otherwise yield a plausible span computed against the wrong end date.
+    expect(inclusiveDaySpan('2026-02-01', '2026-02-30')).toBeNull()
+    expect(inclusiveDaySpan('2026-13-01', '2026-13-05')).toBeNull()
+    expect(inclusiveDaySpan('2026-02-29', '2026-03-01')).toBeNull() // 2026 is not a leap year
+  })
+
+  it('still accepts a real leap day', () => {
+    expect(inclusiveDaySpan('2028-02-28', '2028-02-29')).toBe(2)
+  })
+
+  it('rejects malformed input', () => {
+    expect(inclusiveDaySpan('not-a-date', '2026-02-01')).toBeNull()
+  })
+})

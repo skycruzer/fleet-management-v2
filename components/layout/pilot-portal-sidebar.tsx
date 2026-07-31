@@ -118,6 +118,18 @@ export function PilotPortalSidebar({
   }
 
   const performLogout = async () => {
+    // Without the token the POST is guaranteed to 403 and the session would
+    // survive while the UI claims otherwise — the exact failure this fixes.
+    if (!csrfToken) {
+      await confirm({
+        title: 'Still preparing',
+        description: 'Security check is still loading. Please wait a moment and try again.',
+        confirmText: 'OK',
+        cancelText: 'Dismiss',
+      })
+      return
+    }
+
     try {
       // Portal logout endpoint (dual-auth: never call the admin /api/auth/logout).
       // The CSRF header is required — without it the request 403s and the pilot

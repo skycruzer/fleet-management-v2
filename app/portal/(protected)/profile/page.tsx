@@ -105,7 +105,8 @@ async function getProfile(): Promise<{
             id: pilot.id,
             first_name: pilot.first_name,
             last_name: pilot.last_name,
-            middle_name: pilot.middle_name || null,
+            // pilot_users has no middle_name column, so this was always null.
+            middle_name: null,
             rank: pilot.rank,
             email: pilot.email,
             employee_id: pilot.employee_id,
@@ -234,7 +235,8 @@ async function getProfile(): Promise<{
           id: pilot.id,
           first_name: pilot.first_name,
           last_name: pilot.last_name,
-          middle_name: pilot.middle_name || null,
+          // pilot_users has no middle_name column, so this was always null.
+          middle_name: null,
           rank: pilot.rank,
           email: pilot.email,
           employee_id: pilot.employee_id,

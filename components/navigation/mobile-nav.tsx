@@ -122,7 +122,9 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleSignOut}
-                disabled={isSigningOut}
+                // Disabled until the CSRF token has loaded: posting without the
+                // header is guaranteed to 403 and leave the admin signed in.
+                disabled={isSigningOut || !csrfToken}
                 className="text-muted-foreground hover:text-foreground h-6 touch-manipulation px-0 text-xs"
               >
                 {isSigningOut ? 'Signing out…' : 'Sign out'}
