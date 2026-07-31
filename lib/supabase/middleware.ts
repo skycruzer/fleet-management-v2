@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/supabase'
 import { env } from '@/lib/env'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   loginRateLimit,
   authRateLimit,
@@ -137,15 +138,24 @@ export async function updateSession(request: NextRequest) {
   // Role-Based Routing (US1)
   // If user is authenticated, check their role and redirect to appropriate portal
   if (user) {
+    // pilot_users and an_users are service-role-only — both hold password hashes.
+    // The client above is anon/SSR and is used only for the auth session read.
+    // Reading these two tables with it returns nothing (an_users was revoked by
+    // migration 20260703000001, pilot_users by 20260731090000), which would
+    // silently misroute every user. This module currently has no importers — the
+    // live middleware is proxy.ts, which already uses a service-role client — but
+    // it is corrected here so wiring it up does not reintroduce the defect.
+    const admin = createAdminClient()
+
     // Check if user is a pilot
-    const { data: pilotUser } = await supabase
+    const { data: pilotUser } = await admin
       .from('pilot_users')
       .select('id, registration_approved')
       .eq('id', user.id)
       .maybeSingle()
 
     // Check if user is an admin/manager
-    const { data: adminUser } = await supabase
+    const { data: adminUser } = await admin
       .from('an_users')
       .select('id, role')
       .eq('id', user.id)
