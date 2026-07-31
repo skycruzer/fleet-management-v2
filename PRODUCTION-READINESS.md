@@ -196,11 +196,11 @@ available are the published passwords from **P3**, which I declined to use.
 `github.com/skycruzer/fleet-management-v2` is **PUBLIC** (confirmed via `gh repo view`), and these
 tracked files contain usable credentials:
 
-| File:line                                                              | Contents                                                                         |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `RUN_THIS_IN_SUPABASE.sql:42`                                          | `skycruzer@icloud.com / mron2393` — stated as the admin login                    |
-| `supabase/migrations/20251228080938_add_admin_password_hash.sql:85-88` | The same password in a comment **and** its bcrypt hash, seeded onto that account |
-| `scripts/debug/create-pilot-user.mjs:16-17`                            | `mrondeau@airniugini.com.pg / Lemakot@1972` — a pilot account the script creates |
+| File:line                                                              | Contents                                                                                          |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `RUN_THIS_IN_SUPABASE.sql:42`                                          | `skycruzer@icloud.com / <burned — rotated 2026-07-31>` — stated as the admin login                |
+| `supabase/migrations/20251228080938_add_admin_password_hash.sql:85-88` | The same password in a comment **and** its bcrypt hash, seeded onto that account                  |
+| `scripts/debug/create-pilot-user.mjs:16-17`                            | `mrondeau@airniugini.com.pg / <burned — rotated 2026-07-28>` — a pilot account the script creates |
 
 **Failure scenario:** anyone who reads the repository signs in at
 `https://www.pxb767office.app/auth/login` as an administrator. This needs no exploit — the

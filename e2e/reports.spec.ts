@@ -13,9 +13,11 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { throwMissingEnvError } from './helpers/test-utils'
 
 const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@test.com'
-const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'admin123'
+const ADMIN_PASSWORD =
+  process.env.TEST_ADMIN_PASSWORD || throwMissingEnvError('TEST_ADMIN_PASSWORD')
 const BASE_URL = process.env.BASE_URL || ''
 
 test.describe('PDF Report Generation', () => {

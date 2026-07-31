@@ -9,12 +9,14 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { throwMissingEnvError } from './helpers/test-utils'
 import path from 'path'
 import fs from 'fs'
 
 // Test data
 const PILOT_EMAIL = process.env.TEST_PILOT_EMAIL || 'pilot@test.com'
-const PILOT_PASSWORD = process.env.TEST_PILOT_PASSWORD || 'testpassword123'
+const PILOT_PASSWORD =
+  process.env.TEST_PILOT_PASSWORD || throwMissingEnvError('TEST_PILOT_PASSWORD')
 
 // Create a test PDF file
 function createTestPDF(): Buffer {

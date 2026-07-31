@@ -35,7 +35,7 @@ export const TEST_CONFIG = {
  * Throws error if required environment variable is missing
  * Prevents tests from running with hardcoded credentials
  */
-function throwMissingEnvError(varName: string): never {
+export function throwMissingEnvError(varName: string): never {
   throw new Error(
     `SECURITY: ${varName} environment variable is required. ` +
       `Set it in .env.test.local or CI environment. ` +

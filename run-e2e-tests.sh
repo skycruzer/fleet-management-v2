@@ -7,12 +7,15 @@ echo "🧪 Starting E2E Test Suite"
 echo "================================"
 
 # Load test credentials from .env.test.local
-export TEST_ADMIN_EMAIL="mrondeau@airniugini.com.pg"
-export TEST_ADMIN_PASSWORD="TestPassword123"
-export TEST_PILOT_EMAIL="mrondeau@airniugini.com.pg"
-export TEST_PILOT_PASSWORD="TestPassword123"
-export TEST_USER_EMAIL="mrondeau@airniugini.com.pg"
-export TEST_USER_PASSWORD="TestPassword123"
+# Passwords default to a per-run generated value; override via environment or .env.test.local.
+# Never hardcode real credentials here (guard: scripts/check-no-hardcoded-credentials.mjs).
+E2E_RUN_ID="${E2E_RUN_ID:-$(date +%s)}"
+export TEST_ADMIN_EMAIL="${TEST_ADMIN_EMAIL:-mrondeau@airniugini.com.pg}"
+export TEST_ADMIN_PASSWORD="${TEST_ADMIN_PASSWORD:-Test!${E2E_RUN_ID}}"
+export TEST_PILOT_EMAIL="${TEST_PILOT_EMAIL:-mrondeau@airniugini.com.pg}"
+export TEST_PILOT_PASSWORD="${TEST_PILOT_PASSWORD:-Test!${E2E_RUN_ID}}"
+export TEST_USER_EMAIL="${TEST_USER_EMAIL:-mrondeau@airniugini.com.pg}"
+export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-Test!${E2E_RUN_ID}}"
 export PLAYWRIGHT_TEST_BASE_URL="http://localhost:3003"
 export TEST_BASE_URL="http://localhost:3003"
 

@@ -241,6 +241,8 @@ test.describe('Pilot Registration Approval Workflow', () => {
     // Step 2: Fill registration form
     const timestamp = Date.now()
     const testEmail = `newpilot${timestamp}@test.com`
+    // Generated per run — never hardcode credentials (guard: scripts/check-no-hardcoded-credentials.mjs)
+    const testPassword = `Test!${timestamp}`
 
     const firstNameInput = page.getByLabel(/first name/i)
     if (await firstNameInput.isVisible()) {
@@ -253,11 +255,11 @@ test.describe('Pilot Registration Approval Workflow', () => {
       await emailInput.fill(testEmail)
 
       const passwordInput = page.getByLabel(/^password$/i)
-      await passwordInput.fill('TestPassword123!')
+      await passwordInput.fill(testPassword)
 
       const confirmPasswordInput = page.getByLabel(/confirm password/i)
       if (await confirmPasswordInput.isVisible()) {
-        await confirmPasswordInput.fill('TestPassword123!')
+        await confirmPasswordInput.fill(testPassword)
       }
 
       const employeeIdInput = page.getByLabel(/employee.*id|emp.*id/i)

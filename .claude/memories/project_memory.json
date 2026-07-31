@@ -2,7 +2,7 @@
   "memories": [
     {
       "type": "credential",
-      "content": "Test credentials - Admin: skycruzer@icloud.com / mron2393 | Pilot portal: mrondeau@airniugini.com.pg (requires registration in pilot_users table)",
+      "content": "Test credentials - Admin: skycruzer@icloud.com / <redacted — rotated 2026-07-31> | Pilot portal: mrondeau@airniugini.com.pg (requires registration in pilot_users table)",
       "added_at": "2025-12-19T17:18:53.142688"
     },
     {
