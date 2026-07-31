@@ -5730,8 +5730,6 @@ export type Database = {
       alert_level:
         | { Args: { days_until_expiry: number }; Returns: string }
         | { Args: { expiry_date: string }; Returns: string }
-      aus_to_date: { Args: { date_text: string }; Returns: string }
-      auth_get_user_role: { Args: never; Returns: string }
       approve_leave_request_atomic: {
         Args: {
           p_comments?: string
@@ -5741,6 +5739,8 @@ export type Database = {
         }
         Returns: Json
       }
+      aus_to_date: { Args: { date_text: string }; Returns: string }
+      auth_get_user_role: { Args: never; Returns: string }
       batch_update_certifications: {
         Args: { p_updates: Json[] }
         Returns: {

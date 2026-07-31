@@ -39,10 +39,16 @@ DECLARE
   v_total_pilots int;
   v_on_leave_count int;
   v_available int;
-  v_minimum_required int := 10;
+  v_minimum_required int;
   v_remaining_after_approval int;
   v_can_approve boolean;
   v_reason text;
+  v_rank pilot_role;
+  v_req_start date;
+  v_req_end date;
+  v_requirements jsonb;
+  v_per_hull int;
+  v_aircraft int;
 BEGIN
   -- Lock the target request first. If a concurrent approver holds it, we wait
   -- here and then observe their committed state.
@@ -57,21 +63,50 @@ BEGIN
 
   -- Only LEAVE requests are subject to the crew minimum. Non-leave categories
   -- fall straight through to the update below.
-  IF v_request.request_category = 'LEAVE'
-     AND v_request.start_date IS NOT NULL
-     AND v_request.end_date IS NOT NULL THEN
+  IF v_request.request_category = 'LEAVE' AND v_request.start_date IS NOT NULL THEN
+
+    -- end_date is nullable and means "single day". Previously this branch required
+    -- end_date IS NOT NULL, so a single-day leave request skipped the crew check
+    -- entirely and was approved unconditionally.
+    v_req_start := v_request.start_date;
+    v_req_end   := COALESCE(v_request.end_date, v_request.start_date);
+
+    -- pilot_requests.rank is text; an unexpected value would abort the whole
+    -- approval as a cast error. Reject it as a normal failure instead.
+    BEGIN
+      v_rank := v_request.rank::pilot_role;
+    EXCEPTION WHEN invalid_text_representation OR datatype_mismatch THEN
+      RETURN jsonb_build_object(
+        'success', false,
+        'reason', format('Request has an unrecognised rank: %s', coalesce(v_request.rank, '<null>'))
+      );
+    END;
+
+    -- Derive the minimum from settings.pilot_requirements so this gate cannot
+    -- diverge from leave-eligibility and the preview paths, which compute
+    -- minimum_<rank>_per_hull * number_of_aircraft. Falls back to the historical
+    -- 5-per-hull x 2 hulls = 10 when the setting is absent or malformed.
+    SELECT value INTO v_requirements FROM settings WHERE key = 'pilot_requirements';
+
+    v_aircraft := COALESCE(NULLIF(v_requirements->>'number_of_aircraft', '')::int, 2);
+    IF v_rank = 'Captain' THEN
+      v_per_hull := COALESCE(NULLIF(v_requirements->>'minimum_captains_per_hull', '')::int, 5);
+    ELSE
+      v_per_hull := COALESCE(NULLIF(v_requirements->>'minimum_first_officers_per_hull', '')::int, 5);
+    END IF;
+    v_minimum_required := v_per_hull * v_aircraft;
 
     -- Lock active pilots of this rank, then count them. FOR UPDATE cannot be
     -- combined with an aggregate, hence the PERFORM/SELECT split (see 20260213000002).
     PERFORM 1
     FROM pilots
-    WHERE role = v_request.rank::pilot_role
+    WHERE role = v_rank
       AND is_active = true
     FOR UPDATE;
 
     SELECT COUNT(*) INTO v_total_pilots
     FROM pilots
-    WHERE role = v_request.rank::pilot_role
+    WHERE role = v_rank
       AND is_active = true;
 
     -- Lock overlapping approved leave rows for this rank, then count distinct
@@ -80,21 +115,33 @@ BEGIN
     PERFORM 1
     FROM pilot_requests pr
     INNER JOIN pilots p ON pr.pilot_id = p.id
-    WHERE p.role = v_request.rank::pilot_role
+    WHERE p.role = v_rank
       AND pr.request_category = 'LEAVE'
       AND pr.workflow_status = 'APPROVED'
       AND pr.id != p_request_id
-      AND NOT (pr.end_date < v_request.start_date OR pr.start_date > v_request.end_date)
+      -- COALESCE: pr.end_date is nullable. Without it the comparison yields NULL,
+      -- NOT(NULL) is NULL, and the row is silently dropped from BOTH the lock and
+      -- the count — under-counting pilots on leave and over-reporting availability,
+      -- which is precisely the breach this function exists to prevent. A null
+      -- end_date means a single-day request, matching the display path.
+      AND NOT (COALESCE(pr.end_date, pr.start_date) < v_req_start
+               OR pr.start_date > v_req_end)
     FOR UPDATE OF pr;
 
     SELECT COUNT(DISTINCT pr.pilot_id) INTO v_on_leave_count
     FROM pilot_requests pr
     INNER JOIN pilots p ON pr.pilot_id = p.id
-    WHERE p.role = v_request.rank::pilot_role
+    WHERE p.role = v_rank
       AND pr.request_category = 'LEAVE'
       AND pr.workflow_status = 'APPROVED'
       AND pr.id != p_request_id
-      AND NOT (pr.end_date < v_request.start_date OR pr.start_date > v_request.end_date);
+      -- COALESCE: pr.end_date is nullable. Without it the comparison yields NULL,
+      -- NOT(NULL) is NULL, and the row is silently dropped from BOTH the lock and
+      -- the count — under-counting pilots on leave and over-reporting availability,
+      -- which is precisely the breach this function exists to prevent. A null
+      -- end_date means a single-day request, matching the display path.
+      AND NOT (COALESCE(pr.end_date, pr.start_date) < v_req_start
+               OR pr.start_date > v_req_end);
 
     v_available := v_total_pilots - v_on_leave_count;
     v_remaining_after_approval := v_available - 1;
@@ -113,7 +160,7 @@ BEGIN
           'success', false,
           'blocked_by_crew_minimum', true,
           'reason', v_reason,
-          'rank', v_request.rank,
+          'rank', v_rank,
           'total_pilots', v_total_pilots,
           'on_leave_count', v_on_leave_count,
           'available', v_available,
@@ -137,7 +184,7 @@ BEGIN
     'success', true,
     'forced', COALESCE(NOT v_can_approve, false),
     'reason', v_reason,
-    'rank', v_request.rank,
+    'rank', v_rank,
     'available', v_available,
     'remaining_after_approval', v_remaining_after_approval,
     'minimum_required', v_minimum_required

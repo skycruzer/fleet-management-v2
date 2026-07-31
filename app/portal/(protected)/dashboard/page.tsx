@@ -359,8 +359,11 @@ export default async function PilotDashboardPage() {
               </a>
             </p>
           </div>
+          {/* This screen IS /portal/dashboard, so linking back to it just re-renders
+              the same pending state. A pilot awaiting approval has nothing to reach
+              inside the portal, so send them to sign-in. */}
           <Button asChild variant="outline">
-            <Link href="/portal/dashboard">Back to Home</Link>
+            <Link href="/portal/login">Back to sign in</Link>
           </Button>
         </Card>
       </div>

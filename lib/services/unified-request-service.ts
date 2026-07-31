@@ -835,9 +835,12 @@ export async function updateRequestStatus(
           requestId: id,
           error: rpcError.message,
         })
+        // The raw PostgreSQL message can name enums, constraints and functions.
+        // It is already captured by logger.error above; the caller gets the same
+        // generic text as every other failure branch in this function.
         return {
           success: false,
-          error: `Unable to verify crew availability: ${rpcError.message}`,
+          error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
         }
       }
 

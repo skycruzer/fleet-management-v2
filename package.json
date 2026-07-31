@@ -19,6 +19,7 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:unit": "vitest run",
+    "test:unit:tz": "TZ=America/New_York vitest run tests/unit/lib/leave-date-timezone.test.ts",
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",

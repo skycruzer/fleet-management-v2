@@ -1,17 +1,13 @@
 -- ============================================================================
--- ⚠  DANGER: THIS SCRIPT DISABLES ROW LEVEL SECURITY. DO NOT RUN AS-IS.  ⚠
+-- ⚠  WARNING: THIS SCRIPT CHANGES RLS OUTSIDE OF supabase/migrations/.  ⚠
 -- ============================================================================
--- Kept for historical reference only. Running it against production would
--- re-open the exposure closed by supabase/migrations/20260731090000 and
--- 20260731090100: credential and PII tables (pilot_users holds bcrypt
--- password_hash; an_users likewise) becoming readable with the public anon key
--- that ships in every browser bundle.
---
--- `fix-all-rls-policies.sql` disabling RLS on pilot_users is the most plausible
--- origin of that exposure in the first place.
+-- Its active statements ENABLE row level security (the only DISABLE is commented
+-- out near the end). Enabling RLS without the matching policies in place can deny
+-- the application access to tables it needs, so running this ad hoc can cause an
+-- outage even though it does not re-open the anon exposure.
 --
 -- supabase/migrations/ is the single source of truth for schema and RLS. Add a
--- migration instead of pasting any of these into the SQL editor.
+-- migration rather than pasting this into the SQL editor.
 -- ============================================================================
 
 -- Enable RLS on All Tables - Safe Script
