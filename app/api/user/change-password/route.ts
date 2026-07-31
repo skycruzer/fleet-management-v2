@@ -35,6 +35,9 @@ export const POST = createAdminRoute(
       return NextResponse.json({ success: false, error: result.error }, { status })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      redirect: '/auth/login?passwordChanged=1',
+    })
   }
 )

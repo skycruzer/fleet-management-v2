@@ -194,21 +194,19 @@ async function validatePilotSessionByToken(sessionToken: string): Promise<Sessio
  * Revoke a specific pilot session
  */
 export async function revokePilotSession(
-  sessionToken: string,
-  reason: string = 'User logout'
+  _sessionToken: string,
+  _reason: string = 'User logout'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await destroyRedisSession(SESSION_COOKIE_NAME, 'pilot_sessions')
+    const destroyResult = await destroyRedisSession(SESSION_COOKIE_NAME, 'pilot_sessions')
 
-    // Also update revocation metadata in DB
-    const supabase = createServiceRoleClient()
-    await supabase
-      .from('pilot_sessions' as any)
-      .update({
-        revoked_at: new Date().toISOString(),
-        revocation_reason: reason,
-      })
-      .eq('session_token', sessionToken)
+    if (
+      !destroyResult.cookieCleared ||
+      !destroyResult.redisCleared ||
+      !destroyResult.dbDeactivated
+    ) {
+      return { success: false, error: 'Session revocation incomplete' }
+    }
 
     return { success: true }
   } catch (error) {
@@ -222,21 +220,28 @@ export async function revokePilotSession(
  */
 export async function revokeAllPilotSessions(
   pilotUserId: string,
-  reason: string = 'User logout all devices'
+  _reason: string = 'User logout all devices'
 ): Promise<{ success: boolean; revokedCount?: number; error?: string }> {
   try {
-    await destroyAllUserSessions(pilotUserId, 'pilot_sessions', 'pilot_user_id')
+    const destroyResult = await destroyAllUserSessions(
+      pilotUserId,
+      'pilot_sessions',
+      'pilot_user_id'
+    )
 
-    // Also call the DB stored procedure for revocation metadata
+    // Also call the deployed DB function to obtain its revoked-row count.
     const supabase = createServiceRoleClient()
-    const { data } = await supabase.rpc('revoke_all_pilot_sessions' as any, {
+    const { data, error: rpcError } = await supabase.rpc('revoke_all_pilot_sessions' as any, {
       user_id: pilotUserId,
-      reason,
     })
 
     // Clear current session cookie
     const cookieStore = await cookies()
     cookieStore.delete(SESSION_COOKIE_NAME)
+
+    if (!destroyResult.redisCleared || !destroyResult.dbDeactivated || rpcError) {
+      return { success: false, error: 'Session revocation incomplete' }
+    }
 
     return { success: true, revokedCount: data || 0 }
   } catch (error) {

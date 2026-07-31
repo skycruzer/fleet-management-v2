@@ -11,10 +11,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { pilotLogout } from '@/lib/services/pilot-portal-service'
 
 /**
  * POST /api/pilot/logout
@@ -27,13 +27,10 @@ export async function POST(_request: NextRequest) {
     const csrfError = await validateCsrf(_request)
     if (csrfError) return csrfError
 
-    const supabase = createAdminClient()
-
-    // Sign out the user
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      console.error('Logout error:', error)
+    // Revoke the custom pilot-session cookie plus Redis/DB session state.
+    const result = await pilotLogout()
+    if (!result.success) {
+      console.error('Logout error:', result.error)
       return NextResponse.json(
         {
           success: false,

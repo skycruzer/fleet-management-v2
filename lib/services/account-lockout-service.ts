@@ -72,7 +72,7 @@ export async function recordFailedAttempt(
     const { data: attempts, error: fetchError } = await supabase
       .from('failed_login_attempts' as any)
       .select('*')
-      .eq('email', identifier.toLowerCase())
+      .eq('email', identifier.trim().toLowerCase())
       .gte('attempted_at', windowStart.toISOString())
       .order('attempted_at', { ascending: false })
 
@@ -88,7 +88,7 @@ export async function recordFailedAttempt(
 
     // Record this failed attempt
     const { error: insertError } = await supabase.from('failed_login_attempts' as any).insert({
-      email: identifier.toLowerCase(),
+      email: identifier.trim().toLowerCase(),
       attempted_at: new Date().toISOString(),
       ip_address: ipAddress,
     })
@@ -106,7 +106,7 @@ export async function recordFailedAttempt(
 
       // Lock the account
       const { error: lockError } = await supabase.from('account_lockouts' as any).insert({
-        email: identifier.toLowerCase(),
+        email: identifier.trim().toLowerCase(),
         locked_at: new Date().toISOString(),
         locked_until: lockedUntil.toISOString(),
         failed_attempts: newAttemptCount,
@@ -168,7 +168,7 @@ export async function checkAccountLockout(
     const { data: lockout, error } = await supabase
       .from('account_lockouts' as any)
       .select('*')
-      .eq('email', identifier.toLowerCase())
+      .eq('email', identifier.trim().toLowerCase())
       .gte('locked_until', new Date().toISOString())
       .order('locked_at', { ascending: false })
       .limit(1)
@@ -227,7 +227,7 @@ export async function clearFailedAttempts(identifier: string): Promise<ServiceRe
     const { error: deleteError } = await supabase
       .from('failed_login_attempts' as any)
       .delete()
-      .eq('email', identifier.toLowerCase())
+      .eq('email', identifier.trim().toLowerCase())
 
     if (deleteError) {
       console.error('Error clearing failed attempts:', deleteError)
@@ -267,7 +267,7 @@ export async function unlockAccount(
     const { error: deleteError } = await supabase
       .from('account_lockouts' as any)
       .delete()
-      .eq('email', email.toLowerCase())
+      .eq('email', email.trim().toLowerCase())
       .gte('locked_until', new Date().toISOString())
 
     if (deleteError) {

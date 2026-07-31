@@ -49,6 +49,9 @@ export function LoginForm() {
             type="email"
             placeholder="admin@airniugini.com"
             autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             required
             disabled={isPending}
             className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:ring-muted-foreground/30 pl-10"

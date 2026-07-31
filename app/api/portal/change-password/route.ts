@@ -16,6 +16,7 @@ import { validatePilotSession } from '@/lib/services/session-service'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { destroyAllUserSessions } from '@/lib/services/redis-session-service'
 import bcrypt from 'bcryptjs'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
@@ -108,9 +109,26 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
+    const revokeResult = await destroyAllUserSessions(
+      session.userId,
+      'pilot_sessions',
+      'pilot_user_id'
+    )
+    if (!revokeResult.redisCleared || !revokeResult.dbDeactivated) {
+      console.error('Pilot password change session revocation incomplete:', revokeResult.failures)
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Password was changed, but session revocation was incomplete. Please contact support.',
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({
       success: true,
-      redirect: '/portal/dashboard',
+      redirect: '/portal/login?passwordChanged=1',
     })
   } catch (error) {
     console.error('Change password error:', error)

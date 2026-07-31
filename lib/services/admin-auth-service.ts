@@ -21,12 +21,14 @@ import {
   createRedisSession,
   validateRedisSession,
   destroyRedisSession,
+  destroyAllUserSessions,
 } from '@/lib/services/redis-session-service'
 import {
   checkAccountLockout,
   recordFailedAttempt,
   clearFailedAttempts,
 } from '@/lib/services/account-lockout-service'
+import { escapeLikePattern } from '@/lib/utils/postgrest-pattern'
 import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 
 /**
@@ -92,7 +94,7 @@ export async function adminLogin(
   metadata?: { ipAddress?: string; userAgent?: string }
 ): Promise<ServiceResponse<{ user: AdminUser; sessionToken: string }>> {
   try {
-    const email = credentials.email.toLowerCase()
+    const email = credentials.email.trim().toLowerCase()
 
     // SECURITY: brute-force protection — refuse when the account is locked out.
     // Mirrors the pilot-login flow (5 failed attempts / 15 min → 30 min lock).
@@ -111,7 +113,7 @@ export async function adminLogin(
     const { data: adminUser, error: adminError } = await supabase
       .from('an_users' as any)
       .select('id, email, name, role, user_type, password_hash')
-      .eq('email', credentials.email)
+      .ilike('email', escapeLikePattern(email))
       .single()
 
     if (adminError || !adminUser) {
@@ -357,7 +359,10 @@ export async function revokeAdminSession(
   _sessionToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await destroyRedisSession(ADMIN_SESSION_COOKIE_NAME, 'admin_sessions')
+    const result = await destroyRedisSession(ADMIN_SESSION_COOKIE_NAME, 'admin_sessions')
+    if (!result.cookieCleared || !result.redisCleared || !result.dbDeactivated) {
+      return { success: false, error: 'Failed to revoke session completely' }
+    }
     return { success: true }
   } catch (error) {
     console.error('Error revoking admin session:', error)
@@ -429,6 +434,16 @@ export async function changeAdminPassword(
     if (updateError) {
       console.error('Failed to change admin password:', updateError)
       return { success: false, error: 'Failed to change password' }
+    }
+
+    const revokeResult = await destroyAllUserSessions(userId, 'admin_sessions', 'admin_user_id')
+    if (!revokeResult.redisCleared || !revokeResult.dbDeactivated) {
+      console.error('Admin password change session revocation incomplete:', revokeResult.failures)
+      return {
+        success: false,
+        error:
+          'Password was changed, but session revocation was incomplete. Please contact support.',
+      }
     }
 
     return { success: true }
