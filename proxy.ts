@@ -86,10 +86,24 @@ export async function proxy(request: NextRequest) {
   // Privileged client for reading credential/session tables (an_users,
   // admin_sessions, pilot_sessions, pilot_users). These tables must NOT be
   // anon-readable (they hold password hashes and bearer tokens), so middleware
-  // reads them with the service role instead of the anon key. Falls back to the
-  // anon client only if the service key is absent (e.g. a misconfigured preview),
-  // preserving prior behavior rather than hard-failing the request.
+  // reads them with the service role instead of the anon key.
+  //
+  // The anon fallback below no longer "preserves prior behavior": migrations
+  // 20260703000001 and 20260731090000 revoked anon/authenticated grants on every
+  // one of these tables, so an anon client now reads back NOTHING rather than
+  // less. Auth routing would then treat every signed-in user as having no admin
+  // and no pilot record — a silent, uniform misroute that looks like a logic bug
+  // rather than a missing environment variable. The fallback is kept so a
+  // misconfigured preview degrades instead of hard-failing every request, but it
+  // is logged loudly so the actual cause is findable.
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    console.error(
+      '[proxy] SUPABASE_SERVICE_ROLE_KEY is not set. Falling back to the anon client for ' +
+        'credential/session table reads, which have been revoked from the anon role — role-based ' +
+        'routing will behave as if every user has no admin and no pilot record. Set the variable.'
+    )
+  }
   const db = serviceRoleKey
     ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey, {
         auth: { persistSession: false, autoRefreshToken: false },

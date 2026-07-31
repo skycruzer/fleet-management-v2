@@ -33,6 +33,14 @@ export default async function AuditDetailPage(props: AuditDetailPageProps) {
     redirect('/auth/login')
   }
 
+  // Admin-only: the audit trail must not be readable by the managers it audits.
+  // getAuthenticatedAdmin() admits both admin and manager, so this needs an
+  // explicit role check — matching the `roles: [UserRole.ADMIN]` gate on
+  // /api/audit, without which this page would render and then fail to load data.
+  if (auth.role !== 'admin') {
+    redirect('/dashboard')
+  }
+
   // Validate UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   if (!uuidRegex.test(params.id)) {

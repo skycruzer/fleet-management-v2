@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminRoute } from '@/lib/middleware/create-api-route'
+import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 
@@ -17,6 +18,10 @@ export const GET = createAdminRoute(
     operation: 'getAuditLogById',
     endpoint: '/api/audit/[id]',
     rateLimit: false,
+    // Admin-only, per this endpoint's stated contract. Without an explicit
+    // `roles` gate, getAuthenticatedAdmin admits managers too — leaving the
+    // compliance audit trail readable by people it audits.
+    roles: [UserRole.ADMIN],
   },
   async ({ params }) => {
     try {

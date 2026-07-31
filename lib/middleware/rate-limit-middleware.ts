@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { selectFallbackLimiter, type FallbackRateLimiter } from '@/lib/rate-limit-fallback'
+import { getClientIp } from '@/lib/rate-limit'
 import { Redis } from '@upstash/redis'
 
 // ============================================================================
@@ -107,14 +108,16 @@ const rateLimitByMethod: Record<string, RateLimiter> = {
 }
 
 /**
- * Extract identifier from request (IP address or user ID)
+ * Extract the rate-limit identifier (client IP) from a request.
+ *
+ * Delegates to `getClientIp`, the single source of truth for IP derivation.
+ * This previously read the LEFTMOST `x-forwarded-for` entry, which is supplied
+ * by the client and therefore forgeable: rotating the header yielded a fresh
+ * bucket on every request, defeating the limiter entirely on the auth
+ * endpoints (login, register, forgot/reset/change password).
  */
 function getIdentifier(request: NextRequest): string {
-  // Try to get IP from headers
-  const forwarded = request.headers.get('x-forwarded-for')
-  const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip')
-
-  return ip || 'anonymous'
+  return getClientIp(request) || 'anonymous'
 }
 
 /**

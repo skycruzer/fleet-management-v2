@@ -14,6 +14,7 @@ import { Menu, Plane } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { DashboardNavLink } from './dashboard-nav-link'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface MobileNavProps {
   user: {
@@ -28,6 +29,34 @@ interface MobileNavProps {
 
 export function MobileNav({ user, navLinks }: MobileNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isSigningOut, setIsSigningOut] = React.useState(false)
+  const { csrfToken } = useCsrfToken()
+
+  // A native <form method="POST"> cannot set the x-csrf-token header, so the
+  // logout endpoint rejected it with 403 and the browser rendered the raw JSON
+  // error as a page while the admin stayed signed in. Post it via fetch instead.
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+      })
+
+      if (response.ok || response.redirected) {
+        window.location.href = '/auth/login'
+        return
+      }
+      console.error('Sign out failed:', response.status)
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+    setIsSigningOut(false)
+  }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -88,16 +117,18 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-foreground truncate text-[13px] font-medium">{user.email}</p>
-              <form action="/api/auth/logout" method="POST">
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground h-6 touch-manipulation px-0 text-xs"
-                >
-                  Sign out
-                </Button>
-              </form>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                // Disabled until the CSRF token has loaded: posting without the
+                // header is guaranteed to 403 and leave the admin signed in.
+                disabled={isSigningOut || !csrfToken}
+                className="text-muted-foreground hover:text-foreground h-6 touch-manipulation px-0 text-xs"
+              >
+                {isSigningOut ? 'Signing out…' : 'Sign out'}
+              </Button>
             </div>
           </div>
         </div>

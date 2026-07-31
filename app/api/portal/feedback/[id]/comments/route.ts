@@ -249,8 +249,10 @@ export const DELETE = createPilotRoute(
     endpoint: '/api/portal/feedback/[id]/comments',
     rateLimit: false,
   },
-  async ({ request, pilot }) => {
+  async ({ request, params, pilot }) => {
     try {
+      const feedbackId = params.id
+
       // Parse and validate request body
       const body = await request.json()
       const validation = deleteCommentSchema.safeParse(body)
@@ -272,6 +274,12 @@ export const DELETE = createPilotRoute(
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 400 })
       }
+
+      // Matches POST and PATCH above; without it a deleted comment lingers in
+      // cached feedback views until some other mutation clears them.
+      await invalidateFeedbackCaches(feedbackId).catch((error) =>
+        console.error('Cache invalidation failed (non-blocking):', error)
+      )
 
       return NextResponse.json({
         success: true,

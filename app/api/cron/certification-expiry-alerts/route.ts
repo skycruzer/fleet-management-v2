@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, type NotificationType } from '@/lib/services/notification-service'
 import { refreshDashboardMetrics } from '@/lib/services/dashboard-service-v4'
+import { logger } from '@/lib/services/logging-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
           id,
           first_name,
           last_name,
-          rank,
+          role,
           is_active
         ),
         check_types!inner (
@@ -72,7 +73,27 @@ export async function GET(request: Request) {
       .order('expiry_date', { ascending: true })
 
     if (error) {
+      // Escalate rather than only console.error. This exact branch returned 500
+      // every morning for an extended period — the query selected a column that
+      // does not exist — and nobody noticed, because a failing cron is silent.
+      //
+      // Uses logger (Better Stack) rather than lib/error-logger's logError: in
+      // production the latter only calls storeErrorInLocalStorage, a browser API,
+      // with the Sentry path commented out — so from a server route it reaches no
+      // sink at all. Alert on severity=critical in Better Stack.
       console.error('Error fetching expiring certifications:', error)
+      // Await: this route returns immediately after, and the Logtail ship is async —
+      // a fire-and-forget call can be cut off when the serverless invocation ends.
+      await logger.error('Certification expiry cron failed', {
+        source: 'cron:certification-expiry-alerts',
+        severity: 'critical',
+        stage: 'fetch-expiring-certifications',
+        postgrestCode: error.code,
+        details: error.details,
+        // This job is the only producer of certification expiry notifications,
+        // so a failure here means no pilot is warned at all.
+        impact: 'No certification expiry or expired alerts were sent for this run',
+      })
       return NextResponse.json({ error: 'Failed to fetch certifications' }, { status: 500 })
     }
 
@@ -88,7 +109,7 @@ export async function GET(request: Request) {
     const certsByPilot: Record<
       string,
       {
-        pilot: { first_name: string; last_name: string; rank: string }
+        pilot: { first_name: string; last_name: string; role: string }
         certifications: Array<{ checkCode: string; daysUntilExpiry: number }>
       }
     > = {}
@@ -106,7 +127,7 @@ export async function GET(request: Request) {
           pilot: {
             first_name: pilot.first_name,
             last_name: pilot.last_name,
-            rank: pilot.rank,
+            role: pilot.role,
           },
           certifications: [],
         }
@@ -188,6 +209,13 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Cron job error:', error)
+    await logger.error('Certification expiry cron failed (unhandled)', {
+      source: 'cron:certification-expiry-alerts',
+      severity: 'critical',
+      stage: 'unhandled',
+      error: error instanceof Error ? error.message : String(error),
+      impact: 'No certification expiry or expired alerts were sent for this run',
+    })
     return NextResponse.json(
       {
         error: 'Cron job failed',

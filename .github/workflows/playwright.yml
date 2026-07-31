@@ -43,6 +43,13 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      # The date validators compare a YYYY-MM-DD form value against the LOCAL calendar date.
+      # The bug they guard (same-day leave rejected) only manifests at a NEGATIVE UTC offset,
+      # and CI runners default to UTC — so the default run above passes either way. Re-run that
+      # suite pinned to a negative offset, otherwise the regression is not actually covered.
+      - name: Run timezone regression under a negative UTC offset
+        run: npm run test:unit:tz
+
       - name: Run production build
         run: npm run build
 

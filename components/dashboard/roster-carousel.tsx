@@ -79,7 +79,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
             scheduling cycle.
           </p>
           <Link
-            href="/dashboard/roster-periods"
+            href="/dashboard/admin/settings"
             className="bg-muted text-foreground hover:bg-muted/80 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
             aria-label="View roster period settings"
           >

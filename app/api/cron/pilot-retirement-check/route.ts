@@ -19,6 +19,7 @@ import { processRetiredPilots } from '@/lib/services/pilot-service'
 import { sendRetirementNotificationEmail } from '@/lib/services/pilot-email-service'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { format } from 'date-fns'
+import { logger } from '@/lib/services/logging-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,14 @@ export async function GET(request: Request) {
     const processingResult = await processRetiredPilots()
 
     if (!processingResult?.results || !Array.isArray(processingResult.results)) {
+      // A silent daily 500 is how the sibling certification-expiry cron stayed
+      // broken unnoticed; escalate both cron failure paths to the error pipeline.
+      await logger.error('Retirement cron: unexpected response from retirement processor', {
+        source: 'cron:pilot-retirement-check',
+        severity: 'critical',
+        stage: 'process-retired-pilots',
+        impact: 'No pilots were processed for retirement on this run',
+      })
       return NextResponse.json(
         {
           success: false,
@@ -135,6 +144,13 @@ export async function GET(request: Request) {
     return NextResponse.json(response)
   } catch (error) {
     console.error('Pilot retirement cron job error:', error)
+    await logger.error('Pilot retirement cron failed (unhandled)', {
+      source: 'cron:pilot-retirement-check',
+      severity: 'critical',
+      stage: 'unhandled',
+      error: error instanceof Error ? error.message : String(error),
+      impact: 'No pilots were processed for retirement on this run',
+    })
     return NextResponse.json(
       {
         success: false,

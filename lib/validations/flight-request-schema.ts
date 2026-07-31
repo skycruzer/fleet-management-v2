@@ -3,6 +3,7 @@ import {
   ActionableWorkflowStatusEnum,
   VisibleWorkflowStatusEnum,
 } from '@/lib/types/workflow-status'
+import { todayLocalIso, inclusiveDaySpan } from '@/lib/utils/date-utils'
 
 /**
  * RDO/SDO Request Validation Schemas
@@ -19,15 +20,10 @@ export const FlightRequestSchema = z
     start_date: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'Start date must be in YYYY-MM-DD format')
-      .refine(
-        (date) => {
-          const requestDate = new Date(date)
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          return requestDate >= today
-        },
-        { message: 'Start date cannot be in the past' }
-      ),
+      // String comparison, not Date: see todayLocalIso() for why.
+      .refine((date) => date >= todayLocalIso(), {
+        message: 'Start date cannot be in the past',
+      }),
     end_date: z
       .string()
       .optional()
@@ -74,14 +70,11 @@ export const FlightRequestSchema = z
   )
   .refine(
     (data) => {
-      // Max duration: 90 days
+      // Max duration: 90 days, counted inclusively so a 90-day span is the limit
+      // the message promises (the old exclusive diff admitted 91).
       if (data.end_date) {
-        const startDate = new Date(data.start_date)
-        const endDate = new Date(data.end_date)
-        const daysDiff = Math.ceil(
-          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-        )
-        return daysDiff <= 90
+        const span = inclusiveDaySpan(data.start_date, data.end_date)
+        return span === null || span <= 90
       }
       return true
     },

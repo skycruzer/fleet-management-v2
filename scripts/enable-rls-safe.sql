@@ -1,3 +1,15 @@
+-- ============================================================================
+-- ⚠  WARNING: THIS SCRIPT CHANGES RLS OUTSIDE OF supabase/migrations/.  ⚠
+-- ============================================================================
+-- Its active statements ENABLE row level security (the only DISABLE is commented
+-- out near the end). Enabling RLS without the matching policies in place can deny
+-- the application access to tables it needs, so running this ad hoc can cause an
+-- outage even though it does not re-open the anon exposure.
+--
+-- supabase/migrations/ is the single source of truth for schema and RLS. Add a
+-- migration rather than pasting this into the SQL editor.
+-- ============================================================================
+
 -- Enable RLS on All Tables - Safe Script
 -- This script checks for table existence before enabling RLS
 --

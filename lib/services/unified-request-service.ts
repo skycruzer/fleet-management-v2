@@ -21,7 +21,6 @@ import {
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
-import { checkCrewAvailabilityAtomic } from '@/lib/services/leave-eligibility-service'
 import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import {
   invalidateLeaveCaches,
@@ -807,103 +806,137 @@ export async function updateRequestStatus(
       }
     }
 
-    // For LEAVE request approvals, check crew availability atomically
-    // This prevents race conditions where concurrent approvals could violate minimum crew requirements
+    let data: PilotRequest
+
     if (status === 'APPROVED') {
-      // First, get the request details to check if it's a leave request
-      const { data: request, error: fetchError } = await supabase
+      // Approvals go through a single DB function that re-checks the crew
+      // minimum under row locks and performs the UPDATE in the SAME transaction.
+      //
+      // The previous shape — checkCrewAvailabilityAtomic() followed by a separate
+      // UPDATE — could not hold locks across the two calls, because Supabase runs
+      // each RPC in its own transaction. Two reviewers approving overlapping leave
+      // for the same rank simultaneously each excluded only their own request, so
+      // both saw the minimum satisfied and both committed, breaching it.
+      const { data: rpcResult, error: rpcError } = await supabase.rpc(
+        'approve_leave_request_atomic',
+        {
+          p_request_id: id,
+          p_reviewed_by: reviewedBy,
+          // Omitted rather than null so the function's DEFAULT NULL applies;
+          // an empty string collapses to NULL exactly as the old update did.
+          p_comments: comments || undefined,
+          p_force: force ?? false,
+        }
+      )
+
+      if (rpcError) {
+        await logger.error('Atomic leave approval failed', {
+          source: 'unified-request-service:updateRequestStatus',
+          requestId: id,
+          error: rpcError.message,
+        })
+        // The raw PostgreSQL message can name enums, constraints and functions.
+        // It is already captured by logger.error above; the caller gets the same
+        // generic text as every other failure branch in this function.
+        return {
+          success: false,
+          error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
+        }
+      }
+
+      const result = rpcResult as {
+        success: boolean
+        blocked_by_crew_minimum?: boolean
+        forced?: boolean
+        reason?: string | null
+        rank?: string
+        available?: number
+        remaining_after_approval?: number
+      }
+
+      if (!result?.success) {
+        if (result?.blocked_by_crew_minimum) {
+          await logger.warn('Leave approval blocked - insufficient crew', {
+            source: 'unified-request-service:updateRequestStatus',
+            requestId: id,
+            reason: result.reason,
+            rank: result.rank,
+            available: result.available,
+            remainingAfterApproval: result.remaining_after_approval,
+          })
+          return {
+            success: false,
+            error: `Cannot approve: ${result.reason}`,
+          }
+        }
+
+        return {
+          success: false,
+          error: result?.reason || ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
+        }
+      }
+
+      if (result.forced) {
+        await logger.warn('Leave approval FORCE-APPROVED despite insufficient crew', {
+          source: 'unified-request-service:updateRequestStatus',
+          requestId: id,
+          reason: result.reason,
+          rank: result.rank,
+          available: result.available,
+          remainingAfterApproval: result.remaining_after_approval,
+          reviewedBy,
+        })
+      }
+
+      // The function wrote the row; read it back for the downstream cache
+      // invalidation and notification logic.
+      const { data: approved, error: readError } = await supabase
         .from('pilot_requests')
-        .select('id, request_category, start_date, end_date, rank')
+        .select()
         .eq('id', id)
         .single()
 
-      if (fetchError || !request) {
+      if (readError || !approved) {
+        await logger.error('Approved request could not be read back', {
+          source: 'unified-request-service:updateRequestStatus',
+          requestId: id,
+          error: readError?.message,
+        })
         return {
           success: false,
-          error: 'Request not found',
+          error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
         }
       }
 
-      // Check crew availability for LEAVE requests
-      if (request.request_category === 'LEAVE' && request.start_date && request.end_date) {
-        try {
-          const crewCheck = await checkCrewAvailabilityAtomic(
-            request.start_date,
-            request.end_date,
-            id, // Exclude this request from the count
-            (request.rank as PilotRank) ?? undefined // Only check the requesting pilot's rank
-          )
+      data = approved as PilotRequest
+    } else {
+      const { data: updated, error } = await supabase
+        .from('pilot_requests')
+        .update({
+          workflow_status: status,
+          reviewed_by: reviewedBy,
+          reviewed_at: new Date().toISOString(),
+          review_comments: comments || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single()
 
-          if (!crewCheck.canApprove) {
-            if (force) {
-              await logger.warn('Leave approval FORCE-APPROVED despite insufficient crew', {
-                source: 'unified-request-service:updateRequestStatus',
-                requestId: id,
-                reason: crewCheck.reason,
-                captainsAvailable: crewCheck.captains.available,
-                firstOfficersAvailable: crewCheck.firstOfficers.available,
-                reviewedBy,
-              })
-            } else {
-              await logger.warn('Leave approval blocked - insufficient crew', {
-                source: 'unified-request-service:updateRequestStatus',
-                requestId: id,
-                reason: crewCheck.reason,
-                captainsAvailable: crewCheck.captains.available,
-                firstOfficersAvailable: crewCheck.firstOfficers.available,
-              })
-
-              return {
-                success: false,
-                error: `Cannot approve: ${crewCheck.reason}`,
-              }
-            }
-          }
-        } catch (crewCheckError) {
-          const errorMessage =
-            crewCheckError instanceof Error ? crewCheckError.message : String(crewCheckError)
-
-          await logger.error('Crew availability check failed', {
-            source: 'unified-request-service:updateRequestStatus',
-            requestId: id,
-            error: errorMessage,
-            startDate: request.start_date,
-            endDate: request.end_date,
-          })
-
-          // Expose actual error message for better debugging
-          return {
-            success: false,
-            error: `Unable to verify crew availability: ${errorMessage}`,
-          }
+      if (error) {
+        await logger.error('Failed to update request status', {
+          source: 'unified-request-service:updateRequestStatus',
+          error: error.message,
+          id,
+          status,
+        })
+        return {
+          success: false,
+          error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
         }
       }
-    }
 
-    const { data, error } = await supabase
-      .from('pilot_requests')
-      .update({
-        workflow_status: status,
-        reviewed_by: reviewedBy,
-        reviewed_at: new Date().toISOString(),
-        review_comments: comments || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) {
-      await logger.error('Failed to update request status', {
-        source: 'unified-request-service:updateRequestStatus',
-        error: error.message,
-        id,
-        status,
-      })
-      return {
-        success: false,
-        error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
-      }
+      data = updated as PilotRequest
     }
 
     // Invalidate report caches + dashboard Redis analytics layer

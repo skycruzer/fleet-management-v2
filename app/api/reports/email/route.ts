@@ -115,12 +115,31 @@ export const POST = createAdminRoute(
 
       // Prepare email content
       const emailSubject = subject || `${report.title} - ${timestamp}`
-      const emailBody =
-        message ||
-        `
-      <h2>${report.title}</h2>
-      <p>${report.description}</p>
-      <p><strong>Generated:</strong> ${new Date(report.generatedAt).toLocaleString()}</p>
+
+      // The caller-supplied `message` used to REPLACE the whole body and was
+      // passed to Resend as raw `html`. Combined with caller-supplied
+      // recipients/cc/bcc, that turned this route into an authenticated
+      // phishing relay sending from the company domain. It is now escaped and
+      // rendered as a note inside the standard template instead.
+      const escapeHtml = (value: string) =>
+        value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+
+      const note = message ? `<p style="white-space: pre-wrap;">${escapeHtml(message)}</p>` : ''
+
+      // Every dynamic field is escaped, not just `message`. report.title/description
+      // and the summary keys and values are derived from report data (check
+      // categories, pilot-supplied strings), so leaving them raw would keep an
+      // HTML-injection path open even with `message` escaped.
+      const emailBody = `
+      ${note}
+      <h2>${escapeHtml(report.title)}</h2>
+      <p>${escapeHtml(report.description ?? '')}</p>
+      <p><strong>Generated:</strong> ${escapeHtml(new Date(report.generatedAt).toLocaleString())}</p>
 
       ${
         report.summary
@@ -130,7 +149,7 @@ export const POST = createAdminRoute(
           ${Object.entries(report.summary)
             .map(([key, value]) => {
               const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
-              return `<li><strong>${label}:</strong> ${value}</li>`
+              return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(String(value ?? ''))}</li>`
             })
             .join('')}
         </ul>

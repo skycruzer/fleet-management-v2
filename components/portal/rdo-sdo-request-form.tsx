@@ -32,6 +32,7 @@ import {
 import { CheckCircle, Info } from 'lucide-react'
 import { getRosterPeriodFromDate, formatRosterPeriodFromObject } from '@/lib/utils/roster-utils'
 import { useEffect, useState } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 // Form validation schema
 const rdoSdoRequestSchema = z
@@ -121,11 +122,15 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
 
   async function onSubmit(data: RdoSdoRequestFormData) {
     try {
-      // Submit to API endpoint
-      const response = await fetch('/api/portal/rdo-sdo-requests', {
+      // RDO/SDO are FLIGHT-category requests, so they post to the flight-requests
+      // endpoint; /api/portal/rdo-sdo-requests has never existed. The CSRF header
+      // is required by createPilotRoute — the accepted `csrfToken` prop was
+      // previously declared and then never sent.
+      const response = await fetch('/api/portal/flight-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : csrfHeaders()),
         },
         body: JSON.stringify({
           request_type: data.request_type,

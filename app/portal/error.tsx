@@ -70,7 +70,7 @@ export default function PortalError({
               Try Again
             </button>
             <button
-              onClick={() => router.push('/portal')}
+              onClick={() => router.push('/portal/dashboard')}
               className="border-border text-card-foreground hover:bg-muted/50 flex-1 rounded-lg border px-6 py-3 font-medium transition-colors"
             >
               Go to Dashboard

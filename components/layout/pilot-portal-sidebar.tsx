@@ -21,6 +21,7 @@ import { NotificationBell } from '@/components/portal/notification-bell'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { useConfirm } from '@/components/ui/confirm-dialog'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface NavItem {
   title: string
@@ -92,6 +93,7 @@ export function PilotPortalSidebar({
   // Track mount status for hydration (email rendered client-side only)
   const [mounted, setMounted] = useState(false)
   const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
+  const { csrfToken } = useCsrfToken()
 
   useEffect(() => {
     setMounted(true)
@@ -116,24 +118,56 @@ export function PilotPortalSidebar({
   }
 
   const performLogout = async () => {
+    // Without the token the POST is guaranteed to 403 and the session would
+    // survive while the UI claims otherwise — the exact failure this fixes.
+    if (!csrfToken) {
+      await confirm({
+        title: 'Still preparing',
+        description: 'Security check is still loading. Please wait a moment and try again.',
+        confirmText: 'OK',
+        cancelText: 'Dismiss',
+      })
+      return
+    }
+
     try {
-      const response = await fetch('/api/auth/logout', {
+      // Portal logout endpoint (dual-auth: never call the admin /api/auth/logout).
+      // The CSRF header is required — without it the request 403s and the pilot
+      // session survives, which previously left the user "logged out" in the UI
+      // while their session cookie stayed valid.
+      const response = await fetch('/api/portal/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         credentials: 'include',
       })
 
       if (response.ok || response.redirected) {
         window.location.href = '/portal/login'
-      } else {
-        console.error('Logout failed')
-        window.location.href = '/portal/login'
+        return
       }
+
+      // Do NOT redirect on failure — that would tell the pilot they are logged
+      // out while the session is still live (a real hazard on shared terminals).
+      console.error('Logout failed:', response.status)
+      await confirm({
+        title: 'Logout failed',
+        description:
+          'We could not log you out. Your session is still active. Please refresh the page and try again.',
+        confirmText: 'OK',
+        cancelText: 'Dismiss',
+      })
     } catch (error) {
       console.error('Logout error:', error)
-      window.location.href = '/portal/login'
+      await confirm({
+        title: 'Logout failed',
+        description:
+          'We could not reach the server, so your session is still active. Please check your connection and try again.',
+        confirmText: 'OK',
+        cancelText: 'Dismiss',
+      })
     }
   }
 

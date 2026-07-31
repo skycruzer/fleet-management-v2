@@ -224,10 +224,15 @@ export interface AtomicCrewCheck {
 /**
  * Atomically check crew availability with row-level locking
  *
- * CRITICAL: This function uses a PostgreSQL function with FOR UPDATE
- * to prevent race conditions during concurrent leave approvals.
+ * The underlying PostgreSQL function takes FOR UPDATE row locks — but Supabase
+ * runs each RPC in its own transaction, so those locks are released as soon as
+ * this returns. It therefore gives an accurate READ of availability, and is NOT
+ * sufficient to guard an approval: any write that follows happens in a separate
+ * transaction, leaving a window where a concurrent approver sees the same counts.
  *
- * Use this for approval decisions, not for display purposes.
+ * Use it for a pre-flight/preview reading. To APPROVE, call the
+ * approve_leave_request_atomic() DB function (see updateRequestStatus in
+ * unified-request-service.ts), which re-checks and writes in one transaction.
  *
  * @param startDate - Start date of leave request (YYYY-MM-DD)
  * @param endDate - End date of leave request (YYYY-MM-DD)
@@ -351,8 +356,11 @@ export async function checkCrewAvailabilityAtomic(
  * Considers approved and pending leave requests
  *
  * NOTE: This function is for DISPLAY purposes (calendar, reports).
- * For approval decisions, use checkCrewAvailabilityAtomic() instead
- * to prevent race conditions.
+ * Approval decisions must NOT use this or checkCrewAvailabilityAtomic() — both
+ * return before the write happens, so their row locks are already released by
+ * the time the status update runs in its own transaction. Approvals go through
+ * the approve_leave_request_atomic() DB function, which re-checks the minimum
+ * and writes inside a single transaction.
  */
 export async function calculateCrewAvailability(
   startDate: string,
