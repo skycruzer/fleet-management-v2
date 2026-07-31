@@ -7,6 +7,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { escapeLikePattern } from '@/lib/utils/postgrest-pattern'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { ServiceResponse } from '@/lib/types/service-response'
@@ -130,22 +131,24 @@ export async function getUserById(userId: string): Promise<User | null> {
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
   const supabase = createAdminClient()
+  const normalizedEmail = email.trim().toLowerCase()
 
   try {
-    const { data: user, error } = await supabase
+    const { data: users, error } = await supabase
       .from('an_users')
       .select('*')
-      .eq('email', email)
-      .single()
+      .ilike('email', escapeLikePattern(normalizedEmail))
+      .limit(2)
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return null // Not found
-      }
       throw error
     }
 
-    return user as User
+    if ((users?.length ?? 0) > 1) {
+      throw new Error('Multiple users have case-variant versions of this email')
+    }
+
+    return (users?.[0] as User | undefined) ?? null
   } catch (error) {
     logError(error as Error, {
       source: 'user-service:getUserByEmail',
@@ -161,10 +164,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  */
 export async function createUser(userData: UserFormData): Promise<User> {
   const supabase = createAdminClient()
+  const normalizedEmail = userData.email.trim().toLowerCase()
 
   try {
     // Check if email already exists
-    const existingUser = await getUserByEmail(userData.email)
+    const existingUser = await getUserByEmail(normalizedEmail)
     if (existingUser) {
       throw new Error('A user with this email already exists')
     }
@@ -172,7 +176,7 @@ export async function createUser(userData: UserFormData): Promise<User> {
     const { data, error } = await supabase
       .from('an_users')
       .insert({
-        email: userData.email,
+        email: normalizedEmail,
         name: userData.name,
         role: userData.role,
       })
@@ -211,11 +215,14 @@ export async function createUser(userData: UserFormData): Promise<User> {
  */
 export async function updateUser(userId: string, userData: Partial<UserFormData>): Promise<User> {
   const supabase = createAdminClient()
+  const normalizedUserData = userData.email
+    ? { ...userData, email: userData.email.trim().toLowerCase() }
+    : userData
 
   try {
     // If email is being updated, check for duplicates
-    if (userData.email) {
-      const existingUser = await getUserByEmail(userData.email)
+    if (normalizedUserData.email) {
+      const existingUser = await getUserByEmail(normalizedUserData.email)
       if (existingUser && existingUser.id !== userId) {
         throw new Error('A user with this email already exists')
       }
@@ -230,7 +237,7 @@ export async function updateUser(userId: string, userData: Partial<UserFormData>
     const { data, error } = await supabase
       .from('an_users')
       .update({
-        ...userData,
+        ...normalizedUserData,
         updated_at: new Date().toISOString(),
       })
       .eq('id', userId)

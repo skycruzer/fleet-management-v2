@@ -11,6 +11,7 @@ import { z } from 'zod'
 export const PilotLoginSchema = z.object({
   staffId: z
     .string()
+    .trim()
     .min(1, 'Staff ID is required')
     .max(50, 'Staff ID must be less than 50 characters'),
   password: z

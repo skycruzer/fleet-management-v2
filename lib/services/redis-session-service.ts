@@ -19,12 +19,16 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { clearRedisUserSessions } from '@/lib/services/redis-session-cleanup.mjs'
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 const SESSION_TTL_SECONDS = 24 * 60 * 60 // 24 hours
+// The per-user token index must outlive every session it references. Using a shorter
+// session's TTL here can orphan a longer-lived "remember me" token from revoke-all.
+const USER_SESSION_INDEX_TTL_SECONDS = 30 * 24 * 60 * 60 // maximum supported session: 30 days
 const EXTEND_THROTTLE_SECONDS = 60 // Only extend TTL once per 60s
 const DEFAULT_COOKIE_NAME = 'fleet-session'
 
@@ -185,7 +189,7 @@ export async function createRedisSession(
           ex: ttl,
         })
         pipeline.sadd(userSessionsKey(userData.userId), sessionToken)
-        pipeline.expire(userSessionsKey(userData.userId), ttl)
+        pipeline.expire(userSessionsKey(userData.userId), USER_SESSION_INDEX_TTL_SECONDS)
         await pipeline.exec()
       } catch {
         logWarning('Redis write failed during session creation, DB is still authoritative', {
@@ -217,8 +221,12 @@ export async function createRedisSession(
 // ============================================================================
 
 /**
- * Validate session: read cookie → Redis GET → return user data.
- * Falls back to DB if Redis misses. Re-populates Redis on DB hit.
+ * Validate session: read cookie → Redis GET → verify the authoritative DB row.
+ * Falls back to a full DB lookup if Redis misses. Re-populates Redis on DB hit.
+ *
+ * The active-row check on cache hits is intentional. Older deployments could
+ * orphan a session key from the per-user Redis index, so revoking the DB row
+ * must invalidate even a still-cached token.
  */
 export async function validateRedisSession(
   cookieName: string = DEFAULT_COOKIE_NAME,
@@ -257,6 +265,25 @@ export async function validateRedisSession(
             // Expired — clean up
             await redis.del(sessionKey(sessionToken))
             return { isValid: false, error: 'Session expired' }
+          }
+
+          const supabase = createServiceRoleClient()
+          const { data: activeSession, error: activeSessionError } = await supabase
+            .from(dbTable as any)
+            .select(`expires_at, ${dbUserIdColumn}`)
+            .eq('session_token', sessionToken)
+            .eq('is_active', true)
+            .single()
+
+          const authoritativeSession = activeSession as any
+          if (
+            activeSessionError ||
+            !authoritativeSession ||
+            authoritativeSession[dbUserIdColumn] !== sessionData.userId ||
+            new Date(authoritativeSession.expires_at) < new Date()
+          ) {
+            await redis.del(sessionKey(sessionToken))
+            return { isValid: false, error: 'Session revoked or expired' }
           }
 
           // Throttled activity update
@@ -398,7 +425,7 @@ async function validateSessionFromDb(
           ex: remainingTtl,
         })
         pipeline.sadd(userSessionsKey(userData.id), sessionToken)
-        pipeline.expire(userSessionsKey(userData.id), remainingTtl)
+        pipeline.expire(userSessionsKey(userData.id), USER_SESSION_INDEX_TTL_SECONDS)
         await pipeline.exec()
       } catch {
         // Non-critical — next request will try again
@@ -541,9 +568,13 @@ export async function destroyRedisSession(
           metadata: { dbTable },
         })
       }
-    } else {
-      // Redis unavailable — DB update below is the only authority.
+    } else if (
+      Boolean(process.env.UPSTASH_REDIS_REST_URL) ||
+      Boolean(process.env.UPSTASH_REDIS_REST_TOKEN)
+    ) {
+      // Partial Redis configuration means cleanup could not be attempted.
       result.redisCleared = false
+      result.failures.push('redis-config')
     }
 
     // Mark inactive in DB
@@ -628,15 +659,7 @@ export async function destroyAllUserSessions(
   const redis = getRedisClient()
   if (redis) {
     try {
-      const tokens = await redis.smembers(userSessionsKey(userId))
-      if (tokens.length > 0) {
-        const pipeline = redis.pipeline()
-        for (const token of tokens) {
-          pipeline.del(sessionKey(token))
-        }
-        pipeline.del(userSessionsKey(userId))
-        await pipeline.exec()
-      }
+      await clearRedisUserSessions(redis, userId)
     } catch (redisErr) {
       result.redisCleared = false
       result.failures.push('redis-pipeline')
@@ -646,8 +669,14 @@ export async function destroyAllUserSessions(
         metadata: { userId, dbTable },
       })
     }
-  } else {
+  } else if (
+    Boolean(process.env.UPSTASH_REDIS_REST_URL) ||
+    Boolean(process.env.UPSTASH_REDIS_REST_TOKEN)
+  ) {
+    // Both variables absent means Redis is intentionally disabled and there are
+    // no Redis-backed sessions to clear. A partial configuration is a failure.
     result.redisCleared = false
+    result.failures.push('redis-config')
   }
 
   // Mark all sessions inactive in DB

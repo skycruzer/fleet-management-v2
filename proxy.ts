@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
+import { matchesPathPrefix } from '@/lib/routing/path-prefix'
 
 // Roles permitted into the admin dashboard / admin API namespace.
 const ADMIN_ROLES = new Set(['admin', 'manager'])
@@ -286,7 +287,10 @@ export async function proxy(request: NextRequest) {
   // ============================================================================
   // API ROUTES - Role-based access
   // ============================================================================
-  if (pathname.startsWith('/api/portal')) {
+  const isPilotPortalApiRoute =
+    matchesPathPrefix(pathname, '/api/portal') || matchesPathPrefix(pathname, '/api/pilot')
+
+  if (isPilotPortalApiRoute) {
     // Allow public portal API routes (login, register, password flows)
     const publicPortalApiRoutes = [
       '/api/portal/login',
@@ -294,6 +298,7 @@ export async function proxy(request: NextRequest) {
       '/api/portal/forgot-password',
       '/api/portal/reset-password',
       '/api/portal/change-password',
+      '/api/pilot/logout',
     ]
     if (publicPortalApiRoutes.includes(pathname)) {
       return response

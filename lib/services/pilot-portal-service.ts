@@ -20,12 +20,9 @@ import {
   PilotRegistrationInput,
   RegistrationApprovalInput,
 } from '@/lib/validations/pilot-portal-schema'
-import {
-  createPilotSession,
-  validatePilotSession,
-  revokePilotSession,
-  getCurrentPilotSession,
-} from './session-service'
+import { createPilotSession, validatePilotSession, revokePilotSession } from './session-service'
+import { destroyAllUserSessions } from './redis-session-service'
+import { escapeLikePattern } from '@/lib/utils/postgrest-pattern'
 
 // Type aliases for cleaner code
 type PilotRegistration = Database['public']['Tables']['pilot_users']['Row']
@@ -231,19 +228,16 @@ export async function pilotLogin(
  */
 export async function pilotLogout(): Promise<ServiceResponse<null>> {
   try {
-    // SECURITY FIX: Revoke secure server-side session
-    const session = await getCurrentPilotSession()
+    // Always clear the cookie and revoke any matching Redis/DB state. Requiring
+    // a currently valid session first would leave expired or corrupted cookies
+    // behind and make logout fail exactly when the user needs recovery.
+    const revokeResult = await revokePilotSession('', 'User logout')
 
-    if (session) {
-      // Revoke the secure session
-      const revokeResult = await revokePilotSession(session.session_token, 'User logout')
-
-      if (!revokeResult.success) {
-        console.error('Failed to revoke session:', revokeResult.error)
-        return {
-          success: false,
-          error: 'Logout failed. Please try again.',
-        }
+    if (!revokeResult.success) {
+      console.error('Failed to revoke session:', revokeResult.error)
+      return {
+        success: false,
+        error: 'Logout failed. Please try again.',
       }
     }
 
@@ -374,15 +368,6 @@ export type PilotRegistrationSummary = Pick<
   | 'denial_reason'
   | 'created_at'
 >
-
-/**
- * Escape PostgREST `LIKE`/`ILIKE` metacharacters so caller-supplied text matches literally.
- *
- * Without this, `%` in a query string turns an equality check into "match every row".
- */
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`)
-}
 
 /**
  * Get registration status by email
@@ -1117,47 +1102,61 @@ export async function resetPassword(
   newPassword: string
 ): Promise<ServiceResponse<{ message: string }>> {
   try {
-    const supabase = createAdminClient()
-    const bcrypt = require('bcryptjs')
-
-    // Validate token first
+    // Reject invalid/expired tokens before doing CPU-intensive bcrypt work.
+    // This is only a cheap precheck; the RPC below remains the authoritative,
+    // atomic consume so concurrent requests cannot reuse the token.
     const validation = await validatePasswordResetToken(token)
-    if (!validation.success || !validation.data) {
+    if (!validation.success) {
       return {
         success: false,
         error: validation.error || 'Invalid reset token',
       }
     }
 
-    const { userId } = validation.data
+    const supabase = createAdminClient()
+    const bcrypt = require('bcryptjs')
 
     // Hash new password
     const passwordHash = await bcrypt.hash(newPassword, 10)
 
-    // Update password
-    const { error: updateError } = await supabase
-      .from('pilot_users')
-      .update({
-        password_hash: passwordHash,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId)
+    // Atomically consume the token, update the password, invalidate sibling
+    // reset links, revoke DB sessions, and clear lockout state.
+    const { data, error: resetError } = await supabase.rpc('consume_pilot_password_reset' as any, {
+      p_token: token,
+      p_password_hash: passwordHash,
+    })
 
-    if (updateError) {
-      console.error('Failed to update password:', updateError)
+    if (resetError) {
+      console.error('Failed to reset password atomically:', resetError)
       return {
         success: false,
         error: 'Failed to reset password. Please try again.',
       }
     }
 
-    // Mark token as used
-    await supabase
-      .from('password_reset_tokens')
-      .update({ used_at: new Date().toISOString() })
-      .eq('token', token)
+    const resetData = data as { userId?: string } | null
+    if (!resetData?.userId) {
+      return {
+        success: false,
+        error: 'Invalid or expired reset link. Please request a new one.',
+      }
+    }
 
-    // SECURITY: Password reset successful
+    // The DB transaction revoked audit rows. Clear Redis independently and
+    // inspect the structured result so cached tokens cannot survive unnoticed.
+    const revokeResult = await destroyAllUserSessions(
+      resetData.userId,
+      'pilot_sessions',
+      'pilot_user_id'
+    )
+    if (!revokeResult.redisCleared || !revokeResult.dbDeactivated) {
+      console.error('Password reset session revocation incomplete:', revokeResult.failures)
+      return {
+        success: false,
+        error:
+          'Password was changed, but session revocation was incomplete. Please contact support.',
+      }
+    }
 
     return {
       success: true,

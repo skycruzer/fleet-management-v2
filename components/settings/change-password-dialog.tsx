@@ -101,9 +101,11 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
         throw new Error(error.error || error.message || 'Failed to change password')
       }
 
+      const result = await response.json()
       toast.success('Password changed successfully')
       reset()
       onOpenChange(false)
+      window.location.assign(result.redirect || '/auth/login?passwordChanged=1')
     } catch (error) {
       console.error('Error changing password:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to change password')

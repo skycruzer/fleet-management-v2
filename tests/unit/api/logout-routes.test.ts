@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 const validateCsrfMock = vi.fn()
 const destroyRedisSessionMock = vi.fn()
 const createAdminClientMock = vi.fn()
+const pilotLogoutMock = vi.fn()
 
 vi.mock('@/lib/middleware/csrf-middleware', () => ({
   validateCsrf: validateCsrfMock,
@@ -17,6 +18,10 @@ vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: createAdminClientMock,
 }))
 
+vi.mock('@/lib/services/pilot-portal-service', () => ({
+  pilotLogout: pilotLogoutMock,
+}))
+
 function mockRequest(path = '/api/auth/logout') {
   return new Request(`http://localhost:3001${path}`, { method: 'POST' }) as any
 }
@@ -27,6 +32,7 @@ describe('logout routes', () => {
     validateCsrfMock.mockReset()
     destroyRedisSessionMock.mockReset()
     createAdminClientMock.mockReset()
+    pilotLogoutMock.mockReset()
     createAdminClientMock.mockReturnValue({
       auth: {
         signOut: vi.fn().mockResolvedValue({ error: null }),
@@ -54,6 +60,18 @@ describe('logout routes', () => {
     const response = await POST(mockRequest('/api/pilot/logout'))
 
     expect(response.status).toBe(403)
+    expect(createAdminClientMock).not.toHaveBeenCalled()
+  })
+
+  it('pilot logout delegates to the custom pilot-session revocation flow', async () => {
+    validateCsrfMock.mockResolvedValue(null)
+    pilotLogoutMock.mockResolvedValue({ success: true, data: null })
+
+    const { POST } = await import('@/app/api/pilot/logout/route')
+    const response = await POST(mockRequest('/api/pilot/logout'))
+
+    expect(response.status).toBe(200)
+    expect(pilotLogoutMock).toHaveBeenCalledTimes(1)
     expect(createAdminClientMock).not.toHaveBeenCalled()
   })
 

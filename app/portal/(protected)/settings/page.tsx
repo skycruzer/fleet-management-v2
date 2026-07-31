@@ -68,9 +68,7 @@ export default function SettingsPage() {
       const result = await response.json()
 
       if (result.success) {
-        setSuccess('Password changed successfully.')
-        ;(e.target as HTMLFormElement).reset()
-        router.refresh()
+        router.push(result.redirect || '/portal/login?passwordChanged=1')
       } else {
         setError(result.error || 'Failed to change password.')
       }
