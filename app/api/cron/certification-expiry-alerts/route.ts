@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, type NotificationType } from '@/lib/services/notification-service'
 import { refreshDashboardMetrics } from '@/lib/services/dashboard-service-v4'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +73,23 @@ export async function GET(request: Request) {
       .order('expiry_date', { ascending: true })
 
     if (error) {
+      // Escalate rather than only console.error. This exact branch returned 500
+      // every morning for an extended period — the query selected a column that
+      // does not exist — and nobody noticed, because a failing cron is silent.
+      // logError routes to the configured error pipeline; alert on CRITICAL there.
       console.error('Error fetching expiring certifications:', error)
+      logError(new Error(`Certification expiry cron failed: ${error.message}`), {
+        source: 'cron:certification-expiry-alerts',
+        severity: ErrorSeverity.CRITICAL,
+        metadata: {
+          stage: 'fetch-expiring-certifications',
+          postgrestCode: error.code,
+          details: error.details,
+          // This job is the only producer of certification expiry notifications,
+          // so a failure here means no pilot is warned at all.
+          impact: 'No certification expiry or expired alerts were sent for this run',
+        },
+      })
       return NextResponse.json({ error: 'Failed to fetch certifications' }, { status: 500 })
     }
 
@@ -188,6 +205,14 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Cron job error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'cron:certification-expiry-alerts',
+      severity: ErrorSeverity.CRITICAL,
+      metadata: {
+        stage: 'unhandled',
+        impact: 'No certification expiry or expired alerts were sent for this run',
+      },
+    })
     return NextResponse.json(
       {
         error: 'Cron job failed',
