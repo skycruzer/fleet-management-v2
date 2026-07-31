@@ -4,6 +4,11 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { throwMissingEnvError } from './helpers/test-utils'
+
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || throwMissingEnvError('TEST_ADMIN_EMAIL')
+const ADMIN_PASSWORD =
+  process.env.TEST_ADMIN_PASSWORD || throwMissingEnvError('TEST_ADMIN_PASSWORD')
 
 test.describe('Leave Approval Dashboard', () => {
   test.beforeEach(async ({ page }) => {
@@ -11,8 +16,8 @@ test.describe('Leave Approval Dashboard', () => {
     await page.goto('/auth/login')
 
     // Sign in with admin credentials
-    await page.fill('input[type="email"]', 'admin@example.com')
-    await page.fill('input[type="password"]', 'admin123')
+    await page.fill('input[type="email"]', ADMIN_EMAIL)
+    await page.fill('input[type="password"]', ADMIN_PASSWORD)
     await page.click('button[type="submit"]')
 
     // Wait for redirect to dashboard

@@ -644,7 +644,7 @@ test.describe('Pilot Portal Authentication', () => {
   test('should login successfully with valid credentials', async ({ page }) => {
     // Use test pilot account
     await page.fill('input[name="email"]', 'test.pilot@airniugini.com')
-    await page.fill('input[name="password"]', 'TestPassword123!')
+    await page.fill('input[name="password"]', 'your-test-password')
     await page.click('button[type="submit"]')
 
     // Should redirect to dashboard
@@ -666,7 +666,7 @@ test.describe('Pilot Dashboard', () => {
     // Login first
     await page.goto('/pilot/login')
     await page.fill('input[name="email"]', 'test.pilot@airniugini.com')
-    await page.fill('input[name="password"]', 'TestPassword123!')
+    await page.fill('input[name="password"]', 'your-test-password')
     await page.click('button[type="submit"]')
     await page.waitForURL('/pilot/dashboard')
   })
