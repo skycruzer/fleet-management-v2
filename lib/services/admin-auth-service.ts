@@ -92,7 +92,7 @@ export async function adminLogin(
   metadata?: { ipAddress?: string; userAgent?: string }
 ): Promise<ServiceResponse<{ user: AdminUser; sessionToken: string }>> {
   try {
-    const email = credentials.email.toLowerCase()
+    const email = credentials.email.trim().toLowerCase()
 
     // SECURITY: brute-force protection — refuse when the account is locked out.
     // Mirrors the pilot-login flow (5 failed attempts / 15 min → 30 min lock).
@@ -111,7 +111,7 @@ export async function adminLogin(
     const { data: adminUser, error: adminError } = await supabase
       .from('an_users' as any)
       .select('id, email, name, role, user_type, password_hash')
-      .eq('email', credentials.email)
+      .eq('email', email)
       .single()
 
     if (adminError || !adminUser) {
