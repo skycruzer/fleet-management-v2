@@ -45,3 +45,16 @@ pnpm-lock.yaml
 
 # Claude Code internal files
 .claude/
+.playwright-cli/
+.playwright-mcp/
+
+# Third-party MCP server checked out inside the repo root — not our source
+claude-talk-to-figma-mcp/
+
+# Tool output. These are generated, already covered by .gitignore, and were
+# reaching format:check only because .prettierignore had drifted behind it.
+.vercel
+playwright-report
+test-results
+scratch
+supabase/.temp

@@ -18,10 +18,19 @@ const eslintConfig = tseslint.config(
       '**/.worktrees/**',
       '**/dist/**',
       '**/coverage/**',
+      // Agent tooling artifacts. `.claude/worktrees/` holds full checkouts of this
+      // repo, so linting it reports every finding a second time under a path that
+      // is not the working tree. The pre-existing '**/.worktrees/**' entry above
+      // never matched it — the real directory is nested under `.claude/`.
+      '.claude/**',
+      '.playwright-cli/**',
+      '.playwright-mcp/**',
       // External tools and templates (use CommonJS/different standards)
       'BMAD-METHOD/**',
-      '.claude/skills/**',
       'backups/**',
+      // Third-party MCP server checked out inside the repo root. Not our source,
+      // and it ships its own toolchain (Bun) with different lint standards.
+      'claude-talk-to-figma-mcp/**',
       // Root-level test and utility scripts (mjs and js)
       '*.mjs',
       'test-*.mjs',

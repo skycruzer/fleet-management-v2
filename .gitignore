@@ -42,8 +42,14 @@ knowledge/
 # IDE / tooling
 .worktrees/
 .playwright-mcp/
+.playwright-cli/
 .kombai/
 .serena/
+
+# Third-party MCP server cloned inside the repo root. Not our source; it ships
+# its own Bun toolchain, whose global type declarations were being pulled into
+# our TypeScript program and breaking `npm run type-check`.
+claude-talk-to-figma-mcp/
 
 # Claude Code session artifacts
 .claude/worktrees/

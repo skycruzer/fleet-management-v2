@@ -52,6 +52,9 @@
     "**/*.stories.ts",
     "components/examples/**",
     "lib/examples/**",
-    "claude-talk-to-figma-mcp/**"
+    "claude-talk-to-figma-mcp/**",
+    ".claude/**",
+    ".playwright-cli/**",
+    ".playwright-mcp/**"
   ]
 }
