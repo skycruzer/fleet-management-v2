@@ -139,10 +139,7 @@ for (const target of TARGETS) {
     continue
   }
 
-  const { error } = await db
-    .from('pilot_users')
-    .update({ password_hash: hash })
-    .eq('id', pilot.id)
+  const { error } = await db.from('pilot_users').update({ password_hash: hash }).eq('id', pilot.id)
 
   if (error) {
     console.log(`staff ${staffId}: pilot_users UPDATE FAILED — ${error.message}`)
