@@ -1,42 +1,48 @@
-# Repo cleanup — remove dead Claude Code / dev-scratch artifacts (2026-08-15)
+# Repo cleanup — remove dead scratch and session artifacts (2026-08-15)
 
-Goal: remove files and folders that are no longer required, without destroying
-anything unrecoverable. Tracked files are removed via `git rm` so every deletion
-stays recoverable from git history.
+Goal: remove files and folders no longer required, without destroying anything
+unrecoverable. Tracked files go via `git rm`, so every deletion stays
+recoverable from git history.
 
-## Tier 1 — untracked / gitignored bulk (NOT done here — needs approval)
+## Tier 2 — tracked junk (DONE, PR #83, 522 files / −85,311 lines)
 
-These live only in the working checkout, so deleting them is irreversible. They
-were deliberately left in place; see the PR description and final report.
+- [x] **Pass 1 `ac13b18`** — root scratch: 27 one-off SQL, 22 debug screenshots,
+      14 shell scripts, 10 test harnesses, 6 cloud-sync duplicates, 4 captured
+      command outputs, 27 AI-tool symlink dirs, `.DS_Store`, empty `cookies.txt`.
+- [x] **Pass 2 `46b3437`** — emptied the `check-rls-guard.mjs` BASELINE; all nine
+      entries were the SQL files deleted in pass 1. No RLS-disabling SQL now
+      exists outside `supabase/migrations/`.
+- [x] **Pass 3 `adc9e19`** — `todos/`, `openspec/` + root `AGENTS.md`,
+      `.specify/`, `.planning/`, 22 dated `docs/` session reports,
+      `AUDIT-REPORT-2026-02-21.md`, `design-mockups/`, `expo/`, two `.claude`
+      install docs.
+- [x] **Pass 4 `46a793c`** — 225 of 234 `scripts/` files (only 9 are reachable);
+      `.claude/README.md` + `.claude/AGENTS.md`; rewrote `docs/README.md`, which
+      had indexed the deleted 2025-10-23 reports.
 
-- [ ] `.claude/worktrees/*` — 7 idle worktrees (~1.5 GB). Branches are unmerged,
-      so worktree dirs are disposable but **branches must be kept**.
-      `deep-review-fixes` is EXCLUDED — a live session is running in it (pid 67594).
-- [ ] `.next/` (329 MB), `storybook-static/`, `playwright-report/`, `test-results/`,
-      `screenshots/` (69 MB), `test-screenshots/`, `.playwright-mcp/` (8.7 MB),
-      `scratch/`, `firebase-debug.log`, `tsconfig.tsbuildinfo` — all regenerable.
-- [ ] `claude-talk-to-figma-mcp/` (86 MB) — untracked AND not gitignored, and not
-      referenced by `.mcp.json`. Flagged only; user decides.
+### Verification
 
-## Tier 2 — tracked junk (DONE in this branch, recoverable via git)
+- [x] `type-check`, `lint`, `prettier --check` pass in CI on every pass.
+- [x] `check:rls` exit 0 (empty baseline); `validate:naming` exit 0.
+- [x] Markdown link check: 6 broken → 1, and that one is pre-existing and points
+      outside the repo.
+- [x] No reference to any removed file in `tests/`, `e2e/`, `.github/`,
+      `.husky/`, or `package.json`.
+- [ ] Unit tests: **not run anywhere.** vitest workers time out in this local
+      environment, and CI's test job is skipped (`NEXT_PUBLIC_SUPABASE_URL`
+      unset). The one test importing a kept script was verified by hand.
 
-- [x] Cloud-sync duplicate copies (`<name> N.<ext>`) — the `.gitignore` patterns
-      never untracked the copies already in the index.
-- [x] Root-level debug/test screenshots (PNG).
-- [x] One-off SQL fix/patch scripts at repo root (schema of record is
-      `supabase/migrations/`).
-- [x] Root-level one-off `test-*.js` / `test_*.py` scripts — the real suites are
-      `tests/`, `e2e/` (Playwright/Vitest, wired into package.json).
-- [x] Captured command output committed as files (`build-output.txt`,
-      `lint-output.txt`, `deploy-log.txt`, `type-check-output.txt`).
-- [x] One-off shell scripts at root superseded by npm scripts / CI.
-- [x] 27 AI-tool skill fan-out dirs (`.adal`, `.augment`, … ) — symlinks into
-      `.agents/skills/`; the real content stays.
-- [x] `.DS_Store`, empty `cookies.txt`.
+## Blocked — needs the user to run it
 
-## Verification
+- [ ] `.claude/worktrees/` — 7 idle worktrees (~1.5 GB) and the regenerable bulk
+      (`.next`, `screenshots`, `storybook-static`, …, ~2 GB total). The auto-mode
+      permission classifier blocks moving them to Trash; see the session report
+      for the copy-pasteable commands. `deep-review-fixes` is EXCLUDED — a live
+      session was running in it (pid 67594).
+- [ ] `claude-talk-to-figma-mcp/` (86 MB) — gitignored third-party clone, user's call.
 
-- [x] `git grep` for references before removing (only `DATABASE-INDEXES.sql` is
-      cited, by a historical audit report — noted, not a build dependency).
-- [x] No `package.json` script references any removed file.
-- [ ] `npm run build` after removal.
+## Pre-existing, not fixed here
+
+- [ ] `main` is red: PR #82's `check-no-hardcoded-credentials.mjs` rejects two
+      pre-existing unit-test fixtures (`admin-auth-service.test.ts:60`,
+      `pilot-login-schema.test.ts:8`). Needs its own change.
