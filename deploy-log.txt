@@ -1,3 +1,0 @@
-Vercel CLI 48.6.7
-Retrieving project…
-Deploying rondeaumaurice-5086s-projects/fleet-management-v2

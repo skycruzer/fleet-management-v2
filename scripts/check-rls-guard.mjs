@@ -9,9 +9,9 @@
  * most plausible origin: a dozen ad-hoc scripts at the repo root were evidently pasted into
  * the SQL editor by hand over time.
  *
- * This does NOT fail on the existing scripts — each is baselined below at its current count and
- * carries a DANGER banner. It fails when a NEW statement appears, including one appended to an
- * already-listed file, so the pattern cannot quietly return.
+ * The baseline is now EMPTY: every one of those ad-hoc root scripts has been deleted, so no
+ * RLS-disabling SQL remains outside `supabase/migrations/`. Any match is therefore a NEW
+ * statement and fails the check outright — the pattern cannot quietly return.
  *
  * `supabase/migrations/` is exempt: that is the source of truth, and a migration may legitimately
  * toggle RLS as part of a reviewed change.
@@ -31,19 +31,12 @@ import { execFileSync } from 'node:child_process'
  * listed file and still pass. Exceeding the recorded count fails the check; dropping below it
  * is fine and the number should be lowered (or the entry removed) in the same change.
  *
+ * Empty as of the root-scratch cleanup — all nine legacy files were deleted. Keep it empty:
+ * a re-added entry means ad-hoc RLS-disabling SQL is back in the repo.
+ *
  * scripts/enable-rls-safe.sql is deliberately ABSENT — its only DISABLE is commented out.
  */
-const BASELINE = new Map([
-  ['COMPLETE-FIX-SQL.sql', 2],
-  ['CREATE-TABLES-AND-FIX-RLS.sql', 2],
-  ['DISABLE_RLS_TEMPORARILY.sql', 1],
-  ['FIX_CRITICAL_ERRORS.sql', 1],
-  ['final-rls-fix.sql', 1],
-  ['fix-all-rls-policies.sql', 9],
-  ['fix-an-users-rls-policies.sql', 1],
-  ['re-enable-rls-FINAL.sql', 8],
-  ['re-enable-rls-step-by-step.sql', 8],
-])
+const BASELINE = new Map([])
 
 const DISABLE_RLS = /DISABLE\s+ROW\s+LEVEL\s+SECURITY/gi
 
