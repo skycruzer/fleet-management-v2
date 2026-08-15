@@ -9,6 +9,15 @@ import * as path from 'path'
 // Load test environment variables from .env.test.local
 dotenv.config({ path: path.resolve(__dirname, '.env.test.local') })
 
+// The suite contains create/update/delete workflows. Do not let a developer or
+// CI job accidentally run it against a production-backed local server merely
+// because production Supabase credentials are present in .env.local.
+if (process.env.E2E_TEST_DATABASE !== '1') {
+  throw new Error(
+    'Refusing to run Playwright E2E tests without E2E_TEST_DATABASE=1. Use isolated test-database credentials.'
+  )
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */

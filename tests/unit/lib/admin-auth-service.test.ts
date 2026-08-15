@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import bcrypt from 'bcryptjs'
+import { randomUUID } from 'node:crypto'
 
 const createServiceRoleClientMock = vi.fn()
 const createRedisSessionMock = vi.fn()
@@ -57,7 +58,7 @@ describe('adminLogin', () => {
   })
 
   it('normalizes the submitted email before looking up the admin account', async () => {
-    const password = 'Valid-password-123'
+    const password = randomUUID()
     const passwordHash = await bcrypt.hash(password, 4)
     const lookup = resolvedBuilder({
       data: {
@@ -85,7 +86,7 @@ describe('adminLogin', () => {
   })
 
   it('does not report a password change as fully successful if session revocation fails', async () => {
-    const currentPassword = 'Valid-password-123'
+    const currentPassword = randomUUID()
     const passwordHash = await bcrypt.hash(currentPassword, 4)
     const lookup = resolvedBuilder({
       data: {
@@ -105,7 +106,7 @@ describe('adminLogin', () => {
     })
 
     const { changeAdminPassword } = await import('@/lib/services/admin-auth-service')
-    const result = await changeAdminPassword('admin-1', currentPassword, 'Different-password-456')
+    const result = await changeAdminPassword('admin-1', currentPassword, randomUUID())
 
     expect(destroyAllUserSessionsMock).toHaveBeenCalledWith(
       'admin-1',

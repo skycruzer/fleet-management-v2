@@ -56,6 +56,13 @@ The E2E test suite covers critical user flows including:
 
 ## Running Tests
 
+The suite performs mutations. It requires an isolated Supabase test project and
+an explicit opt-in; it must never share the production project credentials.
+
+```bash
+E2E_TEST_DATABASE=1 npm test
+```
+
 ### Local Development
 
 ```bash
@@ -105,20 +112,29 @@ See `.github/workflows/playwright.yml` for CI configuration.
 
 ### Required Environment Variables
 
-Create a `.env.local` file with:
+Create a `.env.local` file for a dedicated Supabase test project, plus a
+`.env.test.local` file for the test identities. Do not use production values.
 
 ```env
-# Supabase Configuration
+# .env.local — isolated test project only
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-test-service-role-key
 
-# Test User Credentials
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PASSWORD=testpassword123
-
-# Test Configuration
-PLAYWRIGHT_TEST_BASE_URL=http://localhost:3000
+# .env.test.local — explicit mutation opt-in and disposable accounts
+E2E_TEST_DATABASE=1
+TEST_ADMIN_EMAIL=admin-test@example.com
+TEST_ADMIN_PASSWORD=replace-with-a-test-password
+TEST_PILOT_EMAIL=pilot-test@example.com
+TEST_PILOT_STAFF_ID=test-pilot-staff-id
+TEST_PILOT_PASSWORD=replace-with-a-test-password
+TEST_USER_EMAIL=user-test@example.com
+TEST_USER_PASSWORD=replace-with-a-test-password
+PLAYWRIGHT_TEST_BASE_URL=http://localhost:3005
 ```
+
+The CI workflow additionally requires the same values as `E2E_*` GitHub
+secrets and rejects a test URL equal to the production Supabase URL.
 
 ### Test User Setup
 

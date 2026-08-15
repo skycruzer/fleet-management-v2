@@ -40,6 +40,58 @@ export interface NotificationResult {
   error?: string
 }
 
+export interface CreatePilotNotificationForPilotIdParams {
+  pilotId: string
+  title: string
+  message: string
+  type: NotificationType
+  link?: string | null
+}
+
+/**
+ * Creates a portal notification for a fleet pilot.
+ *
+ * `pilots.id` and `pilot_users.id` are different identifiers. Resolve the
+ * portal account here so callers that naturally hold a fleet-pilot ID cannot
+ * insert a notification that the pilot portal will never retrieve.
+ */
+export async function createPilotNotificationForPilotId(
+  params: CreatePilotNotificationForPilotIdParams
+): Promise<NotificationResult> {
+  try {
+    const supabase = createAdminClient()
+    const { data: mapping, error } = await supabase
+      .from('pilot_user_mappings')
+      .select('pilot_user_id')
+      .eq('pilot_id', params.pilotId)
+      .single()
+
+    if (error || !mapping?.pilot_user_id) {
+      logger.error('Pilot portal account was not found for notification delivery', {
+        source: 'NotificationService',
+        severity: ErrorSeverity.WARNING,
+        metadata: { operation: 'createPilotNotificationForPilotId', pilotId: params.pilotId },
+      })
+      return { success: false, error: 'Pilot portal account not found' }
+    }
+
+    return await createNotification({
+      userId: mapping.pilot_user_id,
+      title: params.title,
+      message: params.message,
+      type: params.type,
+      link: params.link,
+    })
+  } catch (error) {
+    logger.error((error as Error).message, {
+      source: 'NotificationService',
+      severity: ErrorSeverity.ERROR,
+      metadata: { operation: 'createPilotNotificationForPilotId', pilotId: params.pilotId },
+    })
+    return { success: false, error: 'An unexpected error occurred' }
+  }
+}
+
 /**
  * Create a new notification for a user
  *
