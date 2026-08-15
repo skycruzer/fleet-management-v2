@@ -95,7 +95,7 @@
     "nuqs": "^2.8.8",
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^5.4.624",
-    "puppeteer": "^24.36.1",
+    "puppeteer": "^25.7.0",
     "react": "^19.2.4",
     "react-day-picker": "^9.13.0",
     "react-dom": "^19.2.4",
@@ -141,7 +141,7 @@
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
-    "postcss": "8.5.19",
+    "postcss": "8.5.26",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "storybook": "^10.5.0",
@@ -161,13 +161,17 @@
     ]
   },
   "engines": {
-    "node": ">=18.18.0 <25",
+    "node": ">=22.12.0 <25",
     "npm": ">=9.0.0"
   },
   "overrides": {
+    "brace-expansion": "2.1.4",
+    "dompurify": "3.4.13",
+    "js-yaml": "4.3.1",
     "postcss": "$postcss",
+    "undici": "7.29.0",
     "minimatch@3.1.5": {
-      "brace-expansion": "1.1.13"
+      "brace-expansion": "1.1.18"
     },
     "sharp": "$sharp"
   },

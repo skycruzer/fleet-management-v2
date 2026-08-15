@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout code
@@ -53,23 +53,47 @@ jobs:
       - name: Run production build
         run: npm run build
 
-  # Check if E2E test secrets are configured
+  # E2E exercises create/update/delete workflows. Require a dedicated database
+  # and test accounts, and fail closed if the configured test URL is production.
   check-secrets:
     runs-on: ubuntu-latest
     outputs:
       has-secrets: ${{ steps.check.outputs.has-secrets }}
     steps:
-      - name: Check for Supabase secrets
+      - name: Check for isolated E2E secrets
         id: check
         env:
-          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+          E2E_SUPABASE_ANON_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
+          E2E_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_PILOT_EMAIL: ${{ secrets.E2E_PILOT_EMAIL }}
+          E2E_PILOT_STAFF_ID: ${{ secrets.E2E_PILOT_STAFF_ID }}
+          E2E_PILOT_PASSWORD: ${{ secrets.E2E_PILOT_PASSWORD }}
+          E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
+          E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+          PRODUCTION_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
         run: |
-          if [ -n "$SUPABASE_URL" ]; then
-            echo "has-secrets=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has-secrets=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping E2E tests - NEXT_PUBLIC_SUPABASE_URL secret not configured"
+          required=(
+            E2E_SUPABASE_URL E2E_SUPABASE_ANON_KEY E2E_SUPABASE_SERVICE_ROLE_KEY
+            E2E_ADMIN_EMAIL E2E_ADMIN_PASSWORD E2E_PILOT_EMAIL E2E_PILOT_STAFF_ID
+            E2E_PILOT_PASSWORD E2E_USER_EMAIL E2E_USER_PASSWORD PRODUCTION_SUPABASE_URL
+          )
+          for name in "${required[@]}"; do
+            if [ -z "${!name}" ]; then
+              echo "has-secrets=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Skipping E2E tests - $name is not configured"
+              exit 0
+            fi
+          done
+
+          if [ "$E2E_SUPABASE_URL" = "$PRODUCTION_SUPABASE_URL" ]; then
+            echo "::error::E2E_SUPABASE_URL must not point at the production Supabase project"
+            exit 1
           fi
+
+          echo "has-secrets=true" >> "$GITHUB_OUTPUT"
 
   # E2E tests: only run when Supabase secrets are configured
   test:
@@ -79,7 +103,7 @@ jobs:
     if: needs.check-secrets.outputs.has-secrets == 'true'
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout code
@@ -99,16 +123,29 @@ jobs:
 
       - name: Setup environment variables
         env:
-          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
-          USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+          ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          PILOT_EMAIL: ${{ secrets.E2E_PILOT_EMAIL }}
+          PILOT_STAFF_ID: ${{ secrets.E2E_PILOT_STAFF_ID }}
+          PILOT_PASSWORD: ${{ secrets.E2E_PILOT_PASSWORD }}
+          USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
         run: |
           echo "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL" >> .env.local
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env.local
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> .env.local
+          echo "TEST_ADMIN_EMAIL=$ADMIN_EMAIL" >> .env.test.local
+          echo "TEST_ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env.test.local
+          echo "TEST_PILOT_EMAIL=$PILOT_EMAIL" >> .env.test.local
+          echo "TEST_PILOT_STAFF_ID=$PILOT_STAFF_ID" >> .env.test.local
+          echo "TEST_PILOT_PASSWORD=$PILOT_PASSWORD" >> .env.test.local
           echo "TEST_USER_EMAIL=$USER_EMAIL" >> .env.test.local
           echo "TEST_USER_PASSWORD=$USER_PASSWORD" >> .env.test.local
           echo "PLAYWRIGHT_TEST_BASE_URL=http://localhost:3005" >> .env.test.local
+          echo "E2E_TEST_DATABASE=1" >> .env.test.local
 
       - name: Run Playwright tests
         run: npm test

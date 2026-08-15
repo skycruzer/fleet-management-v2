@@ -17,7 +17,7 @@ import { createAdminRoute } from '@/lib/middleware/create-api-route'
 import { UserRole } from '@/lib/middleware/authorization-middleware'
 import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
 import { reviewLeaveBidOption } from '@/lib/services/leave-bid-service'
-import { createNotification } from '@/lib/services/notification-service'
+import { createPilotNotificationForPilotId } from '@/lib/services/notification-service'
 import {
   sendLeaveBidApprovedEmail,
   sendLeaveBidRejectedEmail,
@@ -76,8 +76,8 @@ export const POST = createAdminRoute(
         ? `Your ${ordinal} preference for ${bid.roster_period_code} has been approved.`
         : `Your ${ordinal} preference for ${bid.roster_period_code} has been rejected.`
 
-    await createNotification({
-      userId: bid.pilot_id,
+    await createPilotNotificationForPilotId({
+      pilotId: bid.pilot_id,
       title: notificationTitle,
       message: notificationMessage,
       type: action === 'approve' ? 'leave_bid_approved' : 'leave_bid_rejected',

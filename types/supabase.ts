@@ -5796,6 +5796,10 @@ export type Database = {
         Returns: undefined
       }
       complete_task: { Args: { p_task_id: string }; Returns: boolean }
+      consume_pilot_password_reset: {
+        Args: { p_password_hash: string; p_token: string }
+        Returns: Json
+      }
       create_pilot_with_certifications: {
         Args: { p_certifications?: Json[]; p_pilot_data: Json }
         Returns: {

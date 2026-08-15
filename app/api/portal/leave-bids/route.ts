@@ -31,7 +31,7 @@ import {
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createPilotRoute } from '@/lib/middleware/create-api-route'
 import { invalidateLeaveBidCaches } from '@/lib/services/cache-invalidation-helper'
-import { createNotification } from '@/lib/services/notification-service'
+import { createPilotNotificationForPilotId } from '@/lib/services/notification-service'
 import { sendLeaveBidSubmittedEmail } from '@/lib/services/pilot-email-notification-service'
 
 /**
@@ -106,8 +106,8 @@ export const POST = createPilotRoute(
 
     // Send confirmation notification to pilot (bell + email)
     if (pilot.pilot_id) {
-      createNotification({
-        userId: pilot.pilot_id,
+      createPilotNotificationForPilotId({
+        pilotId: pilot.pilot_id,
         title: 'Leave Bid Submitted',
         message: `Your leave bid for ${bid_year} has been submitted and is pending review.`,
         type: 'leave_bid_submitted',
