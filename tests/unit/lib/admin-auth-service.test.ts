@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import bcrypt from 'bcryptjs'
+import { randomUUID } from 'node:crypto'
+
+// Generated per run rather than hardcoded: scripts/check-no-hardcoded-credentials.mjs
+// rejects string literals assigned to a password, because that is how the burned
+// production credentials reached the tree. The values are arbitrary — each is hashed
+// inside the test and compared against that same hash.
+const TEST_PASSWORD = `Valid-password-${randomUUID()}`
+const TEST_NEW_PASSWORD = `Different-password-${randomUUID()}`
 
 const createServiceRoleClientMock = vi.fn()
 const createRedisSessionMock = vi.fn()
@@ -57,7 +65,7 @@ describe('adminLogin', () => {
   })
 
   it('normalizes the submitted email before looking up the admin account', async () => {
-    const password = 'Valid-password-123'
+    const password = TEST_PASSWORD
     const passwordHash = await bcrypt.hash(password, 4)
     const lookup = resolvedBuilder({
       data: {
@@ -85,7 +93,7 @@ describe('adminLogin', () => {
   })
 
   it('does not report a password change as fully successful if session revocation fails', async () => {
-    const currentPassword = 'Valid-password-123'
+    const currentPassword = TEST_PASSWORD
     const passwordHash = await bcrypt.hash(currentPassword, 4)
     const lookup = resolvedBuilder({
       data: {
@@ -105,7 +113,7 @@ describe('adminLogin', () => {
     })
 
     const { changeAdminPassword } = await import('@/lib/services/admin-auth-service')
-    const result = await changeAdminPassword('admin-1', currentPassword, 'Different-password-456')
+    const result = await changeAdminPassword('admin-1', currentPassword, TEST_NEW_PASSWORD)
 
     expect(destroyAllUserSessionsMock).toHaveBeenCalledWith(
       'admin-1',
