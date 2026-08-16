@@ -57,9 +57,13 @@ const envSchema = z.object({
   CRON_SECRET: z.string().min(1).optional(),
 
   // ── Logging / Observability (optional) ───────────────────────────────
+  // Telemetry-UI sources ingest on a per-source host; the SDK's legacy default
+  // 401s for these tokens and drops logs silently. See lib/utils/logtail-endpoint.ts.
   LOGTAIL_SOURCE_TOKEN: z.string().min(1).optional(),
+  LOGTAIL_INGESTING_HOST: z.string().url().optional(),
 
   NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN: z.string().min(1).optional(),
+  NEXT_PUBLIC_LOGTAIL_INGESTING_HOST: z.string().url().optional(),
 })
 
 /**

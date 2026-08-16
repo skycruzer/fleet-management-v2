@@ -15,8 +15,11 @@ import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportPreviewRequestSchema } from '@/lib/validations/reports-schema'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { serverLogtailOptions } from '@/lib/utils/logtail-endpoint'
 
-const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
+const log = process.env.LOGTAIL_SOURCE_TOKEN
+  ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN, serverLogtailOptions())
+  : null
 
 export const POST = createAdminRoute(
   {

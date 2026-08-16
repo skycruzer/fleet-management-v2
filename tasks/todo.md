@@ -112,7 +112,16 @@ genuinely missing. It also carried a phantom `20260128` marked applied whose SQL
       `lib/rate-limit-fallback.ts`. The 429 probe could not be triggered from here: 48 requests
       arrived from 30 distinct egress IPs and every per-IP counter read back as 1, against a
       5/min limit. Worth re-running a same-IP burst from a normal network.
-- [ ] **N2 — blocked on the user.** `LOGTAIL_SOURCE_TOKEN` needs a Better Stack token.
+- [x] **N2 — DONE.** Better Stack free tier; two sources created (`Fleet Management V2 - Server`
+      and `- Client`). Needed a code change, not just env vars: Telemetry-UI sources ingest on a
+      per-source host, and `@logtail/node@0.5.8` still defaults to the legacy shared endpoint.
+      Measured — per-source host `202 Accepted`, `https://in.logs.betterstack.com` **401
+      Unauthorized**. Tokens alone would have shipped nothing while looking instrumented, because
+      the SDK batches asynchronously and never surfaces the rejected batch. New
+      `lib/utils/logtail-endpoint.ts` resolves the host for both runtimes and logs
+      `[logtail] DEGRADED` if a token is set without one. Four env vars set across all three
+      environments. Local `.env.local` deliberately omits them so dev logs to console and does not
+      burn the 1 GB quota.
 
 ## Uncommitted work found in this tree (not authored by this review)
 

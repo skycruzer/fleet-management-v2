@@ -13,7 +13,8 @@ async function getServerLogger() {
   if (serverLogger) return serverLogger
   if (typeof window === 'undefined' && process.env.LOGTAIL_SOURCE_TOKEN) {
     const { Logtail } = await import('@logtail/node')
-    serverLogger = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN)
+    const { serverLogtailOptions } = await import('@/lib/utils/logtail-endpoint')
+    serverLogger = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN, serverLogtailOptions())
   }
   return serverLogger
 }
@@ -23,7 +24,8 @@ async function getClientLogger() {
   if (clientLogger) return clientLogger
   if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN) {
     const { Logtail } = await import('@logtail/browser')
-    clientLogger = new Logtail(process.env.NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN)
+    const { clientLogtailOptions } = await import('@/lib/utils/logtail-endpoint')
+    clientLogger = new Logtail(process.env.NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN, clientLogtailOptions())
   }
   return clientLogger
 }

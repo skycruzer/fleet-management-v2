@@ -11,6 +11,7 @@
 
 import { nanoid } from 'nanoid'
 import { Logtail } from '@logtail/node'
+import { serverLogtailOptions } from '@/lib/utils/logtail-endpoint'
 
 let logtail: Logtail | null = null
 
@@ -21,7 +22,7 @@ function getLogtail(): Logtail | null {
   if (!token) return null
 
   try {
-    logtail = new Logtail(token)
+    logtail = new Logtail(token, serverLogtailOptions())
     return logtail
   } catch (error) {
     console.error('Failed to initialize Logtail:', error)
