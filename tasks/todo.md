@@ -87,20 +87,27 @@ genuinely missing. It also carried a phantom `20260128` marked applied whose SQL
   dashboard metrics loading), landing/portal login 200, `/dashboard` + `/portal/dashboard` 307,
   `/api/pilots` 401.
 
-## Still open
+## Follow-up items
 
-- [ ] **N1 — user action.** Upstash Redis is still absent from Vercel Production.
-      `vercel env ls production` lists 7 vars, neither `UPSTASH_*`. The in-process fallback limiter
-      does enforce, but per instance, so the real budget scales with warm instance count. Sessions
-      fall back to the DB.
-- [ ] **N2 — user action.** `LOGTAIL_SOURCE_TOKEN` absent in Production → no structured logs
-      shipping.
-- [ ] **N3 — cleanup.** `ENABLE_CSRF_PROTECTION` is set in Preview only and no code reads it.
-- [ ] **N4 — user action, recommended.** The pilot bcrypt hashes were publicly readable until
-      today. Migration `20260731090000`'s own header says to treat them as compromised. Force a
-      password reset for all portal accounts.
-- [ ] **N5 — smoke test.** Leave approval and pilot password reset are un-broken at the DB level
-      but were not exercised end to end (needs real credentials).
+- [x] **N3 — DONE.** `ENABLE_CSRF_PROTECTION` deleted from Preview (it was already gone from
+      Production in June 2026). Confirmed repo-wide that no code reads it; `validateCsrf()`
+      enforces unconditionally.
+- [x] **N4 — DONE.** `must_change_password = true` on all 29 pilot accounts (28 updated, 1 already
+      set). Enforcement verified in code first: `app/portal/(protected)/layout.tsx:47` redirects,
+      `app/portal/change-password/page.tsx` is outside `(protected)` so no loop, and `proxy.ts`
+      permits any `/portal/*` path for a valid session. The form asks for the old password, so it is
+      a forced change, not a lockout. Sessions left alive on purpose — `pilot_sessions` has been
+      anon-401 since `20260703000001`, so no token was exposed.
+- [x] **N5 — DONE at the DB layer.** `approve_leave_request_atomic` with a non-existent request id
+      returned `{"success": false, "reason": "Request not found"}`; `consume_pilot_password_reset`
+      with a bogus token returned `null`. Both execute correctly and touch no real data. Full UI
+      walkthrough still needs real credentials.
+- [ ] **N1 — blocked on the user.** `vercel integration add upstash/upstash-kv --plan free` returned
+      `integration_terms_acceptance_required`. Accept at
+      `https://vercel.com/skycruzer/~/integrations/accept-terms/upstash?source=cli`, then rerun:
+      `vercel integration add upstash/upstash-kv --plan free -m primaryRegion=sin1 -m autoUpgrade=false -m prodPack=false --name fleet-management-redis --no-claim`
+      Then check the injected names are exactly `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`.
+- [ ] **N2 — blocked on the user.** `LOGTAIL_SOURCE_TOKEN` needs a Better Stack token.
 
 ## Uncommitted work found in this tree (not authored by this review)
 
@@ -119,5 +126,8 @@ All gates pass with these changes included.
 - [x] Apply all 9 pending migrations to production
 - [x] Re-verify every fix against live production
 - [x] Regenerate `types/supabase.ts`
-- [ ] Commit, PR to `main`, watch CI on the exact head SHA
-- [ ] Rewrite `PRODUCTION-READINESS.md`
+- [x] Rewrite `PRODUCTION-READINESS.md`
+- [x] Commit + PR #85, CI green on `b59d916`
+- [x] Squash-merged to `main` as `4a60d6b`; CI green on that SHA; Vercel production deploy Ready
+- [x] Verified live after the deploy — anon sweep all 401, `/api/health` healthy (37 pilots,
+      dashboard metrics loading), auth gates 401/307, migration ledger drift 0
