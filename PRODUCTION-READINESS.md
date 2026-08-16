@@ -210,6 +210,32 @@ construction sites — `lib/services/logging-service.ts`, `lib/utils/error-sanit
 Local `.env.local` deliberately does **not** carry these vars: local development keeps logging to
 the console rather than consuming the 1 GB monthly quota.
 
+### The second silent-drop, fixed in the same pass
+
+Pointing the SDK at the right host is necessary but not sufficient. `@logtail/node` batches for
+about a second and the send is fire-and-forget, while Vercel may freeze the invocation the moment a
+response is returned. An error logged during a request was therefore liable to be discarded before
+its batch was ever flushed — the logger reporting success the whole time.
+
+`scheduleLogtailFlush()` closes that: it defers the flush with `after()` from `next/server`, which
+keeps the invocation alive until the batch lands, and falls back to an un-awaited flush outside a
+request scope (scripts, module init) where `after()` throws. Failures are swallowed and logged —
+logging must never break the request it is describing.
+
+**Covered by `tests/unit/lib/logtail-endpoint.test.ts` (9 tests), and the tests were
+mutation-checked rather than assumed:**
+
+| Bug reintroduced                          | Result           |
+| ----------------------------------------- | ---------------- |
+| `scheduleLogtailFlush` made a no-op       | **4 tests fail** |
+| Configured endpoint ignored (the 401 bug) | **1 test fails** |
+
+**Not yet observed end to end:** a log line originating from the deployed app. Only
+`sanitizeError()` ships to Better Stack, so it fires on genuine 500-class errors, and none occurred
+during verification — probe traffic produced 401s and 307s, which never reach it. The transport
+itself is proven (`202 Accepted`, entry visible in Live tail). The first real production error will
+confirm the rest.
+
 ## Open items
 
 None. Every item from this review is closed.

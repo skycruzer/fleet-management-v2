@@ -58,7 +58,14 @@ export const logger = {
     // Better Stack (if configured)
     if (typeof window === 'undefined') {
       const logger = await getServerLogger()
-      await logger?.error(message, formattedContext)
+      if (logger) {
+        const queued = logger.error(message, formattedContext)
+        // Errors are the one level worth keeping the invocation alive for —
+        // Vercel can freeze the function before the SDK's batch window closes.
+        const { scheduleLogtailFlush } = await import('@/lib/utils/logtail-endpoint')
+        scheduleLogtailFlush(logger, queued)
+        await queued
+      }
     } else {
       const logger = await getClientLogger()
       await logger?.error(message, formattedContext)

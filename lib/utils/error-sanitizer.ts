@@ -11,7 +11,7 @@
 
 import { nanoid } from 'nanoid'
 import { Logtail } from '@logtail/node'
-import { serverLogtailOptions } from '@/lib/utils/logtail-endpoint'
+import { serverLogtailOptions, scheduleLogtailFlush } from '@/lib/utils/logtail-endpoint'
 
 let logtail: Logtail | null = null
 
@@ -293,7 +293,7 @@ function logError(error: unknown, errorId: string, context?: Record<string, unkn
     const logger = getLogtail()
 
     if (logger) {
-      logger.error('Application error', {
+      const queued = logger.error('Application error', {
         errorId,
         errorType: errorDetails.type,
         errorMessage: errorDetails.message,
@@ -303,6 +303,12 @@ function logError(error: unknown, errorId: string, context?: Record<string, unkn
         environment: process.env.NODE_ENV,
         timestamp: new Date().toISOString(),
       })
+
+      // Without this the batch is routinely lost: Vercel can freeze the
+      // invocation as soon as the response is sent, before the SDK's ~1s batch
+      // window elapses. An error logger that silently drops errors is worse
+      // than none, because it looks like there were no errors.
+      scheduleLogtailFlush(logger, queued)
     } else {
       // Fallback to console if Logtail is not available
       console.error('Application error:', {
