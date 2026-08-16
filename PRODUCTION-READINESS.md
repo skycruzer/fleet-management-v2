@@ -179,14 +179,57 @@ arrived from **30 distinct source IPs**, and every bucket held `value=1`. The li
 July 2026 probe that did produce a 429 ran from a single address. Rate limiting is enforcing — this
 environment simply cannot exercise it. A same-IP burst is still worth running from a normal network.
 
-## Open items — none blocking
+## N2 — Better Stack logging: DONE
 
-| #   | Item                                                                                                   | Owner |
-| --- | ------------------------------------------------------------------------------------------------------ | ----- |
-| N2  | `LOGTAIL_SOURCE_TOKEN` absent in Production — no structured logs shipping. Needs a Better Stack token. | user  |
+Two sources created on the Better Stack free tier (1 GB/month, 3-day log retention), both platform
+`JavaScript • Node.js`:
+
+| Source                         | Ingesting host                               | Env vars                                                                 |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------ |
+| `Fleet Management V2 - Server` | `s2682835.eu-central-1a.betterstackdata.com` | `LOGTAIL_SOURCE_TOKEN`, `LOGTAIL_INGESTING_HOST`                         |
+| `Fleet Management V2 - Client` | `s2682840.eu-central-1a.betterstackdata.com` | `NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN`, `NEXT_PUBLIC_LOGTAIL_INGESTING_HOST` |
+
+**This one needed a code change, for the same reason as the previous two items.** Sources created in
+Better Stack's Telemetry UI ingest on a **per-source host**. `@logtail/node@0.5.8` still defaults to
+the legacy shared endpoint. Measured against the live sources:
+
+```
+POST https://s2682835.eu-central-1a.betterstackdata.com  ->  202 Accepted
+POST https://in.logs.betterstack.com                     ->  401 Unauthorized
+```
+
+Setting only the tokens — the obvious reading of "add `LOGTAIL_SOURCE_TOKEN`" — would have produced
+a system that looks instrumented and ships nothing. The SDK batches asynchronously, so every `log()`
+call still resolves and the rejected batch never surfaces.
+
+`lib/utils/logtail-endpoint.ts` resolves the host for both runtimes and logs `[logtail] DEGRADED`
+when a token is configured without one, so the failure cannot be silent again. The three
+construction sites — `lib/services/logging-service.ts`, `lib/utils/error-sanitizer.ts` and
+`app/api/reports/preview/route.ts` — pass it through.
+
+Local `.env.local` deliberately does **not** carry these vars: local development keeps logging to
+the console rather than consuming the 1 GB monthly quota.
+
+## Open items
+
+None. Every item from this review is closed.
 
 ## The lesson, again
 
 The July report recorded exactly the right lesson — "review the deployment, not just the diff" — and
 then applied it only to Vercel env vars and HTTP responses. The database is part of the deployment.
 `supabase migration list` is not evidence that a migration ran; the schema is. Check the effect.
+
+**The same shape appeared four separate times in this review**, which is what makes it worth naming
+rather than fixing case by case:
+
+| Thing that looked done              | What was actually true                                      |
+| ----------------------------------- | ----------------------------------------------------------- |
+| Migration ledger said "applied"     | The SQL had never run                                       |
+| `20260728120000` exited 0           | Its guard was false; it changed nothing                     |
+| Upstash resource showed "Available" | The app read different env var names and never connected    |
+| Better Stack tokens set             | The SDK's default endpoint 401s; every log silently dropped |
+
+Each one reports success through the interface you would naturally check. The only reliable test is
+to look for the **effect** — query the ACL, read the counter, scan for the keys, POST a log and
+check the status code. Configuration is not evidence. Measure.
