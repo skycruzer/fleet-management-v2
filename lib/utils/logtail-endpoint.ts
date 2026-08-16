@@ -23,6 +23,11 @@ export interface LogtailEndpointOptions {
   endpoint: string
 }
 
+/** The subset of the Logtail client this module needs. */
+interface FlushableLogger {
+  flush: () => Promise<unknown>
+}
+
 let warnedServer = false
 let warnedClient = false
 
@@ -68,4 +73,37 @@ export function clientLogtailOptions(): LogtailEndpointOptions | undefined {
   }
 
   return { endpoint }
+}
+
+/**
+ * Ensure a queued log actually leaves the machine before the serverless
+ * invocation is frozen.
+ *
+ * `@logtail/node` batches (default ~1s) and the send is fire-and-forget from the
+ * caller's perspective. On Vercel the function can be frozen the instant it
+ * returns a response, so an error logged during a request is routinely
+ * discarded before its batch is flushed — the logger reports success and the
+ * error never appears in Better Stack.
+ *
+ * `after()` from `next/server` defers work until after the response is sent
+ * while keeping the invocation alive, which is exactly the guarantee needed. It
+ * throws outside a request scope (module init, scripts, tests), so fall back to
+ * an un-awaited flush there — in those contexts the process is not about to be
+ * frozen and the batch has time to drain.
+ */
+export function scheduleLogtailFlush(logger: FlushableLogger, queued?: unknown): void {
+  const deliver = () =>
+    Promise.resolve(queued)
+      .then(() => logger.flush())
+      .catch((error) => {
+        console.error('[logtail] flush failed; log line was dropped:', error)
+      })
+
+  try {
+    // Imported lazily so this module stays usable outside the Next runtime.
+    const { after } = require('next/server') as { after: (task: () => unknown) => void }
+    after(deliver)
+  } catch {
+    void deliver()
+  }
 }

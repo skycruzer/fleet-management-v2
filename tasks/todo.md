@@ -122,6 +122,16 @@ genuinely missing. It also carried a phantom `20260128` marked applied whose SQL
       `[logtail] DEGRADED` if a token is set without one. Four env vars set across all three
       environments. Local `.env.local` deliberately omits them so dev logs to console and does not
       burn the 1 GB quota.
+- [x] **N2b — DONE.** Second silent-drop closed: the SDK batches ~1s fire-and-forget while Vercel
+      can freeze the invocation on response, so error logs were liable to be discarded before
+      flushing. `scheduleLogtailFlush()` defers via `after()` from `next/server`, falling back to an
+      un-awaited flush outside a request scope. 9 new tests in
+      `tests/unit/lib/logtail-endpoint.test.ts`, **mutation-checked**: no-op flush → 4 fail,
+      ignored endpoint → 1 fail. Suite 166 → 175.
+- [ ] **N2c — awaiting a real error.** No app-originated log observed yet: only `sanitizeError()`
+      ships to Better Stack, so it fires on genuine 500-class errors and none occurred during
+      verification. Transport is proven (202 + entry in Live tail). The first production error
+      confirms the rest.
 
 ## Uncommitted work found in this tree (not authored by this review)
 
