@@ -1,6 +1,6 @@
 # Production Readiness Report
 
-**Branch:** `san-jose` (= `origin/main` @ `0d5fbf4`) · **Reviewed + remediated:** 2026-08-15
+**Reviewed at:** `main` @ `0d5fbf4` · **Shipped as:** `4a60d6b` (PR #85) · **Date:** 2026-08-15
 **Method:** hard gates on the working tree, then a direct comparison of the **deployed database**
 against the repo, then live probes of `https://www.pxb767office.app` and the Supabase REST API with
 the public anon key.
@@ -125,15 +125,50 @@ Application, after every change:
 Working tree gates: `npm run validate` exit 0 · `npm run test:unit` 165 tests / 31 files ·
 `npm run build` exit 0 · `npm audit --omit=dev` 0 vulnerabilities.
 
+## Post-merge remediation (same day)
+
+- **N4 — DONE.** `pilot_users.must_change_password` set to `true` for all 29 accounts (28 updated,
+  1 already set). Enforcement was verified in code before the data change:
+  `app/portal/(protected)/layout.tsx:47` redirects when the flag is on, and
+  `app/portal/change-password/page.tsx` sits outside the `(protected)` group so there is no redirect
+  loop; `proxy.ts` permits any `/portal/*` path for a valid session, so it does not fight the
+  redirect. The form requires the old password, so this is a forced _change_, not a lockout.
+  Sessions were deliberately not revoked — `pilot_sessions` has been anon-401 since
+  `20260703000001`, so no token was ever exposed, and the layout catches logged-in pilots on their
+  next page load.
+- **N5 — DONE at the DB layer.** Both restored functions were smoke-tested against production with
+  inputs that touch no real data: `approve_leave_request_atomic` with a non-existent request id
+  returned `{"success": false, "reason": "Request not found"}` (the function executes and reports
+  properly), and `consume_pilot_password_reset` with a bogus token returned `null`, which
+  `pilot-portal-service.ts` maps to "Invalid or expired reset link". Full UI walkthrough still needs
+  real credentials.
+- **N3 — DONE.** `ENABLE_CSRF_PROTECTION` deleted from Preview. It was already removed from
+  Production in June 2026. No code reads it — `validateCsrf()`
+  (`lib/middleware/csrf-middleware.ts:157`) enforces unconditionally.
+
 ## Open items — none blocking
 
-| #   | Item                                                                                                                                               | Owner |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| N1  | Upstash Redis absent from Vercel Production. The in-process fallback limiter enforces, but per instance. Sessions fall back to the DB.             | user  |
-| N2  | `LOGTAIL_SOURCE_TOKEN` absent in Production — no structured logs shipping.                                                                         | user  |
-| N3  | `ENABLE_CSRF_PROTECTION` set in Preview only, and no code reads it. Stale var.                                                                     | user  |
-| N4  | Pilot bcrypt hashes were publicly readable until 2026-08-15. Migration `20260731090000`'s header says to treat them as compromised — force resets. | user  |
-| N5  | Leave approval and password reset are un-broken at the DB level but were not exercised end to end (needs real credentials).                        | user  |
+| #   | Item                                                                                                                                                                                                                      | Owner |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| N1  | Upstash Redis. Provisioning was attempted via `vercel integration add upstash/upstash-kv --plan free` and returned `integration_terms_acceptance_required` — the Upstash marketplace terms must be accepted in a browser. | user  |
+| N2  | `LOGTAIL_SOURCE_TOKEN` absent in Production — no structured logs shipping. Needs a Better Stack token.                                                                                                                    | user  |
+
+### N1 — how to finish
+
+1. Accept the terms: `https://vercel.com/skycruzer/~/integrations/accept-terms/upstash?source=cli`
+2. Retry, unchanged:
+   `vercel integration add upstash/upstash-kv --plan free -m primaryRegion=sin1 -m autoUpgrade=false -m prodPack=false --name fleet-management-redis --no-claim`
+
+`sin1` matches the Supabase project region (`ap-southeast-1`). `autoUpgrade=false` keeps the free
+plan from silently becoming a billed one. Confirm afterwards that the injected variable names are
+exactly `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` — those are the names
+`lib/rate-limit.ts`, `lib/middleware/rate-limit-middleware.ts`, `lib/services/redis-cache-service.ts`
+and `lib/services/redis-session-service.ts` read. If the integration injects `KV_REST_API_*` instead,
+add aliases rather than editing the code.
+
+Until then the system is safe, not broken: `lib/rate-limit-fallback.ts` enforces a real in-process
+sliding window in production and logs `[rate-limit] DEGRADED`, and sessions fall back to the DB.
+The limit budget scales with warm instance count, which is the only real cost of leaving this open.
 
 ## The lesson, again
 
