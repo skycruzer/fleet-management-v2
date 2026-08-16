@@ -256,13 +256,50 @@ control route with no database work went the other way over the same change, 1.5
 (+0.12s). Backing that out, the server-side saving is closer to **~0.46s**, and users in Papua New
 Guinea gain on both legs rather than trading one for the other.
 
-Still ~1.26s from Los Angeles, so round trips were not the only cost — the remaining time is worth a
-separate look at how many sequential queries `/api/health` and the dashboard actually issue. Not a
-blocker; recorded rather than guessed at.
+### Correction — the "remaining 1.26s" was a measurement error
+
+An earlier draft of this section read the leftover ~1.26s as application slowness and suggested
+chasing sequential queries. That was wrong, and the way it was wrong is worth keeping.
+
+`curl`'s total time was being treated as server time. Splitting the phases apart:
+
+| Phase                        | Time      |
+| ---------------------------- | --------- |
+| TCP connect (LA → Singapore) | ~0.22s    |
+| TLS handshake                | ~0.28s    |
+| **Server work**              | **~0.5s** |
+
+Roughly half of the "app latency" was the measuring client opening a connection to Singapore. The
+tell was available the whole time and initially went unnoticed: a **static asset with zero server
+work measured slower than the API** (1.53s vs 1.11s). A number that big should have been questioned
+before it was interpreted.
+
+### P1b — dashboard cache TTL
+
+With server time properly isolated, the real finding was the cache, not query shape.
+`CACHE_TTL.DASHBOARD` was **60 seconds**, so with sporadic admin traffic almost every visit arrived
+after expiry. Measured: **0.49s server time on a hit vs 0.74s on a miss**.
+
+Raised to **5 minutes**. Freshness does not depend on the TTL — the metrics key carries tags
+`['dashboard', 'pilots', 'certifications']` and `cache-invalidation-helper` calls `invalidateByTag()`
+on every pilot, certification and leave mutation, so an edit evicts it immediately. The only
+staleness the window can introduce is a change bypassing the app's mutation paths, in practice a
+certification crossing its expiry date at midnight; those dates are day-granular. The argument is
+recorded beside the constant so the limit can be re-derived rather than guessed at.
+
+`/api/health` also ran its two independent checks sequentially — each a round trip to Singapore — so
+it cost the sum instead of the slower one. They now settle together via `Promise.allSettled`
+(`allSettled`, not `all`: a health probe whose first check fails must still report the second).
+
+Verified live after deploy: TTL reads 286s of 300s, health endpoint still reports all three checks
+`ok`, server time median **0.557s** (min 0.494s). **Be honest about the size of this win** — the
+floor is unchanged, because a cache hit was already ~0.49s. What actually improved is how often
+users land on that path instead of the 0.74s miss, and a few minutes of sampling cannot demonstrate
+a miss-rate change. The structural argument is the evidence here, not the stopwatch.
 
 ## Open items
 
-Everything from this review is closed. One follow-up worth its own pass: the sequential-query cost
+Everything from this review is closed.
 noted in P1.
 
 ## The lesson, again
