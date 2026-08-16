@@ -43,18 +43,24 @@ export async function GET() {
     }
   }
 
-  // 2. Database Connection Check (via service layer)
-  try {
-    // Use service layer with minimal query to check database connectivity
-    const result = await getAllPilots(1, 1, false)
+  // Checks 2 and 3 are independent, and each is a round trip to Singapore.
+  // Running them sequentially made the endpoint cost the sum of both; settled
+  // together they cost the slower one. allSettled rather than all so a single
+  // failing check still reports the other, which is the point of a health probe.
+  const [connectionCheck, dashboardCheck] = await Promise.allSettled([
+    getAllPilots(1, 1, false),
+    import('@/lib/services/dashboard-service-v4').then((m) => m.getDashboardMetrics()),
+  ])
 
+  // 2. Database Connection Check (via service layer)
+  if (connectionCheck.status === 'fulfilled') {
     checks.checks.supabase_connection = {
       status: 'ok',
       message: 'Database connection successful',
-      details: { totalPilots: result.total },
+      details: { totalPilots: connectionCheck.value.total },
     }
-  } catch (error) {
-    const s = sanitizeError(error, {
+  } else {
+    const s = sanitizeError(connectionCheck.reason, {
       operation: 'healthCheckSupabaseConnection',
       endpoint: '/api/health',
     })
@@ -65,9 +71,8 @@ export async function GET() {
   }
 
   // 3. Dashboard Service Check
-  try {
-    const { getDashboardMetrics } = await import('@/lib/services/dashboard-service-v4')
-    const metrics = await getDashboardMetrics()
+  if (dashboardCheck.status === 'fulfilled') {
+    const metrics = dashboardCheck.value
 
     checks.checks.dashboard_service = {
       status: 'ok',
@@ -78,8 +83,8 @@ export async function GET() {
         firstOfficers: metrics.pilots.firstOfficers,
       },
     }
-  } catch (error) {
-    const s = sanitizeError(error, {
+  } else {
+    const s = sanitizeError(dashboardCheck.reason, {
       operation: 'healthCheckDashboardService',
       endpoint: '/api/health',
     })
