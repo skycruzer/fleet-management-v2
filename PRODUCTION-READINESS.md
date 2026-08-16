@@ -236,9 +236,34 @@ during verification — probe traffic produced 401s and 307s, which never reach 
 itself is proven (`202 Accepted`, entry visible in Live tail). The first real production error will
 confirm the rest.
 
+## P1 — Function region: compute was on the wrong side of the Pacific
+
+Found while re-checking the Vercel project after the logging work. `vercel.json` set no `regions`,
+so functions defaulted to **`iad1` (Virginia)** while Supabase sits in `ap-southeast-1`, Upstash in
+`sin1`, and the pilots using the app are in Papua New Guinea. Every query and every rate-limit check
+crossed the Pacific twice.
+
+Fixed with `"regions": ["sin1"]`. Measured against production, `/api/health`, 10 samples each:
+
+|        | min    | median | mean   | max    |
+| ------ | ------ | ------ | ------ | ------ |
+| `iad1` | 1.446s | 1.595s | 1.774s | 2.552s |
+| `sin1` | 1.002s | 1.259s | 1.434s | 2.009s |
+
+**Median −21%, mean −19% — and that understates it.** The measurements were taken from Los Angeles,
+so moving the function to Singapore _lengthened_ the measuring client's own network path. A static
+control route with no database work went the other way over the same change, 1.532s → 1.653s
+(+0.12s). Backing that out, the server-side saving is closer to **~0.46s**, and users in Papua New
+Guinea gain on both legs rather than trading one for the other.
+
+Still ~1.26s from Los Angeles, so round trips were not the only cost — the remaining time is worth a
+separate look at how many sequential queries `/api/health` and the dashboard actually issue. Not a
+blocker; recorded rather than guessed at.
+
 ## Open items
 
-None. Every item from this review is closed.
+Everything from this review is closed. One follow-up worth its own pass: the sequential-query cost
+noted in P1.
 
 ## The lesson, again
 
