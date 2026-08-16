@@ -117,8 +117,23 @@ export const CACHE_TTL = {
   // Fleet statistics - 5 minutes (updated frequently)
   FLEET_STATS: 5 * 60,
 
-  // Dashboard metrics - 1 minute (near real-time)
-  DASHBOARD: 60,
+  // Dashboard metrics - 5 minutes.
+  //
+  // Freshness here comes from tag invalidation, not from the TTL: the metrics
+  // key is written with tags ['dashboard', 'pilots', 'certifications'] and
+  // cache-invalidation-helper calls invalidateByTag() on every pilot,
+  // certification and leave mutation, so an edit evicts it immediately.
+  //
+  // At 60s this cache almost never paid off — admin traffic is sporadic, so
+  // most visits arrived after expiry. Measured against production 2026-08-16:
+  // 0.49s server time on a hit vs 0.74s on a miss.
+  //
+  // The only staleness this window can produce is a change that bypasses the
+  // app's mutation paths — in practice a certification crossing its expiry date
+  // at midnight. Those dates are day-granular, so a few minutes of lag on the
+  // countdown is not operationally meaningful. Do not raise this much further
+  // without revisiting that argument.
+  DASHBOARD: 5 * 60,
 
   // Expensive calculations - 10 minutes
   RETIREMENT_FORECAST: 10 * 60,
