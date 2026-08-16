@@ -102,11 +102,16 @@ genuinely missing. It also carried a phantom `20260128` marked applied whose SQL
       returned `{"success": false, "reason": "Request not found"}`; `consume_pilot_password_reset`
       with a bogus token returned `null`. Both execute correctly and touch no real data. Full UI
       walkthrough still needs real credentials.
-- [ ] **N1 — blocked on the user.** `vercel integration add upstash/upstash-kv --plan free` returned
-      `integration_terms_acceptance_required`. Accept at
-      `https://vercel.com/skycruzer/~/integrations/accept-terms/upstash?source=cli`, then rerun:
-      `vercel integration add upstash/upstash-kv --plan free -m primaryRegion=sin1 -m autoUpgrade=false -m prodPack=false --name fleet-management-redis --no-claim`
-      Then check the injected names are exactly `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`.
+- [x] **N1 — DONE.** Upstash resource `fleet-management-redis` (region `sin1`) provisioned and
+      connected to Production, Preview and Development. The integration injects `KV_REST_API_*` /
+      `KV_URL` / `REDIS_URL`, but the code reads `UPSTASH_REDIS_REST_URL` and
+      `UPSTASH_REDIS_REST_TOKEN` — so aliases were added in all three environments and production
+      was redeployed. No code changed. Verified: `/ping` → `PONG`; after live traffic the database
+      holds `dashboard:metrics:v3`, `tag:*` and `ratelimit:auth-middleware:<ip>:<window>` keys
+      written by the app, which proves the Redis limiter is running instead of
+      `lib/rate-limit-fallback.ts`. The 429 probe could not be triggered from here: 48 requests
+      arrived from 30 distinct egress IPs and every per-IP counter read back as 1, against a
+      5/min limit. Worth re-running a same-IP burst from a normal network.
 - [ ] **N2 — blocked on the user.** `LOGTAIL_SOURCE_TOKEN` needs a Better Stack token.
 
 ## Uncommitted work found in this tree (not authored by this review)

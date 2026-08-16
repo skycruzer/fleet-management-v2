@@ -146,29 +146,44 @@ Working tree gates: `npm run validate` exit 0 · `npm run test:unit` 165 tests /
   Production in June 2026. No code reads it — `validateCsrf()`
   (`lib/middleware/csrf-middleware.ts:157`) enforces unconditionally.
 
+## N1 — Upstash Redis: DONE
+
+The resource `fleet-management-redis` (Upstash for Redis, primary region `sin1`, matching the
+Supabase project's `ap-southeast-1`) is provisioned and connected to Production, Preview and
+Development.
+
+**The gap that mattered.** The integration injects `KV_REST_API_URL`, `KV_REST_API_TOKEN`,
+`KV_REST_API_READ_ONLY_TOKEN`, `KV_URL` and `REDIS_URL`. The code reads none of those — it reads
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (`lib/rate-limit.ts:34`,
+`lib/middleware/rate-limit-middleware.ts:33`, `lib/services/redis-cache-service.ts:39`,
+`lib/services/redis-session-service.ts:89`). Provisioned-but-unread would have looked exactly like
+provisioned-and-working from the dashboard. Two aliases were added in all three environments,
+pointing at the same credentials, and production was redeployed to pick them up. The code was not
+changed.
+
+**Verified, in order:**
+
+1. `GET <upstash>/ping` → `PONG`; `dbsize` → 0 on a fresh database.
+2. After production traffic, `dbsize` → 13 with keys written by the app itself:
+   `dashboard:metrics:v3` (dashboard cache), `tag:pilots` / `tag:certifications` / `tag:dashboard`
+   (cache invalidation), and `ratelimit:auth-middleware:<ip>:<window>` (the limiter).
+3. The `ratelimit:auth-middleware` prefix and its 5-per-minute sliding window match
+   `lib/middleware/rate-limit-middleware.ts:93-95`, which proves the **Redis-backed** limiter is
+   running and not `lib/rate-limit-fallback.ts`.
+4. Counter values read back as real per-IP integers.
+
+**Why no 429 appeared in the probe, and why that is not a defect.** 48 POSTs to
+`/api/portal/register` all returned 403 (CSRF), never 429. Reading Redis explains it: those requests
+arrived from **30 distinct source IPs**, and every bucket held `value=1`. The limiter is per-IP at
+5/min, so no bucket came close. The reviewing sandbox egresses through a rotating address pool; the
+July 2026 probe that did produce a 429 ran from a single address. Rate limiting is enforcing — this
+environment simply cannot exercise it. A same-IP burst is still worth running from a normal network.
+
 ## Open items — none blocking
 
-| #   | Item                                                                                                                                                                                                                      | Owner |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| N1  | Upstash Redis. Provisioning was attempted via `vercel integration add upstash/upstash-kv --plan free` and returned `integration_terms_acceptance_required` — the Upstash marketplace terms must be accepted in a browser. | user  |
-| N2  | `LOGTAIL_SOURCE_TOKEN` absent in Production — no structured logs shipping. Needs a Better Stack token.                                                                                                                    | user  |
-
-### N1 — how to finish
-
-1. Accept the terms: `https://vercel.com/skycruzer/~/integrations/accept-terms/upstash?source=cli`
-2. Retry, unchanged:
-   `vercel integration add upstash/upstash-kv --plan free -m primaryRegion=sin1 -m autoUpgrade=false -m prodPack=false --name fleet-management-redis --no-claim`
-
-`sin1` matches the Supabase project region (`ap-southeast-1`). `autoUpgrade=false` keeps the free
-plan from silently becoming a billed one. Confirm afterwards that the injected variable names are
-exactly `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` — those are the names
-`lib/rate-limit.ts`, `lib/middleware/rate-limit-middleware.ts`, `lib/services/redis-cache-service.ts`
-and `lib/services/redis-session-service.ts` read. If the integration injects `KV_REST_API_*` instead,
-add aliases rather than editing the code.
-
-Until then the system is safe, not broken: `lib/rate-limit-fallback.ts` enforces a real in-process
-sliding window in production and logs `[rate-limit] DEGRADED`, and sessions fall back to the DB.
-The limit budget scales with warm instance count, which is the only real cost of leaving this open.
+| #   | Item                                                                                                   | Owner |
+| --- | ------------------------------------------------------------------------------------------------------ | ----- |
+| N2  | `LOGTAIL_SOURCE_TOKEN` absent in Production — no structured logs shipping. Needs a Better Stack token. | user  |
 
 ## The lesson, again
 
